@@ -1,3 +1,7 @@
-# UUID                	Group Name
+# UUID                                  	Group Name
 #
-user:jenkins-attcomdev	user/jenkins-attcomdev
+0ea5296997e34489dc5c764319fff4cd42ee4044	attcomdev-releasemanagers
+c2f3f58c67a86c97d3a0c3a674ce4961174a8c91	attcomdev-ci-tool
+f84cac0126111346f33575c7a6b1a3c7359049a6	attcomdev-projectbootstrap
+global:Registered-Users                 	Registered Users
+user:jenkins-attcomdev                  	user/jenkins-attcomdev
