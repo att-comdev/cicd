@@ -1,0 +1,18 @@
+node('ubuntu-16.04-python-slave'){
+    stage('Checkout'){
+        checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/att-comdev/drydock.git']]])
+    }
+    stage('Run PyTest'){
+      // sh 'tox tests'
+    }
+    stage('Docker Build'){
+        sh 'sudo docker build . -t drydock'
+    }
+    stage('Docker Run'){
+        sh 'sudo docker run -d -v $(pwd)/examples:/etc/drydock -P --name=drydock drydock'
+    }
+    stage('Docker Test'){
+        def DDPORT = sh(returnStdout: true, script: "echo \$(sudo docker port drydock 8000/tcp | awk -F ':' '{ print \$NF }')")
+        sh 'curl -v http://localhost:${DDPORT}/api/v1.0/designs'
+    }
+}
