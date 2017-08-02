@@ -1,0 +1,150 @@
+def project = GIT_REPO + "/" + GIT_PROJECT
+println project
+def folderProject = project.replaceAll('/','-')
+def contentsAPI = new URL("https://api.github.com/repos/${GIT_REPO}/${GIT_PROJECT}/contents")
+
+def defaultGitURL = new URL("https://github.com/${GIT_REPO}/${GIT_PROJECT}")
+
+listView("${project}".replaceAll('/','-')) {    
+     description('OpenStack-Helm CI')
+     columns {
+     status()
+     weather()
+     name()
+     lastSuccess()
+     lastFailure()
+     lastDuration()
+     buildButton()
+  }
+}
+
+folder("${folderProject}"){
+     displayName("${folderProject}")
+}
+
+def repositoryContents = new groovy.json.JsonSlurper().parse(contentsAPI.newReader())
+
+def helmExclusions = ["helm-toolkit","doc","tools","dev",".github","tests"]
+
+def properties = "withEnv(['export WORK_DIR=\$(pwd)', 'export HOST_OS=\${ID}']) { node('ubuntu-16.04-slave') { \n" +
+                    "properties([parameters([string(defaultValue:'ArtifactoryPro', description:'',name:'SERVER_ID'), " +
+                          "string(defaultValue: '0', description: '', name: 'PATCH_VERSION'), "+
+                          "string(defaultValue: '1', description: '', name: 'MINOR_VERSION'), "+
+                          "string(defaultValue: '0', description: '', name: 'MAJOR_VERSION'), "+
+                          "string(defaultValue: 'https://github.com/$GIT_REPO/$GIT_PROJECT.git', description: '', name: 'GIT_URL'),"+
+                          "string(defaultValue: '$GIT_REPO/$GIT_PROJECT', description: '', name: 'GIT_REPO'), "+
+                          "string(defaultValue: 'master', description: '', name: 'GIT_BRANCH'), "+
+                          "string(defaultValue: 'v2.3.1', description: '', name: 'HELM_VERSION'), "+
+                          "string(defaultValue: 'v1.6.2', description: '', name: 'KUBE_VERSION'), "+
+                          "string(defaultValue: 'v1.6', description: '', name: 'KUBEADM_IMAGE_VERSION'), "+
+                          "string(defaultValue: 'openstackhelm/kubeadm-aio:\$KUBEADM_IMAGE_VERSION', description: '', name: 'KUBEADM_IMAGE'), "+
+                          "string(defaultValue: '/home/jenkins/.kubeadm-aio/admin.conf', description: '', name: 'KUBE_CONFIG')])\"]) \n"
+
+def checkout = "git '$defaultGitURL' \n " +
+ "sh '#!/bin/bash \\n set -x \\n export HOST_OS=ubuntu \\n echo \$HOST_OS \\n source \$WORKSPACE/tools/gate/funcs/helm.sh \\n helm_install \\n helm_serve'"
+
+def lint=""
+repositoryContents.each {
+    def dirName = it.name
+    if (it.type == "dir" && !helmExclusions.contains(dirName)){
+      lint = lint +" LINT_RESULT= sh(returnStatus: true, script:'make lint-"+dirName+"') \n"
+      lint = lint +" if(LINT_RESULT != 0){ RESULTS.add('"+dirName+" Linting failed.')} \n" 
+    }
+}
+
+def packaging=""
+repositoryContents.each {
+    def dirName = it.name
+    if (it.type == "dir" && !helmExclusions.contains(dirName)){
+      packaging = packaging +" PACKAGE_RESULT= sh(returnStatus: true, script:'make build-"+dirName+"') \n"
+      packaging = packaging +" if(PACKAGE_RESULT != 0){ RESULTS.add('"+dirName+" Package build failed.')} \n" 
+    }
+}
+
+
+
+def ubuntu = "dir(env.WORKSPACE){ \n sh '#!/bin/bash \\n export INTEGRATION=aio \\n export INTEGRATION_TYPE=basic \\n  ./tools/gate/setup_gate.sh'} \n"
+
+//def server = Artifactory.server "ArtifactoryEnterprise"
+
+def publish='def server = Artifactory.server "ArtifactoryEnterprise" \n'
+repositoryContents.each {
+    def dirName = it.name
+    if (it.type == "dir" && !helmExclusions.contains(dirName)){
+      
+      def uploadSpec = """{
+  			"files": [{
+                 "pattern": \""""+dirName+"""*.tar.gz",
+                 "target": \""""+dirName+"""/\$MAJOR_VERSION.\$MINOR_VERSION.\$PATCH_VERSION.\$BUILD_NUMBER/"""+dirName+"""-\$MAJOR_VERSION.\$MINOR_VERSION.\$PATCH_VERSION.\$BUILD_NUMBER.tar.gz"
+            }]
+      }"""
+
+      publish = publish + "server.upload(\"\"\""+uploadSpec+"\"\"\")\n"
+     // publish = publish +" PUBLISH_RESULTS= sh(returnStatus: true, script:'curl -uadmin:APB5yYBaRxXBPKsF -T " + dirName+"-0.1.0.tgz \"http://12.37.173.196:8081/artifactory/generic-local/openstack-helm/\${MAJOR_VERSION}.\${MINOR_VERSION}.\${PATCH_VERSION}/"+dirName+"-\${MAJOR_VERSION}.\${MINOR_VERSION}.\${PATCH_VERSION}.tgz\"') \n"
+     // publish = publish +" if(PUBLISH_RESULTS != 0){ RESULTS.add('"+dirName+" Publish to Artifactory failed.')} \n" 
+    }
+}
+
+def slack = """
+  def message = ""
+  for(anError in RESULTS) {
+       message=message + anError +'\n'
+  }
+  if(message != ""){
+   slackSend channel: '@staceyfletcher', message: message, tokenCredentialId: 'staceyfletcher'
+  }\n"""
+
+def jobName = project+"-"+"Pipeline"
+
+pipelineJob(folderProject+"/"+project.replaceAll('/','-')) {
+  
+  scm{
+    git('${GIT_URL}', '${GIT_BRANCH}', null)
+  }
+  definition {
+      cps {     
+          script(properties + 
+"""
+   stage('Checkout'){""" + checkout +"""
+   }
+   stage('Lint'){""" + lint + """
+   }
+   stage('Package'){""" + packaging +"""
+   }
+   stage('Test'){}
+   stage('Publish'){""" + publish + """			
+   }
+   stage('Ubuntu'){""" + ubuntu +"""
+   }
+ }
+}""".stripIndent())
+      }
+  }
+}
+
+def lastSuccessfulBuild(passedBuilds, build) {
+  if ((build != null) && (build.result != 'SUCCESS')) {
+      passedBuilds.add(build)
+      lastSuccessfulBuild(passedBuilds, build.getPreviousBuild())
+    }
+}
+
+
+def getChangeLog(passedBuilds) {
+  def log = ""
+  for (int x = 0; x < passedBuilds.size(); x++) {
+    def currentBuild = passedBuilds[x];
+    def changeLogSets = currentBuild.rawBuild.changeSets
+    for (int i = 0; i < changeLogSets.size(); i++) {
+      def entries = changeLogSets[i].items
+      for (int j = 0; j < entries.length; j++) {
+        def entry = entries[j]
+        log += "* ${entry.msg} by ${entry.author} \n"
+        for(def aFile : entry.getAffectedFiles()){
+          log+= aFile.getSrc() + "\n"+ aFile.getPath() +"\n"
+        }
+      }
+    }
+  }
+  return log;
+}
