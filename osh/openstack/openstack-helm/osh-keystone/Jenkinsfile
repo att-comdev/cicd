@@ -1,10 +1,22 @@
-
 node('ubuntu-16.04-slave'){
+    stage('Setup kubeadm-aio'){
+        sh 'cd /home/ubuntu'
+        sh 'mkdir kubeadm-install'
+        sh 'cd kubeadm-install'
+        checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'git://git.openstack.org/openstack/openstack-helm.git']]])
+        sh( '''export INTEGRATION=aio
+               export PVC_BACKEND=ceph
+               ./tools/gate/setup_gate.sh''')
+        sh 'cd $HOME'
+    }
     stage('Checkout'){
+        checkout poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/$GERRIT_BRANCH']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'jenkins-10.24.20.18', refspec: '$GERRIT_REFSPEC', url: 'git://git.openstack.org/openstack/openstack-helm.git']]]
     }
-    stage('Helm Lint'){
+    stage('Helm Lint and Package'){
+        sh 'make'
     }
-    stage('Helm Deploy'){
+    stage('Intall Helm Charts'){
+        sh './tools/gate/basic_launch.sh'
     }
     stage('Helm Test'){
     }
