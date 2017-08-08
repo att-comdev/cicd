@@ -1,0 +1,49 @@
+node('ubuntu-16.04-slave'){
+
+    stage('Checkout'){
+        checkout poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/$GERRIT_BRANCH']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'jenkins-10.24.20.18', refspec: '$GERRIT_REFSPEC', url: 'git://git.openstack.org/openstack/openstack-helm.git']]]
+    }
+
+    stage('Single Node Installation'){
+        sh '''export INTEGRATION=aio
+              export SERVICE_LAUNCH_TIMEOUT=700
+              export SERVICE_TEST_TIMEOUT=700
+              export PVC_BACKEND=ceph
+              # export INTEGRATION_TYPE=basic
+              ./tools/gate/setup_gate.sh'''
+    //Update to use Armada to deploy charts - keep in mind timeouts are very low in Armada code.
+    }
+    
+    stage('Dry Run'){
+        sh '''export WORK_DIR=$(pwd)
+              export LOGS_DIR=$(pwd)/logs
+              bash ${WORK_DIR}/tools/gate/helm_dry_run.sh'''
+    }
+    
+    stage('Publish Unstable Chart'){
+        
+        def version = sh(returnStdout: true, script: 'sed -n -e \'s/^\\s*version\\s*:\\s*//p\' glance/Chart.yaml').trim() 
+        def build = env.BUILD_NUMBER
+        
+        sh "mv glance-${version}.tgz glance-${version}-${build}.tgz"
+        
+       //Upload property with unstable
+        
+        // this will use creds from glocal configuration
+        def server = Artifactory.server 'Artifactory-Enterprise'
+        
+        def uploadSpec = """{
+            "files": [
+                {
+                "pattern": "glance-*.tgz",
+                "target": "osh/openstack/openstack-helm/glance/0.1.0/"
+                }
+            ]
+        }"""
+        
+        def buildInfo = server.upload(uploadSpec)
+        server.publishBuildInfo(buildInfo)
+        
+    }
+}
+
