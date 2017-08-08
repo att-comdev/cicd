@@ -1,0 +1,49 @@
+node('ubuntu-16.04-slave') {
+
+   stage('Checkout') {
+      checkout poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/$GERRIT_BRANCH']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'jenkins-10.24.20.18', refspec: '$GERRIT_REFSPEC', url: 'git://git.openstack.org/openstack/openstack-helm.git']]]
+   }
+
+   stage('Single Node Installation') {
+      sh '''export INTEGRATION=aio
+      export SERVICE_LAUNCH_TIMEOUT=700
+      export SERVICE_TEST_TIMEOUT=700
+      export PVC_BACKEND=ceph
+      # export INTEGRATION_TYPE=basic
+      ./tools/gate/setup_gate.sh'''
+   }
+
+   stage('Dry Run') {
+      sh '''export WORK_DIR=$(pwd)
+      export LOGS_DIR=$(pwd)/logs
+      bash ${WORK_DIR}/tools/gate/helm_dry_run.sh'''
+   }
+
+   stage('Artifactory Publish') {
+
+      def comp = env.JOB_BASE_NAME
+      def build = env.BUILD_NUMBER
+      def version = sh(returnStdout: true, script: "sed -n -e 's/^s*versions*:s*//p' ${comp}/Chart.yaml").trim()
+
+      sh "mv ${comp}-${version}.tgz ${comp}-${version}-${build}.tgz"
+
+      // todo: upload property with unstable
+
+      // this will use creds from glocal configuration
+      def server = Artifactory.server 'Artifactory-Enterprise'
+
+      def uploadSpec = """{
+         "files": [
+            {
+               "pattern": "${comp}-*.tgz",
+               "target": "osh/openstack/openstack-helm/${comp}/${version}/"
+            }
+         ]
+      }"""
+
+      def buildInfo = server.upload(uploadSpec)
+      server.publishBuildInfo(buildInfo)
+
+   }
+}
+
