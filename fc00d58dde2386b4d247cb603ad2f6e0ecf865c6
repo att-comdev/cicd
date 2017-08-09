@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "179fd27d_6429dead",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-08-09T15:38:45Z",
+      "side": 1,
+      "message": "Spelling and can you put a WIP: at the beginning.  We are going to follow openstack guidelines. So \n\nTitle (~ 20 chars long)\n\nBrief Description of what this patchset has in it.",
+      "revId": "fc00d58dde2386b4d247cb603ad2f6e0ecf865c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "faffaecc_5b3ee150",
+        "filename": "osh/openstack/openstack-single-node/osh_helm_single_node_job.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-08-09T15:38:45Z",
+      "side": 1,
+      "message": "All of these versions are out of date.  Let\u0027s work with the OSH developers to grab the versions for helm and kube from a file in the tools section.",
+      "revId": "fc00d58dde2386b4d247cb603ad2f6e0ecf865c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df9bfa7_6be43bca",
+        "filename": "osh/openstack/openstack-single-node/osh_helm_single_node_job.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-08-09T15:38:45Z",
+      "side": 1,
+      "message": "We don\u0027t need to output this log.  It is already being captured in the logs directory.  It is also too much to be sending via Slack.  We just want a notification and a link to the logs that will be uploaded to github",
+      "revId": "fc00d58dde2386b4d247cb603ad2f6e0ecf865c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c55990c5_2fbc5468",
+        "filename": "osh/openstack/openstack-single-node/osh_helm_single_node_job.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-08-09T15:38:45Z",
+      "side": 1,
+      "message": "So let\u0027s remove the output",
+      "revId": "fc00d58dde2386b4d247cb603ad2f6e0ecf865c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d69fdcf_6c49201b",
+        "filename": "osh/seedjobs/openstack-single-node/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-08-09T15:38:45Z",
+      "side": 1,
+      "message": "Can we look at the branch just being a folder?",
+      "revId": "fc00d58dde2386b4d247cb603ad2f6e0ecf865c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
