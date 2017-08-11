@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4cb1045f_5f484d5f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 22
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-08-11T18:12:07Z",
+      "side": 1,
+      "message": "If you think you ready for review remove WIP, and actually you can use CR -2 as a WIP flag (since you have it) . It works much better.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 6
+      },
+      "revId": "5052e2f7df84ffa083b6dd7b433182fa721d0afe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
