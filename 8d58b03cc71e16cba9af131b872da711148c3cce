@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a77f118f_4b1f2290",
+        "filename": "osh/openstack/openstack-helm/Jenkinsfile",
+        "patchSetId": 27
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-11T21:37:18Z",
+      "side": 1,
+      "message": "Can we format this so the line is a readable without scrolling",
+      "revId": "8d58b03cc71e16cba9af131b872da711148c3cce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ce2b072_5cd735a3",
+        "filename": "osh/openstack/openstack-helm/Jenkinsfile",
+        "patchSetId": 27
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-11T21:37:18Z",
+      "side": 1,
+      "message": "Can we indent the script so the export commands line up",
+      "revId": "8d58b03cc71e16cba9af131b872da711148c3cce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "617f2985_16da839f",
+        "filename": "osh/openstack/openstack-helm/Jenkinsfile",
+        "patchSetId": 27
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-11T21:37:18Z",
+      "side": 1,
+      "message": "Indent",
+      "revId": "8d58b03cc71e16cba9af131b872da711148c3cce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7102f18b_097aaa78",
+        "filename": "osh/openstack/openstack-helm/Jenkinsfile",
+        "patchSetId": 27
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-11T21:37:18Z",
+      "side": 1,
+      "message": "Let\u0027s not name it after any specific tool.  When stages change the history doesn\u0027t show.  So we should try to be generic as possible in case the tooling changes.  (\u0027Publish\u0027)",
+      "revId": "8d58b03cc71e16cba9af131b872da711148c3cce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f11d083c_1b168292",
+        "filename": "osh/openstack/openstack-helm/Jenkinsfile",
+        "patchSetId": 27
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-11T21:37:18Z",
+      "side": 1,
+      "message": "Can we keep consistent with \" and \u0027 and all use \u0027?  unless there is a specific reason for not using them?",
+      "revId": "8d58b03cc71e16cba9af131b872da711148c3cce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6f243e2b_82a43fac",
+        "filename": "osh/openstack/openstack-helm/Jenkinsfile",
+        "patchSetId": 27
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-11T21:37:18Z",
+      "side": 1,
+      "message": "Is there a way to format to read without scrolling?",
+      "revId": "8d58b03cc71e16cba9af131b872da711148c3cce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ecf22650_5b21c4a1",
+        "filename": "osh/openstack/openstack-helm/seed.groovy",
+        "patchSetId": 27
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-11T21:37:18Z",
+      "side": 1,
+      "message": "Can we change comps to charts and chart?",
+      "revId": "8d58b03cc71e16cba9af131b872da711148c3cce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
