@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f28f399_762ac1a4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-08-14T18:08:26Z",
+      "side": 1,
+      "message": "Let\u0027s try to do what our guidelines have set\n\n[Title] (20 chars)\n\n[Description] Paragraph form of what the fix is for.",
+      "revId": "0a1a0ddec52ff2305e2befe75309ea07bee610e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1b84b50_076e332e",
+        "filename": "ucp/ucp-drydock/drydock/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-08-14T18:08:26Z",
+      "side": 1,
+      "message": "Let\u0027s come up with a common name for this.  Maybe \u0027Validate Container\u0027",
+      "revId": "0a1a0ddec52ff2305e2befe75309ea07bee610e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
