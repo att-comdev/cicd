@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01fd81c2_89b825b1",
+        "filename": "ucp/ucp-drydock/drydock/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-08-15T18:36:26Z",
+      "side": 1,
+      "message": "This was also pre-standards. Can we have a discussion in our ci group slack to come up with the correct stage. This stage will be lint, unit tests, security quality.",
+      "revId": "6bc74e8fbb3b8936e5846bc851851a4ec71f0e62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
