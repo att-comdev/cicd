@@ -87,6 +87,24 @@
     },
     {
       "key": {
+        "uuid": "3789ebed_be10705c",
+        "filename": "osh/openstack/openstack-helm/Jenkinsfile",
+        "patchSetId": 27
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-08-15T18:56:43Z",
+      "side": 1,
+      "message": "The \u0027command\u0027 will not resolve variables while \"command\" will. There is a use case for both.",
+      "parentUuid": "f11d083c_1b168292",
+      "revId": "8d58b03cc71e16cba9af131b872da711148c3cce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6f243e2b_82a43fac",
         "filename": "osh/openstack/openstack-helm/Jenkinsfile",
         "patchSetId": 27
