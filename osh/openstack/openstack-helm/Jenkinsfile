@@ -8,9 +8,8 @@ node('ubuntu-16.04-slave') {
          doGenerateSubmoduleConfigurations: false,
          extensions: [],
          submoduleCfg: [],
-         userRemoteConfigs: [[credentialsId: 'jenkins-10.24.20.18',
-            refspec: 'refs/changes/*:refs/changes/*',
-            url: 'git://git.openstack.org/openstack/openstack-helm.git']]]
+         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+            url: 'https://git.openstack.org/openstack/openstack-helm']]]
    }
 
    stage('Deploy') {
@@ -45,6 +44,7 @@ node('ubuntu-16.04-slave') {
 
       props = ("build.gerrit_change_url=${env.GERRIT_CHANGE_URL};"
              + "build.branch=${env.GERRIT_BRANCH};"
+             + "build.commit=${env.GERRIT_PATCHSET_REVISION};"
              + "build.env=dev-single;"
              + "build.status=unstable")
 
