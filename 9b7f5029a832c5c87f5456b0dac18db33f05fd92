@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30b8b200_d958855f",
+        "filename": "ucp/ucp-promenade/promenade/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 1011672
+      },
+      "writtenOn": "2017-08-17T20:07:41Z",
+      "side": 1,
+      "message": "May want to call this stage Validate Cluster.",
+      "revId": "9b7f5029a832c5c87f5456b0dac18db33f05fd92",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
