@@ -1,18 +1,30 @@
-node('ubuntu-16.04-python-slave'){
-    stage('Checkout'){
-        checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/att-comdev/drydock.git']]])
-    }
-    stage('Run PyTest'){
-      // sh 'tox tests'
-    }
-    stage('Docker Build'){
-        sh 'sudo docker build . -t drydock'
-    }
-    stage('Docker Run'){
-        sh 'sudo docker run -d -v $(pwd)/examples:/etc/drydock -P --name=drydock drydock'
-    }
-    stage('Docker Test'){
-        def DDPORT = sh(returnStdout: true, script: "echo \$(sudo docker port drydock 8000/tcp | awk -F ':' '{ print \$NF }')")
-        sh 'curl -v http://localhost:${DDPORT}/api/v1.0/designs'
-    }
+node('drydock-python3-slave') {
+
+   stage('Checkout') {
+      checkout poll: false,
+         scm: [$class: 'GitSCM',
+            branches: [[name: '$GERRIT_REFSPEC']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [],
+            submoduleCfg: [],
+            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+               url: 'https://review.gerrithub.io/att-comdev/drydock']]]
+   }
+
+   stage('Docker Build') {
+      sh 'sudo docker build . -t drydock'
+   }
+
+   stage('Docker Run') {
+      sh 'sudo docker run -d -v $(pwd)/examples:/etc/drydock -P --name=drydock drydock'
+   }
+
+   stage('Validate Container') {
+      def DDPORT = sh(returnStdout: true,
+         script: "echo \$(sudo docker port drydock 9000/tcp | awk -F ':' '{ print \$NF }')").trim()
+
+      sh "curl -v http://localhost:${DDPORT}/api/v1.0/designs"
+   }
+
 }
+
