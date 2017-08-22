@@ -1,0 +1,18 @@
+
+node('deckhand-python3-slave') {
+   stage('Checkout') {
+      checkout poll: false,
+         scm: [$class: 'GitSCM',
+            branches: [[name: '$GERRIT_REFSPEC']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [],
+            submoduleCfg: [],
+            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+               url: 'https://review.gerrithub.io/att-comdev/deckhand']]]
+   }
+
+   stage('Function Test') {
+      sh 'tox -e functional'
+   }
+}
+
