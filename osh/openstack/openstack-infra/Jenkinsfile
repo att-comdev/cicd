@@ -1,0 +1,34 @@
+
+node('ubuntu-16.04-slave') {
+
+   stage('Checkout') {
+      checkout poll: false,
+      scm: [$class: 'GitSCM',
+         branches: [[name: '$GERRIT_REFSPEC']],
+         doGenerateSubmoduleConfigurations: false,
+         extensions: [],
+         submoduleCfg: [],
+         userRemoteConfigs: [[credentialsId: 'jenkins-10.24.20.18',
+            refspec: 'refs/changes/*:refs/changes/*',
+            url: 'git://git.openstack.org/openstack/openstack-helm-infra.git']]]
+   }
+
+   stage('Deploy') {
+      sh '''
+        helm install helm-toolkit --name=helm-toolkit --namespace=openstack
+      '''
+   }
+
+   stage('Dry Run') {
+      sh '''
+        helm install helm-toolkit --name=helm-toolkit --namespace=openstack --dry-run --debug
+      '''
+   }
+
+   stage('Publish') {
+      sh '''
+        echo "wip"
+      '''
+   }
+}
+
