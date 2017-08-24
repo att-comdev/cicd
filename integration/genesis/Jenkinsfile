@@ -1,0 +1,38 @@
+
+PROM_VERSION = "0.1.0-46" // todo: select stable version
+PROM_IMAGE = "${env.ARTF_DOCKER_URL}/ucp/promenade:${PROM_VERSION}"
+
+
+node('genesis-integration-slave'){
+   checkout poll: false,
+      scm: [$class: 'GitSCM',
+      branches: [[name: '$GERRIT_REFSPEC']],
+      doGenerateSubmoduleConfigurations: false,
+      extensions: [],
+      submoduleCfg: [],
+      userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+        url: 'https://review.gerrithub.io/att-comdev/ucp-integration']]]
+
+
+   // todo: think of templating for integration
+   dir("${WORKSPACE}/manifests/basic_ucp") {
+
+      def csub = {a, b -> sh ("sed -i 's|${a}|${b}|g' promenade.yaml")} 
+      csub('docker.io/sthussey/promenade:latest', "${PROM_IMAGE}")
+
+      sh ('cat promenade.yaml')
+   }
+
+   sh ('mkdir config')
+
+   def prom_cmd = 'promenade -v generate -c /ucp/manifests/basic_ucp/promenade.yaml -o /ucp/config'
+   sh ("sudo docker run --rm -v \$(pwd):/ucp ${PROM_IMAGE} ${prom_cmd}")
+
+   // todo: work on getting genesis up
+   // dir("${WORKSPACE}/config") {
+   //    sh ('sudo bash up.sh $(hostname).yaml')
+   //    sh ('sudo bash validate-bootstrap.sh')
+   // }
+
+}
+
