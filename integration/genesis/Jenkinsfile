@@ -1,0 +1,59 @@
+
+def get_iface = {
+    cmd = 'echo -n $(ip route | grep \"^default\" | head -1 | awk \'{print $5}\')'
+    sh(returnStdout: true, script: cmd)
+}
+
+def get_hname = {
+    cmd = 'echo -n $(hostname)'
+    sh(returnStdout: true, script: cmd)
+}
+
+def get_ip = {
+    iface ->
+    def cmd = {"ifconfig ${iface} | grep 'inet addr:' | cut -d: -f2 | awk '{ print \$1}'"}
+    sh(returnStdout: true, script: cmd(iface)).trim()
+}
+
+
+stage ("Config") {
+    node ('genesis-integration-slave') {
+        checkout poll: false,
+            scm: [$class: 'GitSCM',
+            branches: [[name: '$GERRIT_REFSPEC']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [],
+            submoduleCfg: [],
+            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                url: 'https://review.gerrithub.io/att-comdev/ucp-integration']]]
+
+        CEPH_CLUSTER_NET = '10.44.0.0/24'
+        CEPH_PUBLIC_NET = '127.44.0.0/24'
+
+        NODE_NET_IFACE = get_iface() // ens3 for VMs
+        GENESIS_NODE_IP = get_ip(NODE_NET_IFACE)
+        MASTER_NODE_IP = '10.0.0.23' // filler for now
+
+        GENESIS_NODE_NAME = get_hname()
+        MASTER_NODE_NAME = 'master1' // filler for now
+
+        PROMENADE_IMAGE = "${env.ARTF_DOCKER_URL}/ucp/promenade:0.1.0-47"
+
+        withEnv(["CEPH_CLUSTER_NET=${CEPH_CLUSTER_NET}",
+                "CEPH_PUBLIC_NET=${CEPH_PUBLIC_NET}",
+                "NODE_NET_IFACE=${NODE_NET_IFACE}",
+                "GENESIS_NODE_IP=${GENESIS_NODE_IP}",
+                "MASTER_NODE_IP=${MASTER_NODE_IP}",
+                "GENESIS_NODE_NAME=${GENESIS_NODE_NAME}",
+                "MASTER_NODE_NAME=${MASTER_NODE_NAME}",
+                "PROMENADE_IMAGE=${PROMENADE_IMAGE}"]) {
+
+            dir("${WORKSPACE}/manifests/basic_ucp") {
+                timeout (60) {
+                    sh 'sudo -E bash deploy_ucp.sh'
+                }
+            }
+        }
+    }
+}
+
