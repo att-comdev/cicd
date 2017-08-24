@@ -1,0 +1,265 @@
+import groovy.json.JsonSlurper
+
+
+NODE_NAME="genesis-node-${env.BUILD_NUMBER}"
+NODE_IP='10.24.20.100'
+
+// todo: improve way we launch heat templates
+INTEGRATION_NODE='integration'
+
+SCRIPTS_DIR='/home/jenkins/integration'
+
+
+CEPH_CHART_REPO='https://git.openstack.org/openstack/openstack-helm'
+
+// todo: update when working drydock/maas charts merged
+DRYDOCK_CHART_REPO='https://github.com/sh8121att/helm_charts'
+MAAS_CHART_REPO='https://github.com/sh8121att/helm_charts'
+
+DRYDOCK_IMAGE='quay.io/attcomdev/drydock:master'
+ARMADA_IMAGE='quay.io/attcomdev/armada:master'
+PROMENADE_IMAGE='12.37.173.196:5051/cicd/ucp/promenade:master'
+
+// PROMENADE_IMAGE='12.37.173.196:32776/cicd/test/promenade:calico-fix'
+
+
+try {
+    node(INTEGRATION_NODE) {
+        dir(SCRIPTS_DIR) {
+
+            def ret = sh (returnStatus: true, script: 'docker run -v $(pwd):/target -t genesis-client2 bash /gdestroy')
+            sleep 14
+
+            sh ('docker run -v $(pwd):/target -t genesis-client2 bash /glaunch')
+
+            withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                usernameVariable: 'JENKINS_USER',
+                passwordVariable: 'JENKINS_TOKEN')]) {
+
+                sh "bash create-node ${NODE_NAME} ${NODE_IP}"
+            }
+        }
+    }
+
+    //// ipmi utils
+
+    def ipmi_power_off = {
+        withCredentials([usernamePassword(credentialsId: 'integration-ipmi',
+                                          usernameVariable: 'IPMI_USERNAME', 
+                                          passwordVariable: 'IPMI_PASSWORD')]) {
+            for (ip = 11; ip <= 14; ip++) {
+                opts = "-I lanplus -H 10.23.104.${ip} -U \$IPMI_USERNAME -P \$IPMI_PASSWORD"
+                sh ("ipmitool ${opts} chassis power off")
+            }
+        }
+    }
+
+    stage("Genesis Prepare") {
+        node(NODE_NAME) {
+            sh 'echo Node is ready!'
+
+            ipmi_power_off()
+        }
+    }
+
+    node(INTEGRATION_NODE) {
+        dir(SCRIPTS_DIR) {
+            // todo: these should probably go into repos
+            sh "scp -o 'StrictHostKeyChecking=no' integration.yaml ubuntu@${NODE_IP}:"
+            sh "scp -o 'StrictHostKeyChecking=no' promenade.yaml.sub ubuntu@${NODE_IP}:"
+        }
+    }
+
+    node(NODE_NAME) {
+        stage ("Genesis Deploy") {
+            checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: '$GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/ucp-integration']]]
+
+            def get_hname = {
+                return sh(returnStdout: true, script: "echo -n \$(hostname)")
+            }
+
+            CEPH_CLUSTER_NET = "'10.24.20.0/24, 10.23.20.0/24'"
+            CEPH_PUBLIC_NET = "'10.24.20.0/24, 10.23.20.0/24'"
+
+            NODE_NET_IFACE = 'ens3|eno1' // ens3 for VMs, eno1 for bare-metal
+
+            GENESIS_NODE_IP = NODE_IP
+            GENESIS_NODE_NAME = get_hname()
+
+            MASTER_NODE_IP = '10.23.20.11'
+            MASTER_NODE_NAME = 'controller01'
+
+            sh "sudo sh -c 'echo ${GENESIS_NODE_IP} ${GENESIS_NODE_NAME} >> /etc/hosts'"
+
+            withEnv(["CEPH_CLUSTER_NET=${CEPH_CLUSTER_NET}",
+                     "CEPH_PUBLIC_NET=${CEPH_PUBLIC_NET}",
+                     "NODE_NET_IFACE=${NODE_NET_IFACE}",
+                     "GENESIS_NODE_IP=${GENESIS_NODE_IP}",
+                     "MASTER_NODE_IP=${MASTER_NODE_IP}",
+                     "GENESIS_NODE_NAME=${GENESIS_NODE_NAME}",
+                     "MASTER_NODE_NAME=${MASTER_NODE_NAME}",
+                     "PROMENADE_IMAGE=${PROMENADE_IMAGE}",
+                     "ARMADA_IMAGE=${ARMADA_IMAGE}",
+                     "CEPH_CHART_REPO=${CEPH_CHART_REPO}",
+                     "DRYDOCK_CHART_REPO=${DRYDOCK_CHART_REPO}",
+                     "MAAS_CHART_REPO=${MAAS_CHART_REPO}",
+                     "DRYDOCK_IMAGE=${DRYDOCK_IMAGE}"]) {
+
+                dir("${WORKSPACE}/manifests/basic_ucp") {
+                    timeout (30) {
+                        sh 'cp ~/promenade.yaml.sub .'
+                        sh 'cat promenade.yaml.sub'
+
+                        sh 'sudo -E bash deploy_ucp.sh'
+                    }
+                }
+            }
+        } // stage
+    } // node
+
+
+    //// drydock utils
+
+    def keystone_token_get = {
+
+        keystone_image = "kolla/ubuntu-source-keystone:3.0.3"
+
+        docker_env = "-e 'OS_AUTH_URL=http://keystone-api.ucp.svc.cluster.local:80/v3'" +
+            " -e 'OS_PROJECT_DOMAIN_NAME=default'" +
+            " -e 'OS_USER_DOMAIN_NAME=default'" +
+            " -e 'OS_PROJECT_NAME=service'" +
+            " -e 'OS_REGION_NAME=RegionOne'" +
+            " -e 'OS_USERNAME=drydock'" +
+            " -e 'OS_PASSWORD=password'" +
+            " -e 'OS_IDENTITY_API_VERSION=3'"
+
+        docker_opts = "--rm --net=host"
+        keystone_cmd = "openstack token issue -f value -c id"
+        docker_cmd = "sudo docker run ${docker_opts} ${docker_env} ${keystone_image} ${keystone_cmd}"
+
+        return sh(returnStdout: true, script: docker_cmd).trim()
+    }
+
+    def drydock_cmd_run = { token, cmd ->
+
+        drydock_env = "-e 'DD_TOKEN=${token}'" +
+            " -e 'DD_URL=http://drydock-api.ucp.svc.cluster.local:9000'" +
+            " -e LC_ALL=C.UTF-8" +
+            " -e LANG=C.UTF-8"
+
+        drydock_opts = "-v \$(pwd):/target --rm -t --net=host --entrypoint \"drydock\""
+        drydock_cmd = "sudo docker run ${drydock_opts} ${drydock_env} ${DRYDOCK_IMAGE}"
+
+        response = sh(returnStdout: true, script: "${drydock_cmd} ${cmd}").trim()
+        print response
+        return response
+    }
+
+    def drydock_task_get = { token, task ->
+        json = drydock_cmd_run(token, "task show --task-id=${task}")
+
+        // fixing broken json from drydock
+        json = json.replaceAll('\'','"')
+        json = json.replaceAll('None','"None"')
+
+        return new JsonSlurper().parseText(json)
+    }
+
+    def drydock_task_wait = { token, task, interval ->
+        timeout (2*interval) {
+            while (true) {
+                sleep interval
+                if (drydock_task_get(token, task).status == 'complete') {
+                    if (drydock_task_get(token, task).result != 'success') {
+                        print "Failed to execute Drydock task ${task}"
+                        sh "exit 1"
+                    }
+                    break // success
+                }
+            }
+        }
+    }
+
+
+    //// maas utils
+    def maas_import_wait = { interval ->
+        timeout (interval) {
+            while (true) {
+                sleep interval
+                maas_check_cmd = "kubectl get pods -n ucp |grep maas-import || true"
+                response = sh(returnStdout: true, script: maas_check_cmd).trim()
+                if (!response) {
+                    print "MaaS import job complete."
+                    break // success
+                } else {
+                    print "MaaS import still in progress \n${response}"
+                }
+            }
+        }
+    }
+
+
+    //// drydock provisioning
+
+    node(NODE_NAME) {
+        stage ("MaaS Import") {
+            maas_import_wait(30)
+            sleep 60 // wait for rack sync
+        }
+
+        // todo: this should probably be part of repos
+        sh 'cp ~/integration.yaml manifests/basic_ucp/'
+        sh 'cat manifests/basic_ucp/integration.yaml'
+
+        stage('Drydock Init') {
+            token = keystone_token_get()
+            design = drydock_cmd_run(token, "design create")
+
+            drydock_cmd_run(token, "part --design-id=${design} create -f /target/manifests/basic_ucp/integration.yaml")
+            drydock_cmd_run(token, "part --design-id=${design} create -f /target/manifests/basic_ucp/configs/complete-bundle.yaml")
+
+            task = drydock_cmd_run(token, "task create --design-id=${design} -a verify_site")
+            drydock_task_wait(token, task, 5)
+
+            task = drydock_cmd_run(token, "task create --design-id=${design} -a prepare_site")
+            drydock_task_wait(token, task, 20)
+        }
+
+        stage('Drydock Node Prepare') {
+            task = drydock_cmd_run(token, "task create --design-id=${design} -a prepare_node")
+            drydock_task_wait(token, task, 30)
+        }
+
+        stage('Drydock Node Deploy') {
+            task = drydock_cmd_run(token, "task create --design-id=${design} -a deploy_node")
+            drydock_task_wait(token, task, 30)
+        }
+
+        sleep 300
+        sh 'kubectl get pods --all-namespaces'
+    } // node
+
+} finally {
+    node(INTEGRATION_NODE) {
+        dir(SCRIPTS_DIR) {
+            // leave node running for manual troublehooting
+            // sh ('docker run -v $(pwd):/target -t genesis-client2 bash /gdestroy')
+
+            withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                usernameVariable: 'JENKINS_USER',
+                passwordVariable: 'JENKINS_TOKEN')]) {
+
+                sh "java -jar /home/jenkins/integration/jenkins-cli.jar -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+            }
+        }
+    }
+}
+
+
