@@ -1,54 +1,79 @@
 
-def charts = ['cinder', 'glance', 'heat', 'horizon', 'keystone', 'magnum', 'mistral', 'neutron', 'nova']
+import groovy.json.JsonSlurper
+    
+def chartsJson = '''{ "osh":[{
+                        "repo":"openstack/openstack-helm",
+                        "charts":[  "cinder",
+                                    "heat",
+                                    "glance",
+                                    "horizon",
+                                    "keystone",
+                                    "magnum",
+                                    "mistral",
+                                    "neutron",
+                                    "nova",
+                                    "barbican",
+                                    "ceph",
+                                    "dns-helper",
+                                    "etcd",
+                                    "ingress",
+                                    "mariadb",
+                                    "memcached",
+                                    "rabbitmq",
+                                    "senlin"]
+                        },{
+                        "repo":"openstack/openstack-helm-addons",
+                        "charts":[  "elasticsearch",
+                                    "fluentd",
+                                    "kibana",
+                                    "postgresql"]}]}'''
 
-for (chart in charts) {
-   pipelineJob("osh/openstack/openstack-helm/${chart}") {
+def jsonSlurper = new JsonSlurper()
+def object = jsonSlurper.parseText(chartsJson)
 
-      triggers {
-         // http://<gerrit>/plugin/job-dsl/api-viewer/index.html#path/javaposse.jobdsl.dsl.helpers.properties.PropertiesContext.pipelineTriggers-triggers-gerrit
-         gerritTrigger {
-            serverName('OS-CommunityGerrit')
-            gerritProjects {
-               gerritProject {
-                  compareType('PLAIN')
-                  pattern('openstack/openstack-helm')
-                  branches {
-                     branch {
-                        compareType("ANT")
-                        pattern("**")
+for (entry in object.osh) {
+   for (chart in entry.charts) {
+      pipelineJob("osh/${entry.repo}/${chart}") {
+
+         triggers {
+            // http://<gerrit>/plugin/job-dsl/api-viewer/index.html#path/javaposse.jobdsl.dsl.helpers.properties.PropertiesContext.pipelineTriggers-triggers-gerrit
+            gerritTrigger {    
+               serverName('OS-CommunityGerrit')
+               gerritProjects {        
+                  gerritProject {
+                     compareType('PLAIN')
+                     pattern('openstack/openstack-helm')
+                     branches {
+                        branch {
+                           compareType("ANT")
+                           pattern("**")
+                        }
                      }
+                     filePaths {
+                        filePath {
+                           compareType("ANT")
+                           pattern("$chart/**")
+                        }
+                        filePath {
+                           compareType("ANT")
+                           pattern("helm-toolkit/**")
+                        }
+                     }
+                     disableStrictForbiddenFileVerification(false)
                   }
-                  filePaths {
-                     filePath {
-                        compareType("ANT")
-                        pattern("$chart/**")
-                     }
-                     filePath {
-                        compareType("ANT")
-                        pattern("helm-toolkit/**")
-                     }
-                  }
-                  disableStrictForbiddenFileVerification(false)
+               }
+               triggerOnEvents {
+                  changeMerged()
                }
             }
-            triggerOnEvents {
-               patchsetCreated {
-                  excludeDrafts(false)
-                  excludeTrivialRebase(false)
-                  excludeNoCodeChange(false)
+
+            definition {
+               cps {
+                  script(readFileFromWorkspace('osh/openstack/openstack-helm/Jenkinsfile'))
+                  sandbox()
                }
-               changeMerged()
             }
          }
-
-         definition {
-            cps {
-               script(readFileFromWorkspace('osh/openstack/openstack-helm/Jenkinsfile'))
-               sandbox()
-            }
-         }
-
       }
    }
 }
-
