@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a548673f_f38fdb55",
+        "filename": "osh/openstack/openstack-helm/seed.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-25T22:13:10Z",
+      "side": 1,
+      "message": "This is OSH addons, so still OS-CommunityGerrit",
+      "parentUuid": "243a7fe0_cab5b489",
+      "revId": "424db1e027f41760433af809a9311c8b81a39275",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2b090b1d_574cb694",
         "filename": "osh/openstack/openstack-helm/seed.groovy",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "59d956bc_5a491023",
+        "filename": "osh/openstack/openstack-helm/seed.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-25T22:13:10Z",
+      "side": 1,
+      "message": "Done, thanks",
+      "parentUuid": "2b090b1d_574cb694",
+      "revId": "424db1e027f41760433af809a9311c8b81a39275",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf43cf08_2676dd05",
         "filename": "osh/openstack/openstack-helm/seed.groovy",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-08-25T21:35:21Z",
       "side": 1,
       "message": "This doesn\u0027t look relevant to addons",
+      "revId": "424db1e027f41760433af809a9311c8b81a39275",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd73b127_4786c715",
+        "filename": "osh/openstack/openstack-helm/seed.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-25T22:13:10Z",
+      "side": 1,
+      "message": "OSH addons will still need helm-toolkit as a dependency",
+      "parentUuid": "cf43cf08_2676dd05",
       "revId": "424db1e027f41760433af809a9311c8b81a39275",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
