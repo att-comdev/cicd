@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bda48959_247417af",
+        "filename": "osh/openstack/openstack-helm/seed.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-08-25T22:29:33Z",
+      "side": 1,
+      "message": "Whitespace",
+      "revId": "3aaefd757b8531948861c2180ae515b6facc1ed0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69fd93bb_3d453e04",
+        "filename": "osh/openstack/openstack-helm/seed.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-08-25T22:29:33Z",
+      "side": 1,
+      "message": "Trailing whitespaces",
+      "revId": "3aaefd757b8531948861c2180ae515b6facc1ed0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
