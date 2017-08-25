@@ -32,11 +32,6 @@ for (chart in charts) {
                }
             }
             triggerOnEvents {
-               patchsetCreated {
-                  excludeDrafts(false)
-                  excludeTrivialRebase(false)
-                  excludeNoCodeChange(false)
-               }
                changeMerged()
             }
          }
