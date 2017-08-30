@@ -42,7 +42,7 @@ for (entry in object.osh) {
                     gerritProjects {
                         gerritProject {
                             compareType('PLAIN')
-                            pattern('${entry.repo}')
+                            pattern("${entry.repo}")
                             branches {
                                 branch {
                                 compareType("ANT")

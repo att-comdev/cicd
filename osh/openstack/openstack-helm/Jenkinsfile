@@ -6,29 +6,21 @@ node('ubuntu-16.04-slave') {
       scm: [$class: 'GitSCM',
          branches: [[name: '$GERRIT_REFSPEC']],
          doGenerateSubmoduleConfigurations: false,
-         extensions: [],
+         extensions: [[$class: 'CleanBeforeCheckout']],
          submoduleCfg: [],
          userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
             url: 'https://git.openstack.org/openstack/openstack-helm']]]
    }
 
    stage('Deploy') {
-      sh '''
-         export INTEGRATION=aio
-         export SERVICE_LAUNCH_TIMEOUT=700
-         export SERVICE_TEST_TIMEOUT=700
-         export PVC_BACKEND=ceph
-         # export INTEGRATION_TYPE=basic
-         ./tools/gate/setup_gate.sh
-      '''
-   }
-
-   stage('Dry Run') {
-      sh '''
-         export WORK_DIR=$(pwd)
-         export LOGS_DIR=$(pwd)/logs
-         bash ${WORK_DIR}/tools/gate/helm_dry_run.sh
-      '''
+      timeout(60){
+        sh '''
+          export INTEGRATION=aio
+          export SERVICE_LAUNCH_TIMEOUT=700
+          export SERVICE_TEST_TIMEOUT=700
+          export INTEGRATION_TYPE=basic
+          ./tools/gate/setup_gate.sh'''
+      }
    }
 
    stage('Publish') {
@@ -36,8 +28,8 @@ node('ubuntu-16.04-slave') {
       def build = env.BUILD_NUMBER
       def version = sh(returnStdout: true,
         script: "sed -n -e 's/^s*versions*:s*//p' ${comp}/Chart.yaml").trim()
-
-      sh "mv ${comp}-${version}.tgz ${comp}-${version}-${build}.tgz"
+      //Should not be needed
+      //sh "mv ${comp}-${version}.tgz ${comp}-${version}.${build}.tgz"
 
       // this will use creds from global configuration
       def server = Artifactory.server 'Artifactory-Enterprise'
