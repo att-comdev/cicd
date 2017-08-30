@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a04e91f3_1341b44b",
+        "filename": "integration/genesis/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-08-30T14:44:14Z",
+      "side": 1,
+      "message": "Let\u0027s talk about what we want to do with all of these variables.  When a developer changes something will we get that update?  Should we have them create a var file that holds all of them and we only override ones that we need to?",
+      "revId": "637743686fcb51dc068558ca1f5a5f4c005399e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1313779f_7468a75d",
+        "filename": "integration/genesis/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-08-30T14:44:14Z",
+      "side": 1,
+      "message": "Not sure about the Run Integration Stage.  This is Genesis node correct?  Integration is from Genesis until OSH is deployed.",
+      "revId": "637743686fcb51dc068558ca1f5a5f4c005399e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c1d1397_82d5e9b2",
+        "filename": "integration/genesis/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-08-30T14:44:14Z",
+      "side": 1,
+      "message": "Add a clean workspace before extension here.",
+      "revId": "637743686fcb51dc068558ca1f5a5f4c005399e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
