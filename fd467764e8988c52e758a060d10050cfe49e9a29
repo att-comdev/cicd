@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a436f1f1_0be29fe4",
+        "filename": "osh/openstack/openstack-helm/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-31T19:01:14Z",
+      "side": 1,
+      "message": "we will always use ceph so it is now an environment variable that we don\u0027t have to set.  Global configurations.",
+      "parentUuid": "f4afc5ca_0bbe1d14",
+      "revId": "fd467764e8988c52e758a060d10050cfe49e9a29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a4bf240_fa4f4949",
         "filename": "osh/openstack/openstack-helm/Jenkinsfile",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-30T15:25:53Z",
       "side": 1,
       "message": "Not sure I understand.\nIt will override the version as tar files will have the same name.",
+      "revId": "fd467764e8988c52e758a060d10050cfe49e9a29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd3f9c35_11b349c8",
+        "filename": "osh/openstack/openstack-helm/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-08-31T19:01:14Z",
+      "side": 1,
+      "message": "Forgot to update line 46",
+      "parentUuid": "3a4bf240_fa4f4949",
       "revId": "fd467764e8988c52e758a060d10050cfe49e9a29",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
