@@ -1,55 +1,56 @@
 
-node('ubuntu-16.04-slave') {
+timestamps{
+  node('ubuntu-16.04-slave') {
 
-   stage('Checkout') {
-      checkout poll: false,
-      scm: [$class: 'GitSCM',
-         branches: [[name: '$GERRIT_REFSPEC']],
-         doGenerateSubmoduleConfigurations: false,
-         extensions: [[$class: 'CleanBeforeCheckout']],
-         submoduleCfg: [],
-         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-            url: 'https://git.openstack.org/openstack/openstack-helm']]]
-   }
+      stage('Checkout') {
+          checkout poll: false,
+          scm: [$class: 'GitSCM',
+            branches: [[name: '$GERRIT_REFSPEC']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[$class: 'CleanBeforeCheckout']],
+            submoduleCfg: [],
+            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                url: 'https://git.openstack.org/openstack/openstack-helm']]]
+      }
 
-   stage('Deploy') {
-      timeout(60){
-        sh '''
-          export INTEGRATION=aio
-          export SERVICE_LAUNCH_TIMEOUT=700
-          export SERVICE_TEST_TIMEOUT=700
-          export INTEGRATION_TYPE=basic
-          ./tools/gate/setup_gate.sh'''
+      stage('Deploy') {
+          timeout(60){
+            sh '''
+              export INTEGRATION=aio
+              export SERVICE_LAUNCH_TIMEOUT=700
+              export SERVICE_TEST_TIMEOUT=700
+              export INTEGRATION_TYPE=basic
+              ./tools/gate/setup_gate.sh'''
+          }
+      }
+
+      stage('Publish') {
+          def comp = env.JOB_BASE_NAME
+          def build = env.BUILD_NUMBER
+          def version = sh(returnStdout: true,
+            script: "sed -n -e 's/^s*versions*:s*//p' ${comp}/Chart.yaml").trim()
+
+          // this will use creds from global configuration
+          def server = Artifactory.server 'Artifactory-Enterprise'
+
+          props = ("build.gerrit_change_url=${env.GERRIT_CHANGE_URL};"
+                + "build.branch=${env.GERRIT_BRANCH};"
+                + "build.commit=${env.GERRIT_PATCHSET_REVISION};"
+                + "build.env=dev-single;"
+                + "build.status=unstable")
+
+          def uploadSpec = """{
+            "files": [
+                {
+                  "pattern": "${comp}-*.tgz",
+                  "target": "osh/openstack/openstack-helm/${comp}/${version}/${comp}-${version}.${build}.tgz",
+                  "props": "${props}"
+                }
+            ]
+          }"""
+
+          def buildInfo = server.upload(uploadSpec)
+          server.publishBuildInfo(buildInfo)
       }
    }
-
-   stage('Publish') {
-      def comp = env.JOB_BASE_NAME
-      def build = env.BUILD_NUMBER
-      def version = sh(returnStdout: true,
-        script: "sed -n -e 's/^s*versions*:s*//p' ${comp}/Chart.yaml").trim()
-
-      // this will use creds from global configuration
-      def server = Artifactory.server 'Artifactory-Enterprise'
-
-      props = ("build.gerrit_change_url=${env.GERRIT_CHANGE_URL};"
-             + "build.branch=${env.GERRIT_BRANCH};"
-             + "build.commit=${env.GERRIT_PATCHSET_REVISION};"
-             + "build.env=dev-single;"
-             + "build.status=unstable")
-
-      def uploadSpec = """{
-         "files": [
-            {
-               "pattern": "${comp}-*.tgz",
-               "target": "osh/openstack/openstack-helm/${comp}/${version}/${comp}-${version}.${build}.tgz",
-               "props": "${props}"
-            }
-         ]
-      }"""
-
-      def buildInfo = server.upload(uploadSpec)
-      server.publishBuildInfo(buildInfo)
-   }
 }
-
