@@ -1,0 +1,24 @@
+
+# this would not bounce containers (check the manifest diff and execute bridge creation via container)
+helm upgrade --values=/home/ubuntu/openstack-helm/tools/overrides/integration/openvswitch.yaml openvswitch ./openvswitch
+
+# check manifest, expect following (additional) bridge setup part
+helm get openvswitch
+
+    # handle any bridge mappings
+    if [ -n "br-integration" ] ; then
+        # create br-integration and add port eno2
+        ovs-vsctl --no-wait --may-exist add-br "br-integration"
+        if [ -n "eno2" ] ; then
+            ovs-vsctl --no-wait --may-exist add-port "br-integration" "eno2"
+            ip link set dev "eno2" up
+        fi
+    fi
+
+# works as expected, this will add bridge mappings in neutron
+helm upgrade --values=/home/ubuntu/openstack-helm/tools/overrides/integration/neutron.yaml neutron ./neutron
+
+
+# should be ready for consumption in OpenStack
+neutron net-create --shared --provider:network_type flat --provider:physical_network integration integration
+
