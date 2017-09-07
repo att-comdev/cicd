@@ -1,18 +1,48 @@
 
-node('deckhand-functional-slave') {
-   stage('Checkout') {
-      checkout poll: false,
-         scm: [$class: 'GitSCM',
-            branches: [[name: '$GERRIT_REFSPEC']],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [],
-            submoduleCfg: [],
-            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-               url: 'https://review.gerrithub.io/att-comdev/deckhand']]]
-   }
+JENKINS_VM_LAUNCH = 'local-vm-launch'
 
-   stage('Function Test') {
-      sh 'tox -e functional'
-   }
+NODE_NAME="deckhand-${env.BUILD_NUMBER}"
+NODE_TMPL = "deckhand/deckhand.yaml"
+
+
+def funcs
+
+try {
+    node(JENKINS_VM_LAUNCH) {
+        checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: '$CICD_GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+        funcs = load "${WORKSPACE}/common/funcs.groovy"
+        funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
+
+    }
+
+    node(NODE_NAME) {
+        stage('Checkout') {
+            checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: '$GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/deckhand']]]
+
+            stage('Test Functional') {
+                sh 'tox -e functional'
+            }
+        }
+    }
+
+} finally {
+    node(JENKINS_VM_LAUNCH) {
+        funcs.jenkins_slave_destroy(NODE_NAME)
+    }
 }
 
