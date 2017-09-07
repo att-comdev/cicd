@@ -1,18 +1,57 @@
 
-node('deckhand-functional-slave') {
-   stage('Checkout') {
-      checkout poll: false,
-         scm: [$class: 'GitSCM',
-            branches: [[name: '$GERRIT_REFSPEC']],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [],
-            submoduleCfg: [],
-            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-               url: 'https://review.gerrithub.io/att-comdev/deckhand']]]
-   }
+NODE_NAME="deckhand-${env.BUILD_NUMBER}"
 
-   stage('Function Test') {
-      sh 'tox -e functional'
-   }
+try {
+    node('master-host') {
+        dir("/home/jenkins/deckhand") {
+            // retry a few times (request not accepated bu Heat at times)
+            cmd = "source openrc && openstack stack create -t deckhand.yaml ${NODE_NAME} && sleep 30"
+            for (i = 0; i <3; i++) {
+                code = sh (script: cmd, returnStatus: true)
+                if (code == 0) { break; }
+            }
+
+            NODE_IP=sh(returnStdout: true,
+                script: "source openrc && openstack stack output show -f value -c output_value ${NODE_NAME} floating_ip")
+
+            withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                usernameVariable: 'JENKINS_USER',
+                passwordVariable: 'JENKINS_TOKEN')]) {
+
+                sh "bash create-node ${NODE_NAME} ${NODE_IP}"
+            }
+        }
+    }
+
+    node(NODE_NAME) {
+        stage('Checkout') {
+            checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: '$GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/deckhand']]]
+
+            stage('Test Functional') {
+                sh 'tox -e functional'
+            }
+        }
+    }
+
+} finally {
+    node('master-host') {
+        dir("/home/jenkins/deckhand") {
+            sh "source openrc && openstack stack delete -y $NODE_NAME"
+
+            withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                usernameVariable: 'JENKINS_USER',
+                passwordVariable: 'JENKINS_TOKEN')]) {
+
+                sh "java -jar ${env.JENKINS_CLI} -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+            }
+        }
+    }
 }
 
