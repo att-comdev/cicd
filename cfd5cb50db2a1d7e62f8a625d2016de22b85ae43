@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "2c9474e4_76ad7ec2",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-09-14T20:53:52Z",
+      "side": 1,
+      "message": "Does this make more sense to be called genesis-node-$BUILD_NUMBER",
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c91d70d_831015f1",
         "filename": "integration/Jenkinsfile",
         "patchSetId": 7
@@ -25,6 +42,23 @@
     },
     {
       "key": {
+        "uuid": "c5283dcd_ca81271a",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-09-14T20:53:52Z",
+      "side": 1,
+      "message": "Need to see some new patchsets that will start moving all personal repositories out and having osh repositories in place.",
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b5a72da_b029c226",
         "filename": "integration/Jenkinsfile",
         "patchSetId": 7
@@ -42,6 +76,57 @@
         "endLine": 15,
         "endChar": 52
       },
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3957ab22_75e579f6",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-09-14T20:53:52Z",
+      "side": 1,
+      "message": "Can we change this to something else... Launch UCP",
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fef5214_8636c29f",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-09-14T20:53:52Z",
+      "side": 1,
+      "message": "Can we figure out what .yaml.sub means?",
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f49d899_d44670a5",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-09-14T20:53:52Z",
+      "side": 1,
+      "message": "I\u0027m confused by this section.  What are we trying to determine here?",
       "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -111,6 +196,23 @@
         "endLine": 182,
         "endChar": 29
       },
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fe5cde5_4391d16e",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-09-14T20:53:52Z",
+      "side": 1,
+      "message": "This should be defined as stages.  stage(\u0027Verify Site\u0027), Prepare Site Prepare Node Deploy Node.",
       "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
