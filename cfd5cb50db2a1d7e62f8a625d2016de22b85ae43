@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "2c91d70d_831015f1",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1010324
+      },
+      "writtenOn": "2017-09-14T20:48:58Z",
+      "side": 1,
+      "message": "should point to openstack git, not the github mirror.",
+      "range": {
+        "startLine": 9,
+        "startChar": 17,
+        "endLine": 9,
+        "endChar": 60
+      },
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b5a72da_b029c226",
         "filename": "integration/Jenkinsfile",
         "patchSetId": 7
@@ -18,6 +41,75 @@
         "startChar": 0,
         "endLine": 15,
         "endChar": 52
+      },
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1db88954_3a1cbdd4",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1010324
+      },
+      "writtenOn": "2017-09-14T20:48:58Z",
+      "side": 1,
+      "message": "why not just: \u0027openstack token issue -f value -c id\u0027 ?",
+      "range": {
+        "startLine": 125,
+        "startChar": 28,
+        "endLine": 125,
+        "endChar": 58
+      },
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa7eee15_f51fb4ee",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1010324
+      },
+      "writtenOn": "2017-09-14T20:48:58Z",
+      "side": 1,
+      "message": "this is really ugly, at the very least the image should be a param.",
+      "range": {
+        "startLine": 127,
+        "startChar": 12,
+        "endLine": 127,
+        "endChar": 122
+      },
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6e71010e_c4d5a84b",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1010324
+      },
+      "writtenOn": "2017-09-14T20:48:58Z",
+      "side": 1,
+      "message": "drydock cli should be able to get a token surely?",
+      "range": {
+        "startLine": 182,
+        "startChar": 24,
+        "endLine": 182,
+        "endChar": 29
       },
       "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
