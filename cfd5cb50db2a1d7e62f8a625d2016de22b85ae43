@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b5a72da_b029c226",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-09-14T20:37:38Z",
+      "side": 1,
+      "message": "Can it be a Job Parameters, with default values?",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 52
+      },
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
