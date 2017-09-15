@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "58f98ed9_25a4aea9",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-15T02:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c9474e4_76ad7ec2",
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c91d70d_831015f1",
         "filename": "integration/Jenkinsfile",
         "patchSetId": 7
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "739b0a74_7c3af739",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-15T02:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c91d70d_831015f1",
+      "range": {
+        "startLine": 9,
+        "startChar": 17,
+        "endLine": 9,
+        "endChar": 60
+      },
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5283dcd_ca81271a",
         "filename": "integration/Jenkinsfile",
         "patchSetId": 7
@@ -53,6 +95,24 @@
       "writtenOn": "2017-09-14T20:53:52Z",
       "side": 1,
       "message": "Need to see some new patchsets that will start moving all personal repositories out and having osh repositories in place.",
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27b648a3_a13326e9",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-15T02:49:18Z",
+      "side": 1,
+      "message": "Yes, there are currently fixes Scott has done to make Drydock and MaaS charts work. We need to wait until they are merged to main repositories.",
+      "parentUuid": "c5283dcd_ca81271a",
       "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -99,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "428a3021_9a43ef6f",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-15T02:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3957ab22_75e579f6",
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fef5214_8636c29f",
         "filename": "integration/Jenkinsfile",
         "patchSetId": 7
@@ -110,6 +188,24 @@
       "writtenOn": "2017-09-14T20:53:52Z",
       "side": 1,
       "message": "Can we figure out what .yaml.sub means?",
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5bd17f75_3408b2dc",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-15T02:49:18Z",
+      "side": 1,
+      "message": "It\u0027s simply a file with variables that can be used as a template. It\u0027s much nicer than doing ton of \u0027sed\u0027 runs.",
+      "parentUuid": "9fef5214_8636c29f",
       "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -133,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "5dd15fcc_524125b4",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-15T02:49:18Z",
+      "side": 1,
+      "message": "Simply getting Keystone token.\n\nDrydock does not have functionality to request the token from keystone itself.",
+      "parentUuid": "5f49d899_d44670a5",
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1db88954_3a1cbdd4",
         "filename": "integration/Jenkinsfile",
         "patchSetId": 7
@@ -144,6 +258,30 @@
       "writtenOn": "2017-09-14T20:48:58Z",
       "side": 1,
       "message": "why not just: \u0027openstack token issue -f value -c id\u0027 ?",
+      "range": {
+        "startLine": 125,
+        "startChar": 28,
+        "endLine": 125,
+        "endChar": 58
+      },
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33f2c107_212a4906",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-15T02:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1db88954_3a1cbdd4",
       "range": {
         "startLine": 125,
         "startChar": 28,
@@ -179,6 +317,30 @@
     },
     {
       "key": {
+        "uuid": "c786d465_4d5eb24e",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-15T02:49:18Z",
+      "side": 1,
+      "message": "Took it from Scott\u0027s getting started\nhttps://github.com/att-comdev/drydock/blob/master/docs/getting_started.rst\n\nI still think it\u0027s nicer then logging into running Keystone container (which comes from the same source).\n\nLet me know any suggestions.\n\nMaybe we can do direct API request to Keystone.. but it will be much more code from pipeline.",
+      "parentUuid": "aa7eee15_f51fb4ee",
+      "range": {
+        "startLine": 127,
+        "startChar": 12,
+        "endLine": 127,
+        "endChar": 122
+      },
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e71010e_c4d5a84b",
         "filename": "integration/Jenkinsfile",
         "patchSetId": 7
@@ -202,6 +364,30 @@
     },
     {
       "key": {
+        "uuid": "317425fb_0fede4c7",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-15T02:49:18Z",
+      "side": 1,
+      "message": "Drydock CLI is not able to get token itself. \n\nIt needs DD_TOKEN to be set as env or --dd-token passed via options.\n\n\ndrydock \nUsage: drydock [OPTIONS] COMMAND [ARGS]...\n\n  Drydock CLI to invoke the running instance of the drydock API\n\nOptions:\n  --debug / --no-debug  Enable or disable debugging\n  -t, --token TEXT      The auth token to be used\n  -u, --url TEXT        The url of the running drydock instance\n  --help                Show this message and exit.\n\nCommands:\n  design  Drydock design commands.\n  part    Drydock part commands.\n  task    Drydock task commands",
+      "parentUuid": "6e71010e_c4d5a84b",
+      "range": {
+        "startLine": 182,
+        "startChar": 24,
+        "endLine": 182,
+        "endChar": 29
+      },
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fe5cde5_4391d16e",
         "filename": "integration/Jenkinsfile",
         "patchSetId": 7
@@ -213,6 +399,24 @@
       "writtenOn": "2017-09-14T20:53:52Z",
       "side": 1,
       "message": "This should be defined as stages.  stage(\u0027Verify Site\u0027), Prepare Site Prepare Node Deploy Node.",
+      "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "095e61a3_48605a5b",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-15T02:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fe5cde5_4391d16e",
       "revId": "cfd5cb50db2a1d7e62f8a625d2016de22b85ae43",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
