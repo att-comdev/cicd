@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9946083f_52292986",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1011939
+      },
+      "writtenOn": "2017-09-15T14:09:18Z",
+      "side": 1,
+      "message": "I think, due to a bug in drydock, this may fail all of the time as prepare_site at best results in a result of \u0027partial_success\u0027. I\u0027ll be refactoring all of the task mgmt stuff in drydock this iteration and can hopefully fix this bug.",
+      "revId": "048d29ddb9c8ab1f30123f3d442a647fe2fab508",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
