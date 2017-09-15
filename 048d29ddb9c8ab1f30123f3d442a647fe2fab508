@@ -16,6 +16,24 @@
       "revId": "048d29ddb9c8ab1f30123f3d442a647fe2fab508",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24ffaf58_5403c25a",
+        "filename": "integration/Jenkinsfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-15T15:33:00Z",
+      "side": 1,
+      "message": "Observation I had was that task is put in \u0027failed\u0027 state initially.\n\nI had to wait a bit before querying the status (5s seems enough) and drydock will place it back to success.\n\nHere, if you search for \u0027prepare_site\u0027 in integration runs\nhttp://10.24.20.18:30085/job/integration-genesis/57/console",
+      "parentUuid": "9946083f_52292986",
+      "revId": "048d29ddb9c8ab1f30123f3d442a647fe2fab508",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
