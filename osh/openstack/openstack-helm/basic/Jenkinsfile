@@ -1,0 +1,86 @@
+ARFT_URL = env.ARTF_DOCKER_URL
+NODE_NAME='ubuntu-16.04-slave-'+env.BUILD_NUMBER
+
+try{
+    stage('Create Jenkins Node'){
+        node ('master-host'){
+            dir("/home/jenkins/osh/basic") {
+                sh "source openrc && openstack stack create -t ubuntu-16.04.yaml ${NODE_NAME} && sleep 30"
+                NODE_IP=sh(returnStdout: true, script: "source openrc && openstack stack output show -f value -c output_value ${NODE_NAME} floating_ip")
+
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+                    sh "bash create-node ${NODE_NAME} ${NODE_IP}"
+                }
+            }
+        }
+    }
+    node(NODE_NAME) {
+        stage('Checkout') {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                branches: [[name: '$GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [[$class: 'CleanBeforeCheckout']],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://git.openstack.org/openstack/openstack-helm']]]
+        }
+
+        stage('Single Node Installation') {
+
+            // artifactory remote docker cache
+        //    sh "find ./ -name values.yaml -exec sed -i 's|docker.io/kolla|${ARFT_URL}/kolla|g' {} \\;"
+          //  sh "find ./ -name values.yaml -exec sed -i 's|quay.io/attcomdev|${ARFT_URL}/attcomdev|g' {} \\;"
+        //    sh "find ./ -name values.yaml -exec sed -i 's|gcr.io/google_containers|${ARFT_URL}/google_containers|g' {} \\;"
+         //   sh "find ./ -name values.yaml -exec sed -i 's|docker.io/mariadb|${ARFT_URL}/mariadb|g' {} \\;"
+         //   sh "find ./ -name values.yaml -exec sed -i 's|docker.io/memcached|${ARFT_URL}/memcached|g' {} \\;"
+
+            timeout(45) {
+                withEnv(["INTEGRATION=aio",
+                         "INTEGRATION_TYPE=basic",
+                          "POD_START_TIMEOUT=720"]) {
+                    sh "./tools/gate/setup_gate.sh"
+
+                }
+            }
+        }
+    }
+  }  finally {
+    stage('Publish Logs'){
+        node(NODE_NAME){
+           //Update to multiple logs directories
+           //Only run if logs exist, if it failed too early
+           //there will be no logs available.
+            if(fileExists('logs-basic-$BUILD_NUMBER.tgz')){
+                 sh 'tar -cf logs-basic-$BUILD_NUMBER.tgz logs'
+                 nexusArtifactUploader artifacts: [[ artifactId: 'org.openstack.helm',
+                                                        classifier: '',
+                                                        file: 'logs-basic-$BUILD_NUMBER.tgz',
+                                                        type: 'x-gtar']],
+                                        credentialsId: 'nexus3',
+                                        groupId: 'openstack-helm',
+                                        nexusUrl: '$NEXUS3_URL',
+                                        nexusVersion: 'nexus3',
+                                        protocol: 'http',
+                                        repository: 'att-comdev-jenkins-logs',
+                                        version: '$BUILD_NUMBER'
+            }
+        }
+    }
+    stage('Delete Jenkins Node'){
+        node('master-host') {
+            dir("/home/jenkins/osh/basic") {
+                sh "source openrc && openstack stack delete -y $NODE_NAME"
+
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+
+                    sh "java -jar ${env.JENKINS_CLI} -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+                }
+            }
+        }
+    }
+}
