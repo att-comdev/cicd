@@ -11,7 +11,7 @@ def object = jsonSlurper.parseText(imagesJson)
 
 for (entry in object.UCP) {
     for (image in entry.images) {
-        pipelineJob("UCP/${image}/${image}") {
+      pipelineJob("images/${entry.repo}/${image}/${image}") {
             parameters {
                 stringParam {
                     defaultValue(GERRIT_REFSPEC)
@@ -47,7 +47,7 @@ for (entry in object.UCP) {
 
                 definition {
                     cps {
-                        script(readFileFromWorkspace("ucp/${image}/Jenkinsfile"))
+                      script(readFileFromWorkspace("images/${entry.repo}/${image}/Jenkinsfile"))
                         sandbox()
                     }
                 }
