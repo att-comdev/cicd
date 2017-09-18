@@ -1,0 +1,56 @@
+ARFT_URL = env.ARTF_DOCKER_URL
+NODE_NAME='drydock-node-'+env.BUILD_NUMBER
+try{
+stage('Create Jenkins Slave Node'){
+    node ('master-host'){
+        dir("/home/jenkins/drydock") {
+            sh "source openrc && openstack stack create -t drydock.yaml ${NODE_NAME} && sleep 30"
+                NODE_IP=sh(returnStdout: true, script: "source openrc && openstack stack output show -f value -c output_value ${NODE_NAME} floating_ip")
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                usernameVariable: 'JENKINS_USER',
+                passwordVariable: 'JENKINS_TOKEN')]) {
+                sh "bash create-node ${NODE_NAME} ${NODE_IP}"
+                }
+        }
+    }
+}
+node(NODE_NAME) {
+   stage('Setup Drydock') {
+        checkout poll:
+            false,
+            scm: [$class: 'GitSCM',
+                 branches: [[name: '$GERRIT_REFSPEC']],
+                 doGenerateSubmoduleConfigurations: false,
+                 extensions: [],
+                 submoduleCfg: [],
+                 userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/drydock']]]
+    }
+    
+   stage('Integration Testing') {
+        sh '''
+            #!/bin/bash
+              
+            set -xe
+            whoami
+            ls -lah 
+            sudo bash tests/functional/test_basic_integration.sh
+            '''
+    }
+}
+}
+finally{
+stage('Delete Jenkins Node'){
+    node('master-host') {
+        dir("/home/jenkins/drydock") {
+            sh "source openrc && openstack stack delete -y $NODE_NAME"
+            withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+            usernameVariable: 'JENKINS_USER',
+            passwordVariable: 'JENKINS_TOKEN')]) {
+                sh "java -jar ${env.JENKINS_CLI} -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+            }
+        }
+    }
+}
+
+}
