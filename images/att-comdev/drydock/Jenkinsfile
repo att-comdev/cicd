@@ -1,0 +1,57 @@
+
+NODE_NAME = "drydock-${BUILD_NUMBER}"
+NODE_TMPL = "drydock/drydock.yaml"
+
+ARTF_URL = ARTF_DOCKER_URL
+DD_PS = "${GERRIT_CHANGE_NUMBER}.${GERRIT_PATCHSET_NUMBER}"
+DRYDOCK_VERSION = "0.1.0.${DD_PS}"
+//Setting variables for Makefile
+IMAGE_PREFIX = "${ARTF_URL}/ucp-patchset"
+IMAGE_TAG = DRYDOCK_VERSION
+DD_IMAGE_LATEST = "${ARTF_URL}/ucp/drydock:latest"
+DD_PS_ARTF_REPO = "ucp-patchset/drydock/" + DRYDOCK_VERSION
+DD_ARTF_REPO = "ucp/drydock/" + DRYDOCK_VERSION
+
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+
+
+vm (NODE_NAME, NODE_TMPL) {
+
+    gerrithub.clone('att-comdev/drydock', GERRIT_REFSPEC)
+
+    if (GERRIT_EVENT_TYPE == 'change-merged'){
+        IMAGE_PREFIX = "${ARTF_URL}/ucp/"
+    }
+
+    def args = "IMAGE_PREFIX=${IMAGE_PREFIX} IMAGE_TAG=${IMAGE_TAG}"
+
+    stage('Docker Build') {
+        sh "sudo make images ${args}"
+    }
+
+    stage('Test Coverage') {
+        sh "sudo make coverage_test ${args}"
+    }
+
+    stage('Docker Run') {
+        sh "sudo make run_drydock ${args}"
+    }
+
+    stage('Docker Publish'){
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                                          usernameVariable: 'ARTIFACTORY_USER',
+                                          passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+            def opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+
+            sh "sudo docker login ${opts} ${ARTF_URL}"
+            sh "sudo docker push ${IMAGE_PREFIX}/drydock:${IMAGE_TAG}"
+
+            //Latest merge to master image
+            if (GERRIT_EVENT_TYPE == 'change-merged'){
+                sh "sudo docker tag ${IMAGE_PREFIX}/drydock:${IMAGE_TAG} ${DD_IMAGE_LATEST}"
+                sh "sudo docker push ${DD_IMAGE_LATEST}"
+            }
+        }
+    }
+}
+
