@@ -1,0 +1,26 @@
+#!/bin/bash
+
+JENKINS_CLI='./jenkins-cli.jar'
+JENKINS_AUTH="$JENKINS_USER:$JENKINS_TOKEN"
+
+NODE_NAME=$1
+NODE_HOST=$2
+
+cat <<EOF | java -jar $JENKINS_CLI -s $JENKINS_URL -auth $JENKINS_AUTH create-node $NODE_NAME
+<slave>
+  <name>${NODE_NAME}</name>
+  <description></description>
+  <remoteFS>/home/ubuntu/jenkins</remoteFS>
+  <numExecutors>1</numExecutors>
+  <mode>NORMAL</mode>
+  <retentionStrategy class="hudson.slaves.RetentionStrategy$Always"/>
+  <launcher class="hudson.plugins.sshslaves.SSHLauncher" plugin="ssh-slaves@1.5">
+    <host>${NODE_HOST}</host>
+    <port>22</port>
+    <credentialsId>jenkins</credentialsId>
+  </launcher>
+  <label>${NODE_NAME}</label>
+  <nodeProperties/>
+  <userId>ubuntu</userId>
+</slave>
+EOF

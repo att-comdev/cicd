@@ -1,0 +1,66 @@
+heat_template_version: newton
+
+description: Template for Genesis launch
+
+resources:
+  server:
+    type: OS::Nova::Server
+    properties:
+      key_name: jenkins-slave-keypair
+      image: fef625eb-fb16-4134-baa8-3b3b49f5b9d3
+      flavor: m1.medium
+      networks:
+        - port: { get_resource: server_port }
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/sh
+            apt-get update -y
+            apt-get install -y docker.io curl
+
+            chmod 600 /home/ubuntu/jenkins-slave-keypair.pem
+            chown ubuntu:ubuntu /home/ubuntu/jenkins-slave-keypair.pem
+
+            fix_slave(){
+            echo "fix hostname and resolv.conf:"
+            if ! grep $(hostname) /etc/hosts; then
+                echo "127.0.1.1  $(hostname)" | tee -a /etc/hosts
+            fi
+
+            }
+
+
+            #ADDING ARTIFACTORY CA
+            echo '-----BEGIN CERTIFICATE-----
+            #PUT TEMP ARTIFACTORY CERTIFICATE HERE
+            -----END CERTIFICATE-----' > ca-crt.pem
+
+            apt-get install -y default-jre-headless
+
+            # push generic files to Artifactory
+            keytool -import -alias artifactory -file ca-crt.pem -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts -storepass changeit -noprompt
+
+            # push Docker images to Artifactory
+            mkdir -p /etc/docker/certs.d/X.X.X.X:5555
+            sudo mv ca-crt.pem /etc/docker/certs.d/X.X.X.X:5555/ca.crt
+
+            echo 'Testing $message' > /home/ubuntu/done.txt
+          params:
+            $message: Kaspars
+          
+  server_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: 9ec2af2c-22b4-4384-a6fb-1998924e4b02
+      security_groups: [jenkins-security]
+
+  server_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: 4f5a1373-086f-470a-b2de-eced5cab4df8
+      port_id: { get_resource: server_port }
+
+outputs:
+  floating_ip:
+    description: The external IP associated to the server
+    value: { get_attr: [server_floating_ip, floating_ip_address] }

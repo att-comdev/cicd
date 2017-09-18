@@ -1,30 +1,63 @@
-node('drydock-python3-slave') {
+ARFT_URL = env.ARTF_DOCKER_URL
+NODE_NAME='drydock-node-'+env.BUILD_NUMBER
 
-   stage('Checkout') {
-      checkout poll: false,
-         scm: [$class: 'GitSCM',
-            branches: [[name: '$GERRIT_REFSPEC']],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [],
-            submoduleCfg: [],
-            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-               url: 'https://review.gerrithub.io/att-comdev/drydock']]]
+try{
+   stage('Create Jenkins Node'){
+      node ('master-host'){
+         dir("/home/jenkins/drydock") {
+            sh "source openrc && openstack stack create -t drydock.yaml ${NODE_NAME} && sleep 30"
+            NODE_IP=sh(returnStdout: true, 
+                        script: "source openrc && openstack stack output show -f value -c output_value ${NODE_NAME} floating_ip")
+
+            withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+               usernameVariable: 'JENKINS_USER',
+               passwordVariable: 'JENKINS_TOKEN')]) {
+               sh "bash create-node ${NODE_NAME} ${NODE_IP}"
+            }
+         }
+      }
    }
-
-   stage('Docker Build') {
-      sh 'sudo docker build . -t drydock'
+   node(NODE_NAME) {
+      stage('Checkout') {
+         checkout poll: false,
+            scm: [$class: 'GitSCM',
+               branches: [[name: '$GERRIT_REFSPEC']],
+               doGenerateSubmoduleConfigurations: false,
+               extensions: [],
+               submoduleCfg: [],
+               userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                  url: 'https://review.gerrithub.io/att-comdev/drydock']]]
+      }
+      stage('Run Test') {
+         // sh 'tox tests'
+         sh 'cat /etc/hosts'
+         sh 'cat /etc/resolv.conf'
+      }
+      stage('Docker Build') {
+         sh 'sudo docker build . -t drydock'
+      }  
+      stage('Docker Run') {
+         sh 'sudo docker run -d -v $(pwd)/examples:/etc/drydock -P --name=drydock drydock'
+      } 
+      stage('Docker Test') {
+         def DDPORT = sh(returnStdout: 
+            true, script: "echo \$(sudo docker port drydock 9000/tcp | awk -F ':' '{ print \$NF }')").trim()  
+         sh "curl -v http://localhost:${DDPORT}/api/v1.0/designs"
+      }
    }
+} finally {
+    stage('Delete Jenkins Node'){
+        node('master-host') {
+            dir("/home/jenkins/drydock") {
+                sh "source openrc && openstack stack delete -y $NODE_NAME"
 
-   stage('Docker Run') {
-      sh 'sudo docker run -d -v $(pwd)/examples:/etc/drydock -P --name=drydock drydock'
-   }
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
 
-   stage('Validate Container') {
-      def DDPORT = sh(returnStdout: true,
-         script: "echo \$(sudo docker port drydock 9000/tcp | awk -F ':' '{ print \$NF }')").trim()
-
-      sh "curl -v http://localhost:${DDPORT}/api/v1.0/designs"
-   }
-
+                    sh "java -jar ${env.JENKINS_CLI} -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+                }
+            }
+        }
+    }
 }
-

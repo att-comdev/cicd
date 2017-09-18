@@ -1,0 +1,20 @@
+
+node('aic-helm-node') {
+
+   stage('Checkout') {
+      checkout poll: false,
+      scm: [$class: 'GitSCM',
+         branches: [[name: '$GERRIT_REFSPEC']],
+         doGenerateSubmoduleConfigurations: false,
+         extensions: [[$class: 'CleanBeforeCheckout']],
+         submoduleCfg: [],
+         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+            url: 'https://review.gerrithub.io/att-comdev/aic-helm']]]
+   }
+
+   stage('Deploy') {
+      timeout(60){
+         echo 'Deploy minimal environment for aic-helm'
+      }
+   }
+}

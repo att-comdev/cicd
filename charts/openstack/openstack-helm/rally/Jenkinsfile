@@ -1,0 +1,70 @@
+ARFT_URL = env.ARTF_DOCKER_URL
+NODE_NAME='rally-node-'+env.BUILD_NUMBER
+
+try{
+    stage('Create Jenkins Node'){
+        node ('master-host'){
+            dir("/home/jenkins/osh/basic") {
+                sh "source openrc && openstack stack create -t ubuntu-16.04.yaml ${NODE_NAME} && sleep 30"
+                NODE_IP=sh(returnStdout: true, script: "source openrc && openstack stack output show -f value -c output_value ${NODE_NAME} floating_ip")
+            
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+                    sh "bash create-node ${NODE_NAME} ${NODE_IP}"
+                }
+            }
+        }
+    }
+    node(NODE_NAME) {
+        stage('Checkout') {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                branches: [[name: '$GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [[$class: 'CleanBeforeCheckout']],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://git.openstack.org/openstack/openstack-helm']]]
+        }
+    
+        stage('Single Node Installation') {
+   
+                withEnv(["INTEGRATION=aio",
+                         "INTEGRATION_TYPE=basic",
+                         "RALLY_CHART_ENABLED=true"]) {
+                    sh "./tools/gate/setup_gate.sh"
+                }
+        }
+        stage('Publish Logs'){
+            if(fileExists('rally_results.log')){
+                nexusArtifactUploader artifacts: [[ artifactId: 'rally_results', 
+                                                    classifier: '', 
+                                                    file: 'rally_results.log', 
+                                                    type: 'log']], 
+                                    credentialsId: 'nexus3', 
+                                    groupId: 'openstack-helm', 
+                                    nexusUrl: '$NEXUS3_URL', 
+                                    nexusVersion: 'nexus3', 
+                                    protocol: 'http', 
+                                    repository: 'att-comdev-jenkins-logs', 
+                                    version: '$BUILD_NUMBER'
+            }
+        }
+    }
+}  finally {
+    stage('Delete Jenkins Node'){
+        node('master-host') {
+            dir("/home/jenkins/osh/basic") {
+                sh "source openrc && openstack stack delete -y $NODE_NAME"
+                
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+    
+                    sh "java -jar ${env.JENKINS_CLI} -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+                }
+            }
+        }
+    }
+}
