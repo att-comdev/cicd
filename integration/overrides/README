@@ -1,11 +1,29 @@
 
-# this would not bounce containers (check the manifest diff and execute bridge creation via container)
+Genesis Networks
+===
+
+Provider networks via OVS are used to extend needed networks to Genesis VM
+https://docs.openstack.org/kilo/networking-guide/scenario_provider_ovs.html
+
+
+OpenvSwitch
+---
+
+# would not bounce containers (check the manifest diff and execute bridge creation via container)
 helm upgrade --values=/home/ubuntu/openstack-helm/tools/overrides/integration/openvswitch.yaml openvswitch ./openvswitch
 
 # check manifest, expect following (additional) bridge setup part
 helm get openvswitch
 
     # handle any bridge mappings
+    if [ -n "br-data" ] ; then
+        # create br-data and add port bond0
+        ovs-vsctl --no-wait --may-exist add-br "br-data"
+        if [ -n "bond0" ] ; then
+            ovs-vsctl --no-wait --may-exist add-port "br-data" "bond0"
+            ip link set dev "bond0" up
+        fi
+    fi
     if [ -n "br-integration" ] ; then
         # create br-integration and add port eno2
         ovs-vsctl --no-wait --may-exist add-br "br-integration"
@@ -15,10 +33,34 @@ helm get openvswitch
         fi
     fi
 
-# works as expected, this will add bridge mappings in neutron
+
+Neutron
+---
+
+# neutron part works as expected, this will add needed bridge mappings
 helm upgrade --values=/home/ubuntu/openstack-helm/tools/overrides/integration/neutron.yaml neutron ./neutron
 
 
-# should be ready for consumption in OpenStack
-neutron net-create --shared --provider:network_type flat --provider:physical_network integration integration
+# pxe network
+neutron net-create --shared --provider:network_type flat --provider:physical_network integration integration-pxe
+neutron subnet-create --name integration-pxe-subnet --gateway 10.24.60.1 --allocation-pool start=10.24.60.100,end=10.24.60.100 --host-route destination=10.23.50.0/24,nexthop=10.24.60.1 --dns-nameserver 8.8.8.8 --dns-nameserver 8.8.4.4 --disable-dhcp integration-pxe 10.24.60.0/24
+
+
+## data networks
+
+# mgmt
+neutron net-create --shared --provider:network_type vlan --provider:physical_network data --provider:segmentation_id 21 integration-mgmt
+neutron subnet-create --name integration-mgmt-subnet --gateway 10.24.21.1 --allocation-pool start=10.24.21.100,end=10.24.21.100 --host-route destination=10.23.21.0/24,nexthop=10.24.21.1 --dns-nameserver 8.8.8.8 --dns-nameserver 8.8.4.4 --disable-dhcp integration-mgmt 10.24.21.0/24
+
+# calico
+neutron net-create --shared --provider:network_type vlan --provider:physical_network data --provider:segmentation_id 22 integration-calico
+neutron subnet-create --name integration-calico-subnet --gateway 10.24.22.1 --allocation-pool start=10.24.22.100,end=10.24.22.100 --host-route destination=10.23.22.0/24,nexthop=10.24.22.1 --dns-nameserver 8.8.8.8 --dns-nameserver 8.8.4.4 --disable-dhcp integration-calico 10.24.22.0/24
+
+# storage
+neutron net-create --shared --provider:network_type vlan --provider:physical_network data --provider:segmentation_id 23 integration-storage
+neutron subnet-create --name integration-storage-subnet --gateway 10.24.23.1 --allocation-pool start=10.24.23.100,end=10.24.23.100 --host-route destination=10.23.23.0/24,nexthop=10.24.23.1 --dns-nameserver 8.8.8.8 --dns-nameserver 8.8.4.4 --disable-dhcp integration-storage 10.24.23.0/24
+
+# contrail
+neutron net-create --shared --provider:network_type vlan --provider:physical_network data --provider:segmentation_id 25 integration-contrail
+neutron subnet-create --name integration-calico-subnet --gateway 10.24.25.1 --allocation-pool start=10.24.25.100,end=10.24.25.100 --host-route destination=10.23.25.0/24,nexthop=10.24.25.1 --dns-nameserver 8.8.8.8 --dns-nameserver 8.8.4.4 --disable-dhcp integration-contrail 10.24.25.0/24
 
