@@ -23,4 +23,5 @@ network:
 
   auto_bridge_add:
     br-integration: "eno2"
+    br-data: "bond0"
 
