@@ -38,7 +38,11 @@ conf:
     ml2_type_flat:
       neutron:
         ml2:
-          flat_networks: public,integration
+          flat_networks: public,integration,data
+    ml2_type_vlan:
+      neutron:
+        ml2:
+          network_vlan_ranges: data
   openvswitch_agent:
     agent:
       neutron:
@@ -51,4 +55,4 @@ conf:
         ml2:
           ovs:
             agent:
-              bridge_mappings: public:br-ex,integration:br-integration
+              bridge_mappings: public:br-ex,integration:br-integration,data:br-data
