@@ -1,5 +1,5 @@
 FROM docker.io/ubuntu:16.04
-ENV KOLLA_VERSION="5.0.0.0b2" \
+ENV KOLLA_VERSION="3.0.3" \
     KOLLA_IMAGE_TAG="newton" \
     KOLLA_IMAGE_MAINTAINER="Pete Birley (pete@port.direct)" \
     OPENSTACK_SOURCE="git" \
@@ -14,6 +14,7 @@ RUN set -x \
         ca-certificates \
         docker.io \
         build-essential \
+        python-dev \
         python-pip \
         python-virtualenv \
         libssl-dev \
@@ -45,7 +46,7 @@ RUN set -x \
     && for PARAM in type location reference; do \
         sed -i "s/^#${PARAM}/${PARAM}/g" ${KOLLA_CONFIG}; \
        done \
-   && crudini --get ${KOLLA_CONFIG} | while read SECTION; do \
+    && crudini --get ${KOLLA_CONFIG} | while read SECTION; do \
         (LOCATION=$(crudini --get /etc/kolla/kolla-build.conf ${SECTION} location 2> /dev/null ) && \
         echo $LOCATION | grep -q ^\$tarballs_base/ && ( \
           crudini --set ${KOLLA_CONFIG} ${SECTION} type ${OPENSTACK_SOURCE}; \
@@ -53,4 +54,4 @@ RUN set -x \
           crudini --set ${KOLLA_CONFIG} ${SECTION} location "${OPENSTACK_SOURCE_ROOT}/${LOCATION%/*}"; \
           crudini --set ${KOLLA_CONFIG} ${SECTION} reference "${OPENSTACK_VERSION}"; \
           ) || true) \
-      done
+    done
