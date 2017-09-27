@@ -1,5 +1,5 @@
 FROM docker.io/ubuntu:16.04
-ENV KOLLA_VERSION="5.0.0.0b2" \
+ENV KOLLA_VERSION="3.0.3" \
     KOLLA_IMAGE_TAG="newton" \
     KOLLA_IMAGE_MAINTAINER="Pete Birley (pete@port.direct)" \
     OPENSTACK_SOURCE="git" \
@@ -14,6 +14,7 @@ RUN set -x \
         ca-certificates \
         docker.io \
         build-essential \
+        python-dev \
         python-pip \
         python-virtualenv \
         libssl-dev \
