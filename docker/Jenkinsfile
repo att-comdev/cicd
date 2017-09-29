@@ -1,0 +1,13 @@
+node('10.24.20.18-slave') {
+
+   stage('Checkout') {
+      checkout poll: false,
+      scm: [$class: 'GitSCM',
+         branches: [[name: '$GERRIT_REFSPEC']],
+         doGenerateSubmoduleConfigurations: false,
+         extensions: [[$class: 'CleanBeforeCheckout']],
+         submoduleCfg: [],
+         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+            url: 'https://github.com/att-comdev/aic-helm.git']]]
+   }
+}
