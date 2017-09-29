@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49fc6d92_3e629100",
+        "filename": "ucp/armada/armada/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-29T16:01:14Z",
+      "side": 1,
+      "message": "I\u0027ve tried using this and there is actually no need of creating the folders.\nGit checkout will create it anyway.",
+      "revId": "fa90646572ba45fc16e2a07730067845119664d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4518b0e0_e2856ffa",
+        "filename": "ucp/armada/armada/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-29T16:01:14Z",
+      "side": 1,
+      "message": "There is nice withEnv() also.. but really just a preference\n\n            withEnv([\"CEPH_CLUSTER_NET\u003d${CEPH_CLUSTER_NET}\",\n                     \"CEPH_PUBLIC_NET\u003d${CEPH_PUBLIC_NET}\") {}",
+      "revId": "fa90646572ba45fc16e2a07730067845119664d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3626df7c_fe7cbe45",
+        "filename": "ucp/armada/armada/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-09-29T16:01:14Z",
+      "side": 1,
+      "message": "Maybe a new stage for running tests?",
+      "revId": "fa90646572ba45fc16e2a07730067845119664d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
