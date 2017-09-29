@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aebfbf57_91d8c798",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1011939
+      },
+      "writtenOn": "2017-09-29T15:26:56Z",
+      "side": 1,
+      "message": "Will all of these env vars be tweakable per run? Seems like the goal here would be to run with all masters and one PS-based image to ensure a change is functional against known stable.",
+      "revId": "3961138577668b8d7f4923b25df3463cb6df7c4a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b18e8d0d_280a402c",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1011939
+      },
+      "writtenOn": "2017-09-29T15:26:56Z",
+      "side": 1,
+      "message": "This can also be accomplished by the drydock \u0027verify_site\u0027 task.",
+      "revId": "3961138577668b8d7f4923b25df3463cb6df7c4a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
