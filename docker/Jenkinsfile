@@ -1,5 +1,6 @@
 ARFT_URL = env.ARTF_DOCKER_URL
-NODE_NAME='armada-16.04-slave-'+env.BUILD_NUMBER
+NODE_NAME='armada-16.04-slavenode-'+env.BUILD_NUMBER
+
 
 try{
     node('master-host'){
