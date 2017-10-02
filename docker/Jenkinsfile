@@ -100,40 +100,24 @@ try{
                 sh '''sudo docker exec armada armada tiller --status
                       sudo docker exec armada armada apply /tmp/test.yaml'''
             }
-            stage('Test'){
-                sh '''export SERVICE_TEST_TIMEOUT=700
-                      set -ex
-                      : ${WORK_DIR:='''+env.WORKSPACE+'''"/openstack-helm"}
-                      source ${WORK_DIR}/tools/gate/vars.sh
-                      source ${WORK_DIR}/tools/gate/funcs/helm.sh
-                      source ${WORK_DIR}/tools/gate/funcs/kube.sh
-                      source ${WORK_DIR}/tools/gate/funcs/network.sh
-                      kube_wait_for_pods ceph 600
-                      kube_wait_for_pods openstack 1200
-                    
-                      MON_POD=$(kubectl get pods -l application=ceph -l component=mon -n ceph --no-headers | awk '{ print $1; exit }')
-                      kubectl exec -n ceph ${MON_POD} -- ceph -s
-                      helm_test_deployment osh-keystone ${SERVICE_TEST_TIMEOUT}
-                      helm_test_deployment osh-glance ${SERVICE_TEST_TIMEOUT}
-                      helm_test_deployment osh-cinder ${SERVICE_TEST_TIMEOUT}
-                      helm_test_deployment osh-neutron ${SERVICE_TEST_TIMEOUT}
-                      helm_test_deployment osh-nova ${SERVICE_TEST_TIMEOUT}'''
-            }
+            
         }
     }
 }  finally {
     stage('Delete Jenkins Node'){
         node('master-host') {
             dir("/home/jenkins/armada") {
-             //   sh "source openrc && openstack stack delete -y $NODE_NAME"
+               sh "source openrc && openstack stack delete -y $NODE_NAME"
                 
-             //   withCredentials([usernamePassword(credentialsId: 'jenkins-token',
-             //       usernameVariable: 'JENKINS_USER',
-             //       passwordVariable: 'JENKINS_TOKEN')]) {
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
     
-             //        sh "java -jar ${env.JENKINS_CLI} -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
-            //    }
+                     sh "java -jar ${env.JENKINS_CLI} -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+                }
             }
         }
     }
 }
+
+
