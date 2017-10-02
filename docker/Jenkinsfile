@@ -10,4 +10,5 @@ node('10.24.20.18-slave') {
          userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
             url: 'https://review.gerrithub.io/att-comdev/cicd']]]
    }
+
 }
