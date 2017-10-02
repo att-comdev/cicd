@@ -1,5 +1,6 @@
 import groovy.json.JsonSlurper
 
+
 def chartsJson = '''{ "dockerimages":[{
                         "repo":"att-comdev/dockerfiles",
                         "charts":[  "airflow",
