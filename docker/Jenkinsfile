@@ -8,6 +8,6 @@ node('10.24.20.18-slave') {
          extensions: [[$class: 'CleanBeforeCheckout']],
          submoduleCfg: [],
          userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-            url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+            url: 'https://review.gerrithub.io/att-comdev/dockerfiles']]]
    }
 }
