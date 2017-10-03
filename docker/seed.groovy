@@ -12,7 +12,7 @@ def object = jsonSlurper.parseText(chartsJson)
 
 for (entry in object.dockerimages) {
     for (chart in entry.charts) {
-        pipelineJob("dockerimages/${entry.repo}/${chart}") {
+        pipelineJob("charts/${entry.repo}/${chart}") {
 
             triggers {
                 gerritTrigger {
