@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b52f5b1f_b5d609c1",
+        "filename": "docker/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-10-03T08:11:18Z",
+      "side": 1,
+      "message": "This should just be images and you would need a folder in Jenkins Staging called images.",
+      "revId": "9e500d5854f97c0f0b2adc5f952aabd789ca4129",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
