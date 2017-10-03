@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "937f44a5_8dd064de",
+        "filename": "ucp/ucp-drydock/drydock-integration/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-10-03T07:58:13Z",
+      "side": 1,
+      "message": "Let\u0027s put false on the same line as :",
+      "revId": "42d3aedef017f7e928485e2ca5dfb726468839b6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97d9e69b_f4db3719",
+        "filename": "ucp/ucp-drydock/drydock-integration/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-10-03T07:58:13Z",
+      "side": 1,
+      "message": "I had thought we were using tox to kick off any test, and that tox command should be the same throughout projects.",
+      "revId": "42d3aedef017f7e928485e2ca5dfb726468839b6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
