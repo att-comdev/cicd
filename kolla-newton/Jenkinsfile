@@ -16,7 +16,7 @@ properties([
      [$class: 'ThrottleJobProperty', categories: [], limitOneJobWithMatchingParams: false, maxConcurrentPerNode: 0, maxConcurrentTotal: 0, paramsToUseForLimit: '', throttleEnabled: false, throttleOption: 'project'], pipelineTriggers([])  
 ])  
   
-node('10.24.20.18-slave') {  
+node('berth-node-6') {  
     stage('slave precheck') {  
         sh '''#!/bin/bash -xe  
         sudo apt-get install -y python-pip libpython-all-dev libpython3-all-dev libffi-dev libssl-dev gcc git ntp tox ansible docker.io  
