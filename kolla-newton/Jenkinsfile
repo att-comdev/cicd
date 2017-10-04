@@ -1,0 +1,118 @@
+t#!/usr/bin/env groovy
+
+properties([  
+    [$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false],  
+     parameters([  
+        string(defaultValue: 'nova glance keystone',  
+                description: 'components with custom images',  
+                name: 'COMPONENTS_LIST'),  
+        booleanParam(defaultValue: true,  
+                     description: 'Install/Re-install openstack-kolla, If your slave already have it installed you can set it to false (uncheck)',  
+                     name: 'INSTALL_KOLLA'),  
+        booleanParam(defaultValue: true,  
+                      description: 'Install/Re-install openstack-helm, If your slave already have it installed you can set it to false (uncheck)',  
+                      name: 'INSTALL_OSH')  
+                ]),  
+     [$class: 'ThrottleJobProperty', categories: [], limitOneJobWithMatchingParams: false, maxConcurrentPerNode: 0, maxConcurrentTotal: 0, paramsToUseForLimit: '', throttleEnabled: false, throttleOption: 'project'], pipelineTriggers([])  
+])
+
+ node('master-host'){
+        stage('Create Jenkins Node'){
+            dir("/home/jenkins/armada"){
+                sh "source openrc && openstack stack create -t armada.yaml ${NODE_NAME} && sleep 30"
+                NODE_IP=sh(returnStdout: true, script: "source openrc && openstack stack output show -f value -c output_value ${NODE_NAME} floating_ip")
+            
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+                    sh "bash create-node ${NODE_NAME} ${NODE_IP}"
+                }
+            }
+        }
+    }  
+  
+ node('master-host') {  
+    stage('slave precheck') {  
+        sh '''#!/bin/bash -xe  
+        sudo apt-get install -y python-pip libpython-all-dev libpython3-all-dev libffi-dev libssl-dev gcc git ntp tox ansible docker.io  
+        if ! id | grep -q docker; then  
+            sudo adduser $USER docker||:  
+        fi  
+        if [ -z "${COMPONENTS_LIST}" ];then  
+            echo "ERROR: COMPONENTS_LIST parameter is empty"  
+            exit 1  
+        fi  
+        echo ${COMPONENT_LIST}  
+        echo 'Precheck complete!'  
+        '''  
+    } 
+  stage('Checkout') {
+      checkout poll: false,
+      scm: [$class: 'GitSCM',
+         branches: [[name: '$GERRIT_REFSPEC']],
+         doGenerateSubmoduleConfigurations: false,
+         extensions: [[$class: 'CleanBeforeCheckout']],
+         submoduleCfg: [],
+         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+              url: 'https://git.openstack.org/openstack/openstack-helm']]]
+    } 
+    stage('deploy') 
+{    
+	sh '''#!/bin/bash -xe
+  	for (i in [ 'keystone', 'glance', 'cinder', 'nova', 'neutron', 'heat', 'barbican', 'horizon' ])
+	        {
+		if ! ${i}; then           
+		echo "Skipping installation phase"
+               	exit 0
+	        fi		
+	echo "$i Deployment"
+    	rm -rf $i/
+	git clone https://git.openstack.org/openstack/$i -b stable/newton        
+	pip install $i/
+	cd $i/        
+	tox -e py27
+       	tox -e genconfig'''		}
+}
+  
+  
+    stage('Generate Images') {  
+        sh '''#!/bin/bash -xe  
+        cd $i/
+        source .tox/py27/bin/activate  
+        for os_component in ${COMPONENTS_LIST}; do  
+            kolla-build -b ubuntu -t source ${os_component}  
+        done  
+        '''  
+    }  
+  
+    stage('test') {
+        junit testDataPublishers: [[$class: 'AttachmentPublisher'], [$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/*.xml'
+    } 
+  
+    stage('Rally') {  
+        sh '''#!/bin/bash -xe  
+        '''  
+    }  
+  
+    stage('Results') {  
+        sh '''#!/bin/bash -xe  
+        '''  
+    }  
+  finally {
+    stage('Delete Jenkins Node'){
+        node('master-host') {
+            dir("/home/jenkins/armada") {
+               sh "source openrc && openstack stack delete -y $NODE_NAME"
+                
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+    
+                     sh "java -jar ${env.JENKINS_CLI} -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+                }
+            }
+        }
+    }
+}
+}  
+
