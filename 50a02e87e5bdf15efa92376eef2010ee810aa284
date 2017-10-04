@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c34fae22_1f4260bc",
+        "filename": "kolla-newton/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1011942
+      },
+      "writtenOn": "2017-10-04T20:45:10Z",
+      "side": 1,
+      "message": "There\u0027s a lot of extra white space and tabs in this file which should ideally be cleaned up.",
+      "revId": "50a02e87e5bdf15efa92376eef2010ee810aa284",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
