@@ -1,6 +1,7 @@
 import groovy.json.JsonSlurper
 
 
+
 NODE_NAME="genesis-node-${env.BUILD_NUMBER}"
 NODE_IP='10.24.20.100'
 
@@ -18,17 +19,35 @@ MAAS_CHART_REPO='https://github.com/sh8121att/helm_charts'
 
 DRYDOCK_IMAGE='quay.io/attcomdev/drydock:master'
 ARMADA_IMAGE='quay.io/attcomdev/armada:master'
-PROMENADE_IMAGE='quay.io/attcomdev/promenade:master'
+PROMENADE_IMAGE='quay.io/attcomdev/promenade:v0.2.2' // before Mark's refactor
 
 DECKHAND_IMAGE = 'quay.io/attcomdev/deckhand:latest'
 DECKHAND_CHART_REPO = 'https://review.gerrithub.io/att-comdev/aic-helm'
 
 
-
 try {
     node(INTEGRATION_NODE) {
-        dir(SCRIPTS_DIR) {
 
+        checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: '$CICD_GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+        sh "echo $env.CICD_GERRIT_REFSPEC"
+
+        def funcs = load "${WORKSPACE}/integration/genesis-integration/funcs.groovy"
+        funcs.test()
+
+
+        funcs.jenkins_node_config("node", "ip", "creds")
+
+        sh 'exit 1'
+
+        dir(SCRIPTS_DIR) {
             def ret = sh (returnStatus: true, script: 'docker run -v $(pwd):/target -t genesis-client2 bash /gdestroy')
             sleep 14
 
@@ -47,7 +66,7 @@ try {
 
     def ipmi_power_off = {
         withCredentials([usernamePassword(credentialsId: 'integration-ipmi',
-                                          usernameVariable: 'IPMI_USERNAME', 
+                                          usernameVariable: 'IPMI_USERNAME',
                                           passwordVariable: 'IPMI_PASSWORD')]) {
             for (ip = 11; ip <= 14; ip++) {
                 opts = "-I lanplus -H 10.23.104.${ip} -U \$IPMI_USERNAME -P \$IPMI_PASSWORD"
@@ -69,6 +88,7 @@ try {
             // todo: these should probably go into repos
             sh "scp -o 'StrictHostKeyChecking=no' integration.yaml ubuntu@${NODE_IP}:"
             sh "scp -o 'StrictHostKeyChecking=no' promenade.yaml.sub ubuntu@${NODE_IP}:"
+            sh "scp -o 'StrictHostKeyChecking=no' osh-armada.yaml ubuntu@${NODE_IP}:"
         }
     }
 
@@ -250,6 +270,25 @@ try {
         sh 'kubectl get pods --all-namespaces'
     } // node
 
+
+    //// armada install openstack
+
+    node(NODE_NAME) {
+        stage ("Armada Apply") {
+            sh 'cp ~/osh-armada.yaml .'
+
+            armada_cmd = "apply /target/osh-armada.yaml --tiller-host=${GENESIS_NODE_IP} --tiller-port=44134"
+            docker_opts = "-t -v ~/.kube:/armada/.kube -v \$(pwd):/target --net=host"
+            docker_cmd = "sudo docker run ${docker_opts} ${ARMADA_IMAGE} ${armada_cmd}"
+
+            status = sh(returnStatus: true, script: docker_cmd)
+            if (status) {
+                // todo: collect logs and handle error
+                sh "exit 1"
+            }
+        }
+    }
+
 } finally {
     node(INTEGRATION_NODE) {
         dir(SCRIPTS_DIR) {
@@ -260,7 +299,7 @@ try {
                 usernameVariable: 'JENKINS_USER',
                 passwordVariable: 'JENKINS_TOKEN')]) {
 
-                sh "java -jar /home/jenkins/integration/jenkins-cli.jar -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+                // sh "java -jar /home/jenkins/integration/jenkins-cli.jar -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
             }
         }
     }
