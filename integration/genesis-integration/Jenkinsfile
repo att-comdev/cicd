@@ -1,13 +1,11 @@
 import groovy.json.JsonSlurper
 
 
-NODE_NAME="genesis-node-${env.BUILD_NUMBER}"
-NODE_IP='10.24.20.100'
+JENKINS_NODE_NAME = "genesis-${env.BUILD_NUMBER}"
+JENKINS_NODE_IP = '10.24.20.100'
+JENKINS_NODE_TMPL = 'integration/genesis.yaml'
 
-// todo: improve way we launch heat templates
-INTEGRATION_NODE='integration'
-
-SCRIPTS_DIR='/home/jenkins/integration'
+JENKINS_SLAVE_BUILDER = 'slave-builder' // lavel
 
 
 CEPH_CHART_REPO='https://git.openstack.org/openstack/openstack-helm'
@@ -18,36 +16,37 @@ MAAS_CHART_REPO='https://github.com/sh8121att/helm_charts'
 
 DRYDOCK_IMAGE='quay.io/attcomdev/drydock:master'
 ARMADA_IMAGE='quay.io/attcomdev/armada:master'
-PROMENADE_IMAGE='quay.io/attcomdev/promenade:master'
+PROMENADE_IMAGE='quay.io/attcomdev/promenade:v0.2.2' // before refactor
 
 DECKHAND_IMAGE = 'quay.io/attcomdev/deckhand:latest'
 DECKHAND_CHART_REPO = 'https://review.gerrithub.io/att-comdev/aic-helm'
 
 
-
 try {
-    node(INTEGRATION_NODE) {
-        dir(SCRIPTS_DIR) {
+    node(JENKINS_SLAVE_BUILDER) {
+        checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: '$CICD_GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/cicd']]]
 
-            def ret = sh (returnStatus: true, script: 'docker run -v $(pwd):/target -t genesis-client2 bash /gdestroy')
-            sleep 14
+        def funcs = load "${WORKSPACE}/integration/genesis-integration/funcs.groovy"
 
-            sh ('docker run -v $(pwd):/target -t genesis-client2 bash /glaunch')
+        funcs.jenkins_slave_destroy(JENKINS_NODE_NAME)
+        funcs.jenkins_slave_launch(JENKINS_NODE_NAME, "${env.HOME}/${JENKINS_NODE_TMPL}", JENKINS_NODE_IP)
 
-            withCredentials([usernamePassword(credentialsId: 'jenkins-token',
-                usernameVariable: 'JENKINS_USER',
-                passwordVariable: 'JENKINS_TOKEN')]) {
-
-                sh "bash create-node ${NODE_NAME} ${NODE_IP}"
-            }
-        }
+        sh 'exit 1' // remove after testing VM launch part
     }
+
 
     //// ipmi utils
 
     def ipmi_power_off = {
         withCredentials([usernamePassword(credentialsId: 'integration-ipmi',
-                                          usernameVariable: 'IPMI_USERNAME', 
+                                          usernameVariable: 'IPMI_USERNAME',
                                           passwordVariable: 'IPMI_PASSWORD')]) {
             for (ip = 11; ip <= 14; ip++) {
                 opts = "-I lanplus -H 10.23.104.${ip} -U \$IPMI_USERNAME -P \$IPMI_PASSWORD"
@@ -57,22 +56,23 @@ try {
     }
 
     stage("Genesis Prepare") {
-        node(NODE_NAME) {
+        node(JENKINS_NODE_NAME) {
             sh 'echo Node is ready!'
 
             ipmi_power_off()
         }
     }
 
-    node(INTEGRATION_NODE) {
-        dir(SCRIPTS_DIR) {
-            // todo: these should probably go into repos
+    node(JENKINS_SLAVE_BUILDER) {
+        dir("${env.HOME}/integration") {
+            // todo: place these in proper repos
             sh "scp -o 'StrictHostKeyChecking=no' integration.yaml ubuntu@${NODE_IP}:"
             sh "scp -o 'StrictHostKeyChecking=no' promenade.yaml.sub ubuntu@${NODE_IP}:"
+            sh "scp -o 'StrictHostKeyChecking=no' osh-armada.yaml ubuntu@${NODE_IP}:"
         }
     }
 
-    node(NODE_NAME) {
+    node(JENKINS_NODE_NAME) {
         stage ("Genesis Deploy") {
             checkout poll: false,
                 scm: [$class: 'GitSCM',
@@ -92,7 +92,7 @@ try {
 
             NODE_NET_IFACE = 'ens3|eno1' // ens3 for VMs, eno1 for bare-metal
 
-            GENESIS_NODE_IP = NODE_IP
+            GENESIS_NODE_IP = JENKINS_NODE_IP
             GENESIS_NODE_NAME = get_hname()
 
             MASTER_NODE_IP = '10.23.20.11'
@@ -250,19 +250,29 @@ try {
         sh 'kubectl get pods --all-namespaces'
     } // node
 
-} finally {
-    node(INTEGRATION_NODE) {
-        dir(SCRIPTS_DIR) {
-            // leave node running for manual troublehooting
-            // sh ('docker run -v $(pwd):/target -t genesis-client2 bash /gdestroy')
 
-            withCredentials([usernamePassword(credentialsId: 'jenkins-token',
-                usernameVariable: 'JENKINS_USER',
-                passwordVariable: 'JENKINS_TOKEN')]) {
+    //// armada install openstack
 
-                sh "java -jar /home/jenkins/integration/jenkins-cli.jar -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+    node(JENKINS_NODE_NAME) {
+        stage ("Armada Apply") {
+            sh 'cp ~/osh-armada.yaml .'
+
+            armada_cmd = "apply /target/osh-armada.yaml --tiller-host=${GENESIS_NODE_IP} --tiller-port=44134"
+            docker_opts = "-t -v ~/.kube:/armada/.kube -v \$(pwd):/target --net=host"
+            docker_cmd = "sudo docker run ${docker_opts} ${ARMADA_IMAGE} ${armada_cmd}"
+
+            status = sh(returnStatus: true, script: docker_cmd)
+            if (status) {
+                // todo: collect logs and handle error
+                sh "exit 1"
             }
         }
+    }
+
+} finally {
+    node(JENKINS_SLAVE_BUILDER) {
+        // keep genesis running for manual troubleshooting
+        // funcs.jenkins_slave_destroy(NODE_NAME)
     }
 }
 
