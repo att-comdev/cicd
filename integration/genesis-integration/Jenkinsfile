@@ -18,7 +18,11 @@ MAAS_CHART_REPO='https://github.com/sh8121att/helm_charts'
 
 DRYDOCK_IMAGE='quay.io/attcomdev/drydock:master'
 ARMADA_IMAGE='quay.io/attcomdev/armada:master'
-PROMENADE_IMAGE='quay.io/attcomdev/armada:master'
+PROMENADE_IMAGE='quay.io/attcomdev/promenade:master'
+
+DECKHAND_IMAGE = 'quay.io/attcomdev/deckhand:latest'
+DECKHAND_CHART_REPO = 'https://review.gerrithub.io/att-comdev/aic-helm'
+
 
 
 try {
@@ -108,6 +112,8 @@ try {
                      "CEPH_CHART_REPO=${CEPH_CHART_REPO}",
                      "DRYDOCK_CHART_REPO=${DRYDOCK_CHART_REPO}",
                      "MAAS_CHART_REPO=${MAAS_CHART_REPO}",
+                     "DECKHAND_IMAGE=${DECKHAND_IMAGE}",
+                     "DECKHAND_CHART_REPO=${DECKHAND_CHART_REPO}",
                      "DRYDOCK_IMAGE=${DRYDOCK_IMAGE}"]) {
 
                 dir("${WORKSPACE}/manifests/basic_ucp") {
@@ -259,5 +265,4 @@ try {
         }
     }
 }
-
 
