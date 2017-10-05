@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ceaae6d_7d79b0c8",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-10-05T19:11:09Z",
+      "side": 1,
+      "message": "Looks cool \u003d)",
+      "range": {
+        "startLine": 45,
+        "startChar": 7,
+        "endLine": 47,
+        "endChar": 19
+      },
+      "revId": "2a06d38c265843fda9ffc0bfaa1cd0cde2a80fbc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2ee10196_ddbb23ed",
+        "filename": "integration/genesis-integration/funcs.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-10-05T19:11:09Z",
+      "side": 1,
+      "message": "do you still need it?",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 1
+      },
+      "revId": "2a06d38c265843fda9ffc0bfaa1cd0cde2a80fbc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
