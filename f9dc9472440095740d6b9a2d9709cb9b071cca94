@@ -22,6 +22,30 @@
       "revId": "f9dc9472440095740d6b9a2d9709cb9b071cca94",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ced8ac0f_a41cfd3b",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-05T15:18:38Z",
+      "side": 1,
+      "message": "This works fine.. using gerrit repo to clone the code.\nTry `git clone \u003clink\u003e`",
+      "parentUuid": "201dcf2d_7d622b96",
+      "range": {
+        "startLine": 24,
+        "startChar": 23,
+        "endLine": 24,
+        "endChar": 70
+      },
+      "revId": "f9dc9472440095740d6b9a2d9709cb9b071cca94",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
