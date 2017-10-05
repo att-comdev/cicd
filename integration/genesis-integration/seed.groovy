@@ -3,6 +3,13 @@ base_path = "integration/genesis-integration"
 
 pipelineJob("${base_path}/genesis-full") {
 
+    parameters([
+       stringParam(defaultValue: $GERRIT_REFSPEC,
+                   description: 'Pass code reference to Jenkinsfile',
+                   name: 'CICD_GERRIT_REFSPEC')
+    )]
+
+
     triggers {
         gerritTrigger {
             serverName('Gerrithub-jenkins')
