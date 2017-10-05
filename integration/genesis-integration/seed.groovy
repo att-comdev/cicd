@@ -1,7 +1,14 @@
-
 base_path = "integration/genesis-integration"
 
 pipelineJob("${base_path}/genesis-full") {
+
+    parameters {
+        stringParam {
+            defaultValue(GERRIT_REFSPEC)
+            description('Pass att-comdev/cicd code refspec to the job')
+            name ('CICD_GERRIT_REFSPEC')
+        }
+    }
 
     triggers {
         gerritTrigger {
