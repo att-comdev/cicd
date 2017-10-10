@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "05f9606d_8b616d84",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 51
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-10-10T16:21:24Z",
+      "side": 1,
+      "message": "useless code",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 51
+      },
+      "revId": "bfe09659ab4c13f92804d6e11d05c58f32c9c01e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bf91190f_d14865d9",
         "filename": "integration/genesis-integration/Jenkinsfile",
         "patchSetId": 51
@@ -30,6 +53,29 @@
       "writtenOn": "2017-10-10T07:02:51Z",
       "side": 1,
       "message": "Stick with Slave or Node.",
+      "revId": "bfe09659ab4c13f92804d6e11d05c58f32c9c01e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "23ca59aa_7a82c403",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 51
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-10-10T16:21:24Z",
+      "side": 1,
+      "message": "Do we destroy it after use?",
+      "range": {
+        "startLine": 275,
+        "startChar": 1,
+        "endLine": 275,
+        "endChar": 57
+      },
       "revId": "bfe09659ab4c13f92804d6e11d05c58f32c9c01e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
