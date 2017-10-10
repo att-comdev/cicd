@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf91190f_d14865d9",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 51
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-10-10T07:02:51Z",
+      "side": 1,
+      "message": "Why are we calling it genesis-builder?  Isn\u0027t it just builder?  Not sure about all of the JENKINS in front of everything.  If we are talking nodes in these scripts, it\u0027s the Jenkins node or does it conflict with other nodes?",
+      "revId": "bfe09659ab4c13f92804d6e11d05c58f32c9c01e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e9fb78_c40090c5",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 51
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-10-10T07:02:51Z",
+      "side": 1,
+      "message": "Stick with Slave or Node.",
+      "revId": "bfe09659ab4c13f92804d6e11d05c58f32c9c01e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "573a4974_887ef8a3",
+        "filename": "integration/genesis-integration/funcs.groovy",
+        "patchSetId": 51
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-10-10T07:02:51Z",
+      "side": 1,
+      "message": "I don\u0027t like the _cmd, it\u0027s by definition a command but if you call it just openstack does it conflict with the openstack cli?",
+      "revId": "bfe09659ab4c13f92804d6e11d05c58f32c9c01e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6689b3c_a19c7c04",
+        "filename": "integration/genesis-integration/funcs.groovy",
+        "patchSetId": 51
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-10-10T07:02:51Z",
+      "side": 1,
+      "message": "get_stack_ip",
+      "revId": "bfe09659ab4c13f92804d6e11d05c58f32c9c01e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb2a0bd5_5f4599c5",
+        "filename": "integration/genesis-integration/funcs.groovy",
+        "patchSetId": 51
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-10-10T07:02:51Z",
+      "side": 1,
+      "message": "config_node, create_node, delete_node, launch_node.  I don\u0027t think you need to put Jenkins in all of these function names.",
+      "revId": "bfe09659ab4c13f92804d6e11d05c58f32c9c01e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
