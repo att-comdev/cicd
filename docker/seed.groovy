@@ -27,19 +27,23 @@ for (entry in object.dockerimages) {
                                 pattern("**")
                                 }
                             }
-                            
+                            filePaths {
+                                filePath {
+                                compareType("ANT")
+                                pattern("$chart/**")
+                                }                              
+                            }
                             disableStrictForbiddenFileVerification(false)
                         }
                     }
-                triggerOnEvents { 
-                    patchsetCreated { 
-                        excludeDrafts(false) 
-                        excludeTrivialRebase(false) 
-                        excludeNoCodeChange(false) 
-                     } 
-                    changeMerged() 
-                } 
-
+                    triggerOnEvents {
+                        patchsetCreated { 
+                           excludeDrafts(false) 
+                           excludeTrivialRebase(false) 
+                           excludeNoCodeChange(false) 
+                        } 
+                        changeMerged()
+                    }
                 }
 
                 definition {
