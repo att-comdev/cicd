@@ -1,0 +1,145 @@
+
+PROM_NODE_NAME_BASE="promenade-${env.BUILD_NUMBER}"
+PROM_NODE_TMPL="promenade/promenade.yaml"
+
+PROM_VERSION = "0.1.0-${env.BUILD_NUMBER}"
+PROM_IMAGE = "ucp/promenade:${PROM_VERSION}"
+
+ARTF_URL = env.ARTF_DOCKER_URL
+ARTF_PROM_IMAGE = "${ARTF_URL}/ucp/promenade:${PROM_VERSION}"
+
+GIT_URL = 'https://review.gerrithub.io/att-comdev/promenade'
+
+
+PROM_NODES = ["build", "genesis", "master1", "master2", "worker"]
+
+def funcs
+
+try {
+    node('local-vm-launch') {
+        checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: '$CICD_GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+        funcs = load "${WORKSPACE}/common/funcs.groovy"
+
+        for (n in PROM_NODES) {
+            funcs.jenkins_slave_launch("${PROM_NODE_NAME_BASE}-${n}",
+                                       "${env.HOME}/${PROM_NODE_TMPL}")
+        }
+    }
+
+    stage('Wait for Nodes'){
+
+        def get_iface = {
+            cmd = 'echo -n $(ip route | grep \"^default\" | head -1 | awk \'{print $5}\')'
+            sh(returnStdout: true, script: cmd)
+        }
+
+        def get_hname = {
+            cmd = 'echo -n $(hostname)'
+            sh(returnStdout: true, script: cmd)
+        }
+
+        def get_ip = { iface ->
+            def cmd = {"ifconfig ${iface} | grep 'inet addr:' | cut -d: -f2 | awk '{ print \$1}'"}
+            sh(returnStdout: true, script: cmd(iface)).trim()
+        }
+
+        node ("${PROM_NODE_NAME_BASE}-genesis") {
+            G_IFACE = get_iface()
+            G_HNAME = get_hname()
+            G_IP = get_ip(G_IFACE)
+        }
+
+        node ("${PROM_NODE_NAME_BASE}-master1") {
+            M1_IFACE = get_iface()
+            M1_HNAME = get_hname()
+            M1_IP = get_ip(M1_IFACE)
+        }
+
+        node ("${PROM_NODE_NAME_BASE}-master2") {
+            M2_IFACE = get_iface()
+            M2_HNAME = get_hname()
+            M2_IP = get_ip(M2_IFACE)
+        }
+
+        node ("${PROM_NODE_NAME_BASE}-worker") {
+            W_IFACE = get_iface()
+            W_HNAME = get_hname()
+            W_IP = get_ip(W_IFACE)
+        }
+
+        node ("${PROM_NODE_NAME_BASE}-build") {
+            sh 'echo I am also ready!'
+        }
+    }
+
+    stage('Promenade Build'){
+        node("${PROM_NODE_NAME_BASE}-build"){
+            checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: '$GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                     url: GIT_URL]]]
+
+            sh "sudo docker build -t ${PROM_IMAGE} ."
+            sh "sudo docker tag ${PROM_IMAGE} ${ARTF_PROM_IMAGE}"
+        }
+    }
+
+    stage('Promenade Publish'){
+       node("${PROM_NODE_NAME_BASE}-build"){
+          withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                usernameVariable: 'ARTIFACTORY_USER',
+                passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+             dopts = "--username \$ARTIFACTORY_USER --password \$ARTIFACTORY_PASSWORD"
+             sh "sudo docker login ${dopts} ${ARTF_URL}/docker"
+             sh "sudo docker push ${ARTF_PROM_IMAGE}"
+          }
+       }
+    }
+
+
+    stage('Promenade Config'){
+       node("${PROM_NODE_NAME_BASE}-build"){
+
+           print G_IP
+           print M1_IP
+           print M2_IP
+           print W_IP
+
+           print G_IFACE
+           print M1_IFACE
+           print M2_IFACE
+           print W_IFACE
+
+           print G_HNAME
+           print M1_HNAME
+           print M2_HNAME
+           print W_HNAME
+       }
+    }
+
+    node("${PROM_NODE_NAME_BASE}-build") {
+        // do genesis stuff
+        sh("sudo docker pull ${ARTF_PROM_IMAGE}")
+    }
+
+} finally {
+    node('local-vm-launch') {
+        for (n in PROM_NODES) {
+            funcs.jenkins_slave_destroy("${PROM_NODE_NAME_BASE}-${n}")
+        }
+    }
+}
+
