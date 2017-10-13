@@ -1,18 +1,19 @@
 import groovy.json.JsonSlurper
 
-def chartsJson = '''{ "images":[{
-                        "repo":"att-comdev/dockerfiles",
-                        "charts":[  "airflow",
-                                    "maas",
-                                    "rabbitmq"]
+def chartsJson = '''{ "UCP":[{
+                        "repo":"att-comdev/cicd/ucp",
+                        "charts":[  "deckhand",
+                                    "promenade",
+                                    "ucp-armada/armada",
+                                    "ucp-drydock/drydock"]
                         }]}'''
 
 def jsonSlurper = new JsonSlurper()
 def object = jsonSlurper.parseText(chartsJson)
 
-for (entry in object.images) {
+for (entry in object.UCP) {
     for (chart in entry.charts) {
-        pipelineJob("images/${entry.repo}/${chart}") {
+        pipelineJob("UCP/${entry.repo}/${chart}") {
 
             triggers {
                 gerritTrigger {
@@ -48,7 +49,8 @@ for (entry in object.images) {
 
                 definition {
                     cps {
-                        script(readFileFromWorkspace('docker/Jenkinsfile'))
+
+                        script(readFileFromWorkspace('ucp/${chart}/Jenkinsfile'))
                         sandbox()
                     }
                 }
