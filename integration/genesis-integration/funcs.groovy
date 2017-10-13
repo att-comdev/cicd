@@ -89,8 +89,12 @@ def stack_delete(String name) {
 }
 
 def stack_ip_get(String name) {
-    cmd = openstack_cmd("openstack stack output show -f value -c output_value ${name} floating_ip")
-    return sh(returnStdout: true, script: cmd).trim()
+    withCredentials([usernamePassword(credentialsId: 'jenkins-openstack',
+                                      usernameVariable: 'OS_USERNAME',
+                                      passwordVariable: 'OS_PASSWORD')]) {
+        cmd = openstack_cmd("openstack stack output show -f value -c output_value ${name} floating_ip")
+        return sh(returnStdout: true, script: cmd).trim()
+    }
 }
 
 
