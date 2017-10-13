@@ -2,6 +2,91 @@
   "comments": [
     {
       "key": {
+        "uuid": "9fa9527a_2f518ee8",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-13T21:39:08Z",
+      "side": 1,
+      "message": "Slave name should be proper to the job.",
+      "revId": "44057850e3eeb313d0bd1b9a22b173fe8df1abcf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ce3cbd1a_84ee532d",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-13T21:39:08Z",
+      "side": 1,
+      "message": "Make this a variable.",
+      "revId": "44057850e3eeb313d0bd1b9a22b173fe8df1abcf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c34e20e_b317f42d",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-13T21:39:08Z",
+      "side": 1,
+      "message": "Why are you using Armada template. This should be different tempalte.",
+      "revId": "44057850e3eeb313d0bd1b9a22b173fe8df1abcf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1d8ca106_b7447647",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-13T21:39:08Z",
+      "side": 1,
+      "message": "Why do you need relative?\nYou only have 1 repository, don\u0027t u?",
+      "revId": "44057850e3eeb313d0bd1b9a22b173fe8df1abcf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8a44876_bf887017",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-13T21:39:08Z",
+      "side": 1,
+      "message": "Hardcoded IP to artifactory.",
+      "revId": "44057850e3eeb313d0bd1b9a22b173fe8df1abcf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c49cd36f_7f1ece55",
         "filename": "docker/seed.groovy",
         "patchSetId": 10
