@@ -1,18 +1,18 @@
 import groovy.json.JsonSlurper
 
-def chartsJson = '''{ "dockerimages":[{
+def chartsJson = '''{ "images":[{
                         "repo":"att-comdev/dockerfiles",
                         "charts":[  "airflow",
-                                    "mass",
+                                    "maas",
                                     "rabbitmq"]                             
                         }]}'''
 
 def jsonSlurper = new JsonSlurper()
 def object = jsonSlurper.parseText(chartsJson)
 
-for (entry in object.dockerimages) {
+for (entry in object.images) {
     for (chart in entry.charts) {
-        pipelineJob("dockerimages/${entry.repo}/${chart}") {
+        pipelineJob("images/${entry.repo}/${chart}") {
 
             triggers {
                 gerritTrigger {
@@ -27,19 +27,23 @@ for (entry in object.dockerimages) {
                                 pattern("**")
                                 }
                             }
-                            
+                            filePaths {
+                                filePath {
+                                compareType("ANT")
+                                pattern("$chart/**")
+                                }                              
+                            }
                             disableStrictForbiddenFileVerification(false)
                         }
                     }
-                triggerOnEvents { 
-                    patchsetCreated { 
-                        excludeDrafts(false) 
-                        excludeTrivialRebase(false) 
-                        excludeNoCodeChange(false) 
-                     } 
-                    changeMerged() 
-                } 
-
+                    triggerOnEvents {
+                        patchsetCreated { 
+                           excludeDrafts(false) 
+                           excludeTrivialRebase(false) 
+                           excludeNoCodeChange(false) 
+                        } 
+                        changeMerged()
+                    }
                 }
 
                 definition {
