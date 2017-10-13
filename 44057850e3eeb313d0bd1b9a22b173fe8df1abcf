@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c49cd36f_7f1ece55",
+        "filename": "docker/seed.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-10-13T18:44:48Z",
+      "side": 1,
+      "message": "I\u0027m not sure about it. M.b. \u0027true\u0027 is a better choice.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 53
+      },
+      "revId": "44057850e3eeb313d0bd1b9a22b173fe8df1abcf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
