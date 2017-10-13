@@ -1,13 +1,82 @@
-node('10.24.20.18-slave') {
+def comp = env.JOB_BASE_NAME
+IMAGE_VERSION = "0.1.0-${env.BUILD_NUMBER}"
+COMP_IMAGE = "cicd/att-comdev/${comp}:${IMAGE_VERSION}"
+ARTF_URL = env.ARTF_DOCKER_URL
+ARTF_COMP_IMAGE = "${ARTF_URL}/cicd/att-comdev/${comp}:${IMAGE_VERSION}"
+GIT_URL = 'https://review.gerrithub.io/att-comdev/dockerfiles'
+NODE_NAME='dockerfiles-16.04-slave-'+env.BUILD_NUMBER
+JENKINS_VM_LAUNCH = 'local-vm-launch'
+try{
+    node(JENKINS_VM_LAUNCH) {
+        checkout poll: false,
+                    scm: [$class: 'GitSCM',
+                    branches: [[name: 'refs/changes/68/382368/5']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                        url: 'https://review.gerrithub.io/att-comdev/cicd']]]
 
-   stage('Checkout') {
-      checkout poll: false,
-      scm: [$class: 'GitSCM',
-         branches: [[name: '$GERRIT_REFSPEC']],
-         doGenerateSubmoduleConfigurations: false,
-         extensions: [[$class: 'CleanBeforeCheckout']],
-         submoduleCfg: [],
-         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-            url: 'https://review.gerrithub.io/att-comdev/cicd']]]
-   }
+            funcs = load "${WORKSPACE}/common/funcs.groovy"
+
+            funcs.jenkins_slave_launch("maas-node-${env.BUILD_NUMBER}",
+                                       "${env.HOME}/dockerfiles/dockerfiles.yaml")
+    }
+    node(NODE_NAME){
+        dir(env.WORKSPACE){
+            stage('Checkout'){
+                checkout poll: false,
+                         scm: [$class: 'GitSCM',
+                            branches: [[name: 'master']],
+                            doGenerateSubmoduleConfigurations: false,
+                            extensions: [],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                                 url: GIT_URL]]]
+            }
+        }
+        dir(env.WORKSPACE+"/${comp}"){
+            stage('Build-DockerImages'){
+                sh "sudo systemctl status docker.service"
+                sh '''sudo echo {\\"insecure-registries\\":[\\"${ARTF_URL}\\"]} | sudo tee /etc/docker/daemon.json > /dev/null'''
+                sh "sudo cat /etc/docker/daemon.json"
+                sh "sudo systemctl restart docker.service"
+                sh "sudo docker info"
+                if(env.JOB_BASE_NAME=='maas')
+                {
+                    COMP_IMAGE1 = "cicd/att-comdev/${comp}/maas-region-controller"
+                    COMP_IMAGE2 = "cicd/att-comdev/${comp}/maas-rack-controller"
+                    sh "sudo docker build -t ${COMP_IMAGE1}:${IMAGE_VERSION} maas-region-controller/."
+                    sh "sudo docker build -t ${COMP_IMAGE2}:${IMAGE_VERSION} maas-rack-controller/."
+                }
+                else sh "sudo docker build -t ${COMP_IMAGE} ."
+                sh "sudo docker images"
+
+            }
+            stage('Images Publish'){
+                withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'ARTIFACTORY_USER',
+                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                        dopts = "--username \$ARTIFACTORY_USER --password \$ARTIFACTORY_PASSWORD"
+                        sh "sudo docker login ${dopts} ${ARTF_URL}/docker"
+                        if(env.JOB_BASE_NAME=='maas')
+                        {
+                            sh "sudo docker tag ${COMP_IMAGE1}:${IMAGE_VERSION} ${ARTF_URL}/${COMP_IMAGE1}:${IMAGE_VERSION}"
+                            sh "sudo docker tag ${COMP_IMAGE2}:${IMAGE_VERSION} ${ARTF_URL}/${COMP_IMAGE2}:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_URL}/${COMP_IMAGE1}:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_URL}/${COMP_IMAGE2}:${IMAGE_VERSION}"
+                        }
+                        else{
+                            sh "sudo docker tag ${COMP_IMAGE} ${ARTF_COMP_IMAGE}"
+                            //sh "sudo docker push ${ARTF_COMP_IMAGE}"
+                        }
+                    }
+            }
+        }
+    }
+}
+finally {
+    node(JENKINS_VM_LAUNCH) {
+        funcs.jenkins_slave_destroy(NODE_NAME)
+    }
 }
