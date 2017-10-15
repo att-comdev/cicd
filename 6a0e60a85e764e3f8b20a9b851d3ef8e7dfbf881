@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9350406_7b13a8dd",
+        "filename": "ucp/promenade/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1011672
+      },
+      "writtenOn": "2017-10-15T01:44:11Z",
+      "side": 1,
+      "message": "Will you please add one more hook right after this one?\n\nsh (\u0027sudo bash final-validation.sh\u0027)\n\nIt could be one script, and if you push back, I will do that, but here\u0027s my reasoning:\n\n\"validate-cluster.sh\" is something that Promenade generates and could later be the kind of thing Prom runs via an API.\n\n\"final-validation.sh\" would hold additional validations that are specific to our gate, that know (for example) that we want to test that Ceph is working, where perhaps we do not want to rely on armada test functionality alone (which is the intention for production for this example).",
+      "revId": "6a0e60a85e764e3f8b20a9b851d3ef8e7dfbf881",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
