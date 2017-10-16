@@ -1,0 +1,57 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="shipyard-${env.BUILD_NUMBER}"
+NODE_TMPL="integration/genesis-single.yaml"
+
+def funcs
+
+try {
+    node(JENKINS_VM_LAUNCH) {
+        checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: 'master']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+        funcs = load "${WORKSPACE}/common/funcs.groovy"
+        funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
+    }
+    
+    node(NODE_NAME) {
+
+       stage('Checkout') {
+          checkout poll: false,
+             scm: [$class: 'GitSCM',
+                branches: [[name: '$GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                   url: 'https://review.gerrithub.io/att-comdev/shipyard']]]
+       }
+
+       stage('Docker Build') {
+          sh 'sudo docker build . -t shipyard'
+          sh 'sudo docker images'
+       }
+
+       stage('Docker Run') {
+         
+       }
+
+       stage('Validate Container') {
+          
+       }
+
+    }
+    
+} finally {
+    node(JENKINS_VM_LAUNCH) {
+        funcs.jenkins_slave_destroy(NODE_NAME)
+    }
+}
+
+
+
