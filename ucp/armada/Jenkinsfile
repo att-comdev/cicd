@@ -1,0 +1,138 @@
+ARFT_URL = env.ARTF_DOCKER_URL
+NODE_NAME='armada-16.04-slave-'+env.BUILD_NUMBER
+
+try{
+    node('master-host'){
+        stage('Create Jenkins Node'){
+            dir("/home/jenkins/armada"){
+                sh "source openrc && openstack stack create -t armada.yaml ${NODE_NAME} && sleep 30"
+                NODE_IP=sh(returnStdout: true, script: "source openrc && openstack stack output show -f value -c output_value ${NODE_NAME} floating_ip")
+
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+                    sh "bash create-node ${NODE_NAME} ${NODE_IP}"
+                }
+            }
+        }
+    }
+    node(NODE_NAME){
+        stage('Setup Kubeadm-AIO'){
+            sh '''mkdir openstack-helm
+                  mkdir armada'''
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']],
+                                                doGenerateSubmoduleConfigurations: false,
+                                                extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'openstack-helm']],
+                                                submoduleCfg: [],
+                                                userRemoteConfigs: [[url: 'https://git.openstack.org/openstack/openstack-helm']]])
+            dir(env.WORKSPACE+"/openstack-helm"){
+                sh '''set -ex
+                      : ${WORK_DIR:="$(pwd)"}
+                      export PVC_BACKEND=ceph
+                      export INTEGRATION=aio
+                      export SERVICE_LAUNCH_TIMEOUT=700
+                      export SERVICE_TEST_TIMEOUT=700
+                      ./tools/gate/setup_gate.sh
+                      
+                      helm install --namespace=openstack ${WORK_DIR}/dns-helper --name=dns-helper'''
+                      sleep 180
+
+                //Setup Ceph Labels
+                sh   '''kubectl label nodes ceph-mon=enabled --all
+                        kubectl label nodes ceph-osd=enabled --all
+                        kubectl label nodes ceph-mds=enabled --all
+                        kubectl label nodes ceph-rgw=enabled --all
+                        CONTROLLER_MANAGER_POD=$(kubectl get -n kube-system pods -l component=kube-controller-manager --no-headers -o name | awk -F '/' '{ print $NF; exit }')
+                        echo ${CONTROLLER_MANAGER_POD}
+                        kubectl exec -n kube-system ${CONTROLLER_MANAGER_POD} -- sh -c "cat > /etc/resolv.conf <<EOF
+                        nameserver 10.96.0.10
+                        nameserver ${UPSTREAM_DNS}
+                        search cluster.local svc.cluster.local
+                        EOF"'''
+
+                sh '''set -ex
+                      : ${WORK_DIR:="$(pwd)"}
+                      source ${WORK_DIR}/tools/gate/vars.sh
+                      source ${WORK_DIR}/tools/gate/funcs/helm.sh
+                      source ${WORK_DIR}/tools/gate/funcs/kube.sh
+                      source ${WORK_DIR}/tools/gate/funcs/network.sh
+                
+                      ARMADA_MANIFEST=/tmp/test.yaml
+                      SUBNET_RANGE=$(find_subnet_range)
+                      ARMADA_MANIFEST_TEMPLATE=${WORK_DIR}/tools/deployment/armada/openstack-master-aio.yaml
+                      sed "s|192.168.0.0/16|${SUBNET_RANGE}|g" ${ARMADA_MANIFEST_TEMPLATE} > ${ARMADA_MANIFEST}'''
+            
+            }
+        }
+        dir(env.WORKSPACE){
+            stage('Checkout'){
+                checkout poll: false,
+                         scm: [$class: 'GitSCM',
+                            branches: [[name: '$GERRIT_REFSPEC']],
+                            doGenerateSubmoduleConfigurations: false,
+                            extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'armada']],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                                 url: 'https://github.com/att-comdev/armada.git']]]
+            }
+        }
+        dir(env.WORKSPACE+"/armada"){
+            stage('Build'){
+                def comp = env.JOB_BASE_NAME
+                def build = env.BUILD_NUMBER
+            
+                        //No Chart yet
+                      //  def version = sh(returnStdout: true,
+                      //                   script: "sed -n -e 's/^s*versions*:s*//p' ${comp}/Chart.yaml").trim()
+                sh 'echo $(pwd)'
+                sh 'sudo docker build -t openstackhelm/armada:0.1.0.'+build+' .'
+                sh (''': ${WORK_DIR:='''+env.WORKSPACE+'''"/openstack-helm"}
+                       ARMADA_MANIFEST=/tmp/test.yaml
+                       sudo docker run -d \
+                      --net=host \
+                      --name armada \
+                      -v ${HOME}/.kube/config:/armada/.kube/config \
+                      -v ${ARMADA_MANIFEST}:${ARMADA_MANIFEST}:ro \
+                      -v ${WORK_DIR}:/opt/openstack-helm/charts:ro \
+                      openstackhelm/armada:0.1.0.'''+build)
+            }
+            stage('Deploy OpenStack-Helm'){
+                sh '''sudo docker exec armada armada tiller --status
+                      sudo docker exec armada armada apply /tmp/test.yaml'''
+            }
+            stage('Test'){
+                sh '''export SERVICE_TEST_TIMEOUT=700
+                      set -ex
+                      : ${WORK_DIR:='''+env.WORKSPACE+'''"/openstack-helm"}
+                      source ${WORK_DIR}/tools/gate/vars.sh
+                      source ${WORK_DIR}/tools/gate/funcs/helm.sh
+                      source ${WORK_DIR}/tools/gate/funcs/kube.sh
+                      source ${WORK_DIR}/tools/gate/funcs/network.sh
+                      kube_wait_for_pods ceph 600
+                      kube_wait_for_pods openstack 1200
+                    
+                      MON_POD=$(kubectl get pods -l application=ceph -l component=mon -n ceph --no-headers | awk '{ print $1; exit }')
+                      kubectl exec -n ceph ${MON_POD} -- ceph -s
+                      helm_test_deployment osh-keystone ${SERVICE_TEST_TIMEOUT}
+                      helm_test_deployment osh-glance ${SERVICE_TEST_TIMEOUT}
+                      helm_test_deployment osh-cinder ${SERVICE_TEST_TIMEOUT}
+                      helm_test_deployment osh-neutron ${SERVICE_TEST_TIMEOUT}
+                      helm_test_deployment osh-nova ${SERVICE_TEST_TIMEOUT}'''
+            }
+        }
+    }
+}  finally {
+    stage('Delete Jenkins Node'){
+        node('master-host') {
+            dir("/home/jenkins/armada") {
+                sh "source openrc && openstack stack delete -y $NODE_NAME"
+                
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+                    sh "java -jar ${env.JENKINS_CLI} -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+                }
+            }
+        }
+    }
+}
