@@ -109,7 +109,7 @@ def jenkins_node_config(String name, String host) {
         <launcher class=\"hudson.plugins.sshslaves.SSHLauncher\" plugin=\"ssh-slaves@1.5\">
         <host>${host}</host>
         <port>22</port>
-        <credentialsId>jenkins-slave-ssh</credentialsId>
+        <credentialsId>cab24-genesis</credentialsId>
         </launcher>
         <label>${name}</label>
         <nodeProperties/>
