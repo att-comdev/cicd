@@ -8,6 +8,21 @@ pipelineJob("${base_path}/genesis-full") {
             description('Pass att-comdev/cicd code refspec to the job')
             name ('CICD_GERRIT_REFSPEC')
         }
+        stringParam {
+            defaultValue('refs/changes/46/46/65')
+            description('Pass att-comdev/cicd code refspec to the job')
+            name ('CLCP_INTEGRATION_REFSPEC')
+        }
+        booleanParam {
+            defaultValue(false)
+            description('Enable Sonobuoy conformance tests')
+            name ('SONOBUOY_ENABLED')
+        }
+        booleanParam {
+            defaultValue(false)
+            description('Enable Shipyard for site deployment')
+            name ('SHIPYARD_ENABLED')
+        }
     }
 
     triggers {
