@@ -1,8 +1,8 @@
 node('armada-16.04-slave'){
     stage('Setup kubeadm-aio'){
         checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/openstack/openstack-helm.git']]])
-        sh( '''export INTEGRATION=aio 
-               export PVC_BACKEND=ceph 
+        sh( '''export INTEGRATION=aio
+               export PVC_BACKEND=ceph
                ./tools/gate/setup_gate.sh''')
     }
     stage('Checkout'){
@@ -13,9 +13,9 @@ node('armada-16.04-slave'){
         sh 'echo $(pwd)'
     }
     stage('Deploy'){
-        
+
     }
     stage('Test'){
-        
+
     }
 }
