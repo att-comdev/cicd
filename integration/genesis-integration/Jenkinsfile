@@ -1,278 +1,513 @@
-import groovy.json.JsonSlurper
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.DumperOptions;
+
+import groovy.json.JsonSlurperClassic
+import groovy.json.JsonOutput
 
 
-//JENKINS_NODE_NAME = "genesis-${env.BUILD_NUMBER}"
+JENKINS_SLAVE_BUILDER = 'genesis-builder'
 
-JENKINS_NODE_NAME = "genesis-node"
-JENKINS_NODE_IP = '10.24.20.100'
-JENKINS_NODE_TMPL = 'integration/genesis.yaml'
+GENESIS_NODE_NAME = "genesis"
+GENESIS_NODE_IP = '10.24.20.100'
+VMX_NODE_NAME = "vmx"
+VMX_NODE_IP = '10.24.20.101'
 
-JENKINS_SLAVE_BUILDER = 'genesis-builder' // lavel
-
-
-CEPH_CHART_REPO='https://git.openstack.org/openstack/openstack-helm'
-
-// todo: update when working drydock/maas charts merged
-DRYDOCK_CHART_REPO='https://github.com/sh8121att/helm_charts'
-MAAS_CHART_REPO='https://github.com/sh8121att/helm_charts'
-
-DRYDOCK_IMAGE='quay.io/attcomdev/drydock:master'
+PROMENADE_IMAGE='quay.io/attcomdev/promenade:master'
 ARMADA_IMAGE='quay.io/attcomdev/armada:master'
-PROMENADE_IMAGE='quay.io/attcomdev/promenade:v0.2.2' // before refactor
+DRYDOCK_IMAGE='docker.io/sthussey/drydock:386668v14'
 
-DECKHAND_IMAGE = 'quay.io/attcomdev/deckhand:latest'
-DECKHAND_CHART_REPO = 'https://review.gerrithub.io/att-comdev/aic-helm'
+MANIFEST_PREFIX='region/atl-lab1'
+PROMENADE_CFG="${MANIFEST_PREFIX}/ucp/promenade"
+ARMADA_UCP_CFG="${PROMENADE_CFG}/bootstrap-armada-config.yaml"
+DRYDOCK_CFG="${MANIFEST_PREFIX}/ucp/drydock.yaml"
+ARMADA_OSH_CFG="${MANIFEST_PREFIX}/osh/armada.yaml"
 
+GENESIS_TMPL = "${MANIFEST_PREFIX}/bootstrap/genesis/genesis.yaml"
+VMX_TMPL = "${MANIFEST_PREFIX}/bootstrap/vmx/vmx.yaml"
 
-try {
-    node(JENKINS_SLAVE_BUILDER) {
-        checkout poll: false,
-                scm: [$class: 'GitSCM',
-                branches: [[name: '$CICD_GERRIT_REFSPEC']],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [],
-                submoduleCfg: [],
-                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                    url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+SONOBUOY_CFG="${MANIFEST_PREFIX}/test/sonobuoy.yaml"
 
-        def funcs = load "${WORKSPACE}/integration/genesis-integration/funcs.groovy"
+ARTF_BASE="ucp/integration/${JOB_BASE_NAME}/${BUILD_NUMBER}"
 
-        funcs.jenkins_slave_destroy(JENKINS_NODE_NAME)
-        funcs.jenkins_slave_launch(JENKINS_NODE_NAME, "${env.HOME}/${JENKINS_NODE_TMPL}", JENKINS_NODE_IP)
-    }
+DECKHAND_URL='http://deckhand-int.ucp.svc.cluster.local:9000/api/v1.0'
 
 
-    //// ipmi utils
+def genesis_setup = {
+    // genesis.yaml
+    checkout poll: false,
+        scm: [$class: 'GitSCM',
+            branches: [[name: '$CLCP_INTEGRATION_REFSPEC']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[$class: 'RelativeTargetDirectory',
+                relativeTargetDir: 'clcp-integration']],
+            submoduleCfg: [],
+            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                url: 'ssh://jenkins-attcomdev@10.24.20.18:29418/clcp-integration',
+                    credentialsId:'jenkins-stage-master']]]
 
-    def ipmi_power_off = {
-        withCredentials([usernamePassword(credentialsId: 'integration-ipmi',
-                                          usernameVariable: 'IPMI_USERNAME',
-                                          passwordVariable: 'IPMI_PASSWORD')]) {
-            for (ip = 11; ip <= 14; ip++) {
-                opts = "-I lanplus -H 10.23.104.${ip} -U \$IPMI_USERNAME -P \$IPMI_PASSWORD"
-                sh ("ipmitool ${opts} chassis power off")
+    // funcs.groovy
+    checkout poll: false,
+        scm: [$class: 'GitSCM',
+            branches: [[name: '$CICD_GERRIT_REFSPEC']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[$class: 'RelativeTargetDirectory',
+                relativeTargetDir: 'cicd']],
+            submoduleCfg: [],
+            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+    def funcs = load "${WORKSPACE}/cicd/integration/genesis-integration/funcs.groovy"
+
+    funcs.jenkins_slave_destroy(GENESIS_NODE_NAME)
+    funcs.jenkins_slave_launch(GENESIS_NODE_NAME,
+        "${WORKSPACE}/clcp-integration/${GENESIS_TMPL}", GENESIS_NODE_IP)
+
+    // integration gap: enable once vMX is available
+    // funcs.jenkins_slave_destroy(VMX_NODE_NAME)
+    // funcs.jenkins_slave_launch(VMX_NODE_NAME,
+    //    "${WORKSPACE}/clcp-integration/${VMX_TMPL}", VMX_NODE_IP)
+
+    stage("Genesis Geting Ready") {
+        timeout (10) {
+            node(GENESIS_NODE_NAME) {
+                sh 'echo "Welcome $(hostname)"'
             }
         }
     }
+}
 
+
+//// ipmi utils
+
+def ipmi_power_off = {
+    withCredentials([usernamePassword(credentialsId: 'integration-ipmi',
+                                      usernameVariable: 'IPMI_USERNAME',
+                                      passwordVariable: 'IPMI_PASSWORD')]) {
+        for (ip = 11; ip <= 14; ip++) {
+            opts = "-I lanplus -H 10.23.104.${ip} -U \$IPMI_USERNAME -P \$IPMI_PASSWORD"
+            sh ("ipmitool ${opts} chassis power off")
+        }
+    }
+}
+
+
+def genesis_prepare = {
     stage("Genesis Prepare") {
-        node(JENKINS_NODE_NAME) {
-            sh 'echo Node is ready!'
+        checkout poll: false,
+            scm: [$class: 'GitSCM',
+            branches: [[name: '$CLCP_INTEGRATION_REFSPEC']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [],
+            submoduleCfg: [],
+            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                url: 'ssh://jenkins-attcomdev@10.24.20.18:29418/clcp-integration',
+                    credentialsId:'jenkins-stage-master']]]
 
-            ipmi_power_off()
+        ipmi_power_off()
+
+        // keys added to drydock config
+        sh 'ssh-keygen -f genesis-id_rsa -N ""'
+    }
+}
+
+
+//// yaml utils
+
+def dump_opts = {
+    // add explicit start (---) to documents
+    DumperOptions opts = new DumperOptions();
+    opts.setExplicitStart(true);
+    return opts
+}
+
+def dump_yaml = { cfg ->
+    return new Yaml(dump_opts()).dump(cfg);
+}
+
+def dump_yaml_all = { cfg ->
+    return new Yaml(dump_opts()).dumpAll(cfg.iterator());
+}
+
+
+def index_seek = { cfg, val ->
+    def index = -1;
+    cfg.eachWithIndex { v, i ->
+        if (v.metadata.name == val) {
+            index = i
+            return true // index found
         }
     }
+    return index
+}
 
-    node(JENKINS_SLAVE_BUILDER) {
-        dir("${env.HOME}/integration") {
-            // todo: place these in proper repos
-            sh "scp -o 'StrictHostKeyChecking=no' integration.yaml ubuntu@${JENKINS_NODE_IP}:"
-            sh "scp -o 'StrictHostKeyChecking=no' promenade.yaml.sub ubuntu@${JENKINS_NODE_IP}:"
-            sh "scp -o 'StrictHostKeyChecking=no' osh-armada.yaml ubuntu@${JENKINS_NODE_IP}:"
-        }
+
+def site_config_overrides = {
+    stage("Config Overrides") {
+
+        //// prmenade genesis config
+
+        def promcfg = readYaml file: "${PROMENADE_CFG}/genesis-config.yaml"
+        promcfg.data.images.armada = ARMADA_IMAGE
+
+        writeFile file: "${PROMENADE_CFG}/genesis-config.yaml", text: dump_yaml(promcfg)
+
+
+        //// armada bootstrap
+
+        def armcfg = readYaml file: "${ARMADA_UCP_CFG}"
+
+        def i = index_seek(armcfg, 'drydock')
+        armcfg[i].data.values.images.tags.drydock = DRYDOCK_IMAGE
+        armcfg[i].data.values.images.tags.drydock_db_sync = DRYDOCK_IMAGE
+
+        i = index_seek(armcfg, 'armada')
+        armcfg[i].data.values.images.tags.api = ARMADA_IMAGE
+
+        i = index_seek(armcfg, 'promenade')
+        armcfg[i].data.values.images.tags.api = PROMENADE_IMAGE
+
+        writeFile file: "${ARMADA_UCP_CFG}", text: dump_yaml_all(armcfg)
+
+
+        //// drydock site config
+
+        def drycfg = readYaml file: "${DRYDOCK_CFG}"
+
+        def pkey = readFile (file: "genesis-id_rsa.pub")
+        def keys = drycfg[0].data.authorized_keys
+        keys.add(pkey)
+        drycfg[0].data.authorized_keys = keys
+
+        writeFile file: "${DRYDOCK_CFG}", text: dump_yaml_all(drycfg)
     }
+}
 
-    node(JENKINS_NODE_NAME) {
-        stage ("Genesis Deploy") {
-            checkout poll: false,
-                scm: [$class: 'GitSCM',
-                branches: [[name: '$GERRIT_REFSPEC']],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [],
-                submoduleCfg: [],
-                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                    url: 'https://review.gerrithub.io/att-comdev/ucp-integration']]]
 
-            def get_hname = {
-                return sh(returnStdout: true, script: "echo -n \$(hostname)")
+def artf_publish = { pattern, target ->
+        spec = ['files': [['pattern': pattern, 'target': target]]]
+        specj = new JsonOutput().toJson(spec)
+
+        artf = Artifactory.server 'artifactory'
+        artf.publishBuildInfo(artf.upload(specj))
+}
+
+
+def site_config_publish = {
+    stage('Site Config Publish') {
+        sh "tar czf site-config.tar.gz ${MANIFEST_PREFIX}"
+        artf_publish('site-config.tar.gz', "${ARTF_BASE}/configs/")
+    }
+}
+
+
+def promenade_config_gen = {
+    stage ("Promenade Config Gen") {
+        opts = '--rm -t -w /target -v $(pwd):/target'
+        cmd = "promenade generate-certs -o ${PROMENADE_CFG}/ ${PROMENADE_CFG}/*.yaml"
+        sh "sudo docker run ${opts} ${PROMENADE_IMAGE} ${cmd}"
+
+        sh "mkdir -p promenade-bundle"
+        cmd = "promenade build-all --validators -o promenade-bundle ${PROMENADE_CFG}/*.yaml"
+        sh "sudo docker run ${opts} ${PROMENADE_IMAGE} ${cmd}"
+    }
+}
+
+
+def promenade_config_publish = {
+    stage ("Promenade Config Publish") {
+        sh 'tar czf promenade-bundle.tar.gz promenade-bundle'
+        artf_publish('promenade-bundle.tar.gz', "${ARTF_BASE}/configs/")
+    }
+}
+
+
+def promenade_deploy = {
+    stage ("Promenade Deploy k8s") {
+        dir ("promenade-bundle") {
+            timeout (30) {
+                sh "sudo bash genesis.sh"
+                sh "sudo bash validate-genesis.sh"
             }
+        }
+        sh "sudo kubectl get pods --all-namespaces -o wide"
+    }
+}
 
-            CEPH_CLUSTER_NET = "'10.24.20.0/24, 10.23.20.0/24'"
-            CEPH_PUBLIC_NET = "'10.24.20.0/24, 10.23.20.0/24'"
 
-            NODE_NET_IFACE = 'ens3|eno1' // ens3 for VMs, eno1 for bare-metal
+//// drydock utils
 
-            GENESIS_NODE_IP = JENKINS_NODE_IP
-            GENESIS_NODE_NAME = get_hname()
+def drydock_cmd_run = { cmd ->
 
-            MASTER_NODE_IP = '10.23.20.11'
-            MASTER_NODE_NAME = 'controller01'
+    drydock_env = "-e OS_USERNAME=drydock" +
+        " -e OS_PASSWORD=password" +
+        " -e OS_AUTH_URL=http://keystone-api.ucp.svc.cluster.local:80/v3" +
+        " -e OS_PROJECT_NAME=service" +
+        " -e OS_PROJECT_DOMAIN_NAME=default" +
+        " -e OS_USER_DOMAIN_NAME=default" +
+        " -e DD_URL=http://drydock-api.ucp.svc.cluster.local:9000" +
+        " -e LC_ALL=C.UTF-8" +
+        " -e LANG=C.UTF-8"
 
-            sh "sudo sh -c 'echo ${GENESIS_NODE_IP} ${GENESIS_NODE_NAME} >> /etc/hosts'"
+    drydock_opts = "-v \$(pwd):/target --rm -t --net=host --entrypoint \"drydock\""
+    drydock_cmd = "sudo docker run ${drydock_opts} ${drydock_env} ${DRYDOCK_IMAGE}"
 
-            withEnv(["CEPH_CLUSTER_NET=${CEPH_CLUSTER_NET}",
-                     "CEPH_PUBLIC_NET=${CEPH_PUBLIC_NET}",
-                     "NODE_NET_IFACE=${NODE_NET_IFACE}",
-                     "GENESIS_NODE_IP=${GENESIS_NODE_IP}",
-                     "MASTER_NODE_IP=${MASTER_NODE_IP}",
-                     "GENESIS_NODE_NAME=${GENESIS_NODE_NAME}",
-                     "MASTER_NODE_NAME=${MASTER_NODE_NAME}",
-                     "PROMENADE_IMAGE=${PROMENADE_IMAGE}",
-                     "ARMADA_IMAGE=${ARMADA_IMAGE}",
-                     "CEPH_CHART_REPO=${CEPH_CHART_REPO}",
-                     "DRYDOCK_CHART_REPO=${DRYDOCK_CHART_REPO}",
-                     "MAAS_CHART_REPO=${MAAS_CHART_REPO}",
-                     "DECKHAND_IMAGE=${DECKHAND_IMAGE}",
-                     "DECKHAND_CHART_REPO=${DECKHAND_CHART_REPO}",
-                     "DRYDOCK_IMAGE=${DRYDOCK_IMAGE}"]) {
+    def result = ""
 
-                dir("${WORKSPACE}/manifests/basic_ucp") {
-                    timeout (30) {
-                        sh 'cp ~/promenade.yaml.sub .'
-                        sh 'cat promenade.yaml.sub'
+    // todo: keep retry, but report failed calls
+    // drydock fails to get status at times
+    // looks as issue related to bootactions
+    timeout(2) {
+        while (!result) {
+            try {
+                result = sh(returnStdout: true, script: "${drydock_cmd} ${cmd}")
+                break
+            } catch (error){
+                print "Failed to execute ${cmd}: ${error}"
+                sleep 20
+            }
+        }
+    }
 
-                        sh 'sudo -E bash deploy_ucp.sh'
+    return new JsonSlurperClassic().parseText(result)
+}
+
+
+def drydock_task_show = { task ->
+    return drydock_cmd_run("task show --task-id=${task}")
+}
+
+
+def drydock_task_create = { design, action, interval ->
+
+    task = drydock_cmd_run("task create --design-ref=${design} -a ${action}")
+
+    def status = task.status
+    timeout (interval) {
+        while (status != 'complete') {
+            sleep interval
+            r = drydock_task_show(task.task_id)
+            status = r.status
+            print "task -> status: ${r.status}, action: ${r.action}"
+        }
+    }
+
+    r = drydock_task_show(task.task_id).result
+    print "task -> status: ${r.status}, result: ${r.result}"
+
+    // bug: drydock fails to report proper status
+    // only success should be accepted.. fix when code is ready
+    if (r.status != 'success'
+            && r.status != 'partial_success'
+            && r.status != 'incomplete') {
+        print "Failed to execute Drydock task ${task}"
+        return 1
+    }
+    return 0
+}
+
+
+def serve_promenade_bundle = {
+    // feature gap: run nginx for hosting promenade YAMLs
+    def sp = "${WORKSPACE}/promenade-bundle"
+    sh "docker run -d -v ${sp}:/usr/share/nginx/html -p 6880:80 nginx"
+}
+
+
+def keystone_token_get = {
+
+    keystone_image = "kolla/ubuntu-source-keystone:3.0.3"
+
+    docker_env = "-e 'OS_AUTH_URL=http://keystone-api.ucp.svc.cluster.local:80/v3'" +
+        " -e 'OS_PROJECT_DOMAIN_NAME=default'" +
+        " -e 'OS_USER_DOMAIN_NAME=default'" +
+        " -e 'OS_PROJECT_NAME=service'" +
+        " -e 'OS_REGION_NAME=RegionOne'" +
+        " -e 'OS_USERNAME=drydock'" +
+        " -e 'OS_PASSWORD=password'" +
+        " -e 'OS_IDENTITY_API_VERSION=3'"
+
+    docker_opts = "--rm --net=host"
+    keystone_cmd = "openstack token issue -f value -c id"
+    docker_cmd = "docker run ${docker_opts} ${docker_env} ${keystone_image} ${keystone_cmd}"
+
+    return sh(returnStdout: true, script: docker_cmd).trim()
+}
+
+
+//// deckhand utils
+
+def deckhand_load = {
+    stage('Deckhand Load') {
+        def token = keystone_token_get()
+
+        def headers = "-H \"X-AUTH-TOKEN: ${token}\"" +
+                  " -H \"Content-Type: application/x-yaml\""
+        def opts = "-v -X PUT --data-binary @${DRYDOCK_CFG}"
+        def url = "${DECKHAND_URL}/buckets/drydock/documents"
+
+        sh ("curl ${opts} ${headers} ${url}")
+    }
+}
+
+
+//// drydock provisioning
+
+def drydock_deploy = {
+
+
+    def design = "deckhand+${DECKHAND_URL}/revisions/1/rendered-documents"
+
+    timeout (14) {
+        stage ("Drydock (verify_site)") {
+            while(drydock_task_create (design, 'verify_site', 10)) {
+                print 'Still waiting on MaaS import'
+                sleep 60
+            }
+        }
+    }
+
+    da = ['prepare_site', 'prepare_nodes', 'deploy_nodes']
+    da.each {
+        stage ("Drydock (${it})") {
+           if (drydock_task_create (design, it, 40)) {
+               sh "exit 1"
+           }
+        }
+    }
+}
+
+
+//// armada install openstack
+
+def armada_deploy = {
+
+    return
+    stage ("Armada Apply") {
+
+        sh 'mkdir -p ~/.kube'
+        sh 'cp -r /etc/kubernetes/admin/pki ~/.kube/pki'
+        sh 'cat /etc/kubernetes/admin/kubeconfig.yaml | sed -e \'s/\\/etc\\/kubernetes\\/admin/./\' > ~/.kube/config'
+
+        armada_cmd = "apply /target/${ARMADA_OSH_CFG} --tiller-host=${GENESIS_NODE_IP} --tiller-port=44134"
+        docker_opts = "-t -v ~/.kube:/armada/.kube -v \$(pwd):/target --net=host"
+        docker_cmd = "sudo docker run ${docker_opts} ${ARMADA_IMAGE} ${armada_cmd}"
+
+        status = sh(returnStatus: true, script: docker_cmd)
+        if (status) {
+          // todo: collect logs and handle error
+            sh "exit 1"
+        }
+    }
+}
+
+
+//// k8s utils
+
+def k8s_nodes_wait = {
+    stage ("Nodes Join (promjoin)") {
+        timeout(14) {
+            while(true) {
+                nodes = ['genesis', 'controller01', 'controller02', 'worker01', 'worker02']
+                def ready = true
+                nodes.find {
+                    cmd = "kubectl get nodes |grep ' Ready' |grep ${it}"
+                    if (sh(returnStatus:true, script: cmd)) {
+                        print "Kubernetes node ${it} not ready yet"
+                        ready = false
+                        return true // stop at first
                     }
                 }
-            }
-        } // stage
-    } // node
-
-
-    //// drydock utils
-
-    def keystone_token_get = {
-
-        keystone_image = "kolla/ubuntu-source-keystone:3.0.3"
-
-        docker_env = "-e 'OS_AUTH_URL=http://keystone-api.ucp.svc.cluster.local:80/v3'" +
-            " -e 'OS_PROJECT_DOMAIN_NAME=default'" +
-            " -e 'OS_USER_DOMAIN_NAME=default'" +
-            " -e 'OS_PROJECT_NAME=service'" +
-            " -e 'OS_REGION_NAME=RegionOne'" +
-            " -e 'OS_USERNAME=drydock'" +
-            " -e 'OS_PASSWORD=password'" +
-            " -e 'OS_IDENTITY_API_VERSION=3'"
-
-        docker_opts = "--rm --net=host"
-        keystone_cmd = "openstack token issue -f value -c id"
-        docker_cmd = "sudo docker run ${docker_opts} ${docker_env} ${keystone_image} ${keystone_cmd}"
-
-        return sh(returnStdout: true, script: docker_cmd).trim()
-    }
-
-    def drydock_cmd_run = { token, cmd ->
-
-        drydock_env = "-e 'DD_TOKEN=${token}'" +
-            " -e 'DD_URL=http://drydock-api.ucp.svc.cluster.local:9000'" +
-            " -e LC_ALL=C.UTF-8" +
-            " -e LANG=C.UTF-8"
-
-        drydock_opts = "-v \$(pwd):/target --rm -t --net=host --entrypoint \"drydock\""
-        drydock_cmd = "sudo docker run ${drydock_opts} ${drydock_env} ${DRYDOCK_IMAGE}"
-
-        response = sh(returnStdout: true, script: "${drydock_cmd} ${cmd}").trim()
-        print response
-        return response
-    }
-
-    def drydock_task_get = { token, task ->
-        json = drydock_cmd_run(token, "task show --task-id=${task}")
-
-        // fixing broken json from drydock
-        json = json.replaceAll('\'','"')
-        json = json.replaceAll('None','"None"')
-
-        return new JsonSlurper().parseText(json)
-    }
-
-    def drydock_task_wait = { token, task, interval ->
-        timeout (2*interval) {
-            while (true) {
-                sleep interval
-                if (drydock_task_get(token, task).status == 'complete') {
-                    if (drydock_task_get(token, task).result != 'success') {
-                        print "Failed to execute Drydock task ${task}"
-                        sh "exit 1"
-                    }
-                    break // success
-                }
+                if (ready) break
+                sleep 60
             }
         }
     }
+    dir ("promenade-bundle") {
+        sleep 120 // investigate: need to wait
+        sh "sudo bash validate-cluster.sh"
+    }
+
+    sh "sudo kubectl get pods --all-namespaces -o wide"
+}
 
 
-    //// maas utils
-    def maas_import_wait = { interval ->
-        timeout (interval) {
-            while (true) {
-                sleep interval
-                maas_check_cmd = "kubectl get pods -n ucp |grep maas-import || true"
-                response = sh(returnStdout: true, script: maas_check_cmd).trim()
-                if (!response) {
-                    print "MaaS import job complete."
-                    break // success
-                } else {
-                    print "MaaS import still in progress \n${response}"
-                }
+def sonobuoy_run = {
+    if (SONOBUOY_ENABLED.toBoolean()) {
+        stage('Sonobuoy E2E') {
+            sh 'mkdir -p /tmp/sonobuoy' // test results
+
+            sh "cat ${SONOBUOY_CFG} |kubectl apply -f -"
+
+            timeout (12) {
+                cmd = 'kubectl get pods -n heptio-sonobuoy |grep 1/1'
+                while (sh(returnStatus: true, script: cmd)) sleep 30
+            }
+
+            timeout (120) {
+                cmd = 'kubectl get pods -n heptio-sonobuoy |grep 1/1'
+                while (!sh(returnStatus: true, script: cmd)) sleep 300
             }
         }
-    }
 
+        stage('Sonobuoy Publish') {
 
-    //// drydock provisioning
+            artf_publish('/tmp/sonobuoy/*.tar.gz', "${ARTF_BASE}/sonobuoy/")
 
-    node(JENKINS_NODE_NAME) {
-        stage ("MaaS Import") {
-            maas_import_wait(30)
-            sleep 60 // wait for rack sync
-        }
+            sh 'mkdir -p results'
+            sh 'tar xf /tmp/sonobuoy/*.tar.gz -C results'
 
-        // todo: this should probably be part of repos
-        sh 'cp ~/integration.yaml manifests/basic_ucp/'
-        sh 'cat manifests/basic_ucp/integration.yaml'
-
-        stage('Drydock Init') {
-            token = keystone_token_get()
-            design = drydock_cmd_run(token, "design create")
-
-            drydock_cmd_run(token, "part --design-id=${design} create -f /target/manifests/basic_ucp/integration.yaml")
-            drydock_cmd_run(token, "part --design-id=${design} create -f /target/manifests/basic_ucp/configs/complete-bundle.yaml")
-
-            task = drydock_cmd_run(token, "task create --design-id=${design} -a verify_site")
-            drydock_task_wait(token, task, 5)
-
-            task = drydock_cmd_run(token, "task create --design-id=${design} -a prepare_site")
-            drydock_task_wait(token, task, 20)
-        }
-
-        stage('Drydock Node Prepare') {
-            task = drydock_cmd_run(token, "task create --design-id=${design} -a prepare_node")
-            drydock_task_wait(token, task, 30)
-        }
-
-        stage('Drydock Node Deploy') {
-            task = drydock_cmd_run(token, "task create --design-id=${design} -a deploy_node")
-            drydock_task_wait(token, task, 30)
-        }
-
-        sleep 300
-        sh 'kubectl get pods --all-namespaces'
-    } // node
-
-
-    //// armada install openstack
-
-    node(JENKINS_NODE_NAME) {
-        stage ("Armada Apply") {
-            sh 'cp ~/osh-armada.yaml .'
-
-            armada_cmd = "apply /target/osh-armada.yaml --tiller-host=${GENESIS_NODE_IP} --tiller-port=44134"
-            docker_opts = "-t -v ~/.kube:/armada/.kube -v \$(pwd):/target --net=host"
-            docker_cmd = "sudo docker run ${docker_opts} ${ARMADA_IMAGE} ${armada_cmd}"
-
-            status = sh(returnStatus: true, script: docker_cmd)
-            if (status) {
-                // todo: collect logs and handle error
-                sh "exit 1"
-            }
+            junit 'results/plugins/e2e/results/junit_01.xml'
         }
     }
+}
 
-} finally {
-    node(JENKINS_SLAVE_BUILDER) {
-        // keep genesis running for manual troubleshooting
-        // funcs.jenkins_slave_destroy(JENKINS_NODE_NAME)
+
+def console_logs_publish = {
+    stage('Build Log Publish') {
+
+        sh "wget ${BUILD_URL}/consoleText"
+        sh 'tar czf consoleText.tar.gz consoleText'
+
+        artf_publish('consoleText.tar.gz', "${ARTF_BASE}/logs/")
     }
+}
+
+
+
+//// main flow
+
+node(JENKINS_SLAVE_BUILDER) {
+    genesis_setup()
+}
+
+node(GENESIS_NODE_NAME) {
+    genesis_prepare()
+
+    site_config_overrides()
+    site_config_publish()
+
+    promenade_config_gen()
+    promenade_config_publish()
+    promenade_deploy()
+
+    // upload Drydock site YAMLs into Deckhand
+    deckhand_load()
+
+    // feature gap: remove when prom supports API
+    // serves node join/init scripts over http
+    serve_promenade_bundle()
+
+    drydock_deploy()
+
+    // feature gap: eventually promjoin will report back to drydock
+    // wait for expected k8s nodes to be ready
+    k8s_nodes_wait()
+
+    // armada_deploy()
+
+    // e2e kubernetes conformance tests
+    sonobuoy_run()
+
+    console_logs_publish()
 }
 
