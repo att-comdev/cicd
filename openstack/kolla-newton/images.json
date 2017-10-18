@@ -1,0 +1,53 @@
+{"kolla": [{
+            "repo": "openstack",
+            "services": [{
+                           "name": "cinder",
+                           "images": ["cinder-api"]
+                        },
+                        {
+                           "name": "heat",
+                           "images": ["heat-engine", "heat-api"]
+                        },
+                        {
+                           "name": "glance",
+                           "images": ["glance-api",
+                                      "glance-registry"]
+                        },
+                        {
+                           "name": "horizon",
+                           "images": ["horizon"]
+                        },
+                        {
+                           "name": "keystone",
+                           "images": ["keystone"]
+                        },
+                        {
+                           "name": "neutron",
+                           "images": ["neutron-server",
+                                    "neutron-dhcp-agent",
+                                    "neutron-metadata-agent",
+                                    "neutron-13-agent",
+                                    "neutron-openvswitch-agent",
+                                    "neutron-linuxbridge-agent"]
+                        },
+                        {
+                           "name": "nova",
+                           "images": ["nova-api",
+                                    "nova-conducter",
+                                    "nova-scheduler",
+                                    "nova-novncproxy",
+                                    "nova-consoleauth",
+                                    "nova-compute",
+                                    "nova-ssh"]
+                        },
+                        {
+                           "name": "barbican",
+                           "images": ["barbican-api"]
+                        },
+                        {
+                           "name": "rally",
+                           "images": ["rally"]
+                        }
+             ]
+       }]
+}
