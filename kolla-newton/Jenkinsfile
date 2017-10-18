@@ -1,0 +1,165 @@
+ARTF_URL = env.ARTF_DOCKER_URL
+JENKINS_VM_LAUNCH = 'local-vm-launch'
+NODE_NAME="${env.JOB_BASE_NAME}-${env.BUILD_NUMBER}"
+COMP_IMAGE = env.JOB_BASE_NAME
+IMAGE_VERSION = "newton.${env.BUILD_NUMBER}"
+ARTF_COMP_IMAGE = "${ARTF_URL}/openstack/${COMP_IMAGE}/kolla/ubuntu-source-${COMP_IMAGE}"
+
+try{
+    stage('Create Jenkins Node'){
+        node ('master-host'){
+            dir("/home/jenkins/osh/basic") {
+                sh "source openrc && openstack stack create -t ubuntu-16.04.yaml ${NODE_NAME} && sleep 30"
+                NODE_IP=sh(returnStdout: true, script: "source openrc && openstack stack output show -f value -c output_value ${NODE_NAME} floating_ip")
+
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+                    sh "bash create-node ${NODE_NAME} ${NODE_IP}"
+                }
+            }
+        }
+    }
+    node(NODE_NAME) {
+        stage('Checkout') {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: 'refs/changes/85/382985/12']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'CleanBeforeCheckout']],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                       url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: 'stable/newton']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'RelativeTargetDirectory',
+                              relativeTargetDir: "${COMP_IMAGE}"]],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                     url: 'https://git.openstack.org/openstack/'+env.JOB_BASE_NAME]]]
+        }
+        stage('Kolla Container Build') {
+             sh '''sudo docker build ./osh/dockerfiles -t kolla-build:0.3.0.'''+env.BUILD_NUMBER+'''
+                  sudo docker run -d --name kolla-builder -v /var/run/docker.sock:/var/run/docker.sock:rw -v '''+env.WORKSPACE+'''/'''+env.JOB_BASE_NAME+''':'''+env.WORKSPACE+'''/'''+env.JOB_BASE_NAME+''':ro kolla-build:0.3.0.'''+env.BUILD_NUMBER+''' tail -f /dev/null
+                  sudo docker exec kolla-builder crudini --set /etc/kolla/kolla-build.conf '''+env.JOB_BASE_NAME+'''-base type local
+                  sudo docker exec kolla-builder crudini --set /etc/kolla/kolla-build.conf '''+env.JOB_BASE_NAME+'''-base location '''+env.WORKSPACE+'''/'''+env.JOB_BASE_NAME+'''
+                  sudo docker exec kolla-builder kolla-build "^'''+env.JOB_BASE_NAME+'''" --tag newton.'''+env.BUILD_NUMBER+'''
+                '''
+         }
+         stage('Publish'){
+             withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                              usernameVariable: 'ARTIFACTORY_USER',
+                              passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+                     dopts = "--username \$ARTIFACTORY_USER --password \$ARTIFACTORY_PASSWORD"
+                     sh "sudo systemctl status docker.service"
+                     sh '''sudo echo {\\"insecure-registries\\":[\\"10.24.20.19:30092\\"]} | sudo tee /etc/docker/daemon.json > /dev/null'''
+                     sh "sudo systemctl restart docker.service"
+                     sh "sudo cat /etc/docker/daemon.json"
+                     sh "sudo docker login ${dopts} ${ARTF_URL}/docker"
+                     sh "sudo docker images"
+                     if(env.JOB_BASE_NAME=='nova')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-api:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-conducter:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-conducter:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-scheduler:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-scheduler:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-novncproxy:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-novncproxy:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-consoleauth:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-consoleauth:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-compute:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-compute:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-ssh:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-ssh:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-conducter:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-scheduler:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-novncproxy:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-consoleauth:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-compute:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-ssh:${IMAGE_VERSION}"
+                        }
+                     if(env.JOB_BASE_NAME=='neutron')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-server:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-server:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-dhcp-agent:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-dhcp-agent:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-metadata-agent:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-metadata-agent:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-l3-agent:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-l3-agent:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-openvswitch-agent:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-openvswitch-agent:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-linuxbridge-agent:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-linuxbridge-agent:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-server:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-dhcp-agent:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-metadata-agent:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-l3-agent:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-openvswitch-agent:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-linuxbridge-agent:${IMAGE_VERSION}"
+                        }
+                     if(env.JOB_BASE_NAME=='cinder')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-api:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-scheduler:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-scheduler:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-volume:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-volume:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-backup:${IMAGE_VERSION} ${ARTF_COMP_IMAGe}-backup:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-scheduler:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-volume:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-backup:${IMAGE_VERSION}"
+                        }
+                     if(env.JOB_BASE_NAME=='glance')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-api:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-registry:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-registry:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-registry:${IMAGE_VERSION}"
+                        }
+                     if(env.JOB_BASE_NAME=='heat')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-api:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-engine:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-engine:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-engine:${IMAGE_VERSION}"
+                        }
+                     if(env.JOB_BASE_NAME=='barbican')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-api:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                        }
+                     if(env.JOB_BASE_NAME=='keystone')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                        }
+                     if(env.JOB_BASE_NAME=='horizon')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                        }
+                     if(env.JOB_BASE_NAME=='rally')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                        }
+                        else
+                        {
+                            sh "echo nojobfound"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                        }
+                      sh "sudo docker images"
+            }
+         }
+    }
+} finally {
+    stage('Delete Jenkins Node'){
+        node('master-host') {
+            dir("/home/jenkins/osh/basic") {
+                sh "source openrc && openstack stack delete -y $NODE_NAME"
+
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+
+                    sh "java -jar ${env.JENKINS_CLI} -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+                }
+            }
+        }
+    }
+}
