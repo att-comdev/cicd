@@ -1,0 +1,38 @@
+{"kolla": [{
+            "repo": "openstack",
+            "services": [{
+                           "cinder": [
+                                    "cinder-api"]},
+                        {
+                           "heat": [
+                                     "heat-engine",
+                                     "heat-api"]},
+                        {  "glance": [
+                                     "glance registry",
+                                     "glance-api"]},
+                        {  "horizon": [
+                                     "horizon"]},
+                        {  "keystone": [
+                                     "keystone"]},
+                        {  "nova": [
+                                     "nova-api",
+                                     "nova-conducter",
+                                     "nova-scheduler",
+                                     "nova-novncproxy",
+                                     "nova-consoleauth",
+                                     "nova-compute",
+                                     "nova-ssh"]},
+                        {  "neutron": [
+                                     "neutron-server",
+                                     "neutron-dhcp-agent",
+                                     "neutron-metadata-agent",
+                                     "neutron-13-agent",
+                                     "neutron-openvswitch-agent",
+                                     "neutron-linuxbridge-agent"]},
+                        {  "barbican": [
+                                     "barbican-api"]},
+                        {  "rally": [
+                                     "rally-api"]}
+             ]
+       }]
+}
