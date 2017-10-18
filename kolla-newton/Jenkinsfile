@@ -1,0 +1,85 @@
+ARTF_URL = env.ARTF_DOCKER_URL
+JENKINS_VM_LAUNCH = 'local-vm-launch'
+NODE_NAME="${env.JOB_BASE_NAME}-${env.BUILD_NUMBER}"
+COMP_IMAGE = env.JOB_BASE_NAME
+ARTF_COMP_IMAGE = "${ARTF_URL}/stable-newton/kolla/ubuntu-source-${COMP_IMAGE}"
+def imagesJson = readFileFromWorkspace('openstack/kolla-newton/images.json')
+println(imagesJson)
+try{
+    stage('Create Jenkins Node'){
+        node ('master-host'){
+            dir("/home/jenkins/osh/basic") {
+                sh "source openrc && openstack stack create -t ubuntu-16.04.yaml ${NODE_NAME} && sleep 30"
+                NODE_IP=sh(returnStdout: true, script: "source openrc && openstack stack output show -f value -c output_value ${NODE_NAME} floating_ip")
+
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+                    sh "bash create-node ${NODE_NAME} ${NODE_IP}"
+                }
+            }
+        }
+    }
+    node(NODE_NAME) {
+        stage('Checkout') {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: 'refs/changes/18/380118/1']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'CleanBeforeCheckout']],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                       url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+             sh 'echo ${entry.repo
+        }
+        stage('Checkout') {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: 'stable/newton']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'RelativeTargetDirectory', 
+                              relativeTargetDir: '${COMP_IMAGE}']],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                     url: 'https://git.openstack.org/openstack/'+env.JOB_BASE_NAME]]]
+        }
+        stage('Kolla Container Build') {
+             sh '''sudo docker build ./osh/dockerfiles -t kolla-build:0.3.0.'''+env.BUILD_NUMBER+'''
+                  sudo docker run -d --name kolla-builder -v /var/run/docker.sock:/var/run/docker.sock:rw -v '''+env.WORKSPACE+'''/'''+env.JOB_BASE_NAME+''':'''+env.WORKSPACE+'''/'''+env.JOB_BASE_NAME+''':ro kolla-build:0.3.0.'''+env.BUILD_NUMBER+''' tail -f /dev/null
+                  sudo docker exec kolla-builder crudini --set /etc/kolla/kolla-build.conf '''+env.JOB_BASE_NAME+'''-base type local
+                  sudo docker exec kolla-builder crudini --set /etc/kolla/kolla-build.conf '''+env.JOB_BASE_NAME+'''-base location '''+env.WORKSPACE+'''/'''+env.JOB_BASE_NAME+'''
+                  sudo docker exec kolla-builder kolla-build --base ubuntu --type source ^'''+env.JOB_BASE_NAME+''' --tag 3.0.3-'''+env.BUILD_NUMBER+'''
+                '''
+         }
+         stage('Publish'){
+             withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                              usernameVariable: 'ARTIFACTORY_USER',
+                              passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+                     dopts = "--username \$ARTIFACTORY_USER --password \$ARTIFACTORY_PASSWORD"
+                     sh "sudo systemctl status docker.service"
+                     sh '''sudo echo {\\"insecure-registries\\":[\\"10.24.20.19:30092\\"]} | sudo tee /etc/docker/daemon.json > /dev/null'''
+                     sh "sudo systemctl restart docker.service"
+                     sh "sudo cat /etc/docker/daemon.json"
+                     sh "sudo docker login ${dopts} ${ARTF_URL}/docker"
+                     sh "sudo docker images"
+                     sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE} ${ARTF_COMP_IMAGE}"
+            }
+         }
+    }
+} finally {
+    stage('Delete Jenkins Node'){
+        node('master-host') {
+            dir("/home/jenkins/osh/basic") {
+                sh "source openrc && openstack stack delete -y $NODE_NAME"
+
+                withCredentials([usernamePassword(credentialsId: 'jenkins-token',
+                    usernameVariable: 'JENKINS_USER',
+                    passwordVariable: 'JENKINS_TOKEN')]) {
+
+                    sh "java -jar ${env.JENKINS_CLI} -s ${env.JENKINS_URL} -auth ${env.JENKINS_USER}:${JENKINS_TOKEN} delete-node $NODE_NAME"
+                }
+            }
+        }
+    }
+}
