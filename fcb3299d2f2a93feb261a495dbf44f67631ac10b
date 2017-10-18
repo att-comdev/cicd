@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2649a55d_be4fe0f8",
+        "filename": "kolla-newton/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-10-18T21:22:31Z",
+      "side": 1,
+      "message": "artifactory_url/stable-newton/kolla/ubuntu-source  (so let\u0027s put in branch that this is built from for os)",
+      "revId": "fcb3299d2f2a93feb261a495dbf44f67631ac10b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4d994b60_e980a8c2",
+        "filename": "kolla-newton/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-10-18T21:22:31Z",
+      "side": 1,
+      "message": "This should be a parameter",
+      "revId": "fcb3299d2f2a93feb261a495dbf44f67631ac10b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73c7f728_56ce65b4",
+        "filename": "kolla-newton/seed.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-10-18T21:22:31Z",
+      "side": 1,
+      "message": "imagesJson  (This is not for charts)  Will require updates throughout.",
+      "revId": "fcb3299d2f2a93feb261a495dbf44f67631ac10b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
