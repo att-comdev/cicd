@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96589a30_d85f7ce5",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1011939
+      },
+      "writtenOn": "2017-10-19T17:58:58Z",
+      "side": 1,
+      "message": "Need to add an override for the MAAS URL, something like\n\narmcfg[di].data.values.conf.drydock.maasdriver.maas_api_url \u003d \"http://${MAAS_NODE_IP}:${MAAS_NODE_PORT}/MAAS/api/2.0/\" where MAAS_NODE_IP and MAAS_NODE_PORT would need to match the same values put in the MaaS chart.",
+      "revId": "14dea91c745f682caa8867172994b61020d5e634",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
