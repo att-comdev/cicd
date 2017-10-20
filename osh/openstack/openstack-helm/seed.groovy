@@ -1,7 +1,6 @@
-
 import groovy.json.JsonSlurper
 
-def chartsJson = '''{ "osh":[{
+def chartsJson = '''{ "OSH":[{
                         "repo":"openstack/openstack-helm",
                         "charts":[  "cinder",
                                     "heat",
@@ -21,7 +20,8 @@ def chartsJson = '''{ "osh":[{
                                     "memcached",
                                     "rabbitmq",
                                     "senlin"]
-                        },{
+                        },
+                        {
                         "repo":"openstack/openstack-helm-addons",
                         "charts":[  "elasticsearch",
                                     "fluentd",
@@ -31,7 +31,7 @@ def chartsJson = '''{ "osh":[{
 def jsonSlurper = new JsonSlurper()
 def object = jsonSlurper.parseText(chartsJson)
 
-for (entry in object.osh) {
+for (entry in object.OSH) {
     for (chart in entry.charts) {
         pipelineJob("osh/${entry.repo}/${chart}") {
 
