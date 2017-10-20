@@ -1,0 +1,152 @@
+import groovy.json.JsonSlurper
+
+def chartsJson = '''{ "osh":[{
+                        "repo":"openstack/openstack-helm",
+                        "charts":[  "cinder",
+                                    "heat",
+                                    "glance",
+                                    "horizon",
+                                    "keystone",
+                                    "magnum",
+                                    "mistral",
+                                    "neutron",
+                                    "nova",
+                                    "barbican",
+                                    "ceph",
+                                    "dns-helper",
+                                    "etcd",
+                                    "ingress",
+                                    "mariadb",
+                                    "memcached",
+                                    "rabbitmq",
+                                    "senlin"]
+                        }]}'''
+
+ARFT_URL = env.ARTF_DOCKER_URL
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="openstack-helm-${env.BUILD_NUMBER}"
+NODE_TMPL="osh/basic/ubuntu-16.04.yaml"
+
+def funcs
+
+try {
+    stage('Create Jenkins Node'){
+        node(JENKINS_VM_LAUNCH) {
+            checkout poll: false,
+                    scm: [$class: 'GitSCM',
+                    branches: [[name: 'master']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                        url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+            funcs = load "${WORKSPACE}/common/funcs.groovy"
+            funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+
+    timeout (10) {
+        node(NODE_NAME) {
+            // shall come up else don't hang
+        }
+    }
+
+    node(NODE_NAME) {
+        ansiColor('xterm') {
+            stage('Checkout') {
+                checkout poll: false,
+                scm: [$class: 'GitSCM',
+                    branches: [[name: '$GERRIT_REFSPEC']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'CleanBeforeCheckout']],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                        url: 'https://git.openstack.org/openstack/openstack-helm']]]
+            }
+
+            stage('Single Node Installation') {
+
+                // artifactory renmote docker cache
+            //    sh "find ./ -name values.yaml -exec sed -i 's|docker.io/kolla|${ARFT_URL}/kolla|g' {} \\;"
+              //  sh "find ./ -name values.yaml -exec sed -i 's|quay.io/attcomdev|${ARFT_URL}/attcomdev|g' {} \\;"
+            //    sh "find ./ -name values.yaml -exec sed -i 's|gcr.io/google_containers|${ARFT_URL}/google_containers|g' {} \\;"
+             //   sh "find ./ -name values.yaml -exec sed -i 's|docker.io/mariadb|${ARFT_URL}/mariadb|g' {} \\;"
+             //   sh "find ./ -name values.yaml -exec sed -i 's|docker.io/memcached|${ARFT_URL}/memcached|g' {} \\;"
+
+                timeout(45) {
+                    withEnv(["INTEGRATION=aio",
+                             "INTEGRATION_TYPE=basic",
+                              "POD_START_TIMEOUT=720"]) {
+                        sh "./tools/gate/setup_gate.sh"
+
+                    }
+                }
+                if ( "${GERRIT_EVENT_TYPE}" == 'change-merged' || "$GERRIT_EVENT_TYPE" =='change-merged' ){
+                    echo 'Publish to Artifactory!'
+                }
+            }
+        }
+    }
+        node(NODE_NAME){
+            stage('Publish Logs'){
+                    // todo kaspars: fix this nicely
+                    try {
+                    //for publishing logs to Nexus
+                    sh 'mkdir -p logs'
+                    sh 'tar -cf logs-basic-$BUILD_NUMBER.tgz logs'
+                    nexusArtifactUploader artifacts: [[ artifactId: 'org.openstack.helm',
+                                                            classifier: '',
+                                                            file: 'logs-basic-$BUILD_NUMBER.tgz',
+                                                            type: 'x-gtar']],
+                                                        credentialsId: 'nexus3',
+                                                        groupId: 'openstack-helm',
+                                                        nexusUrl: '$NEXUS3_URL',
+                                                        nexusVersion: 'nexus3',
+                                                        protocol: 'http',
+                                                        repository: 'att-comdev-jenkins-logs',
+                                                        version: '$BUILD_NUMBER'
+
+                    //for publishing Artifact tar balls to Artifactory
+                    def comp = env.JOB_BASE_NAME
+                    def build = env.BUILD_NUMBER
+                    //def version = sh(returnStdout: true,
+                    //script: "sed -n -e 's/^s*versions*:s*//p' basic/Chart.yaml").trim()
+
+                      // this will use creds from global configuration
+                    def server = Artifactory.server 'jenkins-artifactory'
+
+                    props = ("build.gerrit_change_url=${env.GERRIT_CHANGE_URL};"
+                             + "build.branch=${env.GERRIT_BRANCH};"
+                             + "build.commit=${env.GERRIT_PATCHSET_REVISION};"
+                             + "build.env=dev-single;"
+                             + "build.status=unstable")
+
+                    def uploadSpec = """{
+                        "files": [
+                        {
+                            "pattern": "(*)-(*).tgz",
+                            "target": "osh/openstack/openstack-helm/${comp}/(*)-(*).${build}.tgz",
+                            "props": "${props}",
+                            "explode": "true"
+                        }
+                        ]
+                    }"""
+
+                    def buildInfo = server.upload(uploadSpec)
+                    server.publishBuildInfo(buildInfo)
+
+                    } catch (Exception e) {
+                       // ignore artifactory errors for now
+                    }
+            }
+        }
+}  finally {
+    stage('Delete Jenkins Node'){
+        node(JENKINS_VM_LAUNCH) {
+        funcs.jenkins_slave_destroy(NODE_NAME)
+        }
+    }
+}
+
+
