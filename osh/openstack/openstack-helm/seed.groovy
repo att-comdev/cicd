@@ -21,7 +21,8 @@ def chartsJson = '''{ "osh":[{
                                     "memcached",
                                     "rabbitmq",
                                     "senlin"]
-                        },{
+                        },
+                        {
                         "repo":"openstack/openstack-helm-addons",
                         "charts":[  "elasticsearch",
                                     "fluentd",
