@@ -1,55 +1,81 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="osh-basic-${env.BUILD_NUMBER}"
+NODE_TMPL="osh/basic/ubuntu-16.04.yaml"
 
-node('ubuntu-16.04-slave') {
+def funcs
 
-   stage('Checkout') {
-      checkout poll: false,
-      scm: [$class: 'GitSCM',
-         branches: [[name: '$GERRIT_REFSPEC']],
-         doGenerateSubmoduleConfigurations: false,
-         extensions: [[$class: 'CleanBeforeCheckout']],
-         submoduleCfg: [],
-         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-            url: 'https://git.openstack.org/openstack/openstack-helm']]]
-   }
+try {
+    node(JENKINS_VM_LAUNCH) {
+        checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: 'master']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/cicd']]]
 
-   stage('Deploy') {
-      timeout(60){
-        sh '''
-          export INTEGRATION=aio
-          export SERVICE_LAUNCH_TIMEOUT=700
-          export SERVICE_TEST_TIMEOUT=700
-          export INTEGRATION_TYPE=basic
-          ./tools/gate/setup_gate.sh'''
-      }
-   }
+        funcs = load "${WORKSPACE}/common/funcs.groovy"
+        funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
+    }   
+    node(NODE_NAME) {
 
-   stage('Publish') {
-      def comp = env.JOB_BASE_NAME
-      def build = env.BUILD_NUMBER
-      def version = sh(returnStdout: true,
-        script: "sed -n -e 's/^s*versions*:s*//p' ${comp}/Chart.yaml").trim()
+       stage('Checkout') {
+          checkout poll: false,
+          scm: [$class: 'GitSCM',
+             branches: [[name: '$GERRIT_REFSPEC']],
+             doGenerateSubmoduleConfigurations: false,
+             extensions: [[$class: 'CleanBeforeCheckout']],
+             submoduleCfg: [],
+             userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                url: 'https://git.openstack.org/openstack/openstack-helm']]]
+       }
 
-      // this will use creds from global configuration
-      def server = Artifactory.server 'Artifactory-Enterprise'
+       stage('Deploy') {
+          timeout(60){
+            sh '''
+              export INTEGRATION=aio
+              export SERVICE_LAUNCH_TIMEOUT=700
+              export SERVICE_TEST_TIMEOUT=700
+              export INTEGRATION_TYPE=basic
+              ./tools/gate/setup_gate.sh'''
+          }
+       }
 
-      props = ("build.gerrit_change_url=${env.GERRIT_CHANGE_URL};"
-             + "build.branch=${env.GERRIT_BRANCH};"
-             + "build.commit=${env.GERRIT_PATCHSET_REVISION};"
-             + "build.env=dev-single;"
-             + "build.status=unstable")
+       stage('Publish') {
+          def comp = env.JOB_BASE_NAME
+          def build = env.BUILD_NUMBER
+          def version = sh(returnStdout: true,
+            script: "sed -n -e 's/^s*versions*:s*//p' ${comp}/Chart.yaml").trim()
 
-      def uploadSpec = """{
-         "files": [
-            {
-               "pattern": "${comp}-*.tgz",
-               "target": "osh/openstack/openstack-helm/${comp}/${version}/${comp}-${version}.${build}.tgz",
-               "props": "${props}"
-            }
-         ]
-      }"""
+          // this will use creds from global configuration
+          def server = Artifactory.server 'Artifactory-Enterprise'
 
-      def buildInfo = server.upload(uploadSpec)
-      server.publishBuildInfo(buildInfo)
-   }
+          props = ("build.gerrit_change_url=${env.GERRIT_CHANGE_URL};"
+                 + "build.branch=${env.GERRIT_BRANCH};"
+                 + "build.commit=${env.GERRIT_PATCHSET_REVISION};"
+                 + "build.env=dev-single;"
+                 + "build.status=unstable")
+
+          def uploadSpec = """{
+             "files": [
+                {
+                   "pattern": "${comp}-*.tgz",
+                   "target": "osh/openstack/openstack-helm/${comp}/${version}/${comp}-${version}.${build}.tgz",
+                   "props": "${props}"
+                }
+             ]
+          }"""
+
+          def buildInfo = server.upload(uploadSpec)
+          server.publishBuildInfo(buildInfo)
+       }
+    }
 }
+finally {
+    node(JENKINS_VM_LAUNCH) {
+        funcs.jenkins_slave_destroy(NODE_NAME)
+    }
+}
+
 
