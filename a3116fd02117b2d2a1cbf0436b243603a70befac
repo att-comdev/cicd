@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a749f44_ffb37cb0",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-21T22:52:02Z",
+      "side": 1,
+      "message": "I would suggest capital \"COMP\" for global variables.\n\nI think you don\u0027t need \u0027def\u0027 for global.",
+      "revId": "a3116fd02117b2d2a1cbf0436b243603a70befac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43a3e2f7_95caf401",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-21T22:52:02Z",
+      "side": 1,
+      "message": "Do not hardcode the reference. This should be variable passed by seed.",
+      "revId": "a3116fd02117b2d2a1cbf0436b243603a70befac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "300df152_5690f177",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-21T22:52:02Z",
+      "side": 1,
+      "message": "Please add timeout block.\nThis is simply to exit if VM/lave fail to come up.. default number is in minutes.\n\n\n    timeout (14) {\n        node(NODE_NAME) {\n            // add nice welcome printout\n        }\n    }",
+      "revId": "a3116fd02117b2d2a1cbf0436b243603a70befac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1076d02c_9870a6a6",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-21T22:52:02Z",
+      "side": 1,
+      "message": "why not just \n\ndir(\"${WORKSPACE}/${comp}\")",
+      "revId": "a3116fd02117b2d2a1cbf0436b243603a70befac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87fd0b25_b7fe3140",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-21T22:52:02Z",
+      "side": 1,
+      "message": "We should add cert in user-data (I think) instead of adding it as part of the job. So we don\u0027t need all this manual Docker stuff.\n\nI would suggest to add check /home/promenade/promenade-user-data.sh.\n\nPlease check with Stacey as this is overall thing for jobs.",
+      "revId": "a3116fd02117b2d2a1cbf0436b243603a70befac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bbcfbc56_7a104a37",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-21T22:52:02Z",
+      "side": 1,
+      "message": "Special cases will get tricky especially for future components that will have multiple Docker images.\n\nI suggest at least break this out in a separate closure.\n\ndef somename \u003d { comp -\u003e\n\n  if (come \u003d\u003d \"maas\") {\n    // stuff\n  }\n}",
+      "revId": "a3116fd02117b2d2a1cbf0436b243603a70befac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e927bf7_af9e7957",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-21T22:52:02Z",
+      "side": 1,
+      "message": "add brackets as this is very hard to read/follow what is included in else statement.",
+      "revId": "a3116fd02117b2d2a1cbf0436b243603a70befac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5288fa1f_8a221c4d",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-21T22:52:02Z",
+      "side": 1,
+      "message": "Add timeouts for commands that take long time and can potentially hang. \n\nlike:\n\ntimetout(10) {\n    sh \"docker build .\"\n}\n\nJudge yourself where it is needed.",
+      "revId": "a3116fd02117b2d2a1cbf0436b243603a70befac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57c11f52_d9626222",
+        "filename": "docker/seed.groovy",
+        "patchSetId": 13
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-21T22:52:02Z",
+      "side": 1,
+      "message": "Correct indentation",
+      "revId": "a3116fd02117b2d2a1cbf0436b243603a70befac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed12caf8_9a0afd91",
+        "filename": "ucp/seed.groovy",
+        "patchSetId": 13
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-21T22:52:02Z",
+      "side": 1,
+      "message": "Names are outdated now.",
+      "revId": "a3116fd02117b2d2a1cbf0436b243603a70befac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf63d229_fff140e5",
+        "filename": "ucp/seed.groovy",
+        "patchSetId": 13
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-10-21T22:52:02Z",
+      "side": 1,
+      "message": "Prom/Deckhand require ref to cicd repository.",
+      "revId": "a3116fd02117b2d2a1cbf0436b243603a70befac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
