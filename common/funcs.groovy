@@ -105,7 +105,7 @@ def jenkins_node_config(String name, String host) {
         <name>${name}</name>
         <description></description>
         <remoteFS>/home/ubuntu/jenkins</remoteFS>
-        <numExecutors>1</numExecutors>
+        <numExecutors>4</numExecutors>
         <mode>EXCLUSIVE</mode>
         <retentionStrategy class=\"hudson.slaves.RetentionStrategy\$Always\"/>
         <launcher class=\"hudson.plugins.sshslaves.SSHLauncher\" plugin=\"ssh-slaves@1.5\">
