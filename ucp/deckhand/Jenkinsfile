@@ -22,6 +22,13 @@ try {
         funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
     }
 
+    timeout (14) {
+        node(NODE_NAME) {
+            // catch if VM creation fails/hangs
+            sh "echo *** Welcome, the VM is ready! ***"
+        }
+    }
+
     node(NODE_NAME) {
         stage('Checkout') {
             checkout poll: false,
@@ -35,6 +42,17 @@ try {
 
             stage('Test Functional') {
                 sh 'tox -e functional'
+            }
+
+            stage('Results Publish') {
+                publishHTML (target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: false,
+                    keepAll: true,
+                    reportDir: 'results',
+                    reportFiles: 'index.html',
+                    reportName: "Gabbi Functional"
+                ])
             }
         }
     }
