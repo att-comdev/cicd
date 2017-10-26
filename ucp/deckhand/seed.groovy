@@ -1,5 +1,5 @@
 
-pipelineJob("UCP/Deckhand/deckhand") {
+pipelineJob("UCP/deckhand/deckhand") {
 
     parameters {
         stringParam {
