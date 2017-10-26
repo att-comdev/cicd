@@ -22,20 +22,36 @@ try {
         funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
     }
 
-    node(NODE_NAME) {
-        stage('Checkout') {
-            checkout poll: false,
-                scm: [$class: 'GitSCM',
-                branches: [[name: '$GERRIT_REFSPEC']],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [],
-                submoduleCfg: [],
-                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                    url: 'https://review.gerrithub.io/att-comdev/deckhand']]]
+    timeout (14) {
+        node(NODE_NAME) {
+            // catch if VM creation fails/hangs
+            sh 'echo "Welcome $(hostname)"'
+        }
+    }
 
-            stage('Test Functional') {
-                sh 'tox -e functional'
-            }
+    node(NODE_NAME) {
+        checkout poll: false,
+            scm: [$class: 'GitSCM',
+            branches: [[name: '$GERRIT_REFSPEC']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [],
+            submoduleCfg: [],
+            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                url: 'https://review.gerrithub.io/att-comdev/deckhand']]]
+
+        stage('Test Functional') {
+            sh 'tox -e functional'
+        }
+
+        stage('Results Publish') {
+            publishHTML (target: [
+                allowMissing: false,
+                alwaysLinkToLastBuild: false,
+                keepAll: true,
+                reportDir: 'results',
+                reportFiles: 'index.html',
+                reportName: "Gabbi Functional"
+            ])
         }
     }
 
