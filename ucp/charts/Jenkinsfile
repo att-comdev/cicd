@@ -1,0 +1,84 @@
+VM_LAUNCH_NODE = 'master'
+CHARTS_NODE="charts-${env.BUILD_NUMBER}"
+NODE_TMPL = "charts/ubuntu.m1.large.yaml"
+ARTF_URL = env.ARTF_WEB_URL
+CURRENT_VERSION = "0.1.${env.GERRIT_CHANGE_NUMBER}"
+PS_ARTF_REPO = "charts/ucp/ps/"+CURRENT_VERSION
+ARTF_REPO = "charts/ucp/"+CURRENT_VERSION
+def funcs
+
+try{
+    stage('Spawn Charts Node'){
+        node(VM_LAUNCH_NODE) {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: '*/master']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+                funcs = load "${WORKSPACE}/common/funcs.groovy"
+                funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+    stage('Waiting for Node'){
+        timeout (10) {
+            node (CHARTS_NODE) {
+                echo "Verifying that Jenkins node comes up."
+            }
+        }
+    }
+
+    node(CHARTS_NODE) {
+        stage('Make Charts') {
+                checkout poll: false,
+                scm: [$class: 'GitSCM',
+                    branches: [[name: '$CICD_REFSPEC']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'CleanBeforeCheckout']],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: "https://review.gerrithub.io/att-comdev/cicd"]]]
+
+            sh 'bash ucp/charts/build_charts.sh'
+        }
+
+    }
+
+} finally {
+    stage('Upload Charts to Artifactory'){
+       node(CHARTS_NODE){
+            def server = Artifactory.server 'artifactory'
+            if ( "${GERRIT_EVENT_TYPE}" == 'change-merged' ){
+                withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'ARTIFACTORY_USER',
+                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                        def uploadSpec = """{
+                            "files": [{
+                            "pattern": "*-0.1.0.tgz",
+                            "target": "$ARTF_REPO/"
+                            }]}"""
+                        server.upload(uploadSpec)
+                    }
+            } else {
+                withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'ARTIFACTORY_USER',
+                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                        def uploadSpec = """{
+                            "files": [{
+                            "pattern": "*-0.1.0.tgz",
+                            "target": "$PS_ARTF_REPO/"
+                            }]}"""
+                        server.upload(uploadSpec)
+                    }
+            }
+
+        }
+    }
+    stage('Remove Charts Node'){
+       node(VM_LAUNCH_NODE) {
+           funcs.jenkins_slave_destroy(CHARTS_NODE)
+        }
+    }
+}
