@@ -1,0 +1,58 @@
+VM_LAUNCH_NODE = 'local-vm-launch'
+CHARTS_NODE="charts-${env.BUILD_NUMBER}"
+NODE_TMPL = "charts/ubuntu.m1.medium.yaml"
+CURRENT_VERSION = "0.1.0.${env.GERRIT_CHANGE_NUMBER}"
+def funcs
+
+try{
+    stage('Spawn Charts Node'){
+        node(VM_LAUNCH_NODE) {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: '*/master']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+                funcs = load "${WORKSPACE}/common/funcs.groovy"
+                funcs.jenkins_slave_launch(CHARTS_NODE, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+    stage('Waiting for Node'){
+        timeout (10) {
+            node (CHARTS_NODE) {
+                echo "Verifying that Jenkins node comes up."
+            }
+        }
+    }
+
+    node(CHARTS_NODE) {
+        stage('Make Charts') {
+            checkout poll: false,
+                scm: [$class: 'GitSCM',
+                    branches: [[name: '$CICD_REFSPEC']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'CleanBeforeCheckout']],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: "https://review.gerrithub.io/att-comdev/cicd"]]]
+            def status = sh(returnStatus: true, script: 'bash ucp/charts/build_charts.sh' )
+            if (status != 0) {
+                currentBuild.result = 'FAILED'
+
+                def output = readFile('build/failed.log').trim()
+                slackSend channel: '#test-jenkins', color: 'green',
+                    message: "<${env.JOB_URL}|${env.JOB_NAME}> \n ${output}",
+                    tokenCredentialId: 'jenkins-slack'
+            }
+        }
+    }
+
+} finally {
+    stage('Remove Charts Node'){
+       node(VM_LAUNCH_NODE) {
+           funcs.jenkins_slave_destroy(CHARTS_NODE)
+        }
+    }
+}
