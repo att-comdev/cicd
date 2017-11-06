@@ -33,7 +33,7 @@ try{
 
             checkout poll: false,
             scm: [$class: 'GitSCM',
-                  branches: [[name: 'stable/newton']],
+                  branches: [[name: 'refs/tags/newton-eol']],
                   doGenerateSubmoduleConfigurations: false,
                   extensions: [[$class: 'RelativeTargetDirectory',
                               relativeTargetDir: "${COMP_IMAGE}"]],
@@ -64,14 +64,14 @@ try{
                      if(env.JOB_BASE_NAME=='nova')
                         {
                             sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-api:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
-                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-conducter:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-conducter:${IMAGE_VERSION}"
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-conductor:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-conductor:${IMAGE_VERSION}"
                             sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-scheduler:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-scheduler:${IMAGE_VERSION}"
                             sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-novncproxy:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-novncproxy:${IMAGE_VERSION}"
                             sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-consoleauth:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-consoleauth:${IMAGE_VERSION}"
                             sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-compute:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-compute:${IMAGE_VERSION}"
                             sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}-ssh:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}-ssh:${IMAGE_VERSION}"
                             sh "sudo docker push ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
-                            sh "sudo docker push ${ARTF_COMP_IMAGE}-conducter:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-conductor:${IMAGE_VERSION}"
                             sh "sudo docker push ${ARTF_COMP_IMAGE}-scheduler:${IMAGE_VERSION}"
                             sh "sudo docker push ${ARTF_COMP_IMAGE}-novncproxy:${IMAGE_VERSION}"
                             sh "sudo docker push ${ARTF_COMP_IMAGE}-consoleauth:${IMAGE_VERSION}"
@@ -142,7 +142,7 @@ try{
                      if(env.JOB_BASE_NAME=='keystone')
                         {
                             sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
-                            sh "sudo docker push ${ARTF_COMP_IMAGE}-api:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}-:${IMAGE_VERSION}"
                         }
                      if(env.JOB_BASE_NAME=='horizon')
                         {
