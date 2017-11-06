@@ -3,6 +3,7 @@ import groovy.json.JsonSlurper
 def imagesJson = '''{ "kolla":[{
                         "repo":"openstack",
                         "services":[ "cinder",
+                                     "ceilometer",
                                      "heat",
                                      "glance",
                                      "horizon",
