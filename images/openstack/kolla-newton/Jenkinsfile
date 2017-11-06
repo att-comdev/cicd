@@ -1,0 +1,179 @@
+ARTF_URL = env.ARTF_DOCKER_URL
+JENKINS_VM_LAUNCH = 'local-vm-launch'
+NODE_NAME="${env.JOB_BASE_NAME}-${env.BUILD_NUMBER}"
+COMP_IMAGE = env.JOB_BASE_NAME
+IMAGE_VERSION = "0.0.1.${env.BUILD_NUMBER}"
+ARTF_COMP_IMAGE = "${ARTF_URL}/openstack/newton/kolla/${COMP_IMAGE}/ubuntu-source-${COMP_IMAGE}"
+KOLLA_IMAGE = "kolla/ubuntu-source-${COMP_IMAGE}"
+NODE_TPL = "docker/ubuntu.m1.medium.yaml"
+
+try{
+    stage('Create Jenkins Node'){
+        node(JENKINS_VM_LAUNCH){
+        git 'https://review.gerrithub.io/att-comdev/cicd'
+
+        funcs = load "${WORKSPACE}/common/funcs.groovy"
+        funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TPL}")
+    }
+    timeout (15) {
+        node(NODE_NAME) {
+            sh 'echo "Welcome $(hostname)"'
+        }
+    }
+}
+def publish_images = {
+    sh "sudo docker tag ${IMAGE} ${ARTF}"
+    sh "sudo docker push ${ARTF}"
+    }
+    node(NODE_NAME) {
+        stage('Checkout') {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: 'master']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'CleanBeforeCheckout']],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                       url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: 'refs/tags/newton-eol']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'RelativeTargetDirectory',
+                              relativeTargetDir: "${COMP_IMAGE}"]],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                     url: 'https://git.openstack.org/openstack/'+env.JOB_BASE_NAME]]]
+        }
+        stage('Kolla Container Build') {
+             sh '''sudo docker build ./osh/dockerfiles -t kolla-build:0.3.0.'''+env.BUILD_NUMBER+'''
+                  sudo docker run -d --name kolla-builder -v /var/run/docker.sock:/var/run/docker.sock:rw -v '''+env.WORKSPACE+'''/'''+env.JOB_BASE_NAME+''':'''+env.WORKSPACE+'''/'''+env.JOB_BASE_NAME+''':ro kolla-build:0.3.0.'''+env.BUILD_NUMBER+''' tail -f /dev/null
+                  sudo docker exec kolla-builder crudini --set /etc/kolla/kolla-build.conf '''+env.JOB_BASE_NAME+'''-base type local
+                  sudo docker exec kolla-builder crudini --set /etc/kolla/kolla-build.conf '''+env.JOB_BASE_NAME+'''-base location '''+env.WORKSPACE+'''/'''+env.JOB_BASE_NAME+'''
+                  sudo docker exec kolla-builder kolla-build "^'''+env.JOB_BASE_NAME+'''" --tag 0.0.1.'''+env.BUILD_NUMBER+'''
+                '''
+         }
+         stage('Publish'){
+             withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                              usernameVariable: 'ARTIFACTORY_USER',
+                              passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+                     dopts = "--username \$ARTIFACTORY_USER --password \$ARTIFACTORY_PASSWORD"
+                     sh "sudo systemctl status docker.service"
+                     sh '''echo {\\"insecure-registries\\":[\\"10.24.20.19:30092\\"]} | sudo tee /etc/docker/daemon.json > /dev/null'''
+                     sh "sudo systemctl restart docker.service"
+                     sh "sudo cat /etc/docker/daemon.json"
+                     sh "sudo docker login ${dopts} ${ARTF_URL}/docker"
+                     sh "sudo docker images"
+                     if(env.JOB_BASE_NAME=='nova')
+                        {
+                            listTest = ['api', 'conductor', 'scheduler', 'novncproxy', 'consoleauth', 'compute', 'ssh']
+                             listTest.each { comp ->
+                             IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             publish_images()
+                             }
+                        }
+                     if(env.JOB_BASE_NAME=='neutron')
+                        {
+                            listTest = ['server', 'dhcp-agent', 'metadata-agent', '13-agent', 'openvswitch-agent', 'linuxbridge-agent']
+                             listTest.each { comp ->
+                             IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             publish_images()
+                             }
+                        }
+                     if(env.JOB_BASE_NAME=='ceilometer')
+                        {
+                            listTest = ['api', 'central', 'collector', 'compute', 'notification']
+                             listTest.each { comp ->
+                             IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             publish_images()
+                             }
+                        }
+                     if(env.JOB_BASE_NAME=='cinder')
+                        {
+                            listTest = ['api', 'scheduler', 'volume', 'backup']
+                             listTest.each { comp ->
+                             IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             publish_images()
+                             }
+                        }
+                     if(env.JOB_BASE_NAME=='mistral')
+                        {
+                            listTest = ['api', 'engine', 'executor']
+                             listTest.each { comp ->
+                             IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             publish_images()
+                             }
+                        }
+                     if(env.JOB_BASE_NAME=='glance')
+                        {
+                            listTest = ['api', 'registry']
+                             listTest.each { comp ->
+                             IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             publish_images()
+                             }
+                        }
+                     if(env.JOB_BASE_NAME=='heat')
+                        {
+                           listTest = ['api', 'engine']
+                             listTest.each { comp ->
+                             IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             publish_images()
+                             }
+                        }
+                     if(env.JOB_BASE_NAME=='magnum')
+                        {
+                            listTest = ['api', 'conductor']
+                             listTest.each { comp ->
+                             IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             publish_images()
+                             }
+                        }
+                     if(env.JOB_BASE_NAME=='barbican')
+                        {
+                           listTest = ['api']
+                             listTest.each { comp ->
+                             IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+                             publish_images()
+                             }
+                        }
+                     if(env.JOB_BASE_NAME=='keystone')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                        }
+                     if(env.JOB_BASE_NAME=='horizon')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                        }
+                     if(env.JOB_BASE_NAME=='rally')
+                        {
+                            sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                            sh "sudo docker push ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+                        }
+                        else
+                        {
+                            sh "echo nojobfound"
+                        }
+                      sh "sudo docker images"
+            }
+         }
+    }
+} finally {
+    stage('Delete Jenkins Node'){
+        node(JENKINS_VM_LAUNCH) {
+        funcs.jenkins_slave_destroy(NODE_NAME)
+        }
+    }
+}
