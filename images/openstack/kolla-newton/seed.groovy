@@ -3,6 +3,7 @@ import groovy.json.JsonSlurper
 def imagesJson = '''{ "kolla":[{
                         "repo":"openstack",
                         "services":[ "cinder",
+                                     "ceilometer",
                                      "heat",
                                      "glance",
                                      "horizon",
@@ -46,7 +47,7 @@ for (entry in object.kolla) {
 
                 definition {
                     cps {
-                        script(readFileFromWorkspace('kolla-newton/Jenkinsfile'))
+                        script(readFileFromWorkspace('images/openstack/kolla-newton/Jenkinsfile'))
                         sandbox()
                     }
                 }
