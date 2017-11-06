@@ -3,16 +3,18 @@ import groovy.json.JsonSlurper
 def imagesJson = '''{ "kolla":[{
                         "repo":"openstack",
                         "services":[ "cinder",
+                                     "ceilometer",
                                      "heat",
                                      "glance",
                                      "horizon",
-                                     "magnum",
+                                     "murano",
                                      "mistral",
                                      "keystone",
                                      "neutron",
                                      "nova",
-                                     "barbican",
-                                     "rally"]
+                                     "swift",
+                                     "tempest",
+                                     "trove"]
              }]}'''
 
 def jsonSlurper = new JsonSlurper()
@@ -20,19 +22,19 @@ def object = jsonSlurper.parseText(imagesJson)
 
 for (entry in object.kolla) {
     for (service in entry.services) {
-        pipelineJob("images/${entry.repo}/kolla-newton/${service}") {
+        pipelineJob("images/${entry.repo}/mos-kolla-newton/${service}") {
 
             triggers {
                 gerritTrigger {
-                    serverName('')
+                    serverName('internal-gerrit')
                     gerritProjects {
                         gerritProject {
                             compareType('PLAIN')
-                          pattern("${entry.repo}/${service}")
+                          pattern("mos-${service}")
                             branches {
                                 branch {
                                 compareType("ANT")
-                                pattern("stable/newton")
+                                pattern("main/newton")
                                 }
                             }
 
@@ -46,7 +48,7 @@ for (entry in object.kolla) {
 
                 definition {
                     cps {
-                        script(readFileFromWorkspace('kolla-newton/Jenkinsfile'))
+                        script(readFileFromWorkspace('images/openstack/mos-kolla-newton/Jenkinsfile'))
                         sandbox()
                     }
                 }
