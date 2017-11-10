@@ -1,0 +1,70 @@
+VM_LAUNCH_NODE = 'local-vm-launch'
+SLAVE_NODE="docker-${env.BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+IMAGE_PREFIX = env.ARTF_DOCKER_URL+"/ucp/att-comdev/${GERRIT_PROJECT}"
+
+def funcs
+
+try{
+    stage('Create Slave Node'){
+        node(VM_LAUNCH_NODE) {
+            //I don't want to clone repo every time:
+            sh '''#!/bin/bash
+
+                  if [ ! -d cicd ]; then
+                    git clone https://review.gerrithub.io/att-comdev/cicd
+                  else
+                    cd cicd && git pull
+                  fi
+            '''
+            funcs = load "cicd/common/funcs.groovy"
+            funcs.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+    stage('Waiting for Node'){
+        timeout (10) {
+            node (SLAVE_NODE) {
+                echo "Verifying that Jenkins node comes up."
+            }
+        }
+    }
+
+    node(SLAVE_NODE) {
+        stage('Check out') {
+            funcs.gerrithub_clone("$GERRIT_PROJECT","$GERRIT_REFSPEC")
+        }
+
+        stage('Build and Publish'){
+            withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'ARTIFACTORY_USER',
+                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                        opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+                        sh "sudo docker login ${opts} ${ARTF_URL}"
+                        sh "make build_${JOB_BASE_NAME} IMAGE_PREFIX=$IMAGE_PREFIX IMAGE_TAG=0.1.0.${GERRIT_CHANGE_NUMBER}"
+                        //sh '''#!/bin/bash
+
+                          //  set -xe
+
+                            //IMG_FOLDER=$(echo ${JOB_BASE_NAME} | cut -f1 -d '-')
+                            //IMG_NAME=${ARTF_DOCKER_URL}/${GERRIT_PROJECT}:0.1.0.${GERRIT_CHANGE_NUMBER}
+                            //cd ${IMG_FOLDER} && docker build -t ${IMG_NAME} .
+                            //sudo docker push ${IMG_NAME}
+                        //'''
+                    }
+        }
+//        stage('Testing'){
+//TBD         sh 'sudo make tests'
+//        }
+//        stage('Notify'){
+//TBD         slackSend:
+//        }
+    }
+
+} finally {
+
+    stage('Remove Slave'){
+       node(VM_LAUNCH_NODE) {
+           funcs.jenkins_slave_destroy(SLAVE_NODE)
+        }
+    }
+}
