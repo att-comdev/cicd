@@ -1,13 +1,69 @@
-node('10.24.20.18-slave') {
+VM_LAUNCH_NODE = 'local-vm-launch'
+SLAVE_NODE="docker-${env.BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+CURRENT_VERSION = "${env.GERRIT_CHANGE_NUMBER}"
+ARTF_URL = env.ARTF_DOCKER_URL
+ARTF_IMAGE = "${ARTF_URL}/ucp/${env.GERRIT_PROJECT}:${CURRENT_VERSION}"
 
-   stage('Checkout') {
-      checkout poll: false,
-      scm: [$class: 'GitSCM',
-         branches: [[name: '$GERRIT_REFSPEC']],
-         doGenerateSubmoduleConfigurations: false,
-         extensions: [[$class: 'CleanBeforeCheckout']],
-         submoduleCfg: [],
-         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-            url: 'https://review.gerrithub.io/att-comdev/cicd']]]
-   }
+def funcs
+
+try{
+    stage('Create Slave Node'){
+        node(VM_LAUNCH_NODE) {
+            //I don't want to clone repo every time:
+            sh '''#!/bin/bash
+
+                  if [ ! -d cicd ]; then
+                    git clone https://review.gerrithub.io/att-comdev/cicd
+                  else
+                    cd cicd && git pull
+                  fi
+            '''
+            funcs = load "cicd/common/funcs.groovy"
+            funcs.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+    stage('Waiting for Node'){
+        timeout (10) {
+            node (SLAVE_NODE) {
+                echo "Verifying that Jenkins node comes up."
+            }
+        }
+    }
+
+    node(SLAVE_NODE) {
+        stage('Bild Docker Image') {
+                checkout poll: false,
+                scm: [$class: 'GitSCM',
+                    branches: [[name: '$GERRIT_REFSPEC']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'CleanBeforeCheckout']],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: "https://review.gerrithub.io/$GERRIT_PROJECT"]]]
+                sh 'sudo make images'
+        }
+    }
+
+} finally {
+
+ARTF_URL = env.ARTF_DOCKER_URL
+ARTF_IMAGE = "${ARTF_URL}/ucp/${env.GERRIT_PROJECT}:${CURRENT_VERSION}"
+
+    stage('Publish 2 Artifactory'){
+        node(SLAVE_NODE){
+            withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'ARTIFACTORY_USER',
+                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                        opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+                        sh "sudo docker login ${opts} ${ARTF_URL}"
+                        sh "sudo docker push ${ARTF_IMAGE}"
+                    }
+        }
+    }
+    stage('Remove Slave'){
+       node(VM_LAUNCH_NODE) {
+           funcs.jenkins_slave_destroy(SLAVE_NODE)
+        }
+    }
 }
