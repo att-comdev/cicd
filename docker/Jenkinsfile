@@ -1,13 +1,82 @@
-node('10.24.20.18-slave') {
+VM_LAUNCH_NODE = 'local-vm-launch'
+SLAVE_NODE="docker-${env.BUILD_NUMBER}"
+NODE_TMPL = "charts/ubuntu.m1.medium.yaml"
+ARTF_URL = env.ARTF_WEB_URL
+CURRENT_VERSION = "${env.GERRIT_CHANGE_NUMBER}"
+PS_ARTF_REPO = "docker-cicd/test/ps/"+CURRENT_VERSION
+ARTF_REPO = "docker-cicd/test/"+CURRENT_VERSION
+def funcs
 
-   stage('Checkout') {
-      checkout poll: false,
-      scm: [$class: 'GitSCM',
-         branches: [[name: '$GERRIT_REFSPEC']],
-         doGenerateSubmoduleConfigurations: false,
-         extensions: [[$class: 'CleanBeforeCheckout']],
-         submoduleCfg: [],
-         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-            url: 'https://review.gerrithub.io/att-comdev/cicd']]]
-   }
+try{
+    stage('Spawn New Node'){
+        node(VM_LAUNCH_NODE) {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: '*/master']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+                funcs = load "${WORKSPACE}/common/funcs.groovy"
+                funcs.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+    stage('Waiting for Node'){
+        timeout (10) {
+            node (SLAVE_NODE) {
+                echo "Verifying that Jenkins node comes up."
+            }
+        }
+    }
+
+    node(SLAVE_NODE) {
+        stage('Bild Docker Image') {
+                checkout poll: false,
+                scm: [$class: 'GitSCM',
+                    branches: [[name: '$GERRIT_REFSPEC']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'CleanBeforeCheckout']],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: "https://review.gerrithub.io/$GERRIT_PROJECT"]]]
+                sh 'sudo make images'
+        }
+    }
+
+} finally {
+    stage('Upload 2 Artifactory'){
+       node(SLAVE_NODE){
+//            def server = Artifactory.server 'artifactory'
+//            if ( "${GERRIT_EVENT_TYPE}" == 'change-merged' ){
+//                withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+//                    usernameVariable: 'ARTIFACTORY_USER',
+//                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+//                        def uploadSpec = """{
+//                            "files": [{
+//                            "pattern": "*-0.1.0.tgz",
+//                            "target": "$ARTF_REPO/"
+//                            }]}"""
+//                        server.upload(uploadSpec)
+//                    }
+//            } else {
+//                withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+//                    usernameVariable: 'ARTIFACTORY_USER',
+//                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+//                        def uploadSpec = """{
+//                            "files": [{
+//                            "pattern": "*-0.1.0.tgz",
+//                            "target": "$PS_ARTF_REPO/"
+//                            }]}"""
+//                        server.upload(uploadSpec)
+//                    }
+//            }
+            sh 'echo "TBD!"'
+        }
+    }
+    stage('Remove Slave'){
+       node(VM_LAUNCH_NODE) {
+           funcs.jenkins_slave_destroy(SLAVE_NODE)
+        }
+    }
 }
