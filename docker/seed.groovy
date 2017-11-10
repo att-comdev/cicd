@@ -1,52 +1,49 @@
 import groovy.json.JsonSlurper
-
-def chartsJson = '''{ "dockerimages":[{
-                        "repo":"att-comdev/dockerfiles",
-                        "charts":[  "airflow",
-                                    "mass",
-                                    "rabbitmq"]                             
-                        }]}'''
-
 def jsonSlurper = new JsonSlurper()
-def object = jsonSlurper.parseText(chartsJson)
 
-for (entry in object.dockerimages) {
-    for (chart in entry.charts) {
-        pipelineJob("dockerimages/${entry.repo}/${chart}") {
+//add new projects here:
+def MySuperJson = '''{"projects":["armada",
+                                "deckhand",
+                                "dockerfiles",
+                                "dridock",
+                                "promenade",
+                                "shipyard"]}'''
 
-            triggers {
-                gerritTrigger {
-                    serverName('Gerrithub-jenkins')
-                    gerritProjects {
-                        gerritProject {
-                            compareType('PLAIN')
-                            pattern("${entry.repo}")
-                            branches {
-                                branch {
+def Json = jsonSlurper.parseText(MySuperJson)
+
+folder("Docker")
+for (project in Json.projects) {
+    pipelineJob("Docker/${project}") {
+        triggers {
+            gerritTrigger {
+                silentMode(false)
+                serverName('Gerrithub-jenkins')
+                gerritProjects {
+                    gerritProject {
+                        compareType('PLAIN')
+                        pattern("att-comdev/${project}")
+                        branches {
+                            branch {
                                 compareType("ANT")
                                 pattern("**")
-                                }
                             }
-                            
-                            disableStrictForbiddenFileVerification(false)
                         }
+                        disableStrictForbiddenFileVerification(false)
                     }
-                triggerOnEvents { 
-                    patchsetCreated { 
-                        excludeDrafts(false) 
-                        excludeTrivialRebase(false) 
-                        excludeNoCodeChange(false) 
-                     } 
-                    changeMerged() 
-                } 
-
                 }
-
-                definition {
-                    cps {
-                        script(readFileFromWorkspace('docker/Jenkinsfile'))
-                        sandbox()
-                    }
+                triggerOnEvents {
+                    patchsetCreated {
+                        excludeDrafts(true)
+                        excludeTrivialRebase(true)
+                        excludeNoCodeChange(true)
+                     }
+                    changeMerged()
+                }
+            }
+            definition {
+                cps {
+                    script(readFileFromWorkspace('docker/Jenkinsfile'))
+                    sandbox()
                 }
             }
         }
