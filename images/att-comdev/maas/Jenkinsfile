@@ -1,0 +1,28 @@
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+IMAGE_PREFIX = ARTF_DOCKER_URL+"/ucp/${GERRIT_PROJECT}"
+
+currentBuild.displayName = "${GERRIT_EVENT_TYPE}-${BUILD_NUMBER}"
+
+vm(NODE_NAME, NODE_TMPL) {
+    gerrithub.clone(GERRIT_PROJECT,GERRIT_REFSPEC)
+    stage('Build'){
+        sh '''make images IMAGE_LIST="${JOB_BASE_NAME}" \
+                          IMAGE_PREFIX="${ARTF_DOCKER_URL}/ucp/${GERRIT_PROJECT}"\
+                          IMAGE_SUFFIX="${JOB_BASE_NAME}" \
+                          IMAGE_TAG="0.1.0.${GERRIT_CHANGE_NUMBER}"'''
+    }
+    stage('Run'){
+        sh "docker images && exit 1"
+//        sh "docker run ${IMAGE_PREFIX}/${JOB_BASE_NAME}:0.1.0.${GERRIT_CHANGE_NUMBER}"
+    }
+    stage('Publish'){
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                usernameVariable: 'ARTIFACTORY_USER',
+                passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                    opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+                    sh "docker login ${opts} ${ARTF_DOCKER_URL}"
+                    sh "docker push ${IMAGE_PREFIX}/${JOB_BASE_NAME}:0.1.0.${GERRIT_CHANGE_NUMBER}"
+                }
+    }
+}
