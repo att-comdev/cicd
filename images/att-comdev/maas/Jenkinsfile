@@ -1,0 +1,26 @@
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+currentBuild.displayName = "${GERRIT_EVENT_TYPE}-${BUILD_NUMBER}"
+
+vm(NODE_NAME, NODE_TMPL) {
+    gerrithub.clone(GERRIT_PROJECT,GERRIT_REFSPEC)
+    stage('Build'){
+        sh '''make images IMAGE_LIST="${JOB_BASE_NAME}"    \
+                          IMAGE_PREFIX="${GERRIT_PROJECT}" \
+                          IMAGE_SUFFIX="${JOB_BASE_NAME}"  \
+                          IMAGE_TAG="0.1.0.${GERRIT_CHANGE_NUMBER}"'''
+    }
+    stage('Test'){
+        sh '''docker images | grep "${GERRIT_PROJECT}/${JOB_BASE_NAME}"
+              docker run "${GERRIT_PROJECT}/${JOB_BASE_NAME}:0.1.0.${GERRIT_CHANGE_NUMBER}"'''
+    }
+    stage('Publish')
+    {
+        IMG="${GERRIT_PROJECT}/${JOB_BASE_NAME}:0.1.0.${GERRIT_CHANGE_NUMBER}"
+        IMG_TAG="ucp/${GERRIT_PROJECT}/${JOB_BASE_NAME}:0.1.0.${GERRIT_CHANGE_NUMBER}"
+        IMG_LATEST="ucp/${GERRIT_PROJECT}/${JOB_BASE_NAME}:latest"
+
+        publish.artifactory(IMG,IMG_TAG)
+        publish.artifactory(IMG,IMG_TAG_LATEST)
+    }
+}
