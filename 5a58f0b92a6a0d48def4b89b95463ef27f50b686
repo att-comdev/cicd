@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68c2f332_b181f131",
+        "filename": "docker/seed.groovy",
+        "patchSetId": 12
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2017-11-13T16:37:11Z",
+      "side": 1,
+      "message": "drydock",
+      "range": {
+        "startLine": 8,
+        "startChar": 33,
+        "endLine": 8,
+        "endChar": 40
+      },
+      "revId": "5a58f0b92a6a0d48def4b89b95463ef27f50b686",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
