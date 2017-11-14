@@ -3,7 +3,8 @@ import groovy.json.JsonSlurper
 def imagesJson = '''{ "UCP":[{
                         "repo":"att-comdev",
                         "images":[
-                                  "drydock"]
+                                  "drydock",
+                                  "armada"]
                         }]}'''
 
 def jsonSlurper = new JsonSlurper()
@@ -12,13 +13,6 @@ def object = jsonSlurper.parseText(imagesJson)
 for (entry in object.UCP) {
     for (image in entry.images) {
         pipelineJob("UCP/${image}/${image}") {
-            parameters {
-                stringParam {
-                    defaultValue(GERRIT_REFSPEC)
-                    description('Pass att-comdev/cicd code refspec to the job')
-                    name ('CICD_GERRIT_REFSPEC')
-                }
-            }
             triggers {
                 gerritTrigger {
                     serverName('Gerrithub-jenkins')
@@ -32,6 +26,7 @@ for (entry in object.UCP) {
                                 pattern("**")
                                 }
                             }
+                          customUrl("$NEXUS3_URL/repository/att-comdev-jenkins-logs/att-comdev/${image}/\$BUILD_NUMBER/${image}-\$BUILD_NUMBER")
                             disableStrictForbiddenFileVerification(false)
                         }
                     }
@@ -47,7 +42,7 @@ for (entry in object.UCP) {
 
                 definition {
                     cps {
-                        script(readFileFromWorkspace("ucp/${image}/Jenkinsfile"))
+                      script(readFileFromWorkspace("images/${entry.repo}/${image}/Jenkinsfile"))
                         sandbox()
                     }
                 }
