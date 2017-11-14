@@ -3,7 +3,8 @@ import groovy.json.JsonSlurper
 def imagesJson = '''{ "UCP":[{
                         "repo":"att-comdev",
                         "images":[
-                                  "drydock"]
+                                  "drydock",
+                                  "armada"]
                         }]}'''
 
 def jsonSlurper = new JsonSlurper()
@@ -32,6 +33,7 @@ for (entry in object.UCP) {
                                 pattern("**")
                                 }
                             }
+                          customUrl("$NEXUS3_URL/repository/att-comdev-jenkins-logs/att-comdev/${image}/\$BUILD_NUMBER/${image}-\$BUILD_NUMBER")
                             disableStrictForbiddenFileVerification(false)
                         }
                     }
