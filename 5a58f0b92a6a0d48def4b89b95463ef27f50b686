@@ -2,6 +2,91 @@
   "comments": [
     {
       "key": {
+        "uuid": "2d8912f0_fa5fece5",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 12
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-11-14T17:16:11Z",
+      "side": 1,
+      "message": "spell (Build)",
+      "revId": "5a58f0b92a6a0d48def4b89b95463ef27f50b686",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "517e3a92_07157b8d",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 12
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-11-14T17:16:11Z",
+      "side": 1,
+      "message": "This will have to be specific to the name in the list for the make.  make build_airflow:major.minor.patch.build",
+      "revId": "5a58f0b92a6a0d48def4b89b95463ef27f50b686",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd18f30e_86c6d83f",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 12
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-11-14T17:16:11Z",
+      "side": 1,
+      "message": "Let\u0027s keep this generic, it\u0027s possible that Artifactory will not always be out artifact management tool.  Publish Image",
+      "revId": "5a58f0b92a6a0d48def4b89b95463ef27f50b686",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f425a1ac_01bc9ef4",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 12
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-11-14T17:16:11Z",
+      "side": 1,
+      "message": "You should not need another node (SLAVE_NODE) the one prior to this should wrap around both stages.",
+      "revId": "5a58f0b92a6a0d48def4b89b95463ef27f50b686",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55b5274c_6113a325",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 12
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-11-14T17:16:11Z",
+      "side": 1,
+      "message": "We are to use semantic versioning.",
+      "revId": "5a58f0b92a6a0d48def4b89b95463ef27f50b686",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "68c2f332_b181f131",
         "filename": "docker/seed.groovy",
         "patchSetId": 12
@@ -19,6 +104,23 @@
         "endLine": 8,
         "endChar": 40
       },
+      "revId": "5a58f0b92a6a0d48def4b89b95463ef27f50b686",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5f62d98_39885e76",
+        "filename": "docker/seed.groovy",
+        "patchSetId": 12
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-11-14T17:16:11Z",
+      "side": 1,
+      "message": "images/ucp/${project}",
       "revId": "5a58f0b92a6a0d48def4b89b95463ef27f50b686",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
