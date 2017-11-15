@@ -16,6 +16,24 @@
       "revId": "f00b0699bada13485041aad6c98f5620b54a096a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "723b8b27_c40811ed",
+        "filename": "ucp/charts/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-11-15T22:48:15Z",
+      "side": 1,
+      "message": "It\u0027s done with purpose to be able to debug the issue if the build will fail. Good catch. \u003d)",
+      "parentUuid": "cdbd4004_89bda247",
+      "revId": "f00b0699bada13485041aad6c98f5620b54a096a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
