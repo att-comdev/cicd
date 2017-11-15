@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86369610_3451d223",
+        "filename": "ucp/charts/Jenkinsfile",
+        "patchSetId": 33
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-15T23:56:09Z",
+      "side": 1,
+      "message": "No need for withCredentials I think at all.\nYou only need if you do stuff from CLI (like docker login).\n\ndef server \u003d Artifactory.server \u0027artifactory\u0027 already has needed credentials.",
+      "revId": "89f0e5f58ae6bc0a4d3cffbd4c0a36d0badcbf35",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b9f7116_0227217c",
+        "filename": "ucp/charts/Jenkinsfile",
+        "patchSetId": 33
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-15T23:56:09Z",
+      "side": 1,
+      "message": "Would be nice to create a function for this as the code seems completely identical.\n\nI started to use this for integration (no need for having to use Json library but perhaps taking in arguments for things that change, like pattern and target)\n\ndef artf_publish \u003d { pattern, target -\u003e\n        spec \u003d [\u0027files\u0027: [[\u0027pattern\u0027: pattern, \u0027target\u0027: target]]]\n        specj \u003d new JsonOutput().toJson(spec)\n\n        artf \u003d Artifactory.server \u0027artifactory\u0027\n        artf.publishBuildInfo(artf.upload(specj))\n}\n\n\n\nthen from code just\nartf_publish(\u0027site-config.tar.gz\u0027, \"${ARTF_BASE}/configs/\")",
+      "revId": "89f0e5f58ae6bc0a4d3cffbd4c0a36d0badcbf35",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
