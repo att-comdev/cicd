@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25e3fe82_01b71c6b",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 20
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-15T22:06:37Z",
+      "side": 1,
+      "message": "I do think we should use specific reference to version of funcs instead of just master as it might change between pipelines in any given time.",
+      "revId": "5038b214143a4d446207c1263681fe34aa7f409a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
