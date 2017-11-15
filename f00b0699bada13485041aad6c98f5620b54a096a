@@ -34,6 +34,24 @@
       "revId": "f00b0699bada13485041aad6c98f5620b54a096a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98f6384e_5a3e5651",
+        "filename": "ucp/charts/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-15T22:49:56Z",
+      "side": 1,
+      "message": "I don\u0027t think we should leak VMs.\n\nWe should publish logs and other info for debugging.\nIf you are away for a day or 2 it may fill up all space and all pipelines will fail.",
+      "parentUuid": "cdbd4004_89bda247",
+      "revId": "f00b0699bada13485041aad6c98f5620b54a096a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
