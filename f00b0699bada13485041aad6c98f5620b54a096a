@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cdbd4004_89bda247",
+        "filename": "ucp/charts/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-15T22:43:23Z",
+      "side": 1,
+      "message": "Should never do this in finally.\nIf it will fail, VMs will leak.\n\nAdd this part of normal flow (or try/catch if needed).",
+      "revId": "f00b0699bada13485041aad6c98f5620b54a096a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
