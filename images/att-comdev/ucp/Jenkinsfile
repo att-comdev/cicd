@@ -1,0 +1,86 @@
+LAUNCH_NODE = 'local-vm-launch'
+SLAVE_NODE="images-${JOB_BASE_NAME}-${env.BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.small.yaml"
+ARTF_URL = env.ARTF_DOCKER_URL
+
+def funcs
+
+try{
+    stage ('Slave Create') {
+        node(LAUNCH_NODE) {
+            checkout poll: false,
+                    scm: [$class: 'GitSCM',
+                    branches: [[name: '$CICD_GERRIT_REFSPEC']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                        url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+            funcs = load "${WORKSPACE}/common/funcs.groovy"
+            funcs.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${NODE_TMPL}")
+        }
+
+        timeout (14) {
+            node(SLAVE_NODE) {
+                sh 'echo "Welcome $(hostname)"'
+            }
+        }
+    }
+ 
+    // node(SLAVE_NODE) {
+    //     stage('Build Docker Image') {
+    //             checkout poll: false,
+    //             scm: [$class: 'GitSCM',
+    //                 branches: [[name: '$GERRIT_REFSPEC']],
+    //                 doGenerateSubmoduleConfigurations: false,
+    //                 extensions: [[$class: 'CleanBeforeCheckout']],
+    //                 submoduleCfg: [],
+    //                 userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+    //                 url: "https://review.gerrithub.io/$GERRIT_PROJECT"]]]
+    //                 //we use 'make images' to be sure we have standard/correct img names.
+    //             sh 'sudo make images'
+    //     }
+
+    //     stage('Publish Image'){
+    //         withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+    //                 usernameVariable: 'ARTIFACTORY_USER',
+    //                 passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+    //                     opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+
+    //                     sh "sudo docker login ${opts} ${ARTF_URL}"
+
+    //                     sh '''#!/bin/bash
+
+    //                         set -xe
+
+    //                         echo "All images we have built:"
+    //                         sudo docker images
+
+    //                         for artifact in ${ARTIFACTS}; do
+    //                             IMG_LIST=$(sudo docker images| grep ${artifact}| awk '{print $1}')
+    //                             if [ ! -z "$IMG_LIST" ]; then
+    //                                 for image in $IMG_LIST; do
+    //                                     new_name="ucp/$(echo ${image} | sed 's|quay.io/||' )"
+    //                                     TAG=${ARTF_DOCKER_URL}/${new_name}:0.1.0.${GERRIT_CHANGE_NUMBER}
+    //                                     img_id=$(sudo docker images | grep -m1 ${image} | awk '{print $3}')
+    //                                     sudo docker tag ${img_id} ${TAG}
+    //                                     sudo docker push ${TAG}
+    //                                 done
+    //                             fi
+    //                         done
+    //                         echo 'SUCCESS!'
+
+    //                     '''
+    //                 }
+    //     }
+    // }
+
+} finally {
+    stage('Slave Remove'){
+       node(LAUNCH_NODE) {
+           funcs.jenkins_slave_destroy(SLAVE_NODE)
+        }
+    }
+}
+
