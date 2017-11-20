@@ -1,17 +1,21 @@
 
 JENKINS_VM_LAUNCH = 'local-vm-launch'
 
-PROM_NODE_BASE = "promenade-${env.BUILD_NUMBER}"
+PROM_NODE_BASE = "promenade-${BUILD_NUMBER}"
 PROM_NODE_TMPL = "promenade/promenade.yaml"
 
 PROM_VERSION = "0.1.0-${env.BUILD_NUMBER}"
-PROM_IMAGE = "ucp/promenade:${PROM_VERSION}"
+PROM_PS = "ps${GERRIT_CHANGE_NUMBER}.${GERRIT_PATCHSET_NUMBER}"
 
 ARTF_URL = env.ARTF_DOCKER_URL
-ARTF_PROM_IMAGE = "${ARTF_URL}/ucp/promenade:${PROM_VERSION}"
+PROM_IMAGE_PS = "${ARTF_URL}/ucp-patchset/promenade:${PROM_PS}"
+PROM_IMAGE = "${ARTF_URL}/ucp/promenade:${PROM_VERSION}"
+PROM_IMAGE_LATEST = "${ARTF_URL}/ucp/promenade:latest"
 
 PROM_BUNDLE = "promenade-bundle.tgz"
 ARTF_PROM_BUNDLE = "ucp/promenade/${PROM_VERSION}/${PROM_BUNDLE}"
+
+
 
 // node info { node : [hostname, ip] }
 def PROM_NODES = [build:[], genesis:[], master1:[], master2:[], worker:[]]
@@ -72,8 +76,14 @@ try {
 
             sh "sudo apt-get install -y docker.io curl"
 
+            if (GERRIT_EVENT_TYPE == 'change-merged') {
+                PROM_IMAGE = PROM_IMAGE_PS // use patchset
+                currentBuild.displayName = "master-${env.BUILD_NUMBER}"
+            } else {
+                currentBuild.displayName = "ps-${env.BUILD_NUMBER}"
+            }
+
             sh "sudo docker build -t ${PROM_IMAGE} ."
-            sh "sudo docker tag ${PROM_IMAGE} ${ARTF_PROM_IMAGE}"
         }
     }
 
@@ -86,7 +96,12 @@ try {
                 opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
 
                 sh "sudo docker login ${opts} ${ARTF_URL}"
-                sh "sudo docker push ${ARTF_PROM_IMAGE}"
+                sh "sudo docker push ${PROM_IMAGE}"
+
+                if (GERRIT_EVENT_TYPE == 'change-merged') {
+                    sh "sudo docker tag ${PROM_IMAGE} ${PROM_IMAGE_LATEST}"
+                    sh "sudo docker push ${PROM_IMAGE_LATEST}"
+                }
             }
         }
     }
@@ -123,7 +138,7 @@ try {
            """
 
            sh "echo '${config}' > tools/gate/config-env"
-           sh "sudo bash tools/gate/build.sh ${ARTF_PROM_IMAGE}"
+           sh "sudo bash tools/gate/build.sh ${PROM_IMAGE}"
 
            spec = artf_spec("tools/gate/${PROM_BUNDLE}", ARTF_PROM_BUNDLE)
            artf.publishBuildInfo(artf.upload(spec))
