@@ -4,6 +4,14 @@ JENKINS_VM_LAUNCH = 'local-vm-launch'
 NODE_NAME="deckhand-${env.BUILD_NUMBER}"
 NODE_TMPL = "deckhand/deckhand.yaml"
 
+DECKHAND_VERSION = "0.1.0-${GERRIT_CHANGE_NUMBER}"
+DECKHAND_PS = "ps${GERRIT_CHANGE_NUMBER}.${GERRIT_PATCHSET_NUMBER}"
+
+ARTF_URL = env.ARTF_DOCKER_URL
+DECKHAND_IMAGE_PS = "${ARTF_URL}/ucp-patchset/deckhand:${DECKHAND_PS}"
+DECKHAND_IMAGE = "${ARTF_URL}/ucp/deckhand:${DECKHAND_VERSION}"
+DECKHAND_IMAGE_LATEST = "${ARTF_URL}/ucp/deckhand:latest"
+
 
 def funcs
 
@@ -29,7 +37,9 @@ try {
         }
     }
 
-    node(NODE_NAME) {
+
+    stage('Promenade Build'){
+        node(NODE_NAME){
         checkout poll: false,
             scm: [$class: 'GitSCM',
             branches: [[name: '$GERRIT_REFSPEC']],
@@ -38,6 +48,41 @@ try {
             submoduleCfg: [],
             userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
                 url: 'https://review.gerrithub.io/att-comdev/deckhand']]]
+
+            if (GERRIT_EVENT_TYPE != 'change-merged') {
+                DECKHAND_IMAGE = DECKHAND_IMAGE_PS
+            }
+
+            sh 'make build_deckhand'
+            sh "sudo docker tag attcomdev/deckhand ${DECKHAND_IMAGE}"
+
+            currentBuild.displayName = "${GERRIT_EVENT_TYPE}-${env.BUILD_NUMBER}"
+
+        }
+    }
+
+
+    stage('Promenade Publish'){
+        node(NODE_NAME){
+            withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'ARTIFACTORY_USER',
+                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+                opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+
+                sh "sudo docker login ${opts} ${ARTF_URL}"
+                sh "sudo docker push ${DECKHAND_IMAGE}"
+
+                if (GERRIT_EVENT_TYPE == 'change-merged') {
+                    sh "sudo docker tag ${DECKHAND_IMAGE} ${DECKHAND_IMAGE_LATEST}"
+                    sh "sudo docker push ${DECKHAND_IMAGE_LATEST}"
+                }
+            }
+        }
+    }
+
+
+    node(NODE_NAME) {
 
         stage('Test Functional') {
             sh 'tox -e functional'
