@@ -1,5 +1,5 @@
 
-pipelineJob("UCP/Promenade/promenade") {
+pipelineJob("UCP/promenade/promenade") {
 
     parameters {
         stringParam {
@@ -7,6 +7,10 @@ pipelineJob("UCP/Promenade/promenade") {
             description('Pass att-comdev/cicd code refspec to the job')
             name ('CICD_GERRIT_REFSPEC')
         }
+    }
+
+    throttleConcurrentBuilds {
+        maxTotal(2)
     }
 
     triggers {
