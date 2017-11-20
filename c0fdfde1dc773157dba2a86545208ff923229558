@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "504c0aed_2460aa31",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 13
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-20T22:11:34Z",
+      "side": 1,
+      "message": "I think this shouldn\u0027t hurt to be passed to all jobs.\nIt\u0027s reference to the code which it was built from.\n\nI\u0027m using it to checkout exact version of funcs.groovy.\n\nYou most likely don\u0027t need it for this particular job.",
+      "revId": "c0fdfde1dc773157dba2a86545208ff923229558",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
