@@ -1,5 +1,5 @@
 
-pipelineJob("UCP/Promenade/promenade") {
+pipelineJob("UCP/promenade/promenade") {
 
     parameters {
         stringParam {
