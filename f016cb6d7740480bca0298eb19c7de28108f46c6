@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d76afdf1_1492c0c8",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 43
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-20T18:31:41Z",
+      "side": 1,
+      "message": "Yes, it is.\n\nThis will be cleaner then with separating build node from Genesis.",
+      "parentUuid": "20c10b69_6efc00bc",
+      "revId": "f016cb6d7740480bca0298eb19c7de28108f46c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1918900d_8e1b72f0",
         "filename": "integration/genesis-integration/Jenkinsfile",
         "patchSetId": 43
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-20T18:18:57Z",
       "side": 1,
       "message": "It seems more intuitive to me to run this on the \"builder node\" and avoid installing additional packages on the genesis host.",
+      "revId": "f016cb6d7740480bca0298eb19c7de28108f46c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6accf84e_730c7b5e",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 43
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-20T18:31:41Z",
+      "side": 1,
+      "message": "Created a new task for this\nhttps://openstack-lcoo.atlassian.net/browse/CCICD-254",
+      "parentUuid": "1918900d_8e1b72f0",
       "revId": "f016cb6d7740480bca0298eb19c7de28108f46c6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
