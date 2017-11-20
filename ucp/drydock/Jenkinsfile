@@ -1,30 +1,89 @@
-node('drydock-python3-slave') {
+JENKINS_VM_LAUNCH = 'local-vm-launch'
+NODE_NAME = "drydock-${env.BUILD_NUMBER}"
+NODE_TMPL = "drydock/drydock.yaml"
+ARTF_URL = env.ARTF_DOCKER_URL
+//Have makefiles use semantic version so developers are in control of MAJOR.MINOR.PATCH
+DRYDOCK_VERSION = "0.1.0.${env.BUILD_NUMBER}"
+DD_PS_ARTF_REPO = "ucp-patchset/drydock/"+DRYDOCK_VERSION
+DD_ARTF_REPO = "ucp/drydock/"+DRYDOCK_VERSION
+DD_IMAGE = ""
+def funcs
 
-   stage('Checkout') {
-      checkout poll: false,
-         scm: [$class: 'GitSCM',
-            branches: [[name: '$GERRIT_REFSPEC']],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [],
-            submoduleCfg: [],
-            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-               url: 'https://review.gerrithub.io/att-comdev/drydock']]]
-   }
+try{
+    stage('Create Jenkins Node'){
+        node(JENKINS_VM_LAUNCH) {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: '*/master']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[url: 'https://review.gerrithub.io/att-comdev/cicd']]]
 
-   stage('Docker Build') {
-      sh 'sudo docker build . -t drydock'
-   }
+                funcs = load "${WORKSPACE}/common/funcs.groovy"
+                funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+    stage('Nodes Wait'){
+        timeout (10) {
+            node (NODE_NAME) {
+                echo "Verifying that Jenkins node comes up."
+            }
+        }
+    }
+    node(NODE_NAME){
+      stage('Checkout') {
+         checkout poll: false,
+            scm: [$class: 'GitSCM',
+               branches: [[name: '$GERRIT_REFSPEC']],
+               doGenerateSubmoduleConfigurations: false,
+               extensions: [],
+               submoduleCfg: [],
+               userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                  url: 'https://review.gerrithub.io/att-comdev/drydock']]]
+      }
+      stage('Run Bandit') {
+         sh 'tox -e bandit'
+      }
+      stage('Run pep8'){
+         sh 'tox -e pep8'
+      }
+      stage('Run Unit'){
+         sh 'tox -e unit'
+      }
+      stage('Docker Build') {
+        if ( "${GERRIT_EVENT_TYPE}" == 'change-merged' || "$GERRIT_EVENT_TYPE" =='change-merged' ){
+            DD_IMAGE="${ARTF_URL}/${DD_ARTF_REPO}:${DRYDOCK_VERSION}"
+            sh "sudo docker build -t ${DD_IMAGE} ."
+        } else {
+            DD_IMAGE="${ARTF_URL}/${DD_PS_ARTF_REPO}:${DRYDOCK_VERSION}"
+            sh "sudo docker build -t ${DD_IMAGE} ."
+        }
+      }
+      stage('Docker Run') {
+         sh "sudo docker run -d -v \$(pwd)/examples:/etc/drydock -P --name=drydock "+ DD_IMAGE
+      }
+      stage('Docker Test') {
+         def DDPORT = sh(returnStdout: true,
+                         script: "echo \$(sudo docker port drydock 9000/tcp | awk -F ':' '{ print \$NF }')").trim()
+                         sh "curl -v http://localhost:${DDPORT}/api/v1.0/designs ||:"
+      }
+      stage('Publish'){
+         withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+            usernameVariable: 'ARTIFACTORY_USER',
+            passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
 
-   stage('Docker Run') {
-      sh 'sudo docker run -d -v $(pwd)/examples:/etc/drydock -P --name=drydock drydock'
-   }
-
-   stage('Validate Container') {
-      def DDPORT = sh(returnStdout: true,
-         script: "echo \$(sudo docker port drydock 9000/tcp | awk -F ':' '{ print \$NF }')").trim()
-
-      sh "curl -v http://localhost:${DDPORT}/api/v1.0/designs"
-   }
-
+                sh "sudo docker login ${opts} ${ARTF_URL}"
+                sh "sudo docker push ${DD_IMAGE}"
+            }
+        }
+    }
+} finally {
+    stage('Delete Jenkins Node'){
+       node(JENKINS_VM_LAUNCH) {
+           funcs.jenkins_slave_destroy(NODE_NAME)
+        }
+    }
 }
 
