@@ -1,30 +1,86 @@
-node('drydock-python3-slave') {
+JENKINS_VM_LAUNCH = 'local-vm-launch'
+NODE_NAME = "drydock-${env.BUILD_NUMBER}"
+NODE_TMPL = "drydock/drydock.yaml"
+ARTF_URL = env.ARTF_DOCKER_URL
+DD_PS = "${GERRIT_CHANGE_NUMBER}-${GERRIT_PATCHSET_NUMBER}"
+DRYDOCK_VERSION = "0.1.0.${DD_PS}"
+//Setting variables for Makefile
+IMAGE_PREFIX = "${ARTF_URL}/ucp-patchset"
+IMAGE_TAG = "${DRYDOCK_VERSION}"
+DD_IMAGE_LATEST = "${ARTF_URL}/ucp/drydock:latest"
+DD_PS_ARTF_REPO = "ucp-patchset/drydock/"+DRYDOCK_VERSION
+DD_ARTF_REPO = "ucp/drydock/"+DRYDOCK_VERSION
 
-   stage('Checkout') {
-      checkout poll: false,
-         scm: [$class: 'GitSCM',
-            branches: [[name: '$GERRIT_REFSPEC']],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [],
-            submoduleCfg: [],
-            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-               url: 'https://review.gerrithub.io/att-comdev/drydock']]]
-   }
+def funcs
 
-   stage('Docker Build') {
-      sh 'sudo docker build . -t drydock'
-   }
+try{
+    stage('Create Jenkins Node'){
+        node(JENKINS_VM_LAUNCH) {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: '*/master']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[url: 'https://review.gerrithub.io/att-comdev/cicd']]]
 
-   stage('Docker Run') {
-      sh 'sudo docker run -d -v $(pwd)/examples:/etc/drydock -P --name=drydock drydock'
-   }
+                funcs = load "${WORKSPACE}/common/funcs.groovy"
+                funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+    stage('Nodes Wait'){
+        timeout (10) {
+            node (NODE_NAME) {
+                echo "Verifying that Jenkins node comes up."
+            }
+        }
+    }
+    node(NODE_NAME){
+      stage('Checkout') {
+         checkout poll: false,
+            scm: [$class: 'GitSCM',
+               branches: [[name: '$GERRIT_REFSPEC']],
+               doGenerateSubmoduleConfigurations: false,
+               extensions: [],
+               submoduleCfg: [],
+               userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                  url: 'https://review.gerrithub.io/att-comdev/drydock']]]
 
-   stage('Validate Container') {
-      def DDPORT = sh(returnStdout: true,
-         script: "echo \$(sudo docker port drydock 9000/tcp | awk -F ':' '{ print \$NF }')").trim()
+        if ("${GERRIT_EVENT_TYPE}" == 'change-merged'){
+            IMAGE_PREFIX = "${ARTF_URL}/ucp/"
+        }
+        currentBuild.displayName = "$GERRIT_EVENT_TYPE-${env.BUILD_NUMBER}"
+      }
+      stage('Run Unit'){
+         sh 'tox -e unit'
+      }
+      stage('Docker Build') {
+         sh "sudo make build_drydock IMAGE_PREFIX=$IMAGE_PREFIX IMAGE_TAG=$IMAGE_TAG"
+      }
+      stage('Docker Run') {
+         sh "sudo docker run -d -v \$(pwd)/examples:/etc/drydock -P --name=drydock ${IMAGE_PREFIX}/drydock:${IMAGE_TAG}"
+      }
+      stage('Docker Test') {
+      //TODO sf5715 Scott needs to move this into func tests to be called by an entrypoint
+         def DDPORT = sh(returnStdout: true,
+             script: "echo \$(sudo docker port drydock 9000/tcp | awk -F ':' '{ print \$NF }')").trim()
+             sh "curl -v http://localhost:${DDPORT}/api/v1.0/designs ||:"
+      }
+      stage('Publish'){
+         withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+            usernameVariable: 'ARTIFACTORY_USER',
+            passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
 
-      sh "curl -v http://localhost:${DDPORT}/api/v1.0/designs"
-   }
-
+                sh "sudo docker login ${opts} ${ARTF_URL}"
+                sh "sudo docker push ${IMAGE_PREFIX}/drydock:${IMAGE_TAG}"
+            }
+        }
+    }
+} finally {
+    stage('Delete Jenkins Node'){
+       node(JENKINS_VM_LAUNCH) {
+           funcs.jenkins_slave_destroy(NODE_NAME)
+        }
+    }
 }
-
