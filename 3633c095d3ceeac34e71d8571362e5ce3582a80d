@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa1b41fa_5c89116b",
+        "filename": "ucp/deckhand/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1011942
+      },
+      "writtenOn": "2017-11-21T00:45:17Z",
+      "side": 1,
+      "message": "I take it this is implicitly defined?",
+      "range": {
+        "startLine": 52,
+        "startChar": 16,
+        "endLine": 52,
+        "endChar": 33
+      },
+      "revId": "3633c095d3ceeac34e71d8571362e5ce3582a80d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
