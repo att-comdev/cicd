@@ -1,0 +1,86 @@
+
+JENKINS_VM_LAUNCH='local-vm-launch'
+
+NODE_NAME="genesis-single-${env.BUILD_NUMBER}"
+NODE_TMPL="integration/genesis-single.yaml"
+
+
+def UCP_ENV = [
+    'CEPH_CLUSTER_NET=10.0.0.0/24',
+    'CEPH_PUBLIC_NET=10.0.0.0/24',
+    'MASTER_NODE_IP=10.10.10.10', // not used
+    'MASTER_NODE_NAME=node-name',
+    'PROMENADE_IMAGE=quay.io/attcomdev/promenade:master',
+    'ARMADA_IMAGE=quay.io/attcomdev/armada:master',
+    'DRYDOCK_IMAGE=sthussey/drydock:386668v14'
+]
+
+def funcs
+
+
+try {
+    node(JENKINS_VM_LAUNCH) {
+        checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: 'master']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+        funcs = load "${WORKSPACE}/common/funcs.groovy"
+        funcs.jenkins_slave_launch(NODE_NAME, "${HOME}/${NODE_TMPL}")
+    }
+
+
+    node(NODE_NAME) {
+        stage ("Discover Environ") {
+            checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: '$GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/ucp-integration']]]
+
+
+            def get_ip = {
+               iface ->
+                  def cmd = {"ifconfig ${iface} | grep 'inet addr:' | cut -d: -f2 | awk '{ print \$1}'"}
+                  sh(returnStdout: true, script: cmd(iface)).trim()
+            }
+
+            def get_hname = {
+                return sh(returnStdout: true, script: "echo -n \$(hostname)")
+            }
+
+            ip = get_ip('ens3')
+            name = get_hname()
+
+            UCP_ENV.add("NODE_NET_IFACE=ens3")
+            UCP_ENV.add("GENESIS_NODE_IP=${ip}")
+            UCP_ENV.add("GENESIS_NODE_NAME=${name}")
+
+            sh "sudo sh -c 'echo ${ip} ${name} >> /etc/hosts'"
+        }
+
+        stage ("Deploy UCP") {
+            withEnv(UCP_ENV) {
+                dir("${WORKSPACE}/manifests/basic_ucp") {
+                    timeout (30) {
+                        sh 'sudo -E bash deploy_ucp.sh'
+                        sh 'sudo kubectl get pods --all-namespaces -o wide'
+                    }
+                }
+            }
+        }
+    }
+
+} finally {
+    node(JENKINS_VM_LAUNCH) {
+        funcs.jenkins_slave_destroy(NODE_NAME)
+    }
+}
+
