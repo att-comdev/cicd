@@ -9,7 +9,7 @@ pipelineJob("${base_path}/genesis-full") {
             name ('CICD_GERRIT_REFSPEC')
         }
         stringParam {
-            defaultValue('refs/changes/46/46/90')
+            defaultValue('refs/changes/46/46/97')
             description('Pass att-comdev/cicd code refspec to the job')
             name ('CLCP_INTEGRATION_REFSPEC')
         }
@@ -21,30 +21,7 @@ pipelineJob("${base_path}/genesis-full") {
     }
 
     triggers {
-        gerritTrigger {
-            serverName('Gerrithub-jenkins')
-            gerritProjects {
-                gerritProject {
-                    compareType('PLAIN')
-                    pattern("att-comdev/ucp-integration")
-                    branches {
-                        branch {
-                            compareType("ANT")
-                            pattern("**")
-                        }
-                    }
-                    disableStrictForbiddenFileVerification(false)
-                }
-            }
-            triggerOnEvents {
-                patchsetCreated {
-                   excludeDrafts(false)
-                   excludeTrivialRebase(false)
-                   excludeNoCodeChange(false)
-                }
-                changeMerged()
-            }
-        }
+        cron('H */4 * * *')
 
         definition {
             cps {
