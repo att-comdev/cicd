@@ -7,6 +7,8 @@ import groovy.json.JsonOutput
 
 JENKINS_SLAVE_BUILDER = 'genesis-builder'
 
+PROM_BUILD_NODE_NAME = "prom-build"
+PROM_BUILD_NODE_IP = '10.24.20.99'
 GENESIS_NODE_NAME = "genesis"
 GENESIS_NODE_IP = '10.24.20.100'
 VMX_NODE_NAME = "vmx"
@@ -22,6 +24,7 @@ ARMADA_UCP_CFG="${PROMENADE_CFG}/bootstrap-armada-config.yaml"
 DRYDOCK_CFG="${MANIFEST_PREFIX}/ucp/drydock.yaml"
 ARMADA_OSH_CFG="${MANIFEST_PREFIX}/osh/armada.yaml"
 
+PROM_BUILD_TMPL = "${MANIFEST_PREFIX}/bootstrap/prom-build/prom-build.yaml"
 GENESIS_TMPL = "${MANIFEST_PREFIX}/bootstrap/genesis/genesis.yaml"
 VMX_TMPL = "${MANIFEST_PREFIX}/bootstrap/vmx/vmx.yaml"
 
@@ -58,6 +61,10 @@ def genesis_setup = {
 
     def funcs = load "${WORKSPACE}/cicd/integration/genesis-integration/funcs.groovy"
 
+    funcs.jenkins_slave_destroy(PROM_BUILD_NODE_NAME)
+    funcs.jenkins_slave_launch(PROM_BUILD_NODE_NAME,
+        "${WORKSPACE}/clcp-integration/${PROM_BUILD_TMPL}", PROM_BUILD_NODE_IP)
+
     funcs.jenkins_slave_destroy(GENESIS_NODE_NAME)
     funcs.jenkins_slave_launch(GENESIS_NODE_NAME,
         "${WORKSPACE}/clcp-integration/${GENESIS_TMPL}", GENESIS_NODE_IP)
@@ -67,8 +74,11 @@ def genesis_setup = {
     // funcs.jenkins_slave_launch(VMX_NODE_NAME,
     //    "${WORKSPACE}/clcp-integration/${VMX_TMPL}", VMX_NODE_IP)
 
-    stage("Genesis Geting Ready") {
-        timeout (10) {
+    stage("Nodes Geting Ready") {
+        timeout (14) {
+            node(PROM_BUILD_NODE_NAME) {
+                sh 'echo "Welcome $(hostname)"'
+            }
             node(GENESIS_NODE_NAME) {
                 sh 'echo "Welcome $(hostname)"'
             }
@@ -91,8 +101,8 @@ def ipmi_power_off = {
 }
 
 
-def genesis_prepare = {
-    stage("Genesis Prepare") {
+def prom_build_prepare = {
+    stage("Build Prepare") {
         checkout poll: false,
             scm: [$class: 'GitSCM',
             branches: [[name: '$CLCP_INTEGRATION_REFSPEC']],
@@ -200,7 +210,7 @@ def site_config_publish = {
 }
 
 
-def promenade_config_gen = {
+def prom_config_gen = {
     stage ("Promenade Config Gen") {
         opts = '--rm -t -w /target -v $(pwd):/target'
         cmd = "promenade generate-certs -o ${PROMENADE_CFG}/ ${PROMENADE_CFG}/*.yaml"
@@ -213,7 +223,7 @@ def promenade_config_gen = {
 }
 
 
-def promenade_config_publish = {
+def prom_config_publish = {
     stage ("Promenade Config Publish") {
         sh 'tar czf promenade-bundle.tar.gz promenade-bundle'
         artf_publish('promenade-bundle.tar.gz', "${ARTF_BASE}/configs/")
@@ -221,8 +231,13 @@ def promenade_config_publish = {
 }
 
 
-def promenade_deploy = {
+def prom_deploy = {
     stage ("Promenade Deploy k8s") {
+
+        def url = "${ARTF_WEB_URL}/artifactory/${ARTF_BASE}/configs/promenade-bundle.tar.gz"
+        sh "wget -q --no-check-certificate ${url}"
+        sh "tar xzf promenade-bundle.tar.gz"
+
         dir ("promenade-bundle") {
             timeout (30) {
                 sh "sudo bash genesis.sh"
@@ -485,22 +500,27 @@ node(JENKINS_SLAVE_BUILDER) {
     genesis_setup()
 }
 
-node(GENESIS_NODE_NAME) {
-    genesis_prepare()
+node(PROM_BUILD_NODE_NAME) {
+    prom_build_prepare()
 
     site_config_overrides()
     site_config_publish()
 
-    promenade_config_gen()
-    promenade_config_publish()
-    promenade_deploy()
+    prom_config_gen()
+    prom_config_publish()
+}
+
+
+node(GENESIS_NODE_NAME) {
+
+    prom_deploy()
 
     // upload Drydock site YAMLs into Deckhand
     deckhand_load()
 
     // feature gap: remove when prom supports API
     // serves node join/init scripts over http
-    serve_promenade_bundle()
+    serve_prom_bundle()
 
     drydock_deploy()
 

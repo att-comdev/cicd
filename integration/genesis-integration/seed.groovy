@@ -9,7 +9,7 @@ pipelineJob("${base_path}/genesis-full") {
             name ('CICD_GERRIT_REFSPEC')
         }
         stringParam {
-            defaultValue('refs/changes/46/46/90')
+            defaultValue('refs/changes/46/46/96')
             description('Pass att-comdev/cicd code refspec to the job')
             name ('CLCP_INTEGRATION_REFSPEC')
         }
