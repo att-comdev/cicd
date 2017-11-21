@@ -22,6 +22,30 @@
       "revId": "3633c095d3ceeac34e71d8571362e5ce3582a80d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21d0b982_814fd99a",
+        "filename": "ucp/deckhand/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-21T02:37:44Z",
+      "side": 1,
+      "message": "Yes, this comes when a PS is triggered by Jenkins plugin.",
+      "parentUuid": "aa1b41fa_5c89116b",
+      "range": {
+        "startLine": 52,
+        "startChar": 16,
+        "endLine": 52,
+        "endChar": 33
+      },
+      "revId": "3633c095d3ceeac34e71d8571362e5ce3582a80d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
