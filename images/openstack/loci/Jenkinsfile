@@ -1,0 +1,94 @@
+
+LAUNCH_NODE = 'local-vm-launch'
+SLAVE_NODE="images-${JOB_BASE_NAME}-${env.BUILD_NUMBER}"
+SLAVE_TMPL = "docker/loci.yaml"
+
+LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
+
+OPENSTACK_RELEASE = 'newton'
+OPENSTACK_COMPONENT_RELEASE = "stable/${OPENSTACK_RELEASE}"
+IMAGE_DISTRO = 'ubuntu'
+
+IMAGE_VERSION = "${OPENSTACK_RELEASE}-eol-${IMAGE_DISTRO}"
+IMAGE_BASE = "${ARTF_DOCKER_URL}/openstack/newton/loci"
+IMAGE_TAG = "${IMAGE_BASE}/loci-requirements:${IMAGE_VERSION}"
+
+
+// cmd for running Docker in Docker
+DIND_CMD = 'sudo docker exec loci-build'
+
+def funcs
+
+
+// docker within docker (to get latest docker version on Ubuntu 16.04)
+// requires setting {"storage-driver": "overlay2"} option in docker.json
+def docker_setup = {
+    def opts = '--privileged --name loci-build'
+    def mounts = '-v /var/lib/docker' +
+        ' -v $(pwd):/opt/loci'
+
+    sh "sudo docker run -d ${opts} ${mounts} docker:17.07.0-dind"
+    sh "${DIND_CMD} sh -cx 'apk update; apk add git'"
+
+    def path = "/etc/docker/certs.d/${ARTF_DOCKER_URL}"
+    sh "${DIND_CMD} mkdir -p ${path}"
+    sh "sudo docker cp /usr/local/share/ca-certificates/ca.crt loci-build:${path}"
+}
+
+def docker_wheels_build = {
+    def args = '--build-arg PROJECT=requirements' +
+        " --build-arg PROJECT_REF=stable/${OPENSTACK_RELEASE}"
+
+    sh "${DIND_CMD} docker build ${LOCI_REPO} ${args} --tag ${IMAGE_TAG}"
+}
+
+def docker_wheels_publish = {
+    withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+            usernameVariable: 'ARTIFACTORY_USER',
+            passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+        def opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+        sh "${DIND_CMD} docker login ${opts} ${ARTF_DOCKER_URL}"
+        sh "${DIND_CMD} docker push ${IMAGE_TAG}"
+    }
+}
+
+
+try{
+    stage ('Slave Create') {
+        node(LAUNCH_NODE) {
+            git 'https://review.gerrithub.io/att-comdev/cicd'
+
+            funcs = load "${WORKSPACE}/common/funcs.groovy"
+            funcs.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${SLAVE_TMPL}")
+        }
+
+        timeout (14) {
+            node(SLAVE_NODE) {
+                sh 'echo "Welcome $(hostname)"'
+            }
+        }
+    }
+
+    node(SLAVE_NODE) {
+       stage('Docker Setup') {
+           docker_setup()
+       }
+
+       stage('Wheels Build') {
+           docker_wheels_build()
+       }
+
+       stage('Wheels Publish') {
+           docker_wheels_publish()
+       }
+    }
+
+} finally {
+    stage('Slave Remove'){
+       node(LAUNCH_NODE) {
+           funcs.jenkins_slave_destroy(SLAVE_NODE)
+        }
+    }
+}
+
