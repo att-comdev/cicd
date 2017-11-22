@@ -1,0 +1,160 @@
+
+LAUNCH_NODE = 'local-vm-launch'
+SLAVE_NODE="images-loci-${JOB_BASE_NAME}-${BUILD_NUMBER}"
+SLAVE_TMPL = "docker/loci.yaml"
+
+LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
+PROJECT = JOB_BASE_NAME
+
+ARTF_REPO = 'openstack'
+if (env.GERRIT_EVENT_TYPE == 'patchset-created') {
+    ARTF_REPO += '-patchset'
+}
+
+// cmd for running Docker in Docker
+DIND = 'sudo docker exec loci-build'
+
+def funcs
+
+
+def slave_setup() {
+    node(LAUNCH_NODE) {
+        git 'https://review.gerrithub.io/att-comdev/cicd'
+
+        funcs = load "${WORKSPACE}/common/funcs.groovy"
+        funcs.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${SLAVE_TMPL}")
+    }
+
+    timeout (14) {
+        node(SLAVE_NODE) {
+            sh 'echo "Welcome $(hostname)"'
+        }
+    }
+}
+
+def slave_cleanup() {
+    node(LAUNCH_NODE) {
+        funcs.jenkins_slave_destroy(SLAVE_NODE)
+    }
+}
+
+
+// docker within docker (to get latest docker version on Ubuntu 16.04)
+// requires setting {"storage-driver": "overlay2"} option in docker.json
+def docker_setup = {
+    def opts = '--privileged --name loci-build'
+    def mounts = '-v /var/lib/docker' +
+        ' -v $(pwd):/opt/loci'
+
+    sh "sudo docker run -d ${opts} ${mounts} docker:17.07.0-dind"
+    sh "${DIND} sh -cx 'apk update; apk add git'"
+
+    def path = "/etc/docker/certs.d/${ARTF_DOCKER_URL}"
+    sh "${DIND} mkdir -p ${path}"
+    sh "sudo docker cp /usr/local/share/ca-certificates/ca.crt loci-build:${path}"
+
+    withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+            usernameVariable: 'ARTIFACTORY_USER',
+            passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+        opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+        sh "${DIND} docker login ${opts} ${ARTF_DOCKER_URL}"
+    }
+}
+
+
+def envs_setup() {
+    if (env.GERRIT_REFSPEC) {
+        PROJECT_REF = GERRIT_REFSPEC
+        PROJECT_VERSION = "${GERRIT_CHANGE_NUMBER}"
+        PROJECT_BRANCH = GERRIT_BRANCH
+    } else {
+        git branch: PROJECT_REF, url: 'https://git.openstack.org/openstack/${PROJECT}'
+        def hash = sh (returnOutput: true, script: 'git log --branches -1 --pretty=format:"%h"').trim()
+
+        PROJECT_VERSION = "${hash}"
+        PROJECT_BRANCH = PROJECT_REF
+    }
+
+    IMAGE_BASE = "${ARTF_DOCKER_URL}/${ARTF_REPO}/${PROJECT_BRANCH}/loci"
+    WHEELS_LATEST = "${ARTF_DOCKER_URL}/openstack/${PROJECT_BRANCH}/loci/requirements:latest"
+}
+
+
+def wheels_build = {
+    def args = '--build-arg PROJECT=requirements' +
+        " --build-arg PROJECT_REF=${PROJECT_REF}"
+
+    def tag = "${IMAGE_BASE}/requirements:${PROJECT_VERSION}"
+    ansiColor('xterm') {
+        sh "${DIND} docker build ${LOCI_REPO} ${args} --tag ${tag}"
+    }
+    sh "${DIND} docker push ${tag}"
+
+    // publish latest (branch) tag on merge
+    if (env.GERRIT_EVENT_TYPE != 'patchset-created') {
+        sh "${DIND} docker tag ${tag} ${WHEELS_LATEST}"
+        sh "${DIND} docker push ${WHEELS_LATEST}"
+    }
+}
+
+
+// localize wheels to support loci use of docker (http) APIs
+// url = "http://{}/v2/{}/manifests/{}".format(registry, repo, tag)
+def wheels_export = {
+    def lw = '/opt/loci/web'
+    sh "${DIND} mkdir -p ${lw}"
+
+    sh "${DIND} docker create --name loci-wheels ${WHEELS_LATEST}"
+    sh "${DIND} docker export -o ${lw}/wheels.tar.gz loci-wheels"
+
+    // serve wheels over http
+    def pycmd = 'python -m http.server 8080'
+    sh "${DIND} docker run -d -v ${lw}:/web -p 8080:8080 python ${pycmd}"
+}
+
+
+def project_build = {
+    def args = "--build-arg PROJECT=${PROJECT}" +
+        " --build-arg PROJECT_REF=${PROJECT_REF}" +
+        " --build-arg WHEELS=gantry/loci-requirements:newton-eol-ubuntu"
+        //" --build-arg WHEELS=http://172.18.0.1:8080/web/wheels.tar.gz"
+
+    def tag = "${IMAGE_BASE}/${project}:${GERRIT_CHANGE_NUMBER}"
+    ansiColor('xterm') {
+        sh "${DIND} docker build ${LOCI_REPO} ${args} --tag ${tag}"
+    }
+    sh "${DIND} docker push ${tag}"
+}
+
+
+try {
+    stage ('Slave Create') {
+        slave_setup()
+    }
+
+    node(SLAVE_NODE) {
+        stage('Docker Setup') {
+            docker_setup()
+            envs_setup()
+        }
+
+        if (PROJECT == 'requirements') {
+            stage('Build (wheels)') {
+                wheels_build()
+            }
+        } else {
+            stage('Wheels Export') {
+                wheels_export()
+            }
+            stage ("Build ${PROJECT.capitalize()}") {
+                project_build()
+            }
+        }
+    }
+} finally {
+    stage('Slave Remove'){
+        slave_cleanup()
+    }
+}
+
