@@ -1,0 +1,84 @@
+
+JOB_BASE='images/openstack/loci'
+folder("${JOB_BASE}")
+
+// { project: 'ref' }
+PROJECTS = ['requirements': 'stable/newton',
+            'keystone': 'newton-eol', 
+            'heat': 'newton-eol',
+            'cinder': 'newton-eol',
+            'glance': 'newton-eol',
+            'horizon': 'newton-eol',
+            'nova': 'stable/newton',
+            'ironic': 'stable/newton']
+
+
+PROJECTS.each { project, ref ->
+
+    pipelineJob("${JOB_BASE}/${project}") {
+
+        // limit surge of patchsets
+        configure {
+            node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
+                durationName 'hour'
+                count '3'
+            }
+        }
+
+        parameters {
+            stringParam {
+                defaultValue(ref)
+                description('Default branch for manual build')
+                name ('PROJECT_REF')
+            }
+        }
+
+        triggers {
+            gerritTrigger {
+                serverName('OS-CommunityGerrit')
+                gerritProjects {
+                    gerritProject {
+                        compareType('PLAIN')
+                        pattern("openstack/${project}")
+                        branches {
+                            branch {
+                                compareType("ANT")
+                                pattern("newton-eol")
+                            }
+                            branch {
+                                compareType("ANT")
+                                pattern("stable/newton")
+                            }
+                            branch {
+                                compareType("ANT")
+                                pattern("stable/ocata")
+                            }
+                            branch {
+                                compareType("ANT")
+                                pattern("stable/pike")
+                            }
+                        }
+                        disableStrictForbiddenFileVerification(false)
+                    }
+                }
+
+                triggerOnEvents {
+                    patchsetCreated {
+                       excludeDrafts(false)
+                       excludeTrivialRebase(false)
+                       excludeNoCodeChange(false)
+                    }
+                    changeMerged()
+                }
+            }
+
+            definition {
+                cps {
+                    script(readFileFromWorkspace("${JOB_BASE}/Jenkinsfile"))
+                    sandbox()
+                }
+            }
+        }
+    }
+}
+
