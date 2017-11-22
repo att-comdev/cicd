@@ -1,0 +1,45 @@
+
+LAUNCH_NODE = 'local-vm-launch'
+SLAVE_NODE="images-${JOB_BASE_NAME}-${env.BUILD_NUMBER}"
+SLAVE_TMPL = "docker/loci.yaml"
+ARTF_URL = env.ARTF_DOCKER_URL
+
+def funcs
+
+try{
+    stage ('Slave Create') {
+        node(LAUNCH_NODE) {
+            checkout poll: false,
+                    scm: [$class: 'GitSCM',
+                    branches: [[name: '$CICD_GERRIT_REFSPEC']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                        url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+
+            funcs = load "${WORKSPACE}/common/funcs.groovy"
+            funcs.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${SLAVE_TMPL}")
+        }
+
+        timeout (14) {
+            node(SLAVE_NODE) {
+                sh 'echo "Welcome $(hostname)"'
+            }
+        }
+    }
+
+    node(SLAVE_NODE) {
+        stage('Build Docker Image') {
+            // do some loci builds
+        }
+    }
+
+} finally {
+    stage('Slave Remove'){
+       node(LAUNCH_NODE) {
+           funcs.jenkins_slave_destroy(SLAVE_NODE)
+        }
+    }
+}
+
