@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c935bfb_cc04c3af",
+        "filename": "ucp/charts/Jenkinsfile",
+        "patchSetId": 36
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-22T00:18:09Z",
+      "side": 1,
+      "message": "copy/paste code",
+      "revId": "40c87240c47b592922dcd2e0d6069b13814c281a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
