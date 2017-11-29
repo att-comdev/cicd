@@ -1,0 +1,91 @@
+VM_LAUNCH_NODE = 'local-vm-launch'
+SLAVE_NODE= "img-airflow-${env.BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+ARTF_URL = env.ARTF_DOCKER_URL
+
+def funcs
+
+try{
+    stage('Create Slave Node'){
+        node(VM_LAUNCH_NODE) {
+            //I don't want to clone repo every time:
+            sh '''#!/bin/bash
+
+                  if [ ! -d cicd ]; then
+                    git clone https://review.gerrithub.io/att-comdev/cicd
+                  else
+                    cd cicd && git pull
+                  fi
+            '''
+            funcs = load "cicd/common/funcs.groovy"
+            funcs.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+    stage('Waiting for Node'){
+        timeout (10) {
+            node (SLAVE_NODE) {
+                echo "Verifying that Jenkins node comes up."
+            }
+        }
+    }
+
+    node(SLAVE_NODE) {
+        stage('Checkout') {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                branches: [[name: '$GERRIT_REFSPEC']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [[$class: 'CleanBeforeCheckout']],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                url: "https://review.gerrithub.io/${GERRIT_PROJECT}"]]]
+        }
+
+        stage('Build and Publish'){
+            withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'ARTIFACTORY_USER',
+                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                        opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+                        sh "sudo docker login ${opts} ${ARTF_URL}"
+                        sh '''#!/bin/bash
+
+                            set -xe
+                            build_n_push(){
+                                local name=${1}
+                                local file_path=${2}
+                                sudo docker build -t ${name} ${file_path}
+                                sudo docker push ${name}
+                            }
+
+                            if [ "${GERRIT_EVENT_TYPE}" = "change-merged"]; then
+                                IMG_NAME=${ARTF_DOCKER_URL}/ucp/airflow:0.1.0.${GERRIT_CHANGE_NUMBER}
+                                build_n_push ${IMG_NAME} images/airflow
+
+                            #we update :latest image as well:
+                                IMG_NAME=${ARTF_DOCKER_URL}/ucp/airflow:latest
+                                build_n_push ${IMG_NAME} images/airflow
+
+                            else
+                                IMG_NAME=${ARTF_DOCKER_URL}/ucp-patchset/airflow:0.1.0.${GERRIT_CHANGE_NUMBER}
+                            fi
+                            sudo docker push ${IMG_NAME}
+                        '''
+                    }
+        }
+//        stage('Testing'){
+//TBD:          sh 'sudo make tests'
+//        }
+        stage('Notification'){
+            slackSend( baseUrl:'https://att-comdev.slack.com/services/hooks/jenkins-ci/', channel: '#test-jenkins',
+                tokenCredentialId: 'jenkins-slack', message: "<${env.JOB_URL}|${env.JOB_NAME}> airflow-helm:0.1.0.${env.GERRIT_CHANGE_NUMBER} was built succesfully." )
+        }
+    }
+
+} finally {
+
+    stage('Remove Slave'){
+       node(VM_LAUNCH_NODE) {
+           funcs.jenkins_slave_destroy(SLAVE_NODE)
+        }
+    }
+}
