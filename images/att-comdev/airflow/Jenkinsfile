@@ -1,0 +1,76 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="airflow-${BUILD_NUMBER}"
+NODE_TMPL="integration/genesis-single.yaml"
+
+AIRFLOW_VERSION = "0.1.0-${GERRIT_CHANGE_NUMBER}"
+AIRFLOW_PS = "${GERRIT_CHANGE_NUMBER}.${GERRIT_PATCHSET_NUMBER}"
+ARTF_URL = env.ARTF_DOCKER_URL
+AIRFLOW_IMAGE_PS = "${ARTF_URL}/ucp-patchset/airflow:${AIRFLOW_PS}"
+AIRFLOW_IMAGE = "${ARTF_URL}/ucp/airflow:${AIRFLOW_VERSION}"
+AIRFLOW_IMAGE_LATEST = "${ARTF_URL}/ucp/airflow:latest"
+
+vm(NODE_NAME, NODE_TMPL) {
+    gerrithub.clone("att-comdev/shipyard", GERRIT_REFSPEC)
+    sh 'sudo apt-get install make'
+    stage('Checkout'){
+        if (GERRIT_EVENT_TYPE != 'change-merged') {
+            AIRFLOW_IMAGE = AIRFLOW_IMAGE_PS
+        }
+        currentBuild.displayName = "${GERRIT_EVENT_TYPE}-${BUILD_NUMBER}"
+    }
+    stage('Docker Build') {
+        timeout(20){
+            parallel (
+                "stream shipyard" : {
+                node(NODE_NAME){
+                    dir("/home/ubuntu/jenkins/workspace/images/att-comdev/airflow/airflow"){
+                        sh  "sudo make build_shipyard IMAGE_TAG='${BUILD_NUMBER}'"
+                    }
+            }
+        },
+                "stream airflow" : {
+                node(NODE_NAME){
+                    dir("/home/ubuntu/jenkins/workspace/images/att-comdev/airflow/airflow"){
+                        sh  "sudo make build_airflow IMAGE_TAG='${BUILD_NUMBER}'"
+                        sh  "sudo docker tag attcomdev/airflow:${BUILD_NUMBER} ${AIRFSLOW_IMAGE}"
+                    }
+                }
+            })
+        }
+    }
+    stage('Docker Run') {
+        timeout(20){
+            parallel (
+                "stream run_shipyard" : {
+                node(NODE_NAME){
+                    dir("/home/ubuntu/jenkins/workspace/images/att-comdev/airflow/airflow"){
+                        sh  "sudo make run_shipyard IMAGE_TAG='${BUILD_NUMBER}'"
+                    }
+            }
+        },
+                "stream run_airflow" : {
+                node(NODE_NAME){
+                    dir("/home/ubuntu/jenkins/workspace/images/att-comdev/airflow/airflow"){
+                        sh  "sudo make run_airflow IMAGE_TAG='${BUILD_NUMBER}'"
+                    }
+                }
+            })
+        }
+    }
+    stage('Publish'){
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                usernameVariable: 'ARTIFACTORY_USER',
+                passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+
+            sh "sudo docker login ${opts} ${ARTF_URL}"
+            sh "sudo docker push ${AIRFLOW_IMAGE}"
+
+            if (GERRIT_EVENT_TYPE == 'change-merged') {
+                sh "sudo docker tag ${AIRFLOW_IMAGE} ${AIRFLOW_IMAGE_LATEST}"
+                sh "sudo docker push ${AIRFLOW_IMAGE_LATEST}"
+            }
+        }
+    }   
+}
