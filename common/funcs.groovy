@@ -1,14 +1,17 @@
 #!groovy
 
-
-// credentials
+//  Required credentials names:
 //  - jenkins-openstack
 //  - jenkins-token
 //  - jenkins-slave-ssh
+//  - jenkins-slack
 
-// envs
+
+//  Jenkins global env variables (: examples)
 // - JENKINS_URL
 // - JENKINS_CLI
+// - SLACK_URL : https://att-comdev.slack.com/services/hooks/jenkins-ci/
+// - SLACK_DEFAULT_CHANNEL : #test-jenkins
 
 
 def openstack_cmd(String cmd, String mount = "") {
@@ -164,5 +167,28 @@ def jenkins_slave_destroy(String name) {
     stack_delete(name)
 }
 
-return this;
+def slack_msg(String msg, String channel=SLACK_DEFAULT_CHANNEL){
+// Usage example:  funcs.slack_msg( "${env.GERRIT_CHANGE_URL} is OK!")
+// Custom channel: funcs.slack_msg( "${env.GERRIT_CHANGE_URL} is OK!",'#my_channel')
+    slackSend(
+        baseUrl: SLACK_URL,
+        tokenCredentialId: 'jenkins-slack',
+        channel: channel,
+        message: "Job <${env.JOB_URL}|${env.JOB_NAME}> said:\n" + msg
+    )
+}
 
+def gerrithub_clone(String project, String refspec){
+// Usage example: funcs.gerrithub_clone("att-comdev/cicd", "origin/master")
+// clone refspec: funcs.gerrithub_clone("att-comdev/cicd", "${env.GERRIT_REFSPEC}")
+    checkout poll: false,
+    scm: [$class: 'GitSCM',
+         branches: [[name: refspec]],
+         doGenerateSubmoduleConfigurations: false,
+         extensions: [[$class: 'CleanBeforeCheckout']],
+         submoduleCfg: [],
+         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+         url: "https://review.gerrithub.io/" + project ]]]
+}
+
+return this;
