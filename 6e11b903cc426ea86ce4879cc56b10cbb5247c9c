@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "92630d6d_48b1c5ca",
+        "filename": "common/funcs.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-11-30T20:50:04Z",
+      "side": 1,
+      "message": "I would like the following:\n\nnotify  \nIf it was multiple words:\nthisIsWhatIPrefer",
+      "parentUuid": "3e97927b_0365566f",
+      "revId": "6e11b903cc426ea86ce4879cc56b10cbb5247c9c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1fd04c63_c81ee5f7",
         "filename": "common/funcs.groovy",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-30T20:44:39Z",
       "side": 1,
       "message": "As this file may be used by other orgs.. would suggest to break out urls and channel names to some variables.\n\nI started to list deps on the top of file..",
+      "revId": "6e11b903cc426ea86ce4879cc56b10cbb5247c9c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86a5cfdc_0510d54e",
+        "filename": "common/funcs.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2017-11-30T20:50:04Z",
+      "side": 1,
+      "message": "Can we see what it is set to in our Jenkins configuration?  There should be a variable for it I thought. The comments would just say, add global $SLACK_URL to Jenkins, or similar.",
+      "parentUuid": "1fd04c63_c81ee5f7",
       "revId": "6e11b903cc426ea86ce4879cc56b10cbb5247c9c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
