@@ -164,5 +164,30 @@ def jenkins_slave_destroy(String name) {
     stack_delete(name)
 }
 
+def slack_msg(String channel, String msg){
+// Usage example: funcs.Notify('#test-jenkins', "${env.GERRIT_CHANGE_URL} is OK!")
+    slackSend(
+        baseUrl:'https://att-comdev.slack.com/services/hooks/jenkins-ci/',
+        tokenCredentialId: 'jenkins-slack',
+        channel: channel,
+        message: "Job <${env.JOB_URL}|${env.JOB_NAME}> said:\n" + msg
+    )
+}
+
+def gerrithub_clone(String project, String refspec){
+// Usage example: funcs.gerrithub_clone("att-comdev/cicd", "${env.GERRIT_REFSPEC}")
+    checkout poll: false,
+    scm: [$class: 'GitSCM',
+         branches: [[name: refspec]],
+         doGenerateSubmoduleConfigurations: false,
+         extensions: [[$class: 'CleanBeforeCheckout']],
+         submoduleCfg: [],
+         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+         url: "https://review.gerrithub.io/"+ project ]]]
+
+}
+
+
+
 return this;
 
