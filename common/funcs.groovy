@@ -164,5 +164,15 @@ def jenkins_slave_destroy(String name) {
     stack_delete(name)
 }
 
+def Notify(String channel, String msg){
+// Usage example: funcs.Notify('#test-jenkins', "${env.GERRIT_CHANGE_URL} is OK!")
+    slackSend(
+        baseUrl:'https://att-comdev.slack.com/services/hooks/jenkins-ci/',
+        tokenCredentialId: 'jenkins-slack',
+        channel: channel,
+        message: "Job <${env.JOB_URL}|${env.JOB_NAME}> said:\n" + msg
+    )
+}
+
 return this;
 
