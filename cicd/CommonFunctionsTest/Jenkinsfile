@@ -1,0 +1,54 @@
+VM_LAUNCH_NODE = 'local-vm-launch'
+SLAVE_NODE= "functions-test"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+CommonFunctions="CommonFunctions/common/funcs.groovy"
+
+def commonf
+//def funcs //oldstyle
+def testf //testing
+
+node(VM_LAUNCH_NODE) {
+    stage("loading CommonFunctions"){
+    //2DO: separate node label: 'config'
+    //we may need separate node to store template and functions,
+    //to be able to access it as quickly as possible.
+        commonf = load "${env.HOME}/${CommonFunctions}"
+    }
+}
+
+try{
+    stage('Create Slave Node'){
+        node(VM_LAUNCH_NODE) {
+            commonf.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+    stage('Wait for Node'){
+        timeout (10) {
+            node (SLAVE_NODE) {
+                echo "It's up."
+            }
+        }
+    }
+
+    node(SLAVE_NODE) {
+        stage('Checkout and Load') {
+
+            testf.gh_clone("att-comdev/cicd","${env.GERRIT_REFSPEC}")
+
+            sh "ls -lah * "
+
+        }
+
+        stage('Testing functions'){
+            echo "Test"
+        }
+    }
+
+} finally {
+
+    stage('Remove Slave'){
+        node(VM_LAUNCH_NODE) {
+           commonf.jenkins_slave_destroy(SLAVE_NODE)
+        }
+    }
+}
