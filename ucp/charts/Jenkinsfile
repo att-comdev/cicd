@@ -41,12 +41,10 @@ try{
             if (status != 0) {
                 currentBuild.result = 'FAILED'
 
-                def output = readFile('build/failed.log').trim()
-                slackSend( baseUrl:'https://att-comdev.slack.com/services/hooks/jenkins-ci/', channel:'#undertheclouds',
-                             tokenCredentialId: 'jenkins-slack', message: "<${env.JOB_URL}|${env.JOB_NAME}> \n ${output}")
+                //def output = readFile('build/failed.log').trim()
+                slack_msg('#undertheclouds',"Charts build failed for ${env.GERRIT_CHANGE_NUMBER}!")
             }else{
-                slackSend( baseUrl:'https://att-comdev.slack.com/services/hooks/jenkins-ci/', channel: '#test-jenkins',
-                        tokenCredentialId: 'jenkins-slack', message: "<${env.JOB_URL}|${env.JOB_NAME}> pathchset ${env.GERRIT_CHANGE_NUMBER} is OK")
+                slack_msg('#test-jenkins', "pathchset ${env.GERRIT_CHANGE_NUMBER} is OK")
             }
         }
     }
