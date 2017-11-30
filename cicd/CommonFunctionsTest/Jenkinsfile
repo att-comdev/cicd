@@ -1,0 +1,62 @@
+VM_LAUNCH_NODE = 'local-vm-launch'
+SLAVE_NODE= "functions-test"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+ARTF_URL = env.ARTF_DOCKER_URL
+
+def funcs
+def testf
+
+println("${env.HOME}")
+sh 'hostname; env'
+
+try{
+    stage('Create Slave Node'){
+        node(VM_LAUNCH_NODE) {
+            //I don't want to clone repo every time:
+            sh '''#!/bin/bash -xe
+
+                  if [ ! -d cicd ]; then
+                    git clone https://review.gerrithub.io/att-comdev/cicd
+                  fi
+                    cd cicd
+                    git fetch https://review.gerrithub.io/att-comdev/cicd ${GERRIT_REFSPEC}
+                    git checkout FETCH_HEAD
+            '''
+            funcs = load "cicd/common/funcs.groovy"
+            funcs.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${NODE_TMPL}")
+            // we'll move working functions to funcs.groovy after testing:
+            testf = load "cicd/common/test_functions.groovy"
+            testf.Notify('#test-jenkins', "Hello from test job! \nTest param1: ${env.TEST_PARAM1}")
+
+        }
+    }
+    stage('Wait for Node'){
+        timeout (10) {
+            node (SLAVE_NODE) {
+                echo "It's up."
+            }
+        }
+    }
+
+    node(SLAVE_NODE) {
+        stage('Checkout and Load') {
+
+            testf.gh_clone("att-comdev/cicd","${env.GERRIT_REFSPEC}")
+
+            sh "ls -lah * "
+
+        }
+
+        stage('Testing functions'){
+            echo "$(env)"
+        }
+    }
+
+} finally {
+
+    stage('Remove Slave'){
+       node(VM_LAUNCH_NODE) {
+           funcs.jenkins_slave_destroy(SLAVE_NODE)
+        }
+    }
+}
