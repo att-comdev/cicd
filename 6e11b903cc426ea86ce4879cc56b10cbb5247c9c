@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e97927b_0365566f",
+        "filename": "common/funcs.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-30T20:44:39Z",
+      "side": 1,
+      "message": "Would be good to keep naming convention consistent.\n\nIf you like CamelCase.. we can agree to that, and I can also use that for future. Good to agree on 1 thing though.",
+      "revId": "6e11b903cc426ea86ce4879cc56b10cbb5247c9c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1fd04c63_c81ee5f7",
+        "filename": "common/funcs.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-11-30T20:44:39Z",
+      "side": 1,
+      "message": "As this file may be used by other orgs.. would suggest to break out urls and channel names to some variables.\n\nI started to list deps on the top of file..",
+      "revId": "6e11b903cc426ea86ce4879cc56b10cbb5247c9c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
