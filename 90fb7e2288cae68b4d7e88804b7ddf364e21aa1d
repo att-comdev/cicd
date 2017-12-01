@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "19ed6c6e_623d3ddd",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 57
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-01T23:12:49Z",
+      "side": 1,
+      "message": "Discussed as good for now.",
+      "parentUuid": "045e85b6_813e3d14",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 1
+      },
+      "revId": "90fb7e2288cae68b4d7e88804b7ddf364e21aa1d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1bfa4f63_0be42f55",
         "filename": "images/openstack/loci/Jenkinsfile",
         "patchSetId": 57
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-01T21:50:38Z",
       "side": 1,
       "message": "Can we move it to common functions? It looks strange here :)",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 1
+      },
+      "revId": "90fb7e2288cae68b4d7e88804b7ddf364e21aa1d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6dc0cf91_1aa8bf47",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 57
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-01T23:12:49Z",
+      "side": 1,
+      "message": "Discussed as OK",
+      "parentUuid": "1bfa4f63_0be42f55",
       "range": {
         "startLine": 67,
         "startChar": 0,
