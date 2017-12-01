@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "045e85b6_813e3d14",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 57
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-01T21:50:38Z",
+      "side": 1,
+      "message": "I recommend you to set up these GERRIT_* vars as job parameters, to be able to emulate gerrit events. You shouldn\u0027t care - was it automatic or manual if the parameters are correct.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 1
+      },
+      "revId": "90fb7e2288cae68b4d7e88804b7ddf364e21aa1d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1bfa4f63_0be42f55",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 57
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-01T21:50:38Z",
+      "side": 1,
+      "message": "Can we move it to common functions? It looks strange here :)",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 1
+      },
+      "revId": "90fb7e2288cae68b4d7e88804b7ddf364e21aa1d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
