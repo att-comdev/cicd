@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "763ad0eb_a0a02c86",
+        "filename": "images/openstack/kolla-newton/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-01T18:12:57Z",
+      "side": 1,
+      "message": "Why not to use \"for\" statement here?! like this:\nsh \u0027\u0027\u0027\n    tag_n_push(){\n    sudo docker tag ${NAME} ${TAG}\n    sudo docker push ${TAG}\n    }\n    COMP_LIST\u003d\"api central collector compute notification\"\n    for component in COMP_LIST; do\n       NAME\u003dBLAHBLAH-${component}\n       ${TAG}\u003dBLAH-${component}-BLAH\n       tag_n_push\n    done",
+      "range": {
+        "startLine": 98,
+        "startChar": 1,
+        "endLine": 107,
+        "endChar": 98
+      },
+      "revId": "e0aa649dc04909f8109b7eec9c39dc7c4fc18eed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
