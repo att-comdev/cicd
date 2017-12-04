@@ -34,6 +34,14 @@ PROJECTS.each { project, ref ->
             }
         }
 
+        parameters {
+            stringParam {
+                defaultValue('https://git.openstack.org/openstack')
+                description('Default repo for projects')
+                name ('PROJECT_REPO_BASE')
+            }
+        }
+
         triggers {
             gerritTrigger {
                 serverName('OS-CommunityGerrit')
