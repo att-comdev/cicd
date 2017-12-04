@@ -46,10 +46,6 @@ PROJECTS.each { project, ref ->
                                 compareType("ANT")
                                 pattern("stable/*")
                             }
-                            branch {
-                                compareType("ANT")
-                                pattern("master")
-                            }
                         }
                         disableStrictForbiddenFileVerification(false)
                     }
