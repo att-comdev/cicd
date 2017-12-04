@@ -114,12 +114,25 @@ def version_resolve = {
     }
 }
 
+// localize project repo
+def repo_serve = {
+    sh 'mkdir -p repo'
+    dir ('repo') {
+        sh "git clone ${PROJECT_REPO}"
+        sh "cd ${PROJECT} && git update-cluster-info"
+    }
+
+    def pycmd = 'python -m http.server 6060'
+    sh "${DIND} docker run -d -v /opt/loci/repo:/repo -p 6060:6060 python ${pycmd}"
+    sh ""
+}
 
 def wheels_build = {
-    def args = '--build-arg PROJECT=requirements' +
-        " --build-arg PROJECT_REF=${PROJECT_REF}"
+    def args = '--build-arg PROJECT=${PROJECT}' +
+        " --build-arg PROJECT_REF=${PROJECT_REF}" +
+        " --build-arg PROJECT_REPO=http://172.18.0.1:6060/repo/${PROJECT}"
 
-    def tag = "${IMAGE_BASE}/requirements:${PROJECT_VERSION}"
+    def tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
     ansiColor('xterm') {
         sh "${DIND} docker build ${LOCI_REPO} ${args} --tag ${tag}"
     }
@@ -148,9 +161,11 @@ def wheels_export = {
 }
 
 
+
 def project_build = {
     def args = "--build-arg PROJECT=${PROJECT}" +
         " --build-arg PROJECT_REF=${PROJECT_REF}" +
+        " --build-arg PROJECT_REPO=http://172.18.0.1:6060/repo/${PROJECT}" +
         " --build-arg WHEELS=http://172.18.0.1:8080/web/wheels.tar.gz"
 
     def tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
