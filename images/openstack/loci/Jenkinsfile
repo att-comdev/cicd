@@ -4,6 +4,10 @@ SLAVE_NODE="images-loci-${JOB_BASE_NAME}-${BUILD_NUMBER}"
 SLAVE_TMPL = "docker/loci.yaml"
 
 LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
+
+LOCAL_WEB_PORT = '8080'
+LOCAL_WEB_URL = "http://172.18.0.1:${LOCAL_WEB_PORT}"
+
 PROJECT = JOB_BASE_NAME
 
 ARTF_REPO = 'openstack'
@@ -21,6 +25,8 @@ if (env.GERRIT_REFSPEC) {
     PROJECT_BRANCH = PROJECT_REF
     DISPLAY_PREFIX = "manual"
 }
+
+
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${DISPLAY_PREFIX} ${PROJECT_BRANCH}"
 
@@ -98,28 +104,54 @@ def docker_setup = {
 def version_resolve = {
     // use commit hash when triggered manually
     if (!env.GERRIT_REFSPEC) {
-        checkout poll: false,
-                scm: [$class: 'GitSCM',
-                branches: [[name: '$PROJECT_REF']],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [],
-                submoduleCfg: [],
-                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                    url: "https://git.openstack.org/openstack/${PROJECT}"]]]
 
-        def cmd = "git log --branches -1 --pretty=format:'%h'"
-        def hash = sh (returnStdout: true, script: cmd)
+        sh "git clone web/repo/${PROJECT}"
 
-        PROJECT_VERSION = hash.trim()
+        dir (PROJECT) {
+            sh "git fetch ../web/repo/${PROJECT} ${PROJECT_REF}"
+            sh "git checkout FETCH_HEAD"
+
+            def cmd = "git log --branches -1 --pretty=format:'%h'"
+            PROJECT_VERSION = sh(returnStdout: true, script: cmd).trim()
+        }
     }
 }
 
 
-def wheels_build = {
-    def args = '--build-arg PROJECT=requirements' +
-        " --build-arg PROJECT_REF=${PROJECT_REF}"
+// local web server exposing mounted volume /opt/loci/web
+// this enables localized use of git/docker artifacts
+def nginx_setup = {
+    sh "mkdir -p web"
 
-    def tag = "${IMAGE_BASE}/requirements:${PROJECT_VERSION}"
+    def opts = '-d -v /opt/loci/web:/usr/share/nginx/html:ro'
+    def port = "-p ${LOCAL_WEB_PORT}:80"
+    sh "${DIND} docker run ${opts} ${port} nginx"
+}
+
+def repo_clone = {
+    sh 'mkdir -p web/repo'
+
+    dir ('web/repo') {
+        sh "git clone --mirror ${PROJECT_REPO_BASE}/${PROJECT} ${PROJECT}"
+        sh "cd ${PROJECT} && git update-server-info"
+    }
+}
+
+def wheels_export = {
+    sh "mkdir -p web/images"
+
+    sh "${DIND} docker create --name loci-wheels ${WHEELS_LATEST}"
+    sh "${DIND} docker export -o /opt/loci/web/images/wheels.tar loci-wheels"
+    sh "${DIND} chmod +r /opt/loci/web/images/wheels.tar"
+}
+
+
+def wheels_build = {
+    def args = "--build-arg PROJECT=${PROJECT}" +
+        " --build-arg PROJECT_REF=${PROJECT_REF}" +
+        " --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}"
+
+    def tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
     ansiColor('xterm') {
         sh "${DIND} docker build ${LOCI_REPO} ${args} --tag ${tag}"
     }
@@ -133,25 +165,11 @@ def wheels_build = {
 }
 
 
-// localize wheels to support loci use of docker (http) APIs
-// url = "http://{}/v2/{}/manifests/{}".format(registry, repo, tag)
-def wheels_export = {
-    def lw = '/opt/loci/web'
-    sh "${DIND} mkdir -p ${lw}"
-
-    sh "${DIND} docker create --name loci-wheels ${WHEELS_LATEST}"
-    sh "${DIND} docker export -o ${lw}/wheels.tar.gz loci-wheels"
-
-    // serve wheels over http
-    def pycmd = 'python -m http.server 8080'
-    sh "${DIND} docker run -d -v ${lw}:/web -p 8080:8080 python ${pycmd}"
-}
-
-
 def project_build = {
     def args = "--build-arg PROJECT=${PROJECT}" +
         " --build-arg PROJECT_REF=${PROJECT_REF}" +
-        " --build-arg WHEELS=http://172.18.0.1:8080/web/wheels.tar.gz"
+        " --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}" +
+        " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
 
     def tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
     ansiColor('xterm') {
@@ -169,6 +187,11 @@ try {
     node(SLAVE_NODE) {
         stage('Docker Setup') {
             docker_setup()
+        }
+
+        stage('Local Repo Setup') {
+            nginx_setup()
+            repo_clone()
             version_resolve()
         }
 
@@ -185,6 +208,18 @@ try {
             }
         }
     }
+
+} catch (error) {
+    def msg = "Failed to build project: ${PROJECT}\n" +
+              "Build info: ${DISPLAY_PREFIX} ${PROJECT_BRANCH}\n" +
+              "Error: ${error}"
+
+    print msg
+
+    node(SLAVE_NODE) {
+        funcs.slack_msg(msg)
+    }
+
 } finally {
     stage('Slave Remove'){
         slave_cleanup()
