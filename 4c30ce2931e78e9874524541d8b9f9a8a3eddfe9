@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a1fded6_03bd9e70",
+        "filename": "ucp/charts/Jenkinsfile",
+        "patchSetId": 42
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-04T17:00:40Z",
+      "side": 1,
+      "message": "Didn\u0027t you create common function for this. I would suggest to at least use the envs and not commit slack channel/url.",
+      "revId": "4c30ce2931e78e9874524541d8b9f9a8a3eddfe9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7804ce83_898c258a",
+        "filename": "ucp/charts/seed.groovy",
+        "patchSetId": 42
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-04T17:00:40Z",
+      "side": 1,
+      "message": "Why wouldn\u0027t you use \u0027GERRIT_REFSPEC\u0027.\n\nThis will pass on ref that was used to build the pipeline (meaning the same as was triggering the change)",
+      "revId": "4c30ce2931e78e9874524541d8b9f9a8a3eddfe9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
