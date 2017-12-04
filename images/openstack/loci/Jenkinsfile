@@ -1,4 +1,3 @@
-
 LAUNCH_NODE = 'local-vm-launch'
 SLAVE_NODE="images-loci-${JOB_BASE_NAME}-${BUILD_NUMBER}"
 SLAVE_TMPL = "docker/loci.yaml"
@@ -115,11 +114,40 @@ def version_resolve = {
 }
 
 
-def wheels_build = {
-    def args = '--build-arg PROJECT=requirements' +
-        " --build-arg PROJECT_REF=${PROJECT_REF}"
+// local web server exposing mounted volume /opt/loci/web
+// this enables localized use of git/docker artifacts
+def nginx_setup = {
+    sh "mkdir -p web"
 
-    def tag = "${IMAGE_BASE}/requirements:${PROJECT_VERSION}"
+    def opts = '-d -v /opt/loci/web:/usr/share/nginx/html:ro'
+    def port = '-p 8080:80'
+    sh "${DIND} docker run ${opts} ${port} nginx"
+}
+
+def repo_clone = {
+    sh 'mkdir -p web/repo'
+
+    dir ('web/repo') {
+        sh "git clone --mirror ${PROJECT_REPO_BASE}/${PROJECT} ${PROJECT}"
+        sh "cd ${PROJECT} && git update-server-info"
+    }
+}
+
+def wheels_export = {
+    sh "mkdir -p web/images"
+
+    sh "${DIND} docker create --name loci-wheels ${WHEELS_LATEST}"
+    sh "${DIND} docker export -o /opt/loci/web/images/wheels.tar loci-wheels"
+    sh "${DIND} chmod +r /opt/loci/web/images/wheels.tar"
+}
+
+
+def wheels_build = {
+    def args = "--build-arg PROJECT=${PROJECT}" +
+        " --build-arg PROJECT_REF=${PROJECT_REF}" +
+        " --build-arg PROJECT_REPO=http://172.18.0.1:8080/repo/${PROJECT}"
+
+    def tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
     ansiColor('xterm') {
         sh "${DIND} docker build ${LOCI_REPO} ${args} --tag ${tag}"
     }
@@ -133,25 +161,11 @@ def wheels_build = {
 }
 
 
-// localize wheels to support loci use of docker (http) APIs
-// url = "http://{}/v2/{}/manifests/{}".format(registry, repo, tag)
-def wheels_export = {
-    def lw = '/opt/loci/web'
-    sh "${DIND} mkdir -p ${lw}"
-
-    sh "${DIND} docker create --name loci-wheels ${WHEELS_LATEST}"
-    sh "${DIND} docker export -o ${lw}/wheels.tar.gz loci-wheels"
-
-    // serve wheels over http
-    def pycmd = 'python -m http.server 8080'
-    sh "${DIND} docker run -d -v ${lw}:/web -p 8080:8080 python ${pycmd}"
-}
-
-
 def project_build = {
     def args = "--build-arg PROJECT=${PROJECT}" +
         " --build-arg PROJECT_REF=${PROJECT_REF}" +
-        " --build-arg WHEELS=http://172.18.0.1:8080/web/wheels.tar.gz"
+        " --build-arg PROJECT_REPO=http://172.18.0.1:8080/repo/${PROJECT}" +
+        " --build-arg WHEELS=http://172.18.0.1:8080/images/wheels.tar"
 
     def tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
     ansiColor('xterm') {
@@ -169,6 +183,11 @@ try {
     node(SLAVE_NODE) {
         stage('Docker Setup') {
             docker_setup()
+        }
+
+        stage('Local Repo Setup') {
+            nginx_setup()
+            repo_clone()
             version_resolve()
         }
 
