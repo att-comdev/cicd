@@ -33,6 +33,24 @@
       "revId": "4c30ce2931e78e9874524541d8b9f9a8a3eddfe9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "15971773_a4016f30",
+        "filename": "ucp/charts/seed.groovy",
+        "patchSetId": 42
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-04T17:24:19Z",
+      "side": 1,
+      "message": "The trigger is for the openstack project,\nI need a refspec from CICD also.",
+      "parentUuid": "7804ce83_898c258a",
+      "revId": "4c30ce2931e78e9874524541d8b9f9a8a3eddfe9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
