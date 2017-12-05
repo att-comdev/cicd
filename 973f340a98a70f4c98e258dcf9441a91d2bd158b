@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99409f01_0207280c",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 61
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-12-05T23:51:03Z",
+      "side": 1,
+      "message": "We don\u0027t need ps in front of this.",
+      "revId": "973f340a98a70f4c98e258dcf9441a91d2bd158b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0f6ca0c_bce69c8b",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 61
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-12-05T23:51:03Z",
+      "side": 1,
+      "message": "Is this something we should do in the Heat template for loci?",
+      "revId": "973f340a98a70f4c98e258dcf9441a91d2bd158b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
