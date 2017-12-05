@@ -23,7 +23,7 @@ pipelineJob("UCP/charts/helm-toolkit-compatibility") {
         }
         stringParam {
             name ('CICD_REFSPEC')
-            defaultValue('refs/changes/65/385065/34')
+            defaultValue('master')
             description('refspec that have build_charts script')
         }
     }

@@ -7,8 +7,8 @@ set -e
 #See seed.groovy job parameters.
 
 record_fail(){
-    echo -e "\n project $1 failed: " | tee -a $failed_log
-    cat ${1}.log >> $failed_log
+    echo -e "\n project $1 failed: " | tee -a ${failed_log}
+    cat ${1}.log >> ${failed_log}
     #Fail logged, continue building charts manually:
     helm_pkg
 }
@@ -55,12 +55,8 @@ make_charts(){
         if [ -f Makefile ]; then
             make charts &> ${project}.log || record_fail ${project}
         else
-            helm_pkg
+            helm_pkg &> ${project}.log || record_fail ${project}
         fi
-        #FIXME: Standard location for gererated charts shuld be defined,
-        #armada leaves its tgz in charts/ dir, others in projects root:
-        cp -v *.tgz ${WDIR}/ || cp -v charts/*.tgz ${WDIR}/
-        cd ..
     done
 }
 
