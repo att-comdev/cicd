@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "db9cf8ff_33a41833",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 60
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-05T18:31:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a68b01b6_eaf7d493",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 1
+      },
+      "revId": "5782a54d2fc79b2aa709c5712590f14113aa7b23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f84ad301_ba3fd994",
         "filename": "images/openstack/loci/Jenkinsfile",
         "patchSetId": 60
@@ -94,6 +118,30 @@
     },
     {
       "key": {
+        "uuid": "8aa03562_d6f6939b",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 60
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-05T18:31:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ce4f0e2_4f4773be",
+      "range": {
+        "startLine": 33,
+        "startChar": 16,
+        "endLine": 33,
+        "endChar": 36
+      },
+      "revId": "5782a54d2fc79b2aa709c5712590f14113aa7b23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c0753b4_8e1ec8f4",
         "filename": "images/openstack/loci/seed.groovy",
         "patchSetId": 60
@@ -105,6 +153,30 @@
       "writtenOn": "2017-12-05T18:21:17Z",
       "side": 1,
       "message": "do we need master?",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 49
+      },
+      "revId": "5782a54d2fc79b2aa709c5712590f14113aa7b23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "64abc140_3e71dad4",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 60
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-05T18:31:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c0753b4_8e1ec8f4",
       "range": {
         "startLine": 49,
         "startChar": 0,
