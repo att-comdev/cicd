@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6cc4d32_85d9a9ac",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-05T19:05:10Z",
+      "side": 1,
+      "message": "let\u0027s discuss \"commit hash as a version\"",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 72
+      },
+      "revId": "4ab707dd0dd9c55258f3e2e8b73dc94b312c6087",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13ee492e_70450c53",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-05T19:05:10Z",
+      "side": 1,
+      "message": "I don\u0027t understand why do you need --mirror here",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 52
+      },
+      "revId": "4ab707dd0dd9c55258f3e2e8b73dc94b312c6087",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d55176b0_9edc87c6",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-05T19:05:10Z",
+      "side": 1,
+      "message": "use variable here",
+      "range": {
+        "startLine": 145,
+        "startChar": 35,
+        "endLine": 145,
+        "endChar": 58
+      },
+      "revId": "4ab707dd0dd9c55258f3e2e8b73dc94b312c6087",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d789505a_70d6e443",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-05T19:05:10Z",
+      "side": 1,
+      "message": "use variables here",
+      "range": {
+        "startLine": 164,
+        "startChar": 22,
+        "endLine": 165,
+        "endChar": 70
+      },
+      "revId": "4ab707dd0dd9c55258f3e2e8b73dc94b312c6087",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71eea1fa_41259e5f",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-05T19:05:10Z",
+      "side": 1,
+      "message": "slack_msg here",
+      "range": {
+        "startLine": 199,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 13
+      },
+      "revId": "4ab707dd0dd9c55258f3e2e8b73dc94b312c6087",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
