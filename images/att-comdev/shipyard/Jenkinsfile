@@ -1,0 +1,83 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="shipyard-${BUILD_NUMBER}"
+NODE_TMPL="integration/genesis-single.yaml"
+
+SHIPYARD_VERSION = "0.1.0-${GERRIT_CHANGE_NUMBER}"
+SHIPYARD_PS = "${GERRIT_CHANGE_NUMBER}.${GERRIT_PATCHSET_NUMBER}"
+ARTF_URL = env.ARTF_DOCKER_URL
+SHIPYARD_IMAGE_PS = "${ARTF_URL}/ucp-patchset/shipyard:${SHIPYARD_PS}"
+SHIPYARD_IMAGE = "${ARTF_URL}/ucp/shipyard:${SHIPYARD_VERSION}"
+SHIPYARD_IMAGE_LATEST = "${ARTF_URL}/ucp/shipyard:latest"
+
+vm(NODE_NAME, NODE_TMPL) {
+    gerrithub.clone("att-comdev/shipyard", GERRIT_REFSPEC)
+    sh 'sudo apt-get install make'
+    stage('Checkout'){
+        if (GERRIT_EVENT_TYPE != 'change-merged') {
+            SHIPYARD_IMAGE = SHIPYARD_IMAGE_PS
+        }
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+    }
+    stage('Docker Build') {
+        timeout(20){
+            parallel (
+                "stream shipyard" : {
+                node(NODE_NAME){
+                    dir("${WORKSPACE}/images/att-comdev/shipyard/shipyard"){
+                        sh  "sudo make build_shipyard IMAGE_TAG='${env.BUILD_NUMBER}'"
+                        sh  "sudo docker tag attcomdev/shipyard:${env.BUILD_NUMBER} ${SHIPYARD_IMAGE}"
+                    }
+            }
+        },
+                "stream airflow" : {
+                node(NODE_NAME){
+                    dir("${WORKSPACE}/images/att-comdev/shipyard/shipyard"){
+                        sh  "sudo make build_airflow IMAGE_TAG='0.1.0.${env.BUILD_NUMBER}'"
+                    }
+                }
+            })
+        }
+    }
+
+    stage('Docker Run') {
+        timeout(20){
+            parallel (
+                "stream run_shipyard" : {
+                node(NODE_NAME){
+                    dir("/home/ubuntu/jenkins/workspace/images/att-comdev/shipyard/shipyard"){
+                        sh  "sudo make run_shipyard IMAGE_TAG='${env.BUILD_NUMBER}'"
+                    }
+            }
+        },
+                "stream run_airflow" : {
+                node(NODE_NAME){
+                    dir("/home/ubuntu/jenkins/workspace/images/att-comdev/shipyard/shipyard"){
+                        sh  "sudo make run_airflow IMAGE_TAG='0.1.0.${env.BUILD_NUMBER}'"
+                    }
+                }
+            })
+        }
+    }
+
+    stage('Validate Container') {
+        //This does not validate anything until the developers give us direction.
+        sh 'sudo docker ps'
+    }
+
+    stage('Publish'){
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                usernameVariable: 'ARTIFACTORY_USER',
+                passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+
+            sh "sudo docker login ${opts} ${ARTF_URL}"
+            sh "sudo docker push ${SHIPYARD_IMAGE}"
+
+            if (GERRIT_EVENT_TYPE == 'change-merged') {
+                sh "sudo docker tag ${SHIPYARD_IMAGE} ${SHIPYARD_IMAGE_LATEST}"
+                sh "sudo docker push ${SHIPYARD_IMAGE_LATEST}"
+            }
+        }
+    }
+}
