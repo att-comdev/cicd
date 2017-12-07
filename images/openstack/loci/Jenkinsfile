@@ -9,7 +9,15 @@ LOCAL_WEB_PORT = '8080'
 LOCAL_WEB_URL = "http://172.18.0.1:${LOCAL_WEB_PORT}"
 
 PROJECT = JOB_BASE_NAME
-PROJECT_REPO_BASE = 'https://git.openstack.org/openstack'
+
+if (PROJECT.contains('mos')) {
+    PROJECT_REPO = "${INTERNAL_GERRIT_URL}/${PROJECT}"
+    PROJECT_PREFIX = "loci/mos"
+} else {
+    // openstack community repos by default
+    PROJECT_REPO = "https://git.openstack.org/openstack/${PROJECT}"
+    PROJECT_PREFIX = "loci/community"
+}
 
 ARTF_REPO = 'openstack'
 if (env.GERRIT_EVENT_TYPE == 'patchset-created') {
@@ -36,17 +44,20 @@ if (PROJECT_BRANCH.contains('stable/')) {
     PROJECT_RELEASE = PROJECT_BRANCH.replace('stable/', '')
 } else if (PROJECT_BRANCH.contains('-eol')) {
     PROJECT_RELEASE = PROJECT_BRANCH.replace('-eol', '')
+} else if (PROJECT_BRANCH.contains('main/newton')) {
+    PROJECT_RELEASE = PROJECT_BRANCH.replace('main/', '')
 } else if (PROJECT_BRANCH == 'master') {
     PROJECT_RELEASE = PROJECT_BRANCH
 } else {
     error("Unsupported branch/tag: ${PROJECT_BRANCH}")
 }
 
-IMAGE_BASE = "${ARTF_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/loci"
+IMAGE_BASE = "${ARTF_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
 
 // used on merge, and for building projects (always non-ps path)
 // project builds assume branch-specific requirements:latest
-WHEELS_LATEST = "${ARTF_DOCKER_URL}/openstack/${PROJECT_RELEASE}/loci/requirements:latest"
+// note: mos will use community requirements for now
+WHEELS_LATEST = "${ARTF_DOCKER_URL}/openstack/${PROJECT_RELEASE}/loci/community/requirements:latest"
 
 
 // cmd for running Docker in Docker
@@ -131,10 +142,30 @@ def repo_clone = {
     sh 'mkdir -p web/repo'
 
     dir ('web/repo') {
-        sh "git clone --mirror ${PROJECT_REPO_BASE}/${PROJECT} ${PROJECT}"
+        sh "git clone --mirror ${PROJECT_REPO} ${PROJECT}"
         sh "cd ${PROJECT} && git update-server-info"
     }
 }
+
+def repo_clone_ssh = {
+    withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-stage-master',
+                                       keyFileVariable: 'SSH_KEY')]) {
+        // wrapper for custom git ssh key
+        // ssh -i $SSH_KEY $@
+        withEnv(["GIT_SSH=/usr/bin/git-ssh-wrapper"]) {
+            repo_clone()
+        }
+    }
+}
+
+def repo_mirror = {
+    if (PROJECT_REPO.contains('ssh://')) {
+        repo_clone_ssh()
+    } else {
+        repo_clone()
+    }
+}
+
 
 def wheels_export = {
     sh "mkdir -p web/images"
@@ -174,7 +205,8 @@ def project_build = {
     ansiColor('xterm') {
         sh "${DIND} docker build ${LOCI_REPO} ${args} --tag ${tag}"
     }
-    sh "${DIND} docker push ${tag}"
+    // todo: uncomment once repos are fixed
+    // sh "${DIND} docker push ${tag}"
 }
 
 
@@ -190,7 +222,7 @@ try {
 
         stage('Local Repo Setup') {
             nginx_setup()
-            repo_clone()
+            repo_mirror()
             version_resolve()
         }
 
