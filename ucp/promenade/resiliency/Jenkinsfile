@@ -1,0 +1,106 @@
+
+import groovy.json.JsonSlurperClassic
+
+
+LAUNCH_NODE = 'local-vm-launch'
+
+SLAVE_NODE = "promenade-resiliency-${BUILD_NUMBER}"
+SLAVE_TMPL = "promenade/promenade-virsh.yaml"
+
+if (!env.GERRIT_REFSPEC) {
+    GERRIT_REFSPEC = 'master'
+    GERRIT_EVENT_TYPE = "manual (${GERRIT_REFSPEC})"
+}
+
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+
+
+// handle generic Promenade stage
+def promenade_stage = { item ->
+    try {
+        def cmd = "${WORKSPACE}/tools/g2/stages/${item.script}"
+        if (item.arguments) {
+            def args = item.arguments.collect {e -> return "'${e}'"}
+            cmd = cmd + " " + args.join(" ")
+        }
+        timeout (30) {
+            ansiColor('xterm') {
+                sh cmd
+            }
+        }
+
+    } catch (err) {
+        if (item.on_error) {
+            sh "${WORKSPACE}/tools/g2/on_error/${item.on_error}"
+        }
+        error(err)
+
+    } finally {
+        if (item.publish) {
+             if (item.publish.junit) {
+                 item.publish.junit.each {
+                     junit it
+                 }
+             }
+         }
+    }
+}
+
+
+//// main flow
+
+try {
+    node(LAUNCH_NODE) {
+        git 'https://review.gerrithub.io/att-comdev/cicd'
+
+        funcs = load "${WORKSPACE}/common/funcs.groovy"
+        funcs.jenkins_slave_launch(SLAVE_NODE, "${HOME}/${SLAVE_TMPL}")
+    }
+
+    timeout(14) {
+        node(SLAVE_NODE) {
+            sh 'hostname'
+        }
+    }
+
+    node(SLAVE_NODE) {
+        stage('Prepare') {
+            funcs.gerrithub_clone("att-comdev/promenade", "${GERRIT_REFSPEC}")
+
+            ansiColor('xterm') {
+                sh "${WORKSPACE}/tools/setup_gate.sh"
+            }
+        }
+    }
+
+    node(SLAVE_NODE) {
+        sh "mkdir -p /tmp/promenade"
+
+        def mfpath = "${WORKSPACE}/tools/g2/manifests/resiliency.json"
+        def mf = readFile mfpath
+        def manifest = new JsonSlurperClassic().parseText(mf)
+
+        def env = ["GATE_MANIFEST=${mfpath}",
+                   "GATE_UTILS=${WORKSPACE}/tools/g2/lib/all.sh",
+                   "GATE_DEBUG=0",
+                   "TEMP_DIR=/tmp/promenade"]
+
+        manifest.stages.each {
+            stage(it.name) {
+                withEnv(env) {
+                    promenade_stage(it)
+                }
+            }
+        }
+    }
+
+} catch (err) {
+    funcs.slack_msg("Promenade resiliency pipeline failed: ${err}")
+    error(err)
+
+} finally {
+    node(LAUNCH_NODE) {
+        funcs.jenkins_slave_destroy(SLAVE_NODE)
+    }
+}
+
