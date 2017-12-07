@@ -1,0 +1,103 @@
+
+import groovy.json.JsonSlurperClassic
+
+
+LAUNCH_NODE = 'local-vm-launch'
+
+SLAVE_NODE = "promenade-virsh-${BUILD_NUMBER}"
+SLAVE_TMPL = "promenade/promenade-virsh.yaml"
+
+
+try {
+    node(LAUNCH_NODE) {
+        git 'https://review.gerrithub.io/att-comdev/cicd'
+
+        funcs = load "${WORKSPACE}/common/funcs.groovy"
+        funcs.jenkins_slave_launch(SLAVE_NODE, "${HOME}/${SLAVE_TMPL}")
+    }
+
+    timeout(14) {
+        node(SLAVE_NODE) {
+            sh 'hostname'
+        }
+    }
+
+    node(SLAVE_NODE) {
+        stage('Prepare') {
+            funcs.gerrithub_clone("att-comdev/promenade", "${GERRIT_REFSPEC}")
+
+            ansiColor('xterm') {
+                sh "${WORKSPACE}/tools/setup_gate.sh"
+            }
+        }
+    }
+
+    node(SLAVE_NODE) {
+        sh "mkdir -p /tmp/promenade"
+
+        def tools = "${WORKSPACE}/tools"
+
+        // read manifest
+        def f = readFile "${tools}/g2/manifests/resiliency.json"
+        manifest = new JsonSlurperClassic().parseText(f)
+        print manifest
+
+
+        //// manifest utils
+
+        def g2script = { item ->
+            def cmd = "${tools}/g2/stages/${item.script}"
+            if (item.arguments) {
+                cmd = cmd + " " + item.arguments.join(" ")
+            }
+            timeout (120) {
+                sh cmd
+            }
+        }
+
+        def g2pub = { item ->
+            if (item.publish) {
+                 if (item.publish.junit) {
+                     item.publish.junit.each {
+                         junit it
+                     }
+                 }
+             }
+        }
+
+        def g2err = { item ->
+            if (item.on_error) {
+                sh "${tools}/g2/on_error/${it.on_error}"
+            }
+        }
+
+        g2env = ["GATE_MANIFEST=${tools}/g2/manifests/conformance.json",
+                 "GATE_UTILS=${tools}/g2/lib/all.sh",
+                 "GATE_DEBUG=0",
+                 "TEMP_DIR=/tmp/promenade"]
+
+
+        //// run stages
+
+        withEnv(g2env) {
+            manifest.stages.each {
+                stage(it.name) {
+                    try {
+                        g2script(it)
+                        g2pub(it)
+                    } catch (err) {
+                        g2err(it)
+                        g2pub(it)
+                        error(err)
+                    }
+                }
+            }
+        }
+    } // node
+
+} finally {
+    node(LAUNCH_NODE) {
+        funcs.jenkins_slave_destroy(SLAVE_NODE)
+    }
+}
+
