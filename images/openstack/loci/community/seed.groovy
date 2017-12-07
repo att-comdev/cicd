@@ -1,6 +1,6 @@
 
 JOB_BASE='images/openstack/loci'
-folder("${JOB_BASE}")
+folder("${JOB_BASE}/community")
 
 // { project: 'ref' }
 PROJECTS = ['requirements': 'stable/newton',
@@ -15,7 +15,7 @@ PROJECTS = ['requirements': 'stable/newton',
 
 PROJECTS.each { project, ref ->
 
-    pipelineJob("${JOB_BASE}/${project}") {
+    pipelineJob("${JOB_BASE}/community/${project}") {
 
         // limit surge of patchsets
         configure {
