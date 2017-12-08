@@ -381,6 +381,7 @@ def deckhand_load = {
 
 
 //// drydock provisioning
+//// drydock_deploy and aramda_deploy will go away once shipyard is integrated
 
 def drydock_deploy = {
 
@@ -419,7 +420,9 @@ def armada_deploy = {
         sh 'cp -r /etc/kubernetes/admin/pki ~/.kube/pki'
         sh 'cat /etc/kubernetes/admin/kubeconfig.yaml | sed -e \'s/\\/etc\\/kubernetes\\/admin/./\' > ~/.kube/config'
 
-        armada_cmd = "apply /target/${ARMADA_OSH_CFG} --tiller-host=${GENESIS_NODE_IP} --tiller-port=44134"
+        def get = sudo kubectl get pods -n ucp -o wide | grep tiller-deploy | awk '{print \$6 }'
+        tiller = sh(script: get, returnStdout: true).trim()
+        armada_cmd = "apply /target/${ARMADA_OSH_CFG} --tiller-host=${tiller} --tiller-port=44134"
         docker_opts = "-t -v ~/.kube:/armada/.kube -v \$(pwd):/target --net=host"
         docker_cmd = "sudo docker run ${docker_opts} ${ARMADA_IMAGE} ${armada_cmd}"
 
