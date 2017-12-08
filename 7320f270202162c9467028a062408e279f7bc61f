@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01299ccf_6f7445e4",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-08T18:23:45Z",
+      "side": 1,
+      "message": "I would suggest to break out the cmd in a variable\n\ndef gt \u003d \u0027sudo kubectl get pods -n ucp -o wide | grep tiller-deploy | awk \u0027{print \\$6 }\u0027\ntiller \u003d sh(script: gt, returnStdout: true).trim()\n\nelse it\u0027s very hard to read the code and line is very long.",
+      "revId": "7320f270202162c9467028a062408e279f7bc61f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
