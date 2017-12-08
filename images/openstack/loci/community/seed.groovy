@@ -37,6 +37,8 @@ PROJECTS.each { project, ref ->
         triggers {
             gerritTrigger {
                 serverName('OS-CommunityGerrit')
+                silentMode(true)
+
                 gerritProjects {
                     gerritProject {
                         compareType('PLAIN')
