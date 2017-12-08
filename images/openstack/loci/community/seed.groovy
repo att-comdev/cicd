@@ -29,7 +29,7 @@ PROJECTS.each { project, ref ->
             stringParam {
                 defaultValue(ref)
                 description('Default branch for manual build.\n\n' +
-                            'Currently master, stable/<branch>, and newton-eol are supported')
+                            'Currently master, stable/<branch>, and newton-eol are supported.')
                 name ('PROJECT_REF')
             }
         }
