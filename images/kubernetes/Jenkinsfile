@@ -1,0 +1,30 @@
+NODE_NAME="Kube-build-${env.BUILD_NUMBER}"
+NODE_TMPL = "kube-node/ubuntu.m1.large.yaml"
+currentBuild.displayName = "#${BUILD_NUMBER} ${RELEASE_BRANCH}"
+
+vm(NODE_NAME,NODE_TMPL) {
+    stage('Build Image') {
+        git 'https://github.com/kubernetes/kubernetes.git'
+//            sh "git checkout ${RELEASE_BRANCH} && sudo make quick-release"
+        sh "git checkout ${RELEASE_BRANCH} && sudo make help"
+
+        withCredentials([usernamePassword(
+            credentialsId: 'jenkins-artifactory',
+            usernameVariable: 'ARTIFACTORY_USER',
+            passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+                sh "sudo docker login ${opts} ${env.ARTF_DOCKER_URL}"
+                sh "sudo docker images"
+        }
+
+        def build_status = sh(returnStatus: true, script: 'echo OK' )
+
+        if (build_status != 0) {
+            currentBuild.result = 'FAILED'
+            slack.msg("Kubernetes ${RELEASE_BRANCH}: Build failed!")
+        }else{
+            slack.msg("Kubernetes: ${RELEASE_BRANCH} was built!")
+        }
+    }
+}
+
