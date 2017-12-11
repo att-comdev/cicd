@@ -9,9 +9,14 @@ pipelineJob("${base_path}/genesis-full") {
             name ('CICD_GERRIT_REFSPEC')
         }
         stringParam {
-            defaultValue('refs/changes/46/46/98')
+            defaultValue('refs/changes/46/46/115')
             description('Pass att-comdev/cicd code refspec to the job')
             name ('CLCP_INTEGRATION_REFSPEC')
+        }
+        booleanParam {
+            defaultValue(false)
+            description('Enable Shipyard for Drydock and Armada operator')
+            name ('SHIPYARD_ENABLED')
         }
         booleanParam {
             defaultValue(false)
