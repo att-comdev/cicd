@@ -1,0 +1,79 @@
+NODE_NAME="${JOB_BASE_NAME}-${env.BUILD_NUMBER}"
+NODE_TMPL = "kube-node/ubuntu.m1.large.yaml"
+currentBuild.displayName = "#${BUILD_NUMBER} ${RELEASE_BRANCH}"
+
+vm(NODE_NAME,NODE_TMPL) {
+
+    stage('Prepare the node'){
+        sh '''
+            SWAPFILE="/swap.sw"
+            sudo dd if=/dev/zero of=${SWAPFILE} bs=1024M count=8
+            sudo chmod 600 /swap.sw
+            sudo mkswap ${SWAPFILE} && sudo swapon ${SWAPFILE}
+        '''
+    }
+
+    stage("Checkout ${RELEASE_BRANCH}") {
+        checkout poll: false,
+        scm: [$class: 'GitSCM',
+             branches: [[name: "${RELEASE_BRANCH}"]],
+             doGenerateSubmoduleConfigurations: false,
+             extensions: [[$class: 'CleanBeforeCheckout']],
+             submoduleCfg: [],
+             userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+             url: "https://github.com/kubernetes/kubernetes.git"]]]
+    }
+
+    stage("Build ${RELEASE_BRANCH}") {
+        def stage_status = sh(returnStatus: true, script: "sudo -E build/run.sh make" )
+        if (stage_status != 0) {
+            currentBuild.result = 'FAILED'
+            slack.msg("${RELEASE_BRANCH}: Build failed!")
+        }
+
+    }
+
+    stage('Upload') {
+        withCredentials([usernamePassword(
+            credentialsId: 'jenkins-artifactory',
+            usernameVariable: 'ARTIFACTORY_USER',
+            passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+                sh "sudo docker login ${opts} ${env.ARTF_DOCKER_URL}"
+            def build_status = sh(returnStatus: true, script: '''
+                #!/bin/bash
+                set -xe
+
+                #I want to be sure we'll have correct tags in docker:
+                if [ -z ${RELEASE_BRANCH} ] || [ -z ${BUILD_NUMBER} ]; then
+                    echo "ERROR: no RELEASE_BRANCH or BUILD_NUMBER var, check the code."
+                    echo "==============env==================="
+                    env
+                    exit 1
+                fi
+
+                #looking for tarz we built
+                RELESE_DIR=$(dirname $(find . -iname "*.tar"| grep -m1 release-images))
+                cd ${RELESE_DIR}
+
+                #importing tars to docker and pushing to local repo:
+                for i in `ls *.tar | cut -f1 -d'.'`; do
+                    RELEASE_TAG="${ARTF_DOCKER_URL}/ucp/kube-${RELEASE_BRANCH}/${i}:build-${BUILD_NUMBER}"
+                    LATEST_TAG="${ARTF_DOCKER_URL}/ucp/kube-${RELEASE_BRANCH}/${i}:latest"
+                    sudo -E docker import ${i}.tar ${RELEASE_TAG}
+                    sudo -E docker import ${i}.tar ${LATEST_TAG}
+                    docker push ${RELEASE_TAG}
+                    docker push ${LATEST_TAG}
+                done
+                ''' )
+
+            if (build_status != 0) {
+                currentBuild.result = 'FAILED'
+                slack.msg("Kubernetes ${RELEASE_BRANCH}: Upload failed!")
+            }else{
+                slack.msg("Kubernetes: new ${RELEASE_BRANCH} available!")
+            }
+        }
+    }
+}
+
