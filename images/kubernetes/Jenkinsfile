@@ -1,0 +1,50 @@
+VM_NODE = 'local-vm-launch'
+SLAVE_NODE="Kube-build-${env.BUILD_NUMBER}"
+NODE_TMPL = "kube-node/ubuntu.m1.large.yaml"
+currentBuild.displayName = "#${BUILD_NUMBER} ${RELEASE_BRANCH}"
+node(VM_NODE){ cf = load "${env.HOME}/CommonFunctions/common/funcs.groovy" }
+
+try{
+    stage("Create ${SLAVE_NODE}"){
+        node(VM_NODE) {
+            cf.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+    stage('Waiting for Node'){
+        timeout (10) {
+            node (SLAVE_NODE) {
+                echo "Verifying that Jenkins node comes up."
+            }
+        }
+    }
+    node(SLAVE_NODE) {
+        stage('Build Image') {
+//                git("https://github.com/kubernetes/kubernetes.git", "${RELEASE_BRANCH}")
+            git 'https://review.gerrithub.io/att-comdev/cicd'
+            withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'ARTIFACTORY_USER',
+                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+                opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+
+                sh "sudo docker login ${opts} ${ARTF_URL}"
+                sh "sudo docker images"
+            }
+            def build_status = sh(returnStatus: true, script: 'bash images/kubernetes/script.sh' )
+            if (build_status != 0) {
+                currentBuild.result = 'FAILED'
+
+                cf.slack_msg("Kubernetes ${RELEASE_BRANCH}: Build failed!")
+            }else{
+                cf.slack_msg("Kubernetes: ${RELEASE_BRANCH} was built!")
+            }
+        }
+    }
+
+} finally {
+    stage("Remove ${SLAVE_NODE}"){
+       node(VM_NODE) {
+           cf.jenkins_slave_destroy(SLAVE_NODE)
+        }
+    }
+}
