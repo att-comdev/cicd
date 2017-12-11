@@ -49,17 +49,10 @@ def genesis_setup = {
                     credentialsId:'jenkins-stage-master']]]
 
     // funcs.groovy
-    checkout poll: false,
-        scm: [$class: 'GitSCM',
-            branches: [[name: '$CICD_GERRIT_REFSPEC']],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [[$class: 'RelativeTargetDirectory',
-                relativeTargetDir: 'cicd']],
-            submoduleCfg: [],
-            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                url: 'https://review.gerrithub.io/att-comdev/cicd']]]
 
-    def funcs = load "${WORKSPACE}/cicd/integration/genesis-integration/funcs.groovy"
+    git 'https://review.gerrithub.io/att-comdev/cicd'
+
+    def funcs = load "${WORKSPACE}/integration/genesis-integration/funcs.groovy"
 
     funcs.jenkins_slave_destroy(PROM_BUILD_NODE_NAME)
     funcs.jenkins_slave_launch(PROM_BUILD_NODE_NAME,
@@ -334,6 +327,7 @@ def drydock_task_create = { design, action, interval ->
 
 def serve_prom_bundle = {
     // feature gap: run nginx for hosting promenade YAMLs
+    sh "cp -R ${WORKSPACE}/${MANIFEST_PREFIX}/osh ${WORKSPACE}/promenade-bundle"
     def sp = "${WORKSPACE}/promenade-bundle"
     sh "sudo docker run -d -v ${sp}:/usr/share/nginx/html -p 6880:80 nginx"
 }
@@ -376,23 +370,45 @@ def deckhand_load = {
         def url = "${DECKHAND_URL}/buckets/drydock/documents"
 
         sh ("curl ${opts} ${headers} ${url}")
+
+        def opts_tag = "-v -X POST"
+        def url_tag = "${DECKHAND_URL}/revisions/1/tags/committed"
+
+        sh ("curl ${opts_tag} ${headers} ${url_tag}")
     }
 }
 
 
 //// drydock provisioning
-//// drydock_deploy and aramda_deploy will go away once shipyard is integrated
 
-def drydock_deploy = {
+def site_deploy = {
 
 
     def design = "deckhand+${DECKHAND_URL}/revisions/1/rendered-documents"
 
-    timeout (14) {
-        stage ("Drydock (verify_site)") {
-            while(drydock_task_create (design, 'verify_site', 10)) {
-                print 'Still waiting on MaaS import'
-                sleep 60
+    if (SHIPYARD_ENABLED.toBoolean()) {
+        stage ('Shipyard Site Deploy') {
+            checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: 'master']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [[$class: 'RelativeTargetDirectory',
+                    relativeTargetDir: 'shipyard']],
+                submoduleCfg: [],
+                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: 'https://review.gerrithub.io/att-comdev/shipyard']]]
+
+            dir ("shipyard/tools") {
+                    sh "bash deploy_site.sh"
+            }
+        }
+    }
+    else {
+        timeout (14) {
+            stage ("Drydock (verify_site)") {
+                while(drydock_task_create (design, 'verify_site', 10)) {
+                    print 'Still waiting on MaaS import'
+                    sleep 60
             }
         }
     }
@@ -405,43 +421,10 @@ def drydock_deploy = {
            }
         }
     }
-}
-
-
-//// armada install openstack
-
-def armada_deploy = {
-
-    stage ("Armada Apply") {
-
-        // todo: this will go away in latest armada
-        sh 'sudo mkdir -p ~/.kube'
-        sh 'sudo chown -R ubuntu:ubuntu ~/.kube'
-        sh 'cp -r /etc/kubernetes/admin/pki ~/.kube/pki'
-        sh 'cat /etc/kubernetes/admin/kubeconfig.yaml | sed -e \'s/\\/etc\\/kubernetes\\/admin/./\' > ~/.kube/config'
-
-        def get = sudo kubectl get pods -n ucp -o wide | grep tiller-deploy | awk '{print \$6 }'
-        tiller = sh(script: get, returnStdout: true).trim()
-        armada_cmd = "apply /target/${ARMADA_OSH_CFG} --tiller-host=${tiller} --tiller-port=44134"
-        docker_opts = "-t -v ~/.kube:/armada/.kube -v \$(pwd):/target --net=host"
-        docker_cmd = "sudo docker run ${docker_opts} ${ARMADA_IMAGE} ${armada_cmd}"
-
-        def status = sh(returnStatus: true, script: docker_cmd)
-        if (status) {
-            sleep 120 // mariadb timeout, retry once
-            status = sh(returnStatus: true, script: docker_cmd)
-            if (status) {
-                // todo: collect logs and exit
-                sh "exit 1"
-            }
-        }
-    }
-}
-
 
 //// k8s utils
-
-def k8s_nodes_wait = {
+    // feature gap: eventually promjoin will report back to drydock
+    // wait for expected k8s nodes to be ready
     stage ("Nodes Join (promjoin)") {
         timeout(14) {
             while(true) {
@@ -466,6 +449,25 @@ def k8s_nodes_wait = {
     }
 
     sh "sudo kubectl get pods --all-namespaces -o wide"
+
+
+//// armada install openstack
+
+    stage ("Armada Apply") {
+
+        // todo: this will go away in latest armada
+            sh 'sudo mkdir -p ~/.kube'
+            sh 'sudo chown -R ubuntu:ubuntu ~/.kube'
+            sh 'cp -r /etc/kubernetes/admin/pki ~/.kube/pki'
+            sh 'cat /etc/kubernetes/admin/kubeconfig.yaml | sed -e \'s/\\/etc\\/kubernetes\\/admin/./\' > ~/.kube/config'
+
+            def get = "sudo kubectl get pods -n ucp -o wide | grep tiller-deploy | awk '{print \$6 }'"
+            tiller = sh(script: get, returnStdout: true).trim()
+            armada_cmd = "apply /target/${ARMADA_OSH_CFG} --tiller-host=${tiller} --tiller-port=44134"
+            docker_opts = "-t -v ~/.kube:/armada/.kube -v \$(pwd):/target --net=host"
+            sh "sudo docker run ${docker_opts} ${ARMADA_IMAGE} ${armada_cmd}"
+        }
+    }
 }
 
 
@@ -539,16 +541,10 @@ node(GENESIS_NODE_NAME) {
     // serves node join/init scripts over http
     serve_prom_bundle()
 
-    drydock_deploy()
-
-    // feature gap: eventually promjoin will report back to drydock
-    // wait for expected k8s nodes to be ready
-    k8s_nodes_wait()
+    site_deploy()
 
     // e2e kubernetes conformance tests (optional)
     sonobuoy_run()
-
-    armada_deploy()
 }
 
 node(PROM_BUILD_NODE_NAME) {
