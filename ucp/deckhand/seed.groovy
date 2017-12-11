@@ -9,6 +9,13 @@ pipelineJob("UCP/deckhand/deckhand") {
         }
     }
 
+    configure {
+        node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
+            durationName 'hour'
+            count '3'
+        }
+    }
+
     triggers {
         gerritTrigger {
             serverName('Gerrithub-jenkins')
