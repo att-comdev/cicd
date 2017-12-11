@@ -1,0 +1,49 @@
+VM_LAUNCH_NODE = 'local-vm-launch'
+SLAVE_NODE="charts-${env.BUILD_NUMBER}"
+NODE_TMPL = "charts/ubuntu.m1.large.yaml"
+//TBD CURRENT_VERSION = "0.1.0.${env.GERRIT_CHANGE_NUMBER}"
+currentBuild.displayName = "#${BUILD_NUMBER} ${RELEASE_BRANCH}"
+
+def cf
+
+node(VM_LAUNCH_NODE) {
+    stage("load CommonFunctions"){
+        CommonFunctions="CommonFunctions/common/funcs.groovy"
+        cf = load "${env.HOME}/${CommonFunctions}"
+    }
+}
+
+try{
+    stage('Spawn Charts Node'){
+        node(VM_LAUNCH_NODE) {
+            cf.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${NODE_TMPL}")
+        }
+    }
+    stage('Waiting for Node'){
+        timeout (10) {
+            node (SLAVE_NODE) {
+                echo "Verifying that Jenkins node comes up."
+            }
+        }
+    }
+    node(SLAVE_NODE) {
+        stage('Build Image') {
+            sh 'git clone https://github.com/kubernetes/kubernetes.git'
+            def build_status = sh(returnStatus: true, script: 'cd kubernetes && sudo make quick-release' )
+            if (build_status != 0) {
+                currentBuild.result = 'FAILED'
+
+                cf.slack_msg("Kubernetes: Build failed!")
+            }else{
+                cf.slack_msg("Kubernetes: Build is OK!")
+            }
+        }
+    }
+
+} finally {
+    stage('Remove Charts Node'){
+       node(VM_LAUNCH_NODE) {
+           cf.jenkins_slave_destroy(SLAVE_NODE)
+        }
+    }
+}
