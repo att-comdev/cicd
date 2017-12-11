@@ -12,42 +12,27 @@ DECKHAND_IMAGE_PS = "${ARTF_URL}/ucp-patchset/deckhand:${DECKHAND_PS}"
 DECKHAND_IMAGE = "${ARTF_URL}/ucp/deckhand:${DECKHAND_VERSION}"
 DECKHAND_IMAGE_LATEST = "${ARTF_URL}/ucp/deckhand:latest"
 
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 
-def funcs
 
 try {
     node(JENKINS_VM_LAUNCH) {
-        checkout poll: false,
-                scm: [$class: 'GitSCM',
-                branches: [[name: '$CICD_GERRIT_REFSPEC']],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [],
-                submoduleCfg: [],
-                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                    url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+        git 'https://review.gerrithub.io/att-comdev/cicd'
 
         funcs = load "${WORKSPACE}/common/funcs.groovy"
-        funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
+        funcs.jenkins_slave_launch(NODE_NAME, "${HOME}/${NODE_TMPL}")
     }
 
     timeout (14) {
         node(NODE_NAME) {
-            // catch if VM creation fails/hangs
-            sh 'echo "Welcome $(hostname)"'
+            sh 'hostname'
         }
     }
 
 
     stage('Image Build'){
         node(NODE_NAME){
-        checkout poll: false,
-            scm: [$class: 'GitSCM',
-            branches: [[name: '$GERRIT_REFSPEC']],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [],
-            submoduleCfg: [],
-            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                url: 'https://review.gerrithub.io/att-comdev/deckhand']]]
+            funcs.gerrithub_clone("att-comdev/deckhand", "${GERRIT_REFSPEC}")
 
             if (GERRIT_EVENT_TYPE != 'change-merged') {
                 DECKHAND_IMAGE = DECKHAND_IMAGE_PS
@@ -55,9 +40,6 @@ try {
 
             sh 'sudo make build_deckhand'
             sh "sudo docker tag attcomdev/deckhand ${DECKHAND_IMAGE}"
-
-            currentBuild.displayName = "${GERRIT_EVENT_TYPE}-${env.BUILD_NUMBER}"
-
         }
     }
 
@@ -85,7 +67,9 @@ try {
     node(NODE_NAME) {
 
         stage('Test Functional') {
-            sh 'tox -e functional'
+            withEnv(["DECKHAND_TEST_URL=${DECKHAND_IMAGE}"]) {
+                sh 'tox -e functional'
+            }
         }
 
         stage('Results Publish') {
