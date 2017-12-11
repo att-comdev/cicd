@@ -1,11 +1,10 @@
 
 pipelineJob("UCP/deckhand/deckhand") {
 
-    parameters {
-        stringParam {
-            defaultValue(GERRIT_REFSPEC)
-            description('Pass att-comdev/cicd code refspec to the job')
-            name ('CICD_GERRIT_REFSPEC')
+    configure {
+        node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
+            durationName 'hour'
+            count '3'
         }
     }
 
