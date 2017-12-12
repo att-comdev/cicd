@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8829692_e1faeb36",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-12T20:31:28Z",
+      "side": 1,
+      "message": "I would call this site-deploy, as the function contains both drydock and shipyard options.",
+      "revId": "2c1138d5f29c1a6f432e900f76923fdcc2ed7d86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37aaae62_1994ccb1",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-12T20:31:28Z",
+      "side": 1,
+      "message": "Please follow proper indentation here.\nShould be 4 spaces.",
+      "revId": "2c1138d5f29c1a6f432e900f76923fdcc2ed7d86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbeaa7f5_330c26b1",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-12T20:31:28Z",
+      "side": 1,
+      "message": "This is good for now. Later we should go away from this script and use Shipyard CLI when it\u0027s delivered directly.",
+      "revId": "2c1138d5f29c1a6f432e900f76923fdcc2ed7d86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8996f6ab_a714c4f7",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-12T20:31:28Z",
+      "side": 1,
+      "message": "indentation..",
+      "revId": "2c1138d5f29c1a6f432e900f76923fdcc2ed7d86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
