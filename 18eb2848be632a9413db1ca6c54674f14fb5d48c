@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba47b783_7e7eeba5",
+        "filename": "ucp/promenade/resiliency/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-12T20:42:38Z",
+      "side": 1,
+      "message": "Bad idea to use system folders. I suggest to use ${WORKSPACE}/something instead",
+      "range": {
+        "startLine": 77,
+        "startChar": 8,
+        "endLine": 77,
+        "endChar": 36
+      },
+      "revId": "18eb2848be632a9413db1ca6c54674f14fb5d48c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f1b2825_12a0518a",
+        "filename": "ucp/promenade/resiliency/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-12T20:42:38Z",
+      "side": 1,
+      "message": "The code is good, but more comments would be nice.",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 39
+      },
+      "revId": "18eb2848be632a9413db1ca6c54674f14fb5d48c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
