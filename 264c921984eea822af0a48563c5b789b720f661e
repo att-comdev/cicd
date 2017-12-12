@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eac96531_fdfc144c",
+        "filename": "integration/genesis-integration/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-12T21:18:27Z",
+      "side": 1,
+      "message": "still 4 indents missing :)",
+      "range": {
+        "startLine": 408,
+        "startChar": 0,
+        "endLine": 412,
+        "endChar": 1
+      },
+      "revId": "264c921984eea822af0a48563c5b789b720f661e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
