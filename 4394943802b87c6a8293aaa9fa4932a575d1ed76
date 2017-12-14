@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80ca70cb_7904a4c4",
+        "filename": "vars/vm.groovy",
+        "patchSetId": 53
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-14T19:24:38Z",
+      "side": 1,
+      "message": "move to slack.groovy",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 19
+      },
+      "revId": "4394943802b87c6a8293aaa9fa4932a575d1ed76",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dae92c5c_b0c120b7",
+        "filename": "vars/vm.groovy",
+        "patchSetId": 53
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-14T19:24:38Z",
+      "side": 1,
+      "message": "move to slack.groovy",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 42
+      },
+      "revId": "4394943802b87c6a8293aaa9fa4932a575d1ed76",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
