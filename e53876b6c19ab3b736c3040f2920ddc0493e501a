@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f2b0098_674acbc6",
+        "filename": "README.md",
+        "patchSetId": 51
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-12-14T19:16:10Z",
+      "side": 1,
+      "message": "See more information for this plugin here. And then hyperlink the \u0027here\u0027.",
+      "revId": "e53876b6c19ab3b736c3040f2920ddc0493e501a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
