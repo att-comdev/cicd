@@ -191,4 +191,19 @@ def gerrithub_clone(String project, String refspec){
          url: "https://review.gerrithub.io/" + project ]]]
 }
 
+def nexus_publish_logs (String org, String project, String repositoryName) {
+// Usage example: funcs.nexus_publish_logs('openstack','openstack-helm', 'att-comdev-jenkins-logs')
+    sh "curl -s -o ./${GERRIT_CHANGE_NUMBER}-${GERRIT_PATCHSET_NUMBER}.log ${BUILD_URL}consoleText"
+    nexusArtifactUploader artifacts: [[ artifactId: project,
+                                        classifier: '',
+                                        file: GERRIT_CHANGE_NUMBER+'-'+GERRIT_PATCHSET_NUMBER+'.log']],
+                                        credentialsId: 'nexus3',
+                                        groupId: org,
+                                        nexusUrl: '$NEXUS3_URL',
+                                        nexusVersion: 'nexus3',
+                                        protocol: 'http',
+                                        repository: repositoryName,
+                                        version: '$BUILD_NUMBER'
+}
+
 return this;
