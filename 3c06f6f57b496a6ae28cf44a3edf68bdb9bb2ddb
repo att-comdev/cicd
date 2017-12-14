@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be3e870a_ad57f414",
+        "filename": "vars/slave.groovy",
+        "patchSetId": 39
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-14T17:17:10Z",
+      "side": 1,
+      "message": "Move slack functionality to slack.groovy",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 64
+      },
+      "revId": "3c06f6f57b496a6ae28cf44a3edf68bdb9bb2ddb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9436489_d3d9891a",
+        "filename": "vars/slave.groovy",
+        "patchSetId": 39
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-14T17:17:10Z",
+      "side": 1,
+      "message": "also should be in a separate file",
+      "range": {
+        "startLine": 183,
+        "startChar": 0,
+        "endLine": 183,
+        "endChar": 52
+      },
+      "revId": "3c06f6f57b496a6ae28cf44a3edf68bdb9bb2ddb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
