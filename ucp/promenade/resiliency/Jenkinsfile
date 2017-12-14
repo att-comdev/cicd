@@ -2,10 +2,8 @@
 import groovy.json.JsonSlurperClassic
 
 
-LAUNCH_NODE = 'local-vm-launch'
-
-SLAVE_NODE = "promenade-resiliency-${BUILD_NUMBER}"
-SLAVE_TMPL = "promenade/promenade-virsh.yaml"
+NODE_NAME = "promenade-resiliency-${BUILD_NUMBER}"
+NODE_TMPL = "promenade/promenade-virsh.yaml"
 
 if (!env.GERRIT_REFSPEC) {
     GERRIT_REFSPEC = 'master'
@@ -49,61 +47,36 @@ def promenade_stage = { item ->
 
 //// main flow
 
-try {
-    node(LAUNCH_NODE) {
-        git 'https://review.gerrithub.io/att-comdev/cicd'
+vm(NODE_NAME, NODE_TMPL) {
 
-        funcs = load "${WORKSPACE}/common/funcs.groovy"
-        funcs.jenkins_slave_launch(SLAVE_NODE, "${HOME}/${SLAVE_TMPL}")
-    }
+    stage('Prepare') {
+        gerrithub.clone("att-comdev/promenade", GERRIT_REFSPEC)
 
-    timeout(14) {
-        node(SLAVE_NODE) {
-            sh 'hostname'
+        ansiColor('xterm') {
+            sh "${WORKSPACE}/tools/setup_gate.sh"
         }
     }
 
-    node(SLAVE_NODE) {
-        stage('Prepare') {
-            funcs.gerrithub_clone("att-comdev/promenade", "${GERRIT_REFSPEC}")
+    sh 'mkdir -p tmp'
 
-            ansiColor('xterm') {
-                sh "${WORKSPACE}/tools/setup_gate.sh"
+    def mfpath = "${WORKSPACE}/tools/g2/manifests/resiliency.json"
+    def mf = readFile mfpath
+    def manifest = new JsonSlurperClassic().parseText(mf)
+
+    def env = ["GATE_MANIFEST=${mfpath}",
+               "GATE_UTILS=${WORKSPACE}/tools/g2/lib/all.sh",
+               "GATE_DEBUG=0",
+               "TEMP_DIR=${WORKSPACE}/tmp"]
+
+    // given manifest contains stage names and related scripts to enable
+    // pipeline to be written in a generic way calling predefined steps.
+    // The loop executes stages in the defined order
+    manifest.stages.each {
+        stage(it.name) {
+            withEnv(env) {
+                promenade_stage(it)
             }
         }
-    }
-
-    node(SLAVE_NODE) {
-        sh 'mkdir -p tmp'
-
-        def mfpath = "${WORKSPACE}/tools/g2/manifests/resiliency.json"
-        def mf = readFile mfpath
-        def manifest = new JsonSlurperClassic().parseText(mf)
-
-        def env = ["GATE_MANIFEST=${mfpath}",
-                   "GATE_UTILS=${WORKSPACE}/tools/g2/lib/all.sh",
-                   "GATE_DEBUG=0",
-                   "TEMP_DIR=${WORKSPACE}/tmp"]
-
-        // given manifest contains stage names and related scripts to enable
-        // pipeline to be written in a generic way calling predefined steps.
-        // The loop executes stages in the defined order
-        manifest.stages.each {
-            stage(it.name) {
-                withEnv(env) {
-                    promenade_stage(it)
-                }
-            }
-        }
-    }
-
-} catch (err) {
-    funcs.slack_msg("Promenade resiliency pipeline failed: ${err}")
-    error(err)
-
-} finally {
-    node(LAUNCH_NODE) {
-        funcs.jenkins_slave_destroy(SLAVE_NODE)
     }
 }
 
