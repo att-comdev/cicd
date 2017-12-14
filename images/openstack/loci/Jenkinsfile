@@ -1,9 +1,9 @@
 
-LAUNCH_NODE = 'local-vm-launch'
-SLAVE_NODE="images-loci-${JOB_BASE_NAME}-${BUILD_NUMBER}"
-SLAVE_TMPL = "docker/loci.yaml"
+NODE_NAME = "images-loci-${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL = "docker/loci.yaml"
 
 LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
+LOCI_BASE_IMAGE = "${ARTF_DOCKER_URL}/ubuntu:xenial"
 
 LOCAL_WEB_PORT = '8080'
 LOCAL_WEB_URL = "http://172.18.0.1:${LOCAL_WEB_PORT}"
@@ -65,28 +65,6 @@ DIND = 'sudo docker exec loci-build'
 
 
 
-def slave_setup() {
-    node(LAUNCH_NODE) {
-        git 'https://review.gerrithub.io/att-comdev/cicd'
-
-        funcs = load "${WORKSPACE}/common/funcs.groovy"
-        funcs.jenkins_slave_launch(SLAVE_NODE, "${env.HOME}/${SLAVE_TMPL}")
-    }
-
-    timeout (14) {
-        node(SLAVE_NODE) {
-            sh 'echo "Welcome $(hostname)"'
-        }
-    }
-}
-
-def slave_cleanup() {
-    node(LAUNCH_NODE) {
-        funcs.jenkins_slave_destroy(SLAVE_NODE)
-    }
-}
-
-
 // docker within docker (to get latest docker version on Ubuntu 16.04)
 // requires setting {"storage-driver": "overlay2"} option in docker.json
 def docker_setup = {
@@ -94,7 +72,7 @@ def docker_setup = {
     def mounts = '-v /var/lib/docker' +
         ' -v $(pwd):/opt/loci'
 
-    sh "sudo docker run -d ${opts} ${mounts} docker:17.07.0-dind"
+    sh "sudo docker run -d ${opts} ${mounts} ${ARTF_DOCKER_URL}/docker:17.07.0-dind"
     sh "${DIND} sh -cx 'apk update; apk add git'"
 
     def path = "/etc/docker/certs.d/${ARTF_DOCKER_URL}"
@@ -135,7 +113,7 @@ def nginx_setup = {
 
     def opts = '-d -v /opt/loci/web:/usr/share/nginx/html:ro'
     def port = "-p ${LOCAL_WEB_PORT}:80"
-    sh "${DIND} docker run ${opts} ${port} nginx"
+    sh "${DIND} docker run ${opts} ${port} ${ARTF_DOCKER_URL}/nginx"
 }
 
 def repo_clone = {
@@ -177,7 +155,8 @@ def wheels_export = {
 
 
 def wheels_build = {
-    def args = "--build-arg PROJECT=${PROJECT}" +
+    def args = "--build-arg FROM=${LOCI_BASE_IMAGE}" +
+        " --build-arg PROJECT=${PROJECT}" +
         " --build-arg PROJECT_REF=${PROJECT_REF}" +
         " --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}"
 
@@ -196,7 +175,8 @@ def wheels_build = {
 
 
 def project_build = {
-    def args = "--build-arg PROJECT=${PROJECT}" +
+    def args = "--build-arg FROM=${LOCI_BASE_IMAGE}" +
+        " --build-arg PROJECT=${PROJECT}" +
         " --build-arg PROJECT_REF=${PROJECT_REF}" +
         " --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}" +
         " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
@@ -210,46 +190,29 @@ def project_build = {
 }
 
 
-try {
-    stage ('Slave Create') {
-        slave_setup()
+vm(NODE_NAME, NODE_TMPL) {
+
+    stage('Docker Setup') {
+        docker_setup()
     }
 
-    node(SLAVE_NODE) {
-        stage('Docker Setup') {
-            docker_setup()
-        }
-
-        stage('Local Repo Setup') {
-            nginx_setup()
-            repo_mirror()
-            version_resolve()
-        }
-
-        if (PROJECT == 'requirements') {
-            stage('Build Requirements') {
-                wheels_build()
-            }
-        } else {
-            stage('Wheels Export') {
-                wheels_export()
-            }
-            stage ("Build ${PROJECT.capitalize()}") {
-                project_build()
-            }
-        }
+    stage('Local Repo Setup') {
+        nginx_setup()
+        repo_mirror()
+        version_resolve()
     }
 
-} catch (error) {
-    def msg = "Build failed: ${DISPLAY_PREFIX} ${PROJECT_BRANCH}\n" +
-              "Error: ${error}"
-    funcs.slack_msg(msg)
-
-    error(error)
-
-} finally {
-    stage('Slave Remove'){
-        slave_cleanup()
+    if (PROJECT == 'requirements') {
+        stage('Build Requirements') {
+            wheels_build()
+        }
+    } else {
+        stage('Wheels Export') {
+            wheels_export()
+        }
+        stage ("Build ${PROJECT.capitalize()}") {
+            project_build()
+        }
     }
 }
 
