@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e88c37a9_f29233b3",
+        "filename": "ucp/promenade/resiliency/Jenkinsfile",
+        "patchSetId": 28
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2017-12-14T16:12:17Z",
+      "side": 1,
+      "message": "I\u0027d like to get it to where we don\u0027t have any variables in here.  So everything that you have defined as environment variables coming from Promenade should just be a file that we source into this whole pipeline.",
+      "revId": "b86e6d1d8a7dabede4d104a006b27e1da03d4861",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
