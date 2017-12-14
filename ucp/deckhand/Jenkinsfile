@@ -1,6 +1,4 @@
 
-JENKINS_VM_LAUNCH = 'local-vm-launch'
-
 NODE_NAME="deckhand-${env.BUILD_NUMBER}"
 NODE_TMPL = "deckhand/deckhand.yaml"
 
@@ -15,78 +13,52 @@ DECKHAND_IMAGE_LATEST = "${ARTF_URL}/ucp/deckhand:latest"
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 
 
-try {
-    node(JENKINS_VM_LAUNCH) {
-        git 'https://review.gerrithub.io/att-comdev/cicd'
-
-        funcs = load "${WORKSPACE}/common/funcs.groovy"
-        funcs.jenkins_slave_launch(NODE_NAME, "${HOME}/${NODE_TMPL}")
-    }
-
-    timeout (14) {
-        node(NODE_NAME) {
-            sh 'hostname'
-        }
-    }
-
+vm(NODE_NAME, NODE_TMPL) {
 
     stage('Image Build'){
-        node(NODE_NAME){
-            funcs.gerrithub_clone("att-comdev/deckhand", "${GERRIT_REFSPEC}")
+        gerrithub.clone("att-comdev/deckhand", GERRIT_REFSPEC)
 
-            if (GERRIT_EVENT_TYPE != 'change-merged') {
-                DECKHAND_IMAGE = DECKHAND_IMAGE_PS
-            }
-
-            sh 'sudo make build_deckhand'
-            sh "sudo docker tag attcomdev/deckhand ${DECKHAND_IMAGE}"
+        if (GERRIT_EVENT_TYPE != 'change-merged') {
+            DECKHAND_IMAGE = DECKHAND_IMAGE_PS
         }
+
+        sh 'sudo make build_deckhand'
+        sh "sudo docker tag attcomdev/deckhand ${DECKHAND_IMAGE}"
     }
 
 
     stage('Image Publish'){
-        node(NODE_NAME){
-            withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
-                    usernameVariable: 'ARTIFACTORY_USER',
-                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                usernameVariable: 'ARTIFACTORY_USER',
+                passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
 
-                opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
 
-                sh "sudo docker login ${opts} ${ARTF_URL}"
-                sh "sudo docker push ${DECKHAND_IMAGE}"
+            sh "sudo docker login ${opts} ${ARTF_URL}"
+            sh "sudo docker push ${DECKHAND_IMAGE}"
 
-                if (GERRIT_EVENT_TYPE == 'change-merged') {
-                    sh "sudo docker tag ${DECKHAND_IMAGE} ${DECKHAND_IMAGE_LATEST}"
-                    sh "sudo docker push ${DECKHAND_IMAGE_LATEST}"
-                }
+            if (GERRIT_EVENT_TYPE == 'change-merged') {
+                sh "sudo docker tag ${DECKHAND_IMAGE} ${DECKHAND_IMAGE_LATEST}"
+                sh "sudo docker push ${DECKHAND_IMAGE_LATEST}"
             }
         }
     }
 
-
-    node(NODE_NAME) {
-
-        stage('Test Functional') {
-            withEnv(["DECKHAND_IMAGE=${DECKHAND_IMAGE}"]) {
-                sh 'tox -e functional'
-            }
-        }
-
-        stage('Results Publish') {
-            publishHTML (target: [
-                allowMissing: false,
-                alwaysLinkToLastBuild: false,
-                keepAll: true,
-                reportDir: 'results',
-                reportFiles: 'index.html',
-                reportName: "Gabbi Functional"
-            ])
+    stage('Test Functional') {
+        withEnv(["DECKHAND_IMAGE=${DECKHAND_IMAGE}"]) {
+            sh 'tox -e functional'
         }
     }
 
-} finally {
-    node(JENKINS_VM_LAUNCH) {
-        funcs.jenkins_slave_destroy(NODE_NAME)
+    stage('Results Publish') {
+        publishHTML (target: [
+            allowMissing: false,
+            alwaysLinkToLastBuild: false,
+            keepAll: true,
+            reportDir: 'results',
+            reportFiles: 'index.html',
+            reportName: "Gabbi Functional"
+        ])
     }
 }
 
