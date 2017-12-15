@@ -21,26 +21,36 @@ ARTF_PROM_BUNDLE = "ucp/promenade/${PROM_VERSION}/${PROM_BUNDLE}"
 def PROM_NODES = [build:[], genesis:[], master1:[], master2:[], worker:[]]
 
 
-def funcs
+// wrapper for main flow
+def vms(body) {
 
-try {
-    node(JENKINS_VM_LAUNCH) {
-        checkout poll: false,
-                scm: [$class: 'GitSCM',
-                branches: [[name: '$CICD_GERRIT_REFSPEC']],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [],
-                submoduleCfg: [],
-                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                    url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+    try {
+        node(JENKINS_VM_LAUNCH) {
+            PROM_NODES.each { key, value ->
+                vm.jenkins_vm_launch("${PROM_NODE_BASE}-${key}",
+                                     "${env.HOME}/${PROM_NODE_TMPL}")
+            }
+        }
 
-        funcs = load "${WORKSPACE}/common/funcs.groovy"
+        body()
 
-        PROM_NODES.each { key, value ->
-            funcs.jenkins_slave_launch("${PROM_NODE_BASE}-${key}",
-                                       "${env.HOME}/${PROM_NODE_TMPL}")
+    } catch (error) {
+        slack.msg("Pipeline failed: ${error}")
+        error(error)
+
+    } finally {
+        node(JENKINS_VM_LAUNCH) {
+            PROM_NODES.each { key, value ->
+                vm.jenkins_vm_destroy("${PROM_NODE_BASE}-${key}")
+            }
         }
     }
+}
+
+
+//// main flow
+
+vms {
 
     stage('Nodes Wait'){
 
@@ -65,14 +75,7 @@ try {
 
     stage('Promenade Build'){
         node("${PROM_NODE_BASE}-build"){
-            checkout poll: false,
-                scm: [$class: 'GitSCM',
-                branches: [[name: '$GERRIT_REFSPEC']],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [],
-                submoduleCfg: [],
-                userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                    url: 'https://review.gerrithub.io/att-comdev/promenade']]]
+            gerrithub.clone("att-comdev/promenade", GERRIT_REFSPEC)
 
             if (GERRIT_EVENT_TYPE != 'change-merged') {
                 PROM_IMAGE = PROM_IMAGE_PS // use patchset
@@ -199,13 +202,6 @@ try {
                 }
             }
             sh 'sudo kubectl get pods --all-namespaces -o wide'
-        }
-    }
-
-} finally {
-    node(JENKINS_VM_LAUNCH) {
-        PROM_NODES.each { key, value ->
-            funcs.jenkins_slave_destroy("${PROM_NODE_BASE}-${key}")
         }
     }
 }
