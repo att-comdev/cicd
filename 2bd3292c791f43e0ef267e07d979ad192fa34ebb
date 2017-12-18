@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eeb5aeb4_755a7ee8",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-18T20:21:04Z",
+      "side": 1,
+      "message": "COMMUNITY_PROJECTS ?",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 8
+      },
+      "revId": "2bd3292c791f43e0ef267e07d979ad192fa34ebb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
