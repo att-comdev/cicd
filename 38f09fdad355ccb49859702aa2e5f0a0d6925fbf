@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddedbac7_75eb2334",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T18:02:05Z",
+      "side": 1,
+      "message": "There is no need to use env.\nIs there a reason you are doing it?",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "746138f3_0b74f78f",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T18:02:05Z",
+      "side": 1,
+      "message": "Why you need cicd repo?",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b566f7a8_622669df",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T18:02:05Z",
+      "side": 1,
+      "message": "Why do you need repo mirror?\nThis was mostly due to way LOCI works (LOCI scripts clone repo inside of Dockerfile hence auth is not supported and I had to do local copy)",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ee20ebee_eff2d25d",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T18:02:05Z",
+      "side": 1,
+      "message": "Generally good practice is 80 chars per line.. perhaps 120..",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "403e077d_d7716265",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T18:02:05Z",
+      "side": 1,
+      "message": "This should be done in user-data file as for other comps.\nIf it already is, just remove all the docker update part.",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12f6a502_7591cc99",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T18:02:05Z",
+      "side": 1,
+      "message": "Wrap only docker login within creds.\nRest of the code doesn\u0027t need to be in that enclosure.",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b355a388_312b3ada",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T18:02:05Z",
+      "side": 1,
+      "message": "This is a lot of copy paste code.\n\nMaybe at least using switch/case?\n\nAt least, these should be if, else if, else as only 1 component at the time is ever processed.",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7900020_25ac10cc",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T18:02:05Z",
+      "side": 1,
+      "message": "Just adding this at the end of all IF statements?\nWhy do you need to call it from each?\n\nCan publish function take in `comp` as arg and resolve all the image names, so you don\u0027t need to copy this.",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c765aff_e998bde6",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T18:02:05Z",
+      "side": 1,
+      "message": "Sounds like this should be error reported.\n\nerror(\u0027Not expected component\u0027)",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
