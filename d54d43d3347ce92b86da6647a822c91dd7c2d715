@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45c5cb84_4bab7214",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T21:27:48Z",
+      "side": 1,
+      "message": "You are still cloning the code 2x?\n\nThere is standard git/checkout command. Same as when pulling MOS code.",
+      "revId": "d54d43d3347ce92b86da6647a822c91dd7c2d715",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2ac467e_1b39ece3",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T21:27:48Z",
+      "side": 1,
+      "message": "if(\"${JOB_BASE_NAME}\" \u003d\u003d \u0027nova\u0027) \n\n\u003d\u003e\n\nif(JOB_BASE_NAME \u003d\u003d \u0027nova\u0027)\n\nwould yield the same outcome.",
+      "revId": "d54d43d3347ce92b86da6647a822c91dd7c2d715",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af1070dc_43f29b4b",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T21:27:48Z",
+      "side": 1,
+      "message": "Why are these different then all others?",
+      "revId": "d54d43d3347ce92b86da6647a822c91dd7c2d715",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
