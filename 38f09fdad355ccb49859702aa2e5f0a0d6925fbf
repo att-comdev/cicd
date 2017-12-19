@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "d2b09677_8cfd83ae",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2017-12-19T20:51:50Z",
+      "side": 1,
+      "message": "Kolla container is built form Dockerfile which is present in CICD repo",
+      "parentUuid": "746138f3_0b74f78f",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b566f7a8_622669df",
         "filename": "images/openstack/kolla/Jenkinsfile",
         "patchSetId": 3
@@ -149,6 +167,24 @@
       "writtenOn": "2017-12-19T18:02:05Z",
       "side": 1,
       "message": "Just adding this at the end of all IF statements?\nWhy do you need to call it from each?\n\nCan publish function take in `comp` as arg and resolve all the image names, so you don\u0027t need to copy this.",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2fecaf7_731f4f60",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2017-12-19T20:51:50Z",
+      "side": 1,
+      "message": "I tried it manually in the pipeline. I guess it won\u0027t take comp if we call at the end of all IF statements",
+      "parentUuid": "f7900020_25ac10cc",
       "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
