@@ -50,6 +50,24 @@
       "revId": "d54d43d3347ce92b86da6647a822c91dd7c2d715",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a68c4500_8b0db182",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2017-12-19T21:44:14Z",
+      "side": 1,
+      "message": "These don\u0027t have any comp names general tag and push should work fine.",
+      "parentUuid": "af1070dc_43f29b4b",
+      "revId": "d54d43d3347ce92b86da6647a822c91dd7c2d715",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
