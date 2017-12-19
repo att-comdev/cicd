@@ -1,0 +1,150 @@
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+
+ARTF_URL = "${ARTF_DOCKER_URL}"
+COMP_IMAGE = "${JOB_BASE_NAME}"
+IMAGE_VERSION = "0.0.1.${BUILD_NUMBER}"
+ARTF_COMP_IMAGE = "${ARTF_URL}/openstack/newton/kolla/${COMP_IMAGE}/ubuntu-source-${COMP_IMAGE}"
+if (env.GERRIT_EVENT_TYPE == 'patchset-created') {
+    ARTF_COMP_IMAGE = "${ARTF_URL}/openstack-patchset/newton/kolla/${COMP_IMAGE}/ubuntu-source-${COMP_IMAGE}"
+}
+KOLLA_IMAGE = "kolla/ubuntu-source-${COMP_IMAGE}"
+
+def publish_images = {
+    sh "sudo docker tag ${IMAGE} ${ARTF}"
+    sh "sudo docker push ${ARTF}"
+    }
+def publish_nocomp_images = {
+    sh "sudo docker tag kolla/ubuntu-source-${COMP_IMAGE}:${IMAGE_VERSION} ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+    sh "sudo docker push ${ARTF_COMP_IMAGE}:${IMAGE_VERSION}"
+    }
+vm (NODE_NAME, NODE_TMPL) {
+
+    stage('Checkout') {
+        gerrithub.clone("att-comdev/cicd", "origin/master")
+
+        if (PROJECT_REF.contains('main')) {
+            ARTF_COMP_IMAGE = "${ARTF_URL}/internal-images/openstack/newton/mos/kolla/${COMP_IMAGE}/ubuntu-source-${COMP_IMAGE}"
+            if (env.GERRIT_EVENT_TYPE == 'patchset-created') {
+                ARTF_COMP_IMAGE = "${ARTF_URL}/internal-images/openstack-patchset/newton/mos/kolla/${COMP_IMAGE}/ubuntu-source-${COMP_IMAGE}"
+            }
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+                 branches: [[name: 'main/newton']],
+                 doGenerateSubmoduleConfigurations: false,
+                 extensions: [[$class: 'RelativeTargetDirectory',
+                             relativeTargetDir: "${COMP_IMAGE}"]],
+                 submoduleCfg: [],
+                 userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                 url: "ssh://jenkins-attcomdev@10.24.20.18:29418/mos-${JOB_BASE_NAME}",
+                                      credentialsId:'jenkins-stage-master']]]
+        } else {
+            sh "git clone https://git.openstack.org/openstack/${JOB_BASE_NAME}"
+            dir(JOB_BASE_NAME) {
+                sh "git checkout ${PROJECT_REF}"
+            }
+        }
+    }
+    stage('Kolla Container Build') {
+         DOEX = 'sudo docker exec kolla-builder'
+           sh "sudo docker build ./osh/dockerfiles -t kolla-build:0.3.0.${BUILD_NUMBER}"
+           sh "sudo docker run -d --name kolla-builder -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}/${JOB_BASE_NAME}:${WORKSPACE}/${JOB_BASE_NAME}:ro kolla-build:0.3.0.${BUILD_NUMBER} tail -f /dev/null"
+           sh "${DOEX} crudini --set /etc/kolla/kolla-build.conf ${JOB_BASE_NAME}-base type local"
+           sh "${DOEX} crudini --set /etc/kolla/kolla-build.conf ${JOB_BASE_NAME}-base location ${WORKSPACE}/${JOB_BASE_NAME}"
+           sh "${DOEX} kolla-build '^${JOB_BASE_NAME}' --tag ${IMAGE_VERSION}"
+    }
+    stage('Publish'){
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                          usernameVariable: 'ARTIFACTORY_USER',
+                          passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+                 dopts = "--username \$ARTIFACTORY_USER --password \$ARTIFACTORY_PASSWORD"
+                 sh "sudo docker login ${dopts} ${ARTF_URL}/docker"
+        }
+        sh "sudo docker images"
+        if(JOB_BASE_NAME == 'nova') {
+            listTest = ['api', 'conductor', 'scheduler', 'novncproxy', 'consoleauth', 'compute', 'ssh']
+            listTest.each { comp ->
+              IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+              ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+              publish_images()
+            }
+        }
+        else if(JOB_BASE_NAME == 'neutron') {
+            listTest = ['server', 'dhcp-agent', 'metadata-agent', 'l3-agent', 'openvswitch-agent', 'linuxbridge-agent']
+            listTest.each { comp ->
+              IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+              ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+              publish_images()
+            }
+        }
+        else if(JOB_BASE_NAME == 'ceilometer') {
+            listTest = ['api', 'central', 'collector', 'compute', 'notification']
+            listTest.each { comp ->
+              IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+              ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+              publish_images()
+            }
+        }
+        else if(JOB_BASE_NAME == 'cinder') {
+            listTest = ['api', 'scheduler', 'volume', 'backup']
+            listTest.each { comp ->
+              IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+              ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+              publish_images()
+            }
+        }
+        else if(JOB_BASE_NAME == 'mistral') {
+            listTest = ['api', 'engine', 'executor']
+            listTest.each { comp ->
+              IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+              ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+              publish_images()
+            }
+        }
+        else if(JOB_BASE_NAME == 'glance') {
+            listTest = ['api', 'registry']
+            listTest.each { comp ->
+              IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+              ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+              publish_images()
+            }
+        }
+        else if(JOB_BASE_NAME == 'heat') {
+            listTest = ['api', 'engine']
+            listTest.each { comp ->
+              IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+              ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+              publish_images()
+            }
+        }
+        else if(JOB_BASE_NAME == 'magnum') {
+            listTest = ['api', 'conductor']
+            listTest.each { comp ->
+              IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+              ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+              publish_images()
+            }
+        }
+        else if(JOB_BASE_NAME == 'barbican') {
+            listTest = ['api']
+            listTest.each { comp ->
+              IMAGE = "${KOLLA_IMAGE}-${comp}:${IMAGE_VERSION}"
+              ARTF = "${ARTF_COMP_IMAGE}-${comp}:${IMAGE_VERSION}"
+              publish_images()
+            }
+        }
+        else if(JOB_BASE_NAME == 'keystone') {
+            publish_nocomp_images()
+        }
+        else if(JOB_BASE_NAME == 'horizon') {
+            publish_nocomp_images()
+        }
+        else if(JOB_BASE_NAME == 'rally') {
+            publish_nocomp_images()
+        } else {
+            error('Not Expected Component')
+        }
+        sh "sudo docker images"
+    }
+}
