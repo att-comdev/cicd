@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "72723c2a_a7ac6564",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T18:06:59Z",
+      "side": 1,
+      "message": "Be very careful using functions that rely on global variables that are being changed.. it\u0027s generally good idea to pass arguments that are necessary for the function.",
+      "revId": "38f09fdad355ccb49859702aa2e5f0a0d6925fbf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "746138f3_0b74f78f",
         "filename": "images/openstack/kolla/Jenkinsfile",
         "patchSetId": 3
