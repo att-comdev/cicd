@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db03d986_de79db32",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T21:56:07Z",
+      "side": 1,
+      "message": "dir(JOB_BASE_NAME) \nwill have the same result.. no need to use quotes unnecessary (when not inside a string.. like line before is great..)",
+      "revId": "7d5a0216ca23d6503bd35656216d7ddeffa620da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb401fc5_8c4922f0",
+        "filename": "images/openstack/kolla/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-19T21:56:07Z",
+      "side": 1,
+      "message": "Isn\u0027t 0.0.1.\"${BUILD_NUMBER}\" already available as IMAGE_VERSION defined on top of the file?",
+      "revId": "7d5a0216ca23d6503bd35656216d7ddeffa620da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
