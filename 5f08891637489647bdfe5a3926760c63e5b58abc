@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dccf6365_f82ec489",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-22T17:49:20Z",
+      "side": 1,
+      "message": "env. is not needed.\n\nI think I made a bad sample when I early on created templates. It\u0027s fine to use:\n\nNODE_NAME\u003d\"${JOB_BASE_NAME}-${BUILD_NUMBER}\"",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24730a5d_c3cab21a",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-22T17:49:20Z",
+      "side": 1,
+      "message": "Why not simply use: \ngit branch: \u0027release-1.8\u0027, url: \u0027https://github.com/kubernetes/kubernetes.git\u0027",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c855517a_0e875900",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-22T17:49:20Z",
+      "side": 1,
+      "message": "Maybe few words what `quick-release` does and how is it different from `release`.\n\nI think you can mention that building only for amd64 and no tests executed.",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d1fbb35c_2e8d9195",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-22T17:49:20Z",
+      "side": 1,
+      "message": "Is it not the same as checking\n\nif (stage_status) {\n\n}",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5003e40b_81d36dd6",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-22T17:49:20Z",
+      "side": 1,
+      "message": "I think we should either exit, or throw exception.\n\nWouldn\u0027t this continue to next stage in case of failure? Or does updating of result would terminate the process.",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6a193a3_34023ca9",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-22T17:49:20Z",
+      "side": 1,
+      "message": "I would terminate withCreds here.\nOnce you have logged into Artifactory.. no need for `git push` go be wrapped around.",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "187273e3_029dd04e",
+        "filename": "images/kubernetes/seed.groovy",
+        "patchSetId": 47
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-22T17:49:20Z",
+      "side": 1,
+      "message": "No need to extrapolate string if only single variable is used, following is just fine -\u003e \n\n                defaultValue(RELEASE_BRANCH)",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
