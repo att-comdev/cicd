@@ -4,7 +4,7 @@ pipelineJob("UCP/charts/helm-toolkit-compatibility") {
         stringParam {
             name ('PROJECT_LIST')
             defaultValue('armada deckhand drydock promenade shipyard')
-            description('Projects')
+            description('UCP Projects')
         }
         stringParam {
             name ('GERRIT_REFSPEC')
@@ -21,15 +21,11 @@ pipelineJob("UCP/charts/helm-toolkit-compatibility") {
             defaultValue('patchset-created')
             description('patchset-created or change-merged')
         }
-        stringParam {
-            name ('CICD_REFSPEC')
-            defaultValue('master')
-            description('refspec that have build_charts script')
-        }
     }
     triggers {
         gerritTrigger {
             serverName('OS-CommunityGerrit')
+            silentMode(true)
             gerritProjects {
                 gerritProject {
                     compareType('PLAIN')
