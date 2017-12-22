@@ -1,4 +1,4 @@
-NODE_NAME = "charts-${env.BUILD_NUMBER}"
+NODE_NAME = "charts-helm-compat-${env.BUILD_NUMBER}"
 NODE_TMPL = "charts/ubuntu.m1.medium.yaml"
 CURRENT_VERSION = "0.1.0.${env.GERRIT_CHANGE_NUMBER}"
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
