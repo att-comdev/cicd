@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c797f26_3b5a76f1",
+        "filename": "images/kubernetes/seed.groovy",
+        "patchSetId": 43
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-22T17:49:20Z",
+      "side": 1,
+      "message": "Every 1h? :) is that reall yneeded",
+      "revId": "6b3d85aa592ce96e5e5e48c1b76d58ef87cf9913",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
