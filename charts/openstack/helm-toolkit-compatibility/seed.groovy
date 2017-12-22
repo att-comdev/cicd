@@ -1,5 +1,6 @@
-folder("UCP/charts")
-pipelineJob("UCP/charts/helm-toolkit-compatibility") {
+JOB_FOLDER="charts/openstack"
+folder(JOB_FOLDER)
+pipelineJob("${JOB_FOLDER}/helm-toolkit-compatibility") {
     parameters {
         stringParam {
             name ('PROJECT_LIST')
@@ -56,7 +57,7 @@ pipelineJob("UCP/charts/helm-toolkit-compatibility") {
         }
         definition {
             cps {
-                script(readFileFromWorkspace('ucp/charts/Jenkinsfile'))
+                script(readFileFromWorkspace("${JOB_FOLDER}/Jenkinsfile"))
                 sandbox()
             }
         }
