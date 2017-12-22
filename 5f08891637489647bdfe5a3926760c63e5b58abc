@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d51b96ce_ca3d3161",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-22T17:56:21Z",
+      "side": 1,
+      "message": "I just missed this",
+      "parentUuid": "dccf6365_f82ec489",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "24730a5d_c3cab21a",
         "filename": "images/kubernetes/Jenkinsfile",
         "patchSetId": 47
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-22T17:49:20Z",
       "side": 1,
       "message": "Why not simply use: \ngit branch: \u0027release-1.8\u0027, url: \u0027https://github.com/kubernetes/kubernetes.git\u0027",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f869148_b59c9eff",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-22T17:56:21Z",
+      "side": 1,
+      "message": "needed for scm trigger",
+      "parentUuid": "24730a5d_c3cab21a",
       "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "f22f1a21_540dba7b",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-22T17:56:21Z",
+      "side": 1,
+      "message": "right",
+      "parentUuid": "c855517a_0e875900",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1fbb35c_2e8d9195",
         "filename": "images/kubernetes/Jenkinsfile",
         "patchSetId": 47
@@ -64,6 +118,24 @@
       "writtenOn": "2017-12-22T17:49:20Z",
       "side": 1,
       "message": "Is it not the same as checking\n\nif (stage_status) {\n\n}",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7775fefa_5c4ad185",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-22T17:56:21Z",
+      "side": 1,
+      "message": "ok, let\u0027s talk about it.",
+      "parentUuid": "d1fbb35c_2e8d9195",
       "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "0dcdcdfe_11145e3d",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-22T17:56:21Z",
+      "side": 1,
+      "message": "currentBuild.result \u003d \u0027FAILED\u0027\nwill terminate pipeline",
+      "parentUuid": "5003e40b_81d36dd6",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e6a193a3_34023ca9",
         "filename": "images/kubernetes/Jenkinsfile",
         "patchSetId": 47
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "c45963be_99d748da",
+        "filename": "images/kubernetes/Jenkinsfile",
+        "patchSetId": 47
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-22T17:56:21Z",
+      "side": 1,
+      "message": "oh, nice!",
+      "parentUuid": "e6a193a3_34023ca9",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "187273e3_029dd04e",
         "filename": "images/kubernetes/seed.groovy",
         "patchSetId": 47
@@ -115,6 +223,24 @@
       "writtenOn": "2017-12-22T17:49:20Z",
       "side": 1,
       "message": "No need to extrapolate string if only single variable is used, following is just fine -\u003e \n\n                defaultValue(RELEASE_BRANCH)",
+      "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa30cc45_8866b9a2",
+        "filename": "images/kubernetes/seed.groovy",
+        "patchSetId": 47
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2017-12-22T17:56:21Z",
+      "side": 1,
+      "message": "right",
+      "parentUuid": "187273e3_029dd04e",
       "revId": "5f08891637489647bdfe5a3926760c63e5b58abc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
