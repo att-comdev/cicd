@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "780649f7_eaa982b0",
+        "filename": "images/att-comdev/shipyard/Jenkinsfile",
+        "patchSetId": 17
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2017-12-23T06:38:09Z",
+      "side": 1,
+      "message": "All this is only needed if there is more then 1 VM (like when we launch 5VMs for Prom, so it\u0027s a bit special).\n\nHave a look at ucp/deckhand pipeline.\n\nYou can simply do\n\nvm(NODE_NAME, NODE_TMPL) {\n    stage() {\n        // all stuff already under needed VM\n    }\n}\n\n\nThe pipe will be WAY shorted/nicer!",
+      "revId": "17c51df168474f729db4fbb4569b75a78714bf8c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
