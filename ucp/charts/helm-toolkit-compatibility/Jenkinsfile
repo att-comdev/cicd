@@ -6,13 +6,15 @@ currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 def build_charts = '''
     #!/bin/bash
 
-    echo "shell is: $0"
-    cat $0
     set -e
+
+    #List of projects to work with is a job parameter:
+    #PROJECT_LIST="armada deckhand drydock promenade shipyard"
+    #See seed.groovy job parameters.
 
     record_fail(){
         echo -e "\n project $1 failed: " | tee -a ${failed_log}
-        cat ${job_log} >> ${failed_log}
+        cat ${1}.log >> ${failed_log}
         #Fail logged, continue building charts manually:
         helm_pkg
     }
@@ -24,12 +26,23 @@ def build_charts = '''
     prepare_env(){
         git clone -q --depth 1 https://git.openstack.org/openstack/openstack-helm.git
         cd openstack-helm
+        if [ ! ${GERRIT_REFSPEC} = "master" ]; then
+            git fetch https://git.openstack.org/openstack/openstack-helm.git ${GERRIT_REFSPEC}
+            git checkout FETCH_HEAD
+        fi
         source tools/gate/vars.sh
         source tools/gate/funcs/helm.sh
         which helm || helm_install
         helm_serve
         helm_plugin_template_install ||:
         make helm-toolkit
+    }
+
+    clone_projects(){
+        cd ${WDIR}/build
+        for project in ${PROJECT_LIST}; do
+            git clone -q --depth 1 https://review.gerrithub.io/att-comdev/${project}
+        done
     }
 
     helm_pkg(){
@@ -43,19 +56,23 @@ def build_charts = '''
 
     make_charts(){
         set -xe
-        cd ${WDIR}
-        if [ -f Makefile ]; then
-            make charts &> ${job_log} || record_fail
-        else
-            helm_pkg &>> ${job_log} || record_fail
-        fi
+        for project in $PROJECT_LIST; do
+            cd ${WDIR}/build/${project}
+            if [ -f Makefile ]; then
+                make charts &> ${project}.log || record_fail ${project}
+            else
+                helm_pkg &> ${project}.log || record_fail ${project}
+            fi
+        done
     }
 
     WDIR=`pwd`
-    job_log=${WDIR}/job.log
-    failed_log=${WDIR}/failed.log
+    failed_log=${WDIR}/build/failed.log
+
+        #### MAIN ####
     cleanup && cd build
     prepare_env
+    clone_projects
     make_charts
     echo "Done!"
 
@@ -74,21 +91,5 @@ vm(NODE_NAME,NODE_TMPL){
         }else{
             slack.msg("pathchset ${env.GERRIT_CHANGE_NUMBER} is OK")
         }
-    }
-    stage('Publish'){
-        if ( "${GERRIT_EVENT_TYPE}" == 'change-merged' ){
-            ARTF_REPO="ucp/charts/"
-        } else {
-            ARTF_REPO="ucp-patchset/charts/"
-        }
-        def server = Artifactory.server 'artifactory'
-        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
-            usernameVariable: 'ARTIFACTORY_USER',
-            passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
-            def uploadSpec = """{"files": [{"pattern": "*-${CURRENT_VERSION}.tgz",
-                                            "target" : "${ARTF_REPO}" }]}"""
-//            server.upload(uploadSpec)
-            sh 'ls -lah'
-            }
     }
 }
