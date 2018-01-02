@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8a8ee4d_c551a74b",
+        "filename": "ucp/charts/Jenkinsfile",
+        "patchSetId": 17
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-02T23:23:03Z",
+      "side": 1,
+      "message": "Fix indentation",
+      "revId": "4ed8efe194fcc1886f7a310d3382264360cb7313",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "78917b52_3f53e0ff",
+        "filename": "ucp/charts/seed.groovy",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-02T23:23:03Z",
+      "side": 1,
+      "message": "Can we update this to charts/att-comdev",
+      "revId": "4ed8efe194fcc1886f7a310d3382264360cb7313",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe4357e1_e5304124",
+        "filename": "ucp/charts/seed.groovy",
+        "patchSetId": 17
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-02T23:23:03Z",
+      "side": 1,
+      "message": "Add a filePath when the Makefile is updated also.",
+      "revId": "4ed8efe194fcc1886f7a310d3382264360cb7313",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
