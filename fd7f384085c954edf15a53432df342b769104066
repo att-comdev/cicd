@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1eaf709b_f9e60e50",
+        "filename": "ucp/charts/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-02T16:44:49Z",
+      "side": 1,
+      "message": "Is this a clean VM with every run?",
+      "revId": "fd7f384085c954edf15a53432df342b769104066",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b6a74c46_b9a6750b",
+        "filename": "ucp/charts/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-02T16:44:49Z",
+      "side": 1,
+      "message": "Please talk to any Developer that does not have the charts build process in their Makefile and have them update it.",
+      "revId": "fd7f384085c954edf15a53432df342b769104066",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "01597e5f_d78a5220",
+        "filename": "ucp/charts/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-02T16:44:49Z",
+      "side": 1,
+      "message": "spelling of patchset",
+      "revId": "fd7f384085c954edf15a53432df342b769104066",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
