@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff329808_3db2c8fd",
+        "filename": "images/att-comdev/seed.groovy",
+        "patchSetId": 16
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2018-01-02T21:24:30Z",
+      "side": 1,
+      "message": "This json structure looks weird, do we really need it here?",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 30
+      },
+      "revId": "d25dc8fe0e4332f07d0590177ab78dcb21083702",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
