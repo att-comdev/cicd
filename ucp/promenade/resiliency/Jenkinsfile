@@ -3,7 +3,9 @@ import groovy.json.JsonSlurperClassic
 
 
 NODE_NAME = "promenade-resiliency-${BUILD_NUMBER}"
-NODE_TMPL = "promenade/promenade-virsh.yaml"
+NODE_TMPL = 'promenade/promenade-virsh.yaml'
+
+BASE_IMAGE = "${ARTF_WEB_URL}/artifactory/list/ubuntu-images/ubuntu-16.04-server-cloudimg-amd64-disk1.img"
 
 if (!env.GERRIT_REFSPEC) {
     GERRIT_REFSPEC = 'master'
@@ -23,7 +25,9 @@ def promenade_stage = { item ->
         }
         timeout (30) {
             ansiColor('xterm') {
-                sh cmd
+                withEnv(["BASE_IMAGE_URL=${BASE_IMAGE}"]) {
+                    sh cmd
+                }
             }
         }
 
