@@ -1,0 +1,97 @@
+PROJECT_NAME = GERRIT_PROJECT.tokenize('/').last()
+NODE_NAME = "charts-${PROJECT_NAME}-${BUILD_NUMBER}"
+NODE_TMPL = "charts/ubuntu.m1.medium.yaml"
+CURRENT_VERSION = "0.1.0.${GERRIT_CHANGE_NUMBER}"
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+
+//bash script start:
+def build_charts = '''
+
+    #jenkins automatically adds "#!/bin/bash -xe" to the script
+    set -e
+
+    record_fail(){
+        echo -e "\n project $1 failed: " | tee -a ${failed_log}
+        cat ${job_log} | tee -a ${failed_log}
+        #Fail logged, continue building charts manually:
+        helm_pkg
+    }
+
+    cleanup(){
+        rm -rf build && mkdir build
+    }
+
+    prepare_env(){
+        git clone -q --depth 1 https://git.openstack.org/openstack/openstack-helm.git
+        cd openstack-helm
+        source tools/gate/vars.sh
+        source tools/gate/funcs/helm.sh
+        which helm || helm_install
+        helm_serve
+        helm_plugin_template_install ||:
+        make helm-toolkit
+    }
+
+    helm_pkg(){
+        #Some projects fail to create charts with make or don't have Makefile,
+        #I want to create and upload their charts anyway:
+        for i in $(ls charts | grep -v '.tgz'); do
+            helm dep up charts/$i
+            helm package charts/$i
+        done
+    }
+
+    make_charts(){
+        set -xe
+        cd ${WDIR}
+        if [ -f Makefile ]; then
+            make charts &> ${job_log} || record_fail
+        else
+            helm_pkg &>> ${job_log} || record_fail
+        fi
+    }
+
+    WDIR=`pwd`
+    job_log=${WDIR}/job.log
+    failed_log=${WDIR}/failed.log
+    cleanup && cd build
+    prepare_env &>> ${WDIR}/prepare_env.log
+    make_charts
+    echo "Done!"
+
+    if [ -f $failed_log ]; then
+        cat $failed_log
+        exit 1
+    fi
+    '''
+//bash script end.
+
+vm(NODE_NAME,NODE_TMPL){
+    stage('Project Checkout'){
+        gerrithub.clone(GERRIT_PROJECT,GERRIT_REFSPEC)
+    }
+    stage('Make Charts'){
+        def status = sh(returnStatus: true, script: build_charts)
+        if (status != 0) {
+            currentBuild.result = 'FAILED'
+            slack.msg("Charts build failed for ${GERRIT_CHANGE_NUMBER}!")
+        }else{
+            slack.msg("Charts were built for ${GERRIT_CHANGE_NUMBER}")
+        }
+    }
+    stage('Publish'){
+        if ( GERRIT_EVENT_TYPE == 'change-merged' ){
+            ARTF_REPO="ucp/charts/${PROJECT_NAME}/"
+        } else {
+            ARTF_REPO="ucp/charts/ps/${GERRIT_CHANGE_NUMBER}/"
+        }
+
+        // we don't need helm-toolkit.tgz here.
+        sh "find . -iname 'helm-toolkit*.tgz' -delete"
+
+        def server = Artifactory.server 'artifactory'
+        def uploadSpec = """{"files": [{"pattern":"*.tgz","target":"${ARTF_REPO}"}]}"""
+        server.upload(uploadSpec)
+        slack.msg("Charts from ${GERRIT_PROJECT} pushed to ${ARTF_REPO}")
+    }
+}
