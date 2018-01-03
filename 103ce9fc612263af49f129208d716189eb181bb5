@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90507b3d_b404fa8e",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-03T17:25:37Z",
+      "side": 1,
+      "message": "same as\nPROJECT_NAME\u003dGERRIT_PROJECT.tokenize(\u0027/\u0027).last()\n\nIsn\u0027t it already a string?",
+      "revId": "103ce9fc612263af49f129208d716189eb181bb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9317e1a6_295c7f6c",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-03T17:25:37Z",
+      "side": 1,
+      "message": "No need for env.",
+      "revId": "103ce9fc612263af49f129208d716189eb181bb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "881a5665_52ed3859",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-03T17:25:37Z",
+      "side": 1,
+      "message": "same as\ngerrithub.clone(GERRIT_PROJECT, GERRIT_REFSPEC)\n\nThose vars are already strings.",
+      "revId": "103ce9fc612263af49f129208d716189eb181bb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c372b925_5f3d108f",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-03T17:25:37Z",
+      "side": 1,
+      "message": "same as \nGERRIT_EVENT_TYPE \u003d\u003d \u0027change-merged\u0027 \n\nThe quotes are needed when adding variable inside a string.",
+      "revId": "103ce9fc612263af49f129208d716189eb181bb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72f2dd7a_66b9ce6c",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-03T17:25:37Z",
+      "side": 1,
+      "message": "creds not required when inbuilt artifactory support is used.\nThe creds only setup environment variables so that they can be used from CLI tools (like Docker)",
+      "revId": "103ce9fc612263af49f129208d716189eb181bb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
