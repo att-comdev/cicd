@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3c6fcb5_288467ce",
+        "filename": "images/att-comdev/shipyard/Jenkinsfile",
+        "patchSetId": 20
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-03T18:28:11Z",
+      "side": 1,
+      "message": "\u0027env.\u0027 is not needed",
+      "revId": "0b04f21d63d620049835492d1fc8e1c6adc2a703",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91fef607_bc194070",
+        "filename": "images/att-comdev/shipyard/Jenkinsfile",
+        "patchSetId": 20
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-03T18:28:11Z",
+      "side": 1,
+      "message": "I would add \u0027-y\u0027 option just in case (automatically accepts if promted)",
+      "revId": "0b04f21d63d620049835492d1fc8e1c6adc2a703",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "04c1290f_ac276c77",
+        "filename": "images/att-comdev/shipyard/Jenkinsfile",
+        "patchSetId": 20
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-03T18:28:11Z",
+      "side": 1,
+      "message": "me and Mike started to use\n\n\"#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}\"\nas it\u0027s nice to see the build # first.\n\nMostly suggestion and \u0027env.\u0027 is not needed.",
+      "revId": "0b04f21d63d620049835492d1fc8e1c6adc2a703",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "18343e1f_25f92493",
+        "filename": "images/att-comdev/shipyard/Jenkinsfile",
+        "patchSetId": 20
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-03T18:28:11Z",
+      "side": 1,
+      "message": "it\u0027s enough to use relative path\n\ndir(\u0027images/att-comdev/shipyard/shipyard\u0027)\nor\ndir(\"${WORKSPACE}/images/att-comdev/shipyard/shipyard\").",
+      "revId": "0b04f21d63d620049835492d1fc8e1c6adc2a703",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a59ba32e_ad45190c",
+        "filename": "images/att-comdev/shipyard/Jenkinsfile",
+        "patchSetId": 20
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-03T18:28:11Z",
+      "side": 1,
+      "message": "Is this really validate anything?",
+      "revId": "0b04f21d63d620049835492d1fc8e1c6adc2a703",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
