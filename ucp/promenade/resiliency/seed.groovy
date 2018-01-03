@@ -1,4 +1,3 @@
-
 folder('UCP/promenade')
 
 pipelineJob('UCP/promenade/resiliency') {
