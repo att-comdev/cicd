@@ -1,0 +1,88 @@
+NODE_NAME = "charts-helm-compat-${BUILD_NUMBER}"
+NODE_TMPL = "charts/ubuntu.m1.medium.yaml"
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+
+//manual run will need these variables:
+if (!project.hasProperty(GERRIT_EVENT_TYPE)){
+    env.GERRIT_EVENT_TYPE = "manual run"
+    env.GERRIT_CHANGE_NUMBER = "manual run of ${GERRIT_REFSPEC}"
+    env.GERRIT_CHANGE_URL = ''
+}
+
+def build_charts = '''
+
+    set -e
+
+    #List of projects to work with is a job parameter:
+    #PROJECT_LIST="armada deckhand drydock promenade shipyard"
+    #See seed.groovy job parameters.
+
+    record_fail(){
+        echo -e "\n ERROR: Project ${1} failed! " | tee -a ${failed_log}
+        grep -i 'error' ${1}.log | tee -a ${failed_log}
+    }
+
+    prepare_env(){
+        git clone -q --depth 1 https://git.openstack.org/openstack/openstack-helm.git
+        cd openstack-helm
+        if [ ! ${GERRIT_REFSPEC} = "master" ]; then
+            git fetch https://git.openstack.org/openstack/openstack-helm.git ${GERRIT_REFSPEC}
+            git checkout FETCH_HEAD
+        fi
+        source tools/gate/vars.sh
+        source tools/gate/funcs/helm.sh
+        which helm || helm_install
+        helm_serve
+        helm_plugin_template_install ||:
+        make helm-toolkit
+    }
+
+    clone_projects(){
+        cd ${WDIR}/build
+        for project in ${PROJECT_LIST}; do
+            git clone -q --depth 1 https://review.gerrithub.io/att-comdev/${project}
+        done
+    }
+
+    make_charts(){
+        set -xe
+        for project in $PROJECT_LIST; do
+            cd ${WDIR}/build/${project}
+            #Assume we have Makefile in every project we test.
+            make charts &> ${project}.log || record_fail ${project}
+        done
+    }
+
+    BUILD_DIR='build'
+    WDIR=`pwd`
+    failed_log=${WDIR}/build/failed.log
+
+    #----- MAIN -----#
+    mkdir ${BUILD_DIR}
+    cd ${BUILD_DIR}
+    #helm installation process is muted:
+    prepare_env     &> /dev/null
+    clone_projects  &> /dev/null
+    make_charts
+    echo "Done!"
+
+    if [ -f ${failed_log} ]; then
+        cat ${failed_log}
+        exit 1
+    fi
+    '''
+
+vm(NODE_NAME,NODE_TMPL){
+    stage('Make Charts'){
+        def status = sh(returnStatus: true, script: build_charts)
+        if (status != 0) {
+            currentBuild.result = 'FAILED'
+            def warning_msg = "WARNING: Check failed for ${GERRIT_CHANGE_NUMBER}!\n"
+            def error_msg = readFile "${WORKSPACE}/build/failed.log"
+            def urls_msg  = "\n${GERRIT_CHANGE_URL}\n${BUILD_URL}"
+            slack.msg(warning_msg + error_msg + urls_msg)
+        }else{
+            slack.msg("${GERRIT_CHANGE_NUMBER} is OK")
+        }
+    }
+}
