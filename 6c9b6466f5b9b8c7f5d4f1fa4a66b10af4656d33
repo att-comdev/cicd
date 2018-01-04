@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1921a559_0f30535f",
+        "filename": "images/att-comdev/Jenkinsfile",
+        "patchSetId": 52
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-04T00:12:51Z",
+      "side": 1,
+      "message": "env. is not needed anywhere",
+      "revId": "6c9b6466f5b9b8c7f5d4f1fa4a66b10af4656d33",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "545a0ecf_69257937",
+        "filename": "images/att-comdev/Jenkinsfile",
+        "patchSetId": 52
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-04T00:12:51Z",
+      "side": 1,
+      "message": "Traditionally isn\u0027t \u0027Checkout\u0027 always 1 word",
+      "revId": "6c9b6466f5b9b8c7f5d4f1fa4a66b10af4656d33",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6071776a_23c86375",
+        "filename": "images/att-comdev/Jenkinsfile",
+        "patchSetId": 52
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-04T00:12:51Z",
+      "side": 1,
+      "message": "gerrithub.clone(\"$GERRIT_PROJECT\",\"$GERRIT_REFSPEC\")\nsame as\n gerrithub.clone(GERRIT_PROJECT, GERRIT_REFSPEC)",
+      "revId": "6c9b6466f5b9b8c7f5d4f1fa4a66b10af4656d33",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80072a8f_df3a76e7",
+        "filename": "images/att-comdev/Jenkinsfile",
+        "patchSetId": 52
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-04T00:12:51Z",
+      "side": 1,
+      "message": "Too long line. Keep to 80 chars, max 120.",
+      "revId": "6c9b6466f5b9b8c7f5d4f1fa4a66b10af4656d33",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b05a3190_650fb30a",
+        "filename": "images/att-comdev/Jenkinsfile",
+        "patchSetId": 52
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-04T00:12:51Z",
+      "side": 1,
+      "message": "Why is this needed?",
+      "revId": "6c9b6466f5b9b8c7f5d4f1fa4a66b10af4656d33",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
