@@ -1,0 +1,65 @@
+
+NODE_NAME="osh-single-${BUILD_NUMBER}"
+NODE_TMPL = "promenade/osh-single.yaml"
+
+
+vm(NODE_NAME, NODE_TMPL) {
+
+    checkout poll: false,
+    scm: [$class: 'GitSCM',
+        branches: [[name: '$GERRIT_REFSPEC']],
+        doGenerateSubmoduleConfigurations: false,
+        extensions: [[$class: 'RelativeTargetDirectory',
+            relativeTargetDir: 'openstack-helm']],
+        submoduleCfg: [],
+        userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+        url: "https://git.openstack.org/openstack/openstack-helm" ]]]
+
+
+    checkout([$class: 'GitSCM',
+        branches: [[name: '*/master']],
+        doGenerateSubmoduleConfigurations: false,
+        extensions: [[$class: 'RelativeTargetDirectory',
+            relativeTargetDir: 'openstack-helm-infra']],
+        submoduleCfg: [],
+        userRemoteConfigs:
+            [[url: 'https://git.openstack.org/openstack/openstack-helm-infra']]])
+
+
+    def steps = ['00-install-packages.sh',
+                 '01-deploy-k8s.sh',
+                 '02-setup-client.sh',
+                 '03-ingress.sh',
+                 '04-ceph.sh',
+                 '05-ceph-ns-activate.sh',
+                 '06-mariadb.sh',
+                 '07-rabbitmq.sh',
+                 '08-memcached.sh',
+                 '09-keystone.sh',
+                 '10-ceph-radosgateway.sh',
+                 '11-horizon.sh',
+                 '12-glance.sh',
+                 '13-openvswitch.sh',
+                 '14-libvirt.sh',
+                 '15-compute-kit.sh',
+                 '16-setup-gateway.sh',
+                 '17-cinder.sh',
+                 '18-heat.sh',
+                 '19-use-it.sh']
+
+    def envs = ['OSH_BR_EX_ADDR="172.24.8.1/24"',
+                'OSH_EXT_SUBNET="172.24.8.0/24"']
+
+    steps.each {
+        timeout (45) {
+            stage("OSH (${it})") {
+                dir ('openstack-helm') {
+                    withEnv(envs) {
+                        sh "tools/deployment/developer/${it}"
+                    }
+                }
+            }
+        }
+    }
+}
+
