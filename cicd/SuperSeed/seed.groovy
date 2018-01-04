@@ -24,7 +24,7 @@ freeStyleJob("${job_path}") {
 
     triggers {
         gerritTrigger {
-            serverName('Gerrithub-voting')
+            serverName('Gerrithub-jenkins')
             gerritProjects {
                 gerritProject {
                     compareType('PLAIN')

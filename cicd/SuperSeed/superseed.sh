@@ -60,11 +60,11 @@ find_seed(){
         LAST_2COMMITS=`git log -2 --reverse --pretty=format:%H`
 
         #Looking for added or modified seed.groovy files or Jenkinsfiles:
-        MODIFIED_FILES=`git diff --name-status ${LAST_2COMMITS} | grep -v ^D | grep 'seed.groovy' | cut -f2`
+        MODIFIED_FILES=`git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | grep 'seed.groovy' | cut -f2`
         echo "INFO: changed seed file: $MODIFIED_FILES"
         if [ -z "${MODIFIED_FILES}" ]; then
             #No seeds?, looking for modified Jenkinsfile files:
-            MODIFIED_FILES=`git diff --name-status ${LAST_2COMMITS} | grep -v ^D | grep Jenkinsfile| cut -f2`
+            MODIFIED_FILES=`git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | grep Jenkinsfile| cut -f2`
         echo "INFO: changed Jenkinsfile: $MODIFIED_FILES"
         fi
 
