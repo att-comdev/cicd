@@ -1,5 +1,5 @@
 base_path = "cicd"
-job_path = "${base_path}/SuperSeed"
+job_path = "${base_path}/SuperSeed_Review"
 folder("${base_path}")
 
 freeStyleJob("${job_path}") {
@@ -24,7 +24,7 @@ freeStyleJob("${job_path}") {
 
     triggers {
         gerritTrigger {
-            serverName('Gerrithub-jenkins')
+            serverName('Gerrithub-voting')
             gerritProjects {
                 gerritProject {
                     compareType('PLAIN')
@@ -35,19 +35,21 @@ freeStyleJob("${job_path}") {
                             pattern("**/master")
                         }
                     }
+                    forbiddenFilePaths {
+                        filePath {
+                            compareType('ANT')
+                            pattern("vars/**")
+                        }
+                    }
                     disableStrictForbiddenFileVerification(false)
                 }
             }
             triggerOnEvents {
-/// PatchsetCreated trigger should be manually enabled on staging:
-//                patchsetCreated {
-//                   excludeDrafts(true)
-//                   excludeTrivialRebase(false)
-//                   excludeNoCodeChange(false)
-//                }
-
-/// changeMerged trigger for production:
-            changeMerged()
+                patchsetCreated {
+                   excludeDrafts(true)
+                   excludeTrivialRebase(false)
+                   excludeNoCodeChange(false)
+                }
             }
         }
     }
