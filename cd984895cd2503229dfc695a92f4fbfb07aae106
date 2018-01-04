@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbbb1e61_a9f4c66a",
+        "filename": "images/att-comdev/Jenkinsfile",
+        "patchSetId": 58
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-01-04T20:18:17Z",
+      "side": 1,
+      "message": "env. not needed one more in publish stage",
+      "range": {
+        "startLine": 4,
+        "startChar": 15,
+        "endLine": 4,
+        "endChar": 18
+      },
+      "revId": "cd984895cd2503229dfc695a92f4fbfb07aae106",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6c03964_97494240",
+        "filename": "images/att-comdev/Jenkinsfile",
+        "patchSetId": 58
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-01-04T20:18:17Z",
+      "side": 1,
+      "message": "What does this stage do",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 9
+      },
+      "revId": "cd984895cd2503229dfc695a92f4fbfb07aae106",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
