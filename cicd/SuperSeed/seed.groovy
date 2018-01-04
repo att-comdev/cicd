@@ -24,7 +24,7 @@ freeStyleJob("${job_path}") {
 
     triggers {
         gerritTrigger {
-            serverName('Gerrithub-voting')
+            serverName('Gerrithub-jenkins')
             gerritProjects {
                 gerritProject {
                     compareType('PLAIN')
@@ -60,7 +60,7 @@ freeStyleJob("${job_path}") {
         dsl {
             external('${BUILD_NUMBER}/seed.groovy')
             //ignoreExisting(true)
-            //removeAction('DISABLE')
+            removeAction('DISABLE')
         }
     }
 }
