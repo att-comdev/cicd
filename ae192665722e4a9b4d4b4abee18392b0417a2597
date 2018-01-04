@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9dc0116d_dee02380",
+        "filename": "images/att-comdev/airflow/Jenkinsfile",
+        "patchSetId": 27
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-04T00:15:59Z",
+      "side": 1,
+      "message": "Why is this needed?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 5
+      },
+      "revId": "ae192665722e4a9b4d4b4abee18392b0417a2597",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "10eed18d_a1b8267c",
+        "filename": "images/att-comdev/airflow/Jenkinsfile",
+        "patchSetId": 27
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-04T00:15:59Z",
+      "side": 1,
+      "message": "Endline",
+      "revId": "ae192665722e4a9b4d4b4abee18392b0417a2597",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
