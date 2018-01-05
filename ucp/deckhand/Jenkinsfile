@@ -45,7 +45,8 @@ vm(NODE_NAME, NODE_TMPL) {
     }
 
     stage('Test Functional') {
-        withEnv(["DECKHAND_IMAGE=${DECKHAND_IMAGE}"]) {
+        withEnv(["DECKHAND_IMAGE=${DECKHAND_IMAGE}",
+                 "DECKHAND_API_THREADS=1"]) {
             sh 'tox -e functional'
         }
     }
