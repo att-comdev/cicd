@@ -1,5 +1,8 @@
 
-pipelineJob("UCP/deckhand/deckhand") {
+JOB_BASE = 'images/att-comdev/deckhand'
+folder(JOB_BASE)
+
+pipelineJob("${JOB_BASE}/deckhand") {
 
     configure {
         node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
@@ -36,7 +39,7 @@ pipelineJob("UCP/deckhand/deckhand") {
 
         definition {
             cps {
-                script(readFileFromWorkspace("ucp/deckhand/Jenkinsfile"))
+                script(readFileFromWorkspace("${JOB_BASE}/Jenkinsfile"))
                 sandbox()
             }
         }
