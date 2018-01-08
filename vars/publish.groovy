@@ -20,15 +20,16 @@ def nexus_jenkins_log (String org, String project, String repositoryName) {
                                         version: '$BUILD_NUMBER'
 }
 
-//This will publish images to Artifactory
-def artifactory_image (String artifactoryID, String artifactoryUrl, String imageName) {
-  // Usage example: publish.artifactory_image('jenkins-artifactory',"${ARTF_URL}",${ARMADA_IMAGE}")
-   withCredentials([usernamePassword(credentialsId: artifactoryID,
-                    usernameVariable: 'ARTIFACTORY_USER',
-                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+//This will publish images to respository in repositoryID
+def image (String repositoryID, String repositoryUrl, String imageName) {
+  // Usage example: publish.image('jenkins-artifactory',"${ARTF_URL}",${ARMADA_IMAGE}")
+  // Usage example: publish.image('jenkins-quay',"${QUAY_URL}",${QUAY_IMAGE}")
+   withCredentials([usernamePassword(credentialsId: repositoryID,
+                    usernameVariable: 'REPO_USER',
+                    passwordVariable: 'REPO_PASSWORD')]) {
 
-                    opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
-                    sh "sudo docker login ${opts} ${artifactoryUrl}"
+                    opts = '-u $REPO_USER -p $REPO_PASSWORD'
+                    sh "sudo docker login ${opts} ${repositoryUrl}"
                     sh "sudo docker push ${imageName}"
    }
 }
