@@ -23,24 +23,23 @@ vm(NODE_NAME, NODE_TMPL) {
         }
 
         sh 'sudo make build_deckhand'
-        sh "sudo docker tag attcomdev/deckhand ${DECKHAND_IMAGE}"
     }
 
+    stage('Image Publish (artifactory)'){
 
-    stage('Image Publish'){
-        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
-                usernameVariable: 'ARTIFACTORY_USER',
-                passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+        // publish.artifactory ('attcomdev/deckhand', DECKHAND_IMAGE)
 
-            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            // publish.artifactory ('attcomdev/deckhand', DECKHAND_IMAGE_LATEST)
+        }
+    }
 
-            sh "sudo docker login ${opts} ${ARTF_URL}"
-            sh "sudo docker push ${DECKHAND_IMAGE}"
+    stage('Image Publish (quay)'){
 
-            if (GERRIT_EVENT_TYPE == 'change-merged') {
-                sh "sudo docker tag ${DECKHAND_IMAGE} ${DECKHAND_IMAGE_LATEST}"
-                sh "sudo docker push ${DECKHAND_IMAGE_LATEST}"
-            }
+        publish.quay ('attcomdev/deckhand', DECKHAND_IMAGE)
+
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.quay ('attcomdev/deckhand', DECKHAND_IMAGE_LATEST)
         }
     }
 
