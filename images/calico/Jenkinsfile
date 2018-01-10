@@ -1,0 +1,9 @@
+
+NODE_NAME="images-calico-${BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.small.yaml"
+
+vm(NODE_NAME, NODE_TMPL) {
+
+    sh 'hostname'
+}
+
