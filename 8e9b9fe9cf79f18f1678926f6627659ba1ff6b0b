@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ec21806_80ff1a6f",
+        "filename": "images/att-comdev/airflow/Jenkinsfile",
+        "patchSetId": 41
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-16T22:03:15Z",
+      "side": 1,
+      "message": "Hm, where does this variable come from?",
+      "revId": "8e9b9fe9cf79f18f1678926f6627659ba1ff6b0b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
