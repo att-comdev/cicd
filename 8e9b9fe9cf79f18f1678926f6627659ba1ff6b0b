@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "bc36772a_0cd15780",
+        "filename": "images/att-comdev/airflow/Jenkinsfile",
+        "patchSetId": 41
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-01-16T22:06:02Z",
+      "side": 1,
+      "message": "Why do we need shipyard image in airflow pipeline. I mean you are not publishing it anyway.",
+      "range": {
+        "startLine": 18,
+        "startChar": 19,
+        "endLine": 18,
+        "endChar": 33
+      },
+      "revId": "8e9b9fe9cf79f18f1678926f6627659ba1ff6b0b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ec21806_80ff1a6f",
         "filename": "images/att-comdev/airflow/Jenkinsfile",
         "patchSetId": 41
@@ -13,6 +36,29 @@
       "writtenOn": "2018-01-16T22:03:15Z",
       "side": 1,
       "message": "Hm, where does this variable come from?",
+      "revId": "8e9b9fe9cf79f18f1678926f6627659ba1ff6b0b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13fdba79_6e72a0d1",
+        "filename": "images/att-comdev/airflow/Jenkinsfile",
+        "patchSetId": 41
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-01-16T22:06:02Z",
+      "side": 1,
+      "message": "This is attcomdev/airflow",
+      "range": {
+        "startLine": 35,
+        "startChar": 25,
+        "endLine": 35,
+        "endChar": 33
+      },
       "revId": "8e9b9fe9cf79f18f1678926f6627659ba1ff6b0b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
