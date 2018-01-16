@@ -5,7 +5,8 @@ def projects = ['armada':'charts/.*',
                 'deckhand':'charts/.*',
                 'drydock':'charts/.*',
                 'promenade':'charts/.*',
-                'shipyard':'charts/.*']
+                'shipyard':'charts/.*',
+                'maas':'charts/.*']
 
 projects.each { project_name, file_path ->
     JOB_NAME=project_name
