@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "921da4f6_69ff49f2",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-19T03:37:18Z",
+      "side": 1,
+      "message": "This still won\u0027t work because we are using the Makefile that is under each repository which is calling their helm_toolkt.sh method.  Please use this method to fix one of their Makefile\u0027s and then we will tell them to propagate to all projects.",
+      "revId": "efb3fc1a5f567a0b275d01c6acb286f19f73e70b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da8c8807_2c9e2456",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-19T03:37:18Z",
+      "side": 1,
+      "message": "Can we remove anything not being used?",
+      "revId": "efb3fc1a5f567a0b275d01c6acb286f19f73e70b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c417af5_c192dfcb",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-19T03:37:18Z",
+      "side": 1,
+      "message": "Can we point to artifactory?\nhttps://artifacts-aic.atlantafoundry.com/artifactory/googleapis-helm/helm-v2.7.2-linux-amd64.tar.gz",
+      "revId": "efb3fc1a5f567a0b275d01c6acb286f19f73e70b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb4692ed_c930b29a",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-19T03:37:18Z",
+      "side": 1,
+      "message": "This should not be required with the version of helm we are using",
+      "revId": "efb3fc1a5f567a0b275d01c6acb286f19f73e70b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
