@@ -1,5 +1,6 @@
+folder('images/att-comdev/promenade')
 
-pipelineJob("UCP/promenade/promenade") {
+pipelineJob('images/att-comdev/promenade/resiliency') {
 
     configure {
         node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
@@ -9,6 +10,8 @@ pipelineJob("UCP/promenade/promenade") {
     }
 
     triggers {
+        cron('H H * * *')
+
         gerritTrigger {
             serverName('Gerrithub-jenkins')
             gerritProjects {
@@ -31,12 +34,15 @@ pipelineJob("UCP/promenade/promenade") {
                    excludeNoCodeChange(false)
                 }
                 changeMerged()
+                commentAddedContains {
+                   commentAddedCommentContains('recheck')
+                }
             }
         }
 
         definition {
             cps {
-                script(readFileFromWorkspace("ucp/promenade/Jenkinsfile"))
+                script(readFileFromWorkspace('images/att-comdev/promenade/resiliency/Jenkinsfile'))
                 sandbox()
             }
         }
