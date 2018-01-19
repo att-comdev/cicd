@@ -34,6 +34,9 @@ pipelineJob("${JOB_BASE}/deckhand") {
                    excludeNoCodeChange(false)
                 }
                 changeMerged()
+                commentAddedContains {
+                   commentAddedCommentContains('recheck')
+                }
             }
         }
 
