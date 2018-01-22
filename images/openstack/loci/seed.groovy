@@ -6,21 +6,19 @@ folder("${JOB_BASE}/mos")
 
 // { project: 'ref' }
 COMMUNITY_PROJECTS = ['requirements': 'stable/newton',
-            'keystone': 'newton-eol',
-            'heat': 'newton-eol']
-//            'cinder': 'newton-eol',
-//            'glance': 'newton-eol',
-//            'horizon': 'newton-eol',
-//            'nova': 'stable/newton',
-//            'ironic': 'stable/newton']
+                      'keystone': 'newton-eol',
+                      'heat': 'newton-eol',
+                      'glance': 'newton-eol',
+                      'cinder': 'newton-eol',
+                      'neutron': 'newton-eol',
+                      'nova': 'stable/newton']
 
 MOS_PROJECTS = ['mos-keystone': 'main/newton',
-                'mos-heat': 'main/newton']
-//                'mos-cinder': 'main/newton',
-//                'mos-glance': 'main/newton',
-//                'mos-horizon': 'main/newton',
-//                'mos-nova': 'main/newton',
-//                'mos-ironic': 'main/newton']
+                'mos-heat': 'main/newton',
+                'mos-glance': 'main/newton',
+                'mos-cinder': 'main/newton',
+                'mos-neutron': 'main/newton',
+                'mos-nova': 'main/newton']
 
 
 COMMUNITY_PROJECTS.each { project, ref ->
@@ -31,7 +29,7 @@ COMMUNITY_PROJECTS.each { project, ref ->
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                 durationName 'hour'
-                count '3'
+                count '300'
             }
         }
 
@@ -92,7 +90,7 @@ MOS_PROJECTS.each { project, ref ->
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                 durationName 'hour'
-                count '3'
+                count '300'
             }
         }
 
