@@ -39,6 +39,22 @@ if (env.GERRIT_REFSPEC) {
 }
 
 
+PROJECT_CONFIG = [
+  'keystone': ['profiles': 'apache',
+               'packages': 'pycrypto'],
+  'heat':     ['profiles': 'apache',
+               'packages': 'pycrypto'],
+  'glance':   ['profiles': 'glance ceph',
+               'packages': 'pycrypto python-swiftclient"'],
+  'cinder':   ['profiles': 'cinder lvm ceph',
+               'packages': 'pycrypto python-swiftclient'],
+  'neutron':  ['profiles': 'neutron linuxbridge openvswitch',
+               'packages': 'pycrypto'],
+  'nova':     ['profiles': 'nova ceph linuxbridge openvswitch configdrive qemu apache',
+               'packages': 'pycrypto']
+]
+
+
 currentBuild.displayName = "#${BUILD_NUMBER} ${DISPLAY_PREFIX} ${PROJECT_BRANCH}"
 
 
@@ -181,6 +197,8 @@ def project_build = {
     def args = "--build-arg FROM=${LOCI_BASE_IMAGE}" +
         " --build-arg PROJECT=${PROJECT}" +
         " --build-arg PROJECT_REF=${PROJECT_REF}" +
+        " --build-arg PROFILES=${PROJECT_CONFIG[PROJECT].profiles}" +
+        " --build-arg PIP_PACKAGES=${PROJECT_CONFIG[PROJECT].packages}" +
         " --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}" +
         " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
 
