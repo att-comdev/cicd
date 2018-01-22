@@ -7,12 +7,11 @@ folder("${JOB_BASE}/mos")
 // { project: 'ref' }
 COMMUNITY_PROJECTS = ['requirements': 'stable/newton',
             'keystone': 'newton-eol',
-            'heat': 'newton-eol']
-//            'cinder': 'newton-eol',
-//            'glance': 'newton-eol',
-//            'horizon': 'newton-eol',
-//            'nova': 'stable/newton',
-//            'ironic': 'stable/newton']
+            'heat': 'newton-eol',
+            'glance': 'newton-eol',
+            'cinder': 'newton-eol',
+            'neutron': 'newton-eol',
+            'nova': 'stable/newton',
 
 MOS_PROJECTS = ['mos-keystone': 'main/newton',
                 'mos-heat': 'main/newton']
