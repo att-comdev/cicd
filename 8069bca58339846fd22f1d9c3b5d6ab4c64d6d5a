@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b886e35c_e9a90db0",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-23T19:14:28Z",
+      "side": 1,
+      "message": "Point to artifactory remote google api repo",
+      "revId": "8069bca58339846fd22f1d9c3b5d6ab4c64d6d5a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68e328ad_33536624",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-23T19:14:28Z",
+      "side": 1,
+      "message": "This should not be required.",
+      "revId": "8069bca58339846fd22f1d9c3b5d6ab4c64d6d5a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
