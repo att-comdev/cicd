@@ -19,18 +19,36 @@ def build_charts = '''
         grep -i 'error' ${1}.log >> ${failed_log}
     }
 
+
     prepare_env(){
+        TMP_DIR="$(mktemp -d)"
+        HELM_VERSION="v2.7.2"
+        # // $ARTF_WEB_URL is internal jenkins variable
+        URL="https://${ARTF_WEB_URL}/googleapis-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz"
+        curl -sSL ${URL} | tar -zxv --strip-components=1 -C ${TMP_DIR}
+        sudo mv -v ${TMP_DIR}/helm /usr/local/bin/helm
+        helm init --client-only
+
+        if [ -z "$(curl -s 127.0.0.1:8879 | grep 'Helm Repository')" ]; then
+            helm serve & > /dev/null
+            while [ -z "$(curl -s 127.0.0.1:8879 | grep 'Helm Repository')" ]; do
+                sleep 1
+                echo "Waiting for Helm Repository"
+            done
+        fi
+
+        if helm repo list | grep -q "^stable" ; then
+            helm repo remove stable
+        fi
+
+        helm repo add local http://localhost:8879/charts
+        helm plugin install https://github.com/technosophos/helm-template ||:
         git clone -q --depth 1 https://git.openstack.org/openstack/openstack-helm.git
         cd openstack-helm
         if [ ! ${GERRIT_REFSPEC} = "master" ]; then
             git fetch https://git.openstack.org/openstack/openstack-helm.git ${GERRIT_REFSPEC}
             git checkout FETCH_HEAD
         fi
-        source tools/gate/vars.sh
-        source tools/gate/funcs/helm.sh
-        which helm || helm_install
-        helm_serve
-        helm_plugin_template_install ||:
         make helm-toolkit
     }
 
@@ -58,8 +76,8 @@ def build_charts = '''
     mkdir ${BUILD_DIR}
     cd ${BUILD_DIR}
     #helm installation process is muted:
-    prepare_env     &> /dev/null
-    clone_projects  &> /dev/null
+    prepare_env
+    clone_projects
     make_charts
     echo "Done!"
 
