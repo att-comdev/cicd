@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2ac8ff5_cef7f315",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 11
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2018-01-24T16:32:59Z",
+      "side": 1,
+      "message": "Still not working?",
+      "range": {
+        "startLine": 212,
+        "startChar": 0,
+        "endLine": 214,
+        "endChar": 1
+      },
+      "revId": "a1996d79fa5bfdd26f7fcb0e99ab10a57350060f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
