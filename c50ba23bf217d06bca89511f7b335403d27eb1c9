@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e69ed57_5406f421",
+        "filename": "charts/openstack/helm-toolkit-compatibility/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-24T17:04:40Z",
+      "side": 1,
+      "message": "Use artifactory env variable here\nwould suggest break out helm version as variable",
+      "revId": "c50ba23bf217d06bca89511f7b335403d27eb1c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
