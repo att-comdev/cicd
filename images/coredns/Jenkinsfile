@@ -1,0 +1,48 @@
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+currentBuild.displayName = "#${BUILD_NUMBER}"
+
+vm(NODE_NAME,NODE_TMPL) {
+/*    stage("Env Setup") {
+        sh '''
+            export GO_VERSION="1.9.3" OS="linux" ARCH="amd64"
+            gopkg="go${GO_VERSION}.${OS}-${ARCH}.tar.gz"
+
+            wget https://redirector.gvt1.com/edgedl/go/${gopkg}
+            sudo tar -C /usr/local -xzf ${gopkg}
+            echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' | sudo tee -a /etc/profile
+            echo 'export GOPATH=${HOME}/go' | sudo tee -a /etc/profile
+
+        '''
+    }
+*/
+    stage("Checkout") {
+        checkout poll: false,
+        scm: [$class: 'GitSCM',
+             branches: [[name: "master"]],
+             doGenerateSubmoduleConfigurations: false,
+             extensions: [[$class: 'CleanBeforeCheckout']],
+             submoduleCfg: [],
+             userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+             url: "https://github.com/coredns/coredns.git"]]]
+    }
+
+    stage("Build Img") {
+        def build_binary = '''
+            docker run --rm -v ${PWD}:/go/src/github.com/coredns/coredns \
+                -w /go/src/github.com/coredns/coredns golang:1.9 make
+            '''
+        def stage_status = sh(returnStatus: true, script: build_binary  )
+        if (stage_status != 0) {
+            currentBuild.result = 'FAILED'
+            slack.msg("COreDNS: Build failed!")
+        }
+        sh 'docker build . -t coredns:latest'
+        sh 'docker run -it coredns:latest -version'
+    }
+
+    stage('Upload') {
+        publish.artifactory('coredns:latest','coredns:latest')
+    }
+}
+
