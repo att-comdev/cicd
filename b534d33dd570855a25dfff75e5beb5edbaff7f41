@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0fc1af6a_67bebe08",
+        "filename": "images/att-comdev/maas/Jenkinsfile",
+        "patchSetId": 72
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-01-29T18:22:16Z",
+      "side": 1,
+      "message": "Same as line#18. We can pass it once",
+      "range": {
+        "startLine": 22,
+        "startChar": 8,
+        "endLine": 22,
+        "endChar": 11
+      },
+      "revId": "b534d33dd570855a25dfff75e5beb5edbaff7f41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
