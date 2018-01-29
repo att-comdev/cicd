@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83ade223_766836d4",
+        "filename": "images/att-comdev/shipyard/Jenkinsfile",
+        "patchSetId": 23
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-01-29T17:43:19Z",
+      "side": 1,
+      "message": "I guess we don\u0027t need parallel builds since we have airflow pipeline anyway. Not sure if this is doing anything more other than building image for airflow.",
+      "range": {
+        "startLine": 23,
+        "startChar": 12,
+        "endLine": 23,
+        "endChar": 20
+      },
+      "revId": "29effdc9459e856a50002ee38c11135a19ae2138",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
