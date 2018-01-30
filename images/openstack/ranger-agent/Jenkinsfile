@@ -1,0 +1,74 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="ranger-agent-${BUILD_NUMBER}"
+NODE_TMPL="integration/genesis-single.yaml"
+
+RANGER_VERSION = "${GERRIT_CHANGE_NUMBER}"
+RANGER_PS = "${GERRIT_CHANGE_NUMBER}.${GERRIT_PATCHSET_NUMBER}"
+ARTF_URL = env.ARTF_DOCKER_URL
+RANGER_IMAGE_PS = "${ARTF_URL}/openstack/ranger-agent:${RANGER_PS}"
+RANGER_IMAGE = "${ARTF_URL}/openstack/ranger-agent:${RANGER_VERSION}"
+RANGER_IMAGE_LATEST = "${ARTF_URL}/openstack/ranger-agent:latest"
+
+vm(NODE_NAME, NODE_TMPL) {
+    #gerrit.clone("openstack", GERRIT_REFSPEC)
+    sh 'sudo apt-get install make'
+    stage('Checkout'){
+        checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: '*/master']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                     url: 'https://git.openstack.org/openstack/ranger-agent']]]
+        if (GERRIT_EVENT_TYPE != 'change-merged') {
+            RANGER_IMAGE = RANGER_IMAGE_PS
+        }
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+    }
+    stage('Docker Build') {
+        timeout(20){
+           # sh  "sudo docker tag openstack/ranger-agent:${BUILD_NUMBER} ${RANGER_IMAGE}"
+            sh "sudo docker build -t ranger-agent ."
+            sh 'sudo docker ps'
+        }
+    }
+
+    stage('Docker Run') {
+        timeout(20){
+           sh "sudo docker run -h "ranger-agent" --net host -it --privileged ranger-agent bash"
+        }
+    }
+
+    stage('Publish'){
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                usernameVariable: 'ARTIFACTORY_USER',
+                passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+
+            sh "sudo docker login ${opts} ${ARTF_URL}"
+            sh "sudo docker push ${RANGER_IMAGE}"
+
+            if (GERRIT_EVENT_TYPE == 'change-merged') {
+                sh "sudo docker tag ${RANGER_IMAGE} ${RANGER_IMAGE_LATEST}"
+                sh "sudo docker push ${RANGER_IMAGE_LATEST}"
+            }
+        }
+        withCredentials([usernamePassword(credentialsId: 'jenkins-quay',
+                usernameVariable: 'QUAY_USER',
+                passwordVariable: 'QUAY_PASSWORD')]) {
+
+            opts = '-u $QUAY_USER -p $QUAY_PASSWORD'
+
+            sh "sudo docker login ${opts} quay.io"
+            sh "sudo docker tag ${RANGER_IMAGE} ${QUAY_URL}/openstack/ranger-agent:${RANGER_PS}"
+            sh "sudo docker push ${QUAY_URL}/openstack/ranger-agent:${RANGER_PS}"
+
+            if (GERRIT_EVENT_TYPE == 'change-merged') {
+                sh "sudo docker tag ${QUAY_URL}/openstack/ranger-agent:${RANGER_PS} ${QUAY_URL}/openstack/ranger-agent:latest"
+                sh "sudo docker push ${QUAY_URL}/openstack-agent/ranger:latest"
+            }
+        }
+    }
+}
