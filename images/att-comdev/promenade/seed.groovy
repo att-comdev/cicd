@@ -10,6 +10,7 @@ def imagesJson = '''{ "images":[{
 def jsonSlurper = new JsonSlurper()
 def object = jsonSlurper.parseText(imagesJson)
 
+
 folder('images/att-comdev/promenade')
 
 for (entry in object.images) {
