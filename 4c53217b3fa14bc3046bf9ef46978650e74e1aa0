@@ -22,6 +22,30 @@
       "revId": "4c53217b3fa14bc3046bf9ef46978650e74e1aa0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ec3d5e6_dceb8ee5",
+        "filename": "images/coredns/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2018-01-30T17:29:36Z",
+      "side": 1,
+      "message": "\u003e We can give a git clone instead\n\nWE can\u0027t. It\u0027s a part of a trigger.",
+      "parentUuid": "19018482_657f05a5",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 19,
+        "endChar": 9
+      },
+      "revId": "4c53217b3fa14bc3046bf9ef46978650e74e1aa0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
