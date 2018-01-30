@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29a282cc_0501cd33",
+        "filename": "images/att-comdev/promenade/promenade/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2018-01-30T23:40:48Z",
+      "side": 1,
+      "message": "\u0027sudo bash\u0027 looks more secure to me, but it\u0027s a matter of taste.\nI hope these scripts will always have correct shebang.",
+      "range": {
+        "startLine": 204,
+        "startChar": 29,
+        "endLine": 204,
+        "endChar": 50
+      },
+      "revId": "b40f3f3e83b711db585edc0ee5863a276c27a14f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
