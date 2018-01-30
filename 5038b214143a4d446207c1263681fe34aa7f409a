@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "c6f6698e_e1de6f91",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 20
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-30T23:47:27Z",
+      "side": 1,
+      "message": "Let\u0027s update to just node.  I think they moved away from the word slave for obvious reasons.",
+      "revId": "5038b214143a4d446207c1263681fe34aa7f409a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e659b9ec_1370b305",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 20
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-30T23:47:27Z",
+      "side": 1,
+      "message": "I like starting to use flavors possibly instead of project names.  Can we put it in a flavors directory instead of under docker?",
+      "revId": "5038b214143a4d446207c1263681fe34aa7f409a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d55a4ee4_41fb7d98",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 20
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-30T23:47:27Z",
+      "side": 1,
+      "message": "No Stage needed.  Let\u0027s keep it the same as all others.",
+      "revId": "5038b214143a4d446207c1263681fe34aa7f409a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "25e3fe82_01b71c6b",
         "filename": "docker/Jenkinsfile",
         "patchSetId": 20
@@ -13,6 +64,23 @@
       "writtenOn": "2017-11-15T22:06:37Z",
       "side": 1,
       "message": "I do think we should use specific reference to version of funcs instead of just master as it might change between pipelines in any given time.",
+      "revId": "5038b214143a4d446207c1263681fe34aa7f409a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae788bc6_442447e6",
+        "filename": "docker/Jenkinsfile",
+        "patchSetId": 20
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-30T23:47:27Z",
+      "side": 1,
+      "message": "If changing from Node Wait then we need to update all others.",
       "revId": "5038b214143a4d446207c1263681fe34aa7f409a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
