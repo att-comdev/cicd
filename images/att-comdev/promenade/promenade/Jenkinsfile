@@ -142,7 +142,7 @@ vms {
            """
 
            sh "echo '${config}' > tools/gate/config-env"
-           sh "sudo bash tools/gate/build.sh ${PROM_IMAGE}"
+           sh "sudo ./tools/gate/build.sh ${PROM_IMAGE}"
 
            spec = artf_spec("tools/gate/${PROM_BUNDLE}", ARTF_PROM_BUNDLE)
            artf.publishBuildInfo(artf.upload(spec))
@@ -166,8 +166,8 @@ vms {
 
         timeout (10) {
             dir("${WORKSPACE}/promenade-bundle") {
-               sh ("sudo bash ${jn}")
-               sh ("sudo bash ${vn}")
+               sh ("sudo ./${jn}")
+               sh ("sudo ./${vn}")
             }
         }
     }
@@ -201,8 +201,8 @@ vms {
         node("${PROM_NODE_BASE}-genesis") {
             timeout (30) {
                 dir("${WORKSPACE}/promenade-bundle") {
-                   sh ('sudo bash validate-cluster.sh')
-                   sh ('sudo bash final-validation.sh')
+                   sh ('sudo ./validate-cluster.sh')
+                   sh ('sudo ./final-validation.sh')
                 }
             }
             sh 'sudo kubectl get pods --all-namespaces -o wide'
