@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "50d117c4_a444cef3",
+        "filename": "images/att-comdev/Jenkinsfile",
+        "patchSetId": 52
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-01-30T23:47:27Z",
+      "side": 1,
+      "message": "Sorry I have been ignoring this as a stage in others and just starting with gerrit.clone",
+      "parentUuid": "545a0ecf_69257937",
+      "revId": "6c9b6466f5b9b8c7f5d4f1fa4a66b10af4656d33",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6071776a_23c86375",
         "filename": "images/att-comdev/Jenkinsfile",
         "patchSetId": 52
