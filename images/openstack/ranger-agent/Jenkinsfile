@@ -1,0 +1,52 @@
+
+IMAGE_TAG= "${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="openstack"
+IMAGE_NAME="${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE="quay.io/attcomdev/${JOB_BASE_NAME}:${IMAGE_TAG}"
+
+vm2{
+    vm2.setproxy()
+    stage('Checkout'){
+        sh 'sudo apt-get install make'
+        if(env.GERRIT_NEWREV){
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            IMAGE_TAG=env.GERRIT_NEWREV
+            QUAY_IMAGE="attcomdev/${JOB_BASE_NAME}:${IMAGE_TAG}"
+        }
+
+        gerrit.cloneToBranch("https://git.openstack.org/${IMAGE_PREFIX}/${JOB_BASE_NAME}","${IMAGE_TAG}","")
+
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            gerrit.rebase()
+        }
+        IMAGE=${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+    }
+
+    stage('Docker Build') {
+        timeout(20){
+             sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0' IMAGE_TAG=${IMAGE_TAG}"
+             sh "sudo make images USE_PROXY=false IMAGE_PREFIX=attcomdev DOCKER_REGISTRY=quay.io LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0' IMAGE_TAG=${IMAGE_TAG}"
+        }
+    }
+
+    stage('Docker Run') {
+        timeout(20){
+           sh "sudo docker run ${IMAGE}"
+        }
+    }
+
+    stage('Publish'){
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+            publish.artifactory (IMAGE, IMAGE_LATEST)
+            publish.quay (QUAY_IMAGE, QUAY_IMAGE_LATEST)
+        } else {
+            publish.artifactory (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+            publish.quay (QUAY_IMAGE, "attcomdev/${JOB_BASE_NAME}:${IMAGE_TAG}")
+        }
+    }
+}
