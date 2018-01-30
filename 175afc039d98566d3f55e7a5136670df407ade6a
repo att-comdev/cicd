@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c80266b_5aef61b8",
+        "filename": "images/att-comdev/seed.groovy",
+        "patchSetId": 25
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-01-30T15:44:59Z",
+      "side": 1,
+      "message": "This I think is not needed anymore",
+      "revId": "175afc039d98566d3f55e7a5136670df407ade6a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
