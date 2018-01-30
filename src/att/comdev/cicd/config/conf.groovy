@@ -23,4 +23,10 @@ class conf {
     // Other
     public static final String EXCLUDE_NODES = "master jenkins-node-launch 10.24.20.18-slave 10.24.20.19-slave MyCodeReviewDev att-comdev-charts-dev cab24-r820-18 cab24-r820-19 openstack-helm-charts genesis clcp-seaworthy-genesis 5ec-seaworthy-genesis"
 
+    //Ranger User
+    public static final String RANGER_USER = "m96722"
+
+    //Ranger-agent User
+    public static final String RANGER_AGENT_USER = "aic-ord"
+
 }
