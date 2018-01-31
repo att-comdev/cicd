@@ -3,19 +3,6 @@ NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
 currentBuild.displayName = "#${BUILD_NUMBER}"
 
 vm(NODE_NAME,NODE_TMPL) {
-/*    stage("Env Setup") {
-        sh '''
-            export GO_VERSION="1.9.3" OS="linux" ARCH="amd64"
-            gopkg="go${GO_VERSION}.${OS}-${ARCH}.tar.gz"
-
-            wget https://redirector.gvt1.com/edgedl/go/${gopkg}
-            sudo tar -C /usr/local -xzf ${gopkg}
-            echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' | sudo tee -a /etc/profile
-            echo 'export GOPATH=${HOME}/go' | sudo tee -a /etc/profile
-
-        '''
-    }
-*/
     stage("Checkout") {
         checkout poll: false,
         scm: [$class: 'GitSCM',
@@ -38,11 +25,15 @@ vm(NODE_NAME,NODE_TMPL) {
             slack.msg("CoreDNS: Build failed!")
         }
         sh 'docker build . -t coredns:latest'
-        sh 'docker run -it coredns:latest -version'
     }
 
     stage('Upload') {
+        GET_VERSION='echo `docker run coredns:latest -version`'
+        VERSION_STRING = sh(script: GET_VERSION , returnStdout: true).toString().trim()
+        APP_VER = VERSION_STRING.tokenize()[0].split('-').last()
+        GIT_HASH = VERSION_STRING.tokenize().last()
         publish.artifactory('coredns:latest','coredns:latest')
+        publish.artifactory('coredns:latest',"coredns:${APP_VER}-${GIT_HASH}")
+        slack.msg("New image coredns:${APP_VER}-${GIT_HASH} available")
     }
 }
-
