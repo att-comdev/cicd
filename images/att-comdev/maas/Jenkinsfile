@@ -27,7 +27,9 @@ vm(NODE_NAME, NODE_TMPL) {
             IMG_REMOTE="ucp/maas/${JOB_BASE_NAME}:0.1.0.${GERRIT_CHANGE_NUMBER}"
             IMG_LATEST="ucp/maas/${JOB_BASE_NAME}:latest"
             publish.artifactory(IMG,IMG_LATEST)
+            publish.quay(IMG,IMG_LATEST)
         }
         publish.artifactory(IMG,IMG_REMOTE)
+        publish.quay(IMG,IMG_REMOTE)
     }
 }
