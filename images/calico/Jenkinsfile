@@ -1,0 +1,25 @@
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+currentBuild.displayName = "#${BUILD_NUMBER}"
+
+vm(NODE_NAME,NODE_TMPL) {
+    stage("Checkout"){
+        sh "git clone https://github.com/projectcalico/${JOB_BASE_NAME}.git"
+    }
+    stage("Build Image"){
+        dir(JOB_BASE_NAME){
+            if(JOB_BASE_NAME == 'calico') {
+                dir(calico_node){
+                    sh "sudo make calico/node GOBGPD_VER=v0.2.2 LIBNETWORK_PLUGIN_VER=v1.1.2"
+                }
+            } else if{
+                sh "sudo make docker-image"
+            } else {
+                error('Not Expected Component')
+            }
+        }
+    }
+    stage("publish"){
+        publish.artifactory('calico/JOB_BASE_NAME:latest','calico/JOB_BASE_NAME:latest')
+    }
+}        
