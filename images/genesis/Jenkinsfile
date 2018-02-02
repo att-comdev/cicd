@@ -1,0 +1,15 @@
+pipeline {
+    agent any 
+    stages {
+        stage('Test Internet') {
+            steps {
+                sh 'ping -c3 8.8.4.4'
+            }
+        }
+        stage('Test iDRAC') {
+            steps {
+                sh 'ping -c3 ' + params.ipAddress
+            }
+        }
+    }
+}
