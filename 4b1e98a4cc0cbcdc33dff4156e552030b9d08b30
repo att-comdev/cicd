@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "910dc459_1a334b6f",
+        "filename": "images/calico/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-02-02T20:15:28Z",
+      "side": 1,
+      "message": "Maybe we should lock to specific branch/version?",
+      "revId": "4b1e98a4cc0cbcdc33dff4156e552030b9d08b30",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fec468cc_23bde31b",
+        "filename": "images/calico/seed.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-02-02T20:15:28Z",
+      "side": 1,
+      "message": "Maybe enough 1x a day? Why do we need it every hour?",
+      "revId": "4b1e98a4cc0cbcdc33dff4156e552030b9d08b30",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
