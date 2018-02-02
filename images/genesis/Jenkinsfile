@@ -1,0 +1,11 @@
+pipeline {
+    agent any 
+    stages {
+        stage('Test') {
+            steps {
+                sh 'ping -c3 8.8.4.4'
+                sh 'ping -c3 10.22.104.20'
+            }
+        }
+    }
+}
