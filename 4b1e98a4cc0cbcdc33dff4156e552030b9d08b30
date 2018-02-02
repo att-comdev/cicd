@@ -19,6 +19,52 @@
     },
     {
       "key": {
+        "uuid": "769094b9_a9f05d5d",
+        "filename": "images/calico/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2018-02-02T20:50:25Z",
+      "side": 1,
+      "message": "trigger will not work with this",
+      "range": {
+        "startLine": 7,
+        "startChar": 8,
+        "endLine": 7,
+        "endChar": 71
+      },
+      "revId": "4b1e98a4cc0cbcdc33dff4156e552030b9d08b30",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9547d78_d1dbea0c",
+        "filename": "images/calico/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2018-02-02T20:50:25Z",
+      "side": 1,
+      "message": "sudo isn\u0027t needed",
+      "range": {
+        "startLine": 16,
+        "startChar": 20,
+        "endLine": 16,
+        "endChar": 25
+      },
+      "revId": "4b1e98a4cc0cbcdc33dff4156e552030b9d08b30",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "73a08ead_139c073a",
         "filename": "images/calico/seed.groovy",
         "patchSetId": 5
