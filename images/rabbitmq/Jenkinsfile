@@ -1,0 +1,33 @@
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+currentBuild.displayName = "#${BUILD_NUMBER}"
+REPO_URL="https://github.com/docker-library/rabbitmq.git"
+
+vm(NODE_NAME,NODE_TMPL) {
+    stage("Checkout") {
+        checkout poll: false,
+        scm: [$class: 'GitSCM',
+             branches: [[name: "master"]],
+             doGenerateSubmoduleConfigurations: false,
+             extensions: [[$class: 'CleanBeforeCheckout']],
+             submoduleCfg: [],
+             userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+             url: REPO_URL ]]]
+    }
+
+    stage("Build Img") {
+        sh 'docker build ${VERSION}/ -t rabbitmq:latest'
+    }
+
+    stage('Upload') {
+        GET_HASH='git log -1 --format=%h'
+        HASH = sh(script: GET_HASH , returnStdout: true).toString().trim()
+        APP_VER = VERSION.split('/')[0]
+        LNX_VER = VERSION.split('/').last()
+        IMG_NAME = "rabbitmq:${APP_VER}-${LNX_VER}-${HASH}"
+        publish.artifactory('rabbitmq:latest','rabbitmq:latest')
+        publish.artifactory('rabbitmq:latest',"${IMG_NAME}")
+        slack.msg("New image ${IMG_NAME} available")
+    }
+}
+
