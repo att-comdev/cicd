@@ -16,18 +16,23 @@ vm(NODE_NAME, NODE_TMPL) {
 //    }
     stage('Publish'){
         IMG="${GERRIT_PROJECT}/${JOB_BASE_NAME}:0.1.0.${GERRIT_CHANGE_NUMBER}"
+        IMG_QUAY="attcomdev/${JOB_BASE_NAME}:${GERRIT_CHANGE_NUMBER}"
         // on patchset-created (and other non merge events) we'll push img named like:
         //Example: http://<art_path>/ucp-patchset/maas/maas-rack-controller:12345
         IMG_REMOTE="ucp-patchset/maas/${JOB_BASE_NAME}:${GERRIT_CHANGE_NUMBER}"
 
         if (GERRIT_EVENT_TYPE == 'change-merged'){
-        // 2 images on merge (every merge will update ':latest' image)
-        // http://<art_path>/ucp/maas/maas-rack-controller:0.1.0.12345
-        // http://<art_path>/ucp/maas/maas-rack-controller:latest
+        /*Two images will be pushed on merge (every merge will update ':latest' image)
+        Example: http://<art_path>/ucp/maas/maas-rack-controller:0.1.0.12345
+                 http://<art_path>/ucp/maas/maas-rack-controller:latest
+        IMG_QUAY path will remain the same for all events, + *_LATEST on merge */
             IMG_REMOTE="ucp/maas/${JOB_BASE_NAME}:0.1.0.${GERRIT_CHANGE_NUMBER}"
             IMG_LATEST="ucp/maas/${JOB_BASE_NAME}:latest"
+            IMG_QUAY_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
             publish.artifactory(IMG,IMG_LATEST)
+            publish.quay(IMG,IMG_QUAY_LATEST)
         }
         publish.artifactory(IMG,IMG_REMOTE)
+        publish.quay(IMG,IMG_QUAY)
     }
 }
