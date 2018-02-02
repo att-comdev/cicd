@@ -1,0 +1,27 @@
+NODE_NAME="calico-${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+currentBuild.displayName = "#${BUILD_NUMBER}"
+PROJECT_URL = "https://github.com/projectcalico/${JOB_REPO}.git"
+
+vm(NODE_NAME,NODE_TMPL) {
+    stage("Checkout"){
+        sh "git clone -b master https://github.com/projectcalico/${JOB_REPO}.git"
+    }
+    stage("Build Image"){
+        dir(JOB_REPO){
+            sh "git rev-parse --short HEAD > .git/commit-id"
+            commit_id = readFile('.git/commit-id')
+            if(JOB_BASE_NAME == 'node') {
+                dir("calico_node"){
+                    sh "sudo make calico/node GOBGPD_VER=v0.2.2 LIBNETWORK_PLUGIN_VER=v1.1.2"
+                }
+            } else {
+                sh "sudo make docker-image"
+            }
+        }
+    }
+    stage("publish"){
+        publish.artifactory("calico/${JOB_BASE_NAME}:latest","att-comdev/calico/${JOB_BASE_NAME}:${commit_id}")
+        publish.artifactory("calico/${JOB_BASE_NAME}:latest","att-comdev/calico/${JOB_BASE_NAME}:latest")
+    }
+}
