@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4cd996b6_b1f5f230",
+        "filename": "images/att-comdev/maas/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2018-02-02T23:52:18Z",
+      "side": 0,
+      "message": "I think they\u0027re useless. I\u0027ve seen 2.2.* tags in quay but I have no idea where I can get these numbers. So let\u0027s go with PS numbers, at least they are make sense.",
+      "range": {
+        "startLine": 18,
+        "startChar": 48,
+        "endLine": 18,
+        "endChar": 54
+      },
+      "revId": "cc3e900f1220d48d2d60b55757138211e8aeb19c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
