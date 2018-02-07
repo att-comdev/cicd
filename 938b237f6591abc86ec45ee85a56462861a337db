@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "023f19b5_4e524104",
+        "filename": "images/att-comdev/armada/Jenkinsfile",
+        "patchSetId": 39
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2018-02-07T23:35:10Z",
+      "side": 1,
+      "message": "Consider migration to internal functions like vm() and publish().",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 37
+      },
+      "revId": "938b237f6591abc86ec45ee85a56462861a337db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aaac8d4b_57648036",
+        "filename": "images/att-comdev/armada/Jenkinsfile",
+        "patchSetId": 39
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1011799
+      },
+      "writtenOn": "2018-02-07T23:35:10Z",
+      "side": 1,
+      "message": "I suggest to use ARTF_DOCKER_URL as is",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 30
+      },
+      "revId": "938b237f6591abc86ec45ee85a56462861a337db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
