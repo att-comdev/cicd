@@ -3,7 +3,6 @@ NODE_NAME = "images-loci-${JOB_BASE_NAME}-${BUILD_NUMBER}"
 NODE_TMPL = "docker/loci.yaml"
 
 LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
-LOCI_BASE_IMAGE = "${ARTF_DOCKER_URL}/ubuntu:xenial"
 
 DIND_IMAGE = "${ARTF_DOCKER_URL}/docker:17.07.0-dind"
 NGINX_IMAGE = "${ARTF_DOCKER_URL}/nginx"
@@ -14,8 +13,9 @@ LOCAL_WEB_URL = "http://172.18.0.1:${LOCAL_WEB_PORT}"
 PROJECT = JOB_BASE_NAME
 
 if (PROJECT.contains('mos')) {
-    PROJECT_REPO = "${INTERNAL_GERRIT_URL}/${PROJECT}"
     PROJECT_PREFIX = "loci/mos"
+    PROJECT_SUFFIX = PROJECT.split('-')[1]
+    PROJECT_REPO = "${INTERNAL_GERRIT_URL}/mos-${PROJECT_SUFFIX}"
 } else {
     // openstack community repos by default
     PROJECT_REPO = "https://git.openstack.org/openstack/${PROJECT}"
@@ -40,21 +40,24 @@ if (env.GERRIT_REFSPEC) {
 
 
 PROJECT_CONFIG = [
-  'keystone': ['profiles': 'apache', 'packages': 'pycrypto'],
-  'heat':     ['profiles': 'apache', 'packages': 'pycrypto'],
-  'glance':   ['profiles': '"glance ceph"', 'packages': '"pycrypto python-swiftclient"'],
-  'cinder':   ['profiles': '"cinder lvm ceph"', 'packages': '"pycrypto python-swiftclient"'],
-  'neutron':  ['profiles': '"neutron linuxbridge openvswitch"', 'packages': 'pycrypto'],
-  'nova':     ['profiles': '"nova ceph linuxbridge openvswitch configdrive qemu apache"',
-               'packages': 'pycrypto'],
+  'keystone': ['profiles': '"apache ldap"', 'packages': '"pycrypto python-openstackclient"', 'distpackages': ' '],
+  'heat':     ['profiles': 'apache', 'packages': 'pycrypto', 'distpackages': 'curl'],
+  'glance':   ['profiles': '"glance ceph"', 'packages': '"pycrypto python-swiftclient"', 'distpackages': ' '],
+  'cinder':   ['profiles': '"cinder lvm ceph qemu"', 'packages': '"pycrypto python-swiftclient"', 'distpackages': ' '],
+  'neutron':  ['profiles': '"neutron openvswitch"', 'packages': 'pycrypto', 'distpackages': ' '],
+  'nova':     ['profiles': '"nova ceph openvswitch configdrive qemu apache"',
+               'packages': 'pycrypto', 'distpackages': ' '],
 
-  'mos-keystone': ['profiles': 'apache', 'packages': 'pycrypto'],
-  'mos-heat':     ['profiles': 'apache', 'packages': 'pycrypto'],
-  'mos-glance':   ['profiles': '"glance ceph"', 'packages': '"pycrypto python-swiftclient"'],
-  'mos-cinder':   ['profiles': '"cinder lvm ceph"', 'packages': '"pycrypto python-swiftclient"'],
-  'mos-neutron':  ['profiles': '"neutron linuxbridge openvswitch"', 'packages': 'pycrypto'],
-  'mos-nova':     ['profiles': '"nova ceph linuxbridge openvswitch configdrive qemu apache"',
-                   'packages': 'pycrypto']
+  'mos-keystone': ['profiles': '"apache ldap"', 'packages': '"pycrypto python-openstackclient"', 'distpackages': ' '],
+  'mos-heat':     ['profiles': 'apache', 'packages': 'pycrypto', 'distpackages': 'curl'],
+  'mos-glance':   ['profiles': '"glance ceph qemu"', 'packages': '"pycrypto python-swiftclient"', 'distpackages': ' '],
+  'mos-horizon':  ['profiles': '"horizon apache"', 'packages': '"pycrypto"', 'distpackages': ' '],
+  'mos-cinder':   ['profiles': '"cinder lvm ceph qemu"', 'packages': '"pycrypto python-swiftclient"', 'distpackages': ' '],
+  'mos-neutron':  ['profiles': '"neutron openvswitch"', 'packages': 'pycrypto', 'distpackages': ' '],
+  'mos-nova':     ['profiles': '"nova ceph openvswitch configdrive qemu apache"',
+                   'packages': 'pycrypto', 'distpackages': ' '],
+  'mos-neutron-sriov': ['profiles': '"neutron linuxbridge openvswitch"',
+                   'packages': 'pycrypto', 'distpackages': '"ethtool lshw"']
 ]
 
 
@@ -68,6 +71,8 @@ if (PROJECT_BRANCH.contains('stable/')) {
     PROJECT_RELEASE = PROJECT_BRANCH.replace('-eol', '')
 } else if (PROJECT_BRANCH.contains('main/newton')) {
     PROJECT_RELEASE = PROJECT_BRANCH.replace('main/', '')
+} else if (PROJECT_BRANCH.contains('master/ocata')) {
+    PROJECT_RELEASE = PROJECT_BRANCH.replace('master/', '')
 } else if (PROJECT_BRANCH == 'master') {
     PROJECT_RELEASE = PROJECT_BRANCH
 } else {
@@ -78,14 +83,12 @@ IMAGE_BASE = "${ARTF_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFI
 
 // used on merge, and for building projects (always non-ps path)
 // project builds assume branch-specific requirements:latest
-// note: mos will use community requirements for now
-WHEELS_LATEST = "${ARTF_DOCKER_URL}/openstack/${PROJECT_RELEASE}/loci/community/requirements:latest"
+// note: mos will use community ocata requirements for now
+WHEELS_LATEST = "${ARTF_DOCKER_URL}/openstack/${PROJECT_RELEASE}/loci/community/requirements@sha256:b07d53b6f21396e912e5e2ff5341150f2d8eee67ea462964a65c377e692a16b5"
 
 
 // cmd for running Docker in Docker
 DIND = 'sudo docker exec loci-build'
-
-
 
 // docker within docker (to get latest docker version on Ubuntu 16.04)
 // requires setting {"storage-driver": "overlay2"} option in docker.json
@@ -97,18 +100,19 @@ def docker_setup = {
     sh "sudo docker run -d ${opts} ${mounts} ${DIND_IMAGE}"
     sh "${DIND} sh -cx 'apk update; apk add git'"
 
-    def path = "/etc/docker/certs.d/${ARTF_DOCKER_URL}"
-    sh "${DIND} mkdir -p ${path}"
-    sh "sudo docker cp /usr/local/share/ca-certificates/ca.crt loci-build:${path}"
-
     withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
             usernameVariable: 'ARTIFACTORY_USER',
             passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
 
         opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
-        sh "${DIND} docker login ${opts} ${ARTF_DOCKER_URL}"
+        if (PROJECT.contains('mos')) {
+            sh "${DIND} docker login ${opts} ${ARTF_SECURE_DOCKER_URL}"
+        } else {
+            sh "${DIND} docker login ${opts} ${ARTF_DOCKER_URL}"
+        }
     }
 }
+
 
 
 def version_resolve = {
@@ -120,8 +124,9 @@ def version_resolve = {
         dir (PROJECT) {
             sh "git fetch ../web/repo/${PROJECT} ${PROJECT_REF}"
             sh "git checkout FETCH_HEAD"
-
-            def cmd = "git log --branches -1 --pretty=format:'%h'"
+            //Can put back pretty formatting if the commit-id returned is increased to 12 
+            //make sure that we have no conflicts
+            def cmd = "git rev-parse HEAD"
             PROJECT_VERSION = sh(returnStdout: true, script: cmd).trim()
         }
     }
@@ -187,9 +192,9 @@ def wheels_build = {
         sh "${DIND} docker build ${LOCI_REPO} ${args} --tag ${tag}"
     }
     sh "${DIND} docker push ${tag}"
-
+    
     // publish latest (branch) tag on merge
-    if (env.GERRIT_EVENT_TYPE != 'patchset-created') {
+    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
         sh "${DIND} docker tag ${tag} ${WHEELS_LATEST}"
         sh "${DIND} docker push ${WHEELS_LATEST}"
     }
@@ -202,6 +207,7 @@ def project_build = {
         " --build-arg PROJECT_REF=${PROJECT_REF}" +
         " --build-arg PROFILES=${PROJECT_CONFIG[PROJECT].profiles}" +
         " --build-arg PIP_PACKAGES=${PROJECT_CONFIG[PROJECT].packages}" +
+        " --build-arg DIST_PACKAGES=${PROJECT_CONFIG[PROJECT].distpackages}" +
         " --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}" +
         " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
 
@@ -209,8 +215,33 @@ def project_build = {
     ansiColor('xterm') {
         sh "${DIND} docker build ${LOCI_REPO} ${args} --tag ${tag}"
     }
-    // todo: uncomment once repos are fixed
     // sh "${DIND} docker push ${tag}"
+}
+
+def project_build_mos = {
+    def args = "--build-arg FROM=${LOCI_BASE_IMAGE}" +
+        " --build-arg PROJECT=${PROJECT_SUFFIX}" +
+        " --build-arg PROJECT_REF=${PROJECT_REF}" +
+        " --build-arg PROFILES=${PROJECT_CONFIG[PROJECT].profiles}" +
+        " --build-arg PIP_PACKAGES=${PROJECT_CONFIG[PROJECT].packages}" +
+        " --build-arg DIST_PACKAGES=${PROJECT_CONFIG[PROJECT].distpackages}" +
+        " --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}" +
+        " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar" +
+        " --label org.label-schema.vcs-ref=${PROJECT_VERSION}" +
+        " --label org.label-schema.vcs-url=${LOCAL_WEB_URL}/repo/${PROJECT}" +
+        " --label org.label-schema.version=0.9.0"
+
+    def tag = "${ARTF_SECURE_DOCKER_URL}/${PROJECT_RELEASE}/${PROJECT_PREFIX}/${PROJECT}:${PROJECT_VERSION}"
+    ansiColor('xterm') {
+        sh "${DIND} docker build ${LOCI_REPO} ${args} --tag ${tag}"
+    }
+    // todo: uncomment once repos are fixed
+    sh "${DIND} docker push ${tag}"
+    def cmd="${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${tag}"
+    def sha256 = sh(returnStdout: true, script: cmd)
+    
+    publish.setProperty ('jenkins-artifactory', 'clcp-manifests', "${RELEASE_CURRENT_KEY}=${sha256}")
+    publish.setProperty ('jenkins-artifactory', 'clcp-manifests', "${RELEASE_STATUS_KEY}=NoStatus")
 }
 
 
@@ -235,8 +266,11 @@ vm(NODE_NAME, NODE_TMPL) {
             wheels_export()
         }
         stage ("Build ${PROJECT.capitalize()}") {
-            project_build()
+           if (PROJECT.contains('mos')) {
+               project_build_mos()
+           } else {
+               project_build()
+           }
         }
     }
 }
-
