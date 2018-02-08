@@ -16,6 +16,7 @@ PROJECT = JOB_BASE_NAME
 if (PROJECT.contains('mos')) {
     PROJECT_REPO = "${INTERNAL_GERRIT_URL}/${PROJECT}"
     PROJECT_PREFIX = "loci/mos"
+    PROJECT_SUFFIX = PROJECT.split('-')[1]
 } else {
     // openstack community repos by default
     PROJECT_REPO = "https://git.openstack.org/openstack/${PROJECT}"
@@ -41,7 +42,7 @@ if (env.GERRIT_REFSPEC) {
 
 PROJECT_CONFIG = [
   'keystone': ['profiles': 'apache', 'packages': 'pycrypto'],
-  'heat':     ['profiles': 'apache', 'packages': 'pycrypto'],
+  'heat':     ['profiles': 'apache', 'packages': 'pycrypto', 'distpackages': 'curl'],
   'glance':   ['profiles': '"glance ceph"', 'packages': '"pycrypto python-swiftclient"'],
   'cinder':   ['profiles': '"cinder lvm ceph"', 'packages': '"pycrypto python-swiftclient"'],
   'neutron':  ['profiles': '"neutron linuxbridge openvswitch"', 'packages': 'pycrypto'],
@@ -202,6 +203,25 @@ def project_build = {
         " --build-arg PROJECT_REF=${PROJECT_REF}" +
         " --build-arg PROFILES=${PROJECT_CONFIG[PROJECT].profiles}" +
         " --build-arg PIP_PACKAGES=${PROJECT_CONFIG[PROJECT].packages}" +
+        " --build-arg DIST_PACKAGES=${PROJECT_CONFIG[PROJECT].distpackages}" +
+        " --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}" +
+        " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
+
+    def tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
+    ansiColor('xterm') {
+        sh "${DIND} docker build ${LOCI_REPO} ${args} --tag ${tag}"
+    }
+    // todo: uncomment once repos are fixed
+    // sh "${DIND} docker push ${tag}"
+}
+
+def project_build_mos = {
+    def args = "--build-arg FROM=${LOCI_BASE_IMAGE}" +
+        " --build-arg PROJECT=${PROJECT_SUFFIX}" +
+        " --build-arg PROJECT_REF=${PROJECT_REF}" +
+        " --build-arg PROFILES=${PROJECT_CONFIG[PROJECT].profiles}" +
+        " --build-arg PIP_PACKAGES=${PROJECT_CONFIG[PROJECT].packages}" +
+        " --build-arg DIST_PACKAGES=${PROJECT_CONFIG[PROJECT].distpackages}" +
         " --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}" +
         " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
 
@@ -235,7 +255,10 @@ vm(NODE_NAME, NODE_TMPL) {
             wheels_export()
         }
         stage ("Build ${PROJECT.capitalize()}") {
-            project_build()
+           if (PROJECT.contains('mos')) {
+               project_build_mos()
+           } else {
+               project_build()
         }
     }
 }
