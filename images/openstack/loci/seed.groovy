@@ -13,12 +13,13 @@ COMMUNITY_PROJECTS = ['requirements': 'stable/newton',
                       'neutron': 'newton-eol',
                       'nova': 'stable/newton']
 
-MOS_PROJECTS = ['mos-keystone': 'main/newton',
-                'mos-heat': 'main/newton',
-                'mos-glance': 'main/newton',
-                'mos-cinder': 'main/newton',
-                'mos-neutron': 'main/newton',
-                'mos-nova': 'main/newton']
+// master is ocata branch for mos
+MOS_PROJECTS = ['mos-keystone': 'master',
+                'mos-heat': 'master',
+                'mos-glance': 'master',
+                'mos-cinder': 'master',
+                'mos-neutron': 'master',
+                'mos-nova': 'master']
 
 
 COMMUNITY_PROJECTS.each { project, ref ->
@@ -113,7 +114,7 @@ MOS_PROJECTS.each { project, ref ->
                         branches {
                             branch {
                                 compareType("ANT")
-                                pattern("main/newton")
+                                pattern("master")
                             }
                         }
                         disableStrictForbiddenFileVerification(false)
