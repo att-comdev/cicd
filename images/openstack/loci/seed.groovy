@@ -1,30 +1,32 @@
 
 JOB_BASE='images/openstack/loci'
-
 folder("${JOB_BASE}/community")
 folder("${JOB_BASE}/mos")
-
+LOCI_BASE_IMAGE = "${ARTF_SECURE_DOCKER_URL}/ubuntu/16.04/nc-ubuntu-16.04:2018-05-01_12-21-32"
+LOCI_BASE_IMAGE_XENIAL = "${ARTF_DOCKER_URL}/ubuntu:xenial"
+LOCI_SRIOV_BASE_IMAGE = "${ARTF_SECURE_DOCKER_URL}/ubuntu/18.04/nc-ubuntu-18.04:2018-05-01_05-48-21"
 // { project: 'ref' }
-COMMUNITY_PROJECTS = ['requirements': 'stable/newton',
-                      'keystone': 'newton-eol',
-                      'heat': 'newton-eol',
-                      'glance': 'newton-eol',
-                      'cinder': 'newton-eol',
-                      'neutron': 'newton-eol',
-                      'nova': 'stable/newton']
-
-MOS_PROJECTS = ['mos-keystone': 'main/newton',
-                'mos-heat': 'main/newton',
-                'mos-glance': 'main/newton',
-                'mos-cinder': 'main/newton',
-                'mos-neutron': 'main/newton',
-                'mos-nova': 'main/newton']
-
-
+COMMUNITY_PROJECTS = ['requirements': 'stable/ocata',
+                      'keystone': 'stable/ocata',
+                      'heat': 'stable/ocata',
+                      'glance': 'stable/ocata',
+                      'cinder': 'stable/ocata',
+                      'neutron': 'stable/ocata',
+                      'nova': 'stable/ocata',
+                      'horizon': 'stable/ocata']
+// master is ocata branch for mos
+MOS_PROJECTS = ['mos-requirements': 'master',
+                'mos-keystone': 'master',
+                'mos-heat': 'master',
+                'mos-glance': 'master',
+                'mos-cinder': 'master',
+                'mos-neutron': 'master',
+                'mos-nova': 'master',
+                'mos-horizon': 'master',
+                'mos-neutron-sriov': 'master',
+                'mos-nova-1804': 'master']
 COMMUNITY_PROJECTS.each { project, ref ->
-
     pipelineJob("${JOB_BASE}/community/${project}") {
-
         // limit surge of patchsets
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
@@ -32,7 +34,6 @@ COMMUNITY_PROJECTS.each { project, ref ->
                 count '3'
             }
         }
-
         parameters {
             stringParam {
                 defaultValue(ref)
@@ -40,13 +41,16 @@ COMMUNITY_PROJECTS.each { project, ref ->
                             'Currently master, stable/<branch>, and newton-eol are supported')
                 name ('PROJECT_REF')
             }
+            stringParam {
+                defaultValue("${LOCI_BASE_IMAGE}")
+                description('Image needed for 16.04')
+                name ('LOCI_BASE_IMAGE')
+            }
         }
-
         triggers {
             gerritTrigger {
                 serverName('OS-CommunityGerrit')
                 silentMode(true)
-
                 gerritProjects {
                     gerritProject {
                         compareType('PLAIN')
@@ -60,7 +64,6 @@ COMMUNITY_PROJECTS.each { project, ref ->
                         disableStrictForbiddenFileVerification(false)
                     }
                 }
-
                 triggerOnEvents {
                     patchsetCreated {
                        excludeDrafts(false)
@@ -70,7 +73,6 @@ COMMUNITY_PROJECTS.each { project, ref ->
                     changeMerged()
                 }
             }
-
             definition {
                 cps {
                     script(readFileFromWorkspace("${JOB_BASE}/Jenkinsfile"))
@@ -80,12 +82,11 @@ COMMUNITY_PROJECTS.each { project, ref ->
         }
     }
 }
-
-
+//temporary
 MOS_PROJECTS.each { project, ref ->
-
     pipelineJob("${JOB_BASE}/mos/${project}") {
-
+        def propsPrefix = "${project}".split('-')[0]
+        def propsSuffix = "${project}".split('-')[1]
         // limit surge of patchsets
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
@@ -93,43 +94,61 @@ MOS_PROJECTS.each { project, ref ->
                 count '3'
             }
         }
-
         parameters {
             stringParam {
                 defaultValue(ref)
                 description('Default branch for manual build.\n\n' +
-                            'Currently main/newton is supported.')
+                            'Currently master is supported.')
                 name ('PROJECT_REF')
             }
+          if (project == "mos-neutron-sriov" || project == "mos-nova-1804") {
+            stringParam {
+                defaultValue("${LOCI_SRIOV_BASE_IMAGE}")
+                description('Image needed for SR-IOV')
+                name ('LOCI_BASE_IMAGE')
+            }
+          } else if (PROJECT.contains('mos')) {
+            stringParam {
+                defaultValue("${LOCI_BASE_IMAGE}")
+                description('Image needed for 16.04')
+                name ('LOCI_BASE_IMAGE')
+            }
+          } else {
+            stringParam {
+                defaultValue("${LOCI_BASE_IMAGE_XENIAL}")
+                description('Image needed for 16.04')
+                name ('LOCI_BASE_IMAGE')
+            }
+          }
+          stringParam('RELEASE_CURRENT_KEY',"RDM9.images.${propsPrefix}.${propsSuffix}.dev.current")
+          stringParam('RELEASE_STATUS_KEY',"RDM9.images.${propsPrefix}.${propsSuffix}.dev.status")
         }
-
         triggers {
             gerritTrigger {
-                serverName('internal-gerrit')
+                silentMode(true)
+                serverName('mtn5-gerrit')
                 gerritProjects {
                     gerritProject {
                         compareType('PLAIN')
-                        pattern(project)
+                        pattern("${propsPrefix}-${propsSuffix}")
                         branches {
                             branch {
                                 compareType("ANT")
-                                pattern("main/newton")
+                                pattern("master")
                             }
                         }
                         disableStrictForbiddenFileVerification(false)
                     }
                 }
-
                 triggerOnEvents {
                     patchsetCreated {
-                       excludeDrafts(false)
-                       excludeTrivialRebase(false)
-                       excludeNoCodeChange(false)
+                        excludeDrafts(false)
+                        excludeTrivialRebase(false)
+                        excludeNoCodeChange(false)
                     }
                     changeMerged()
                 }
             }
-
             definition {
                 cps {
                     script(readFileFromWorkspace("${JOB_BASE}/Jenkinsfile"))
@@ -139,4 +158,3 @@ MOS_PROJECTS.each { project, ref ->
         }
     }
 }
-
