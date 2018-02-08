@@ -1,0 +1,69 @@
+PROJECT_NAME = GERRIT_PROJECT.tokenize('/').last()
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+currentBuild.displayName = "#${BUILD_NUMBER} ${PROJECT_NAME} ${GERRIT_EVENT_TYPE}"
+
+//bash script start:
+def review_script = '''
+
+    set -ex
+
+    fail_build(){
+        echo "========= The check failed ========="
+        touch FAILED
+    }
+
+    archive(){
+    #Conditional build step is needed here
+    #(should be implemented in Jenkinsfile later),
+    #if there is no tox.ini - no need to archive and push logs to NEXUS!!!
+        find .tox -iname *.log -print0 | tar -czf codereview-logs-${BUILD_NUMBER}.tgz --null -T -
+    }
+
+    tox_checks(){
+    # check that config file exists
+        if [ -f tox.ini ]; then
+            TEST_LIST=`grep envlist tox.ini | awk '{print $3 }'`
+            echo "TESTS: $TEST_LIST"
+            tox -v # run tests from envlist
+         else
+             echo "tox.ini not found"
+         fi
+    }
+    silent_tests(){
+    #Silent mode:bandit
+        if grep 'testenv:bandit' tox.ini; then
+            tox -e bandit ||: #silent mode
+        fi
+
+    #Silent mode:docs
+        if grep 'testenv:docs' tox.ini; then
+            tox -e docs ||: #silent mode
+        fi
+    }
+    # main
+    tox_checks || fail_build
+    silent_tests
+    curl -s -o ./${GERRIT_CHANGE_NUMBER}-${GERRIT_PATCHSET_NUMBER}.log ${BUILD_URL}consoleText
+    #archive
+    #check_status
+    '''
+/* end of script. */
+
+vm(NODE_NAME,NODE_TMPL){
+    stage('Project Checkout'){
+        gerrithub.clone(GERRIT_PROJECT,GERRIT_REFSPEC)
+    }
+    stage('Code Review'){
+        def status = sh(returnStatus: true, script: review_script)
+        if (status != 0) {
+            currentBuild.result = 'FAILED'
+            slack.msg("${GERRIT_CHANGE_NUMBER} coderview failed")
+        }else{
+            slack.msg("${GERRIT_CHANGE_NUMBER} passed codereview")
+        }
+    }
+    stage('Publish logs'){
+        echo 'Here will be function to publish logs'
+    }
+}
