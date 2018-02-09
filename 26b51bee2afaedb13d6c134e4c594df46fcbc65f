@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ef00810_8341c726",
+        "filename": "images/att-comdev/airflow/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-02-09T19:12:53Z",
+      "side": 1,
+      "message": "This can still go under the airflow folder.  If the job fails I would think that we should notify airflow that an update is needed for it to work.  images/att-comdev/airflow/dependencies?  or dep-check  or something",
+      "revId": "26b51bee2afaedb13d6c134e4c594df46fcbc65f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
