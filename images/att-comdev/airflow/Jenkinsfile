@@ -1,48 +1,43 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
 NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
 NODE_TMPL="docker/ubuntu.m1.medium.yaml"
-IMAGE_PREFIX='attcomdev'
 
-if(GERRIT_EVENT_TYPE == 'patchset-created' && (GERRIT_PROJECT == 'att-comdev/armada' || GERRIT_PROJECT == 'att-comdev/drydock' )){
-    echo 'We will only rebuild airflow image on merge to master of armada and drydock. Exiting...'
-    currentBuild.result = 'SUCCESS'
-    return
-}
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="att-comdev"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
 
-if (GERRIT_EVENT_TYPE == 'change-merged') {
-    AIRFLOW_IMAGE_NAME = 'ucp/airflow'
-    IMAGE_TAG = "0.1.0-${GERRIT_CHANGE_NUMBER}"
-}else{
-    AIRFLOW_IMAGE_NAME = 'ucp-patchset/airflow'
-    IMAGE_TAG = "${GERRIT_CHANGE_NUMBER}.${GERRIT_PATCHSET_NUMBER}"
-}
+IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
-currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
 vm(NODE_NAME, NODE_TMPL) {
     stage('Checkout'){
-        //Use code from shipyard 'master' on changes in armada and drydock repos
-        if (GERRIT_PROJECT != 'att-comdev/shipyard') {
-            GERRIT_REFSPEC = 'origin/master'
+        if(env.GERRIT_NEWREV){
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            IMAGE_TAG=env.GERRIT_NEWREV
         }
-            gerrithub.clone('att-comdev/shipyard', GERRIT_REFSPEC)
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            gerrithub.checkoutAndMerge("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG,"")
+            //SHIPYARD_IMAGE = SHIPYARD_IMAGE_PS
+        } else {
+            gerrithub.clone("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG)
+        }
+        sh 'sudo apt-get install make'
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
     }
-    stage('Docker Build') {
-        sh """make build_airflow IMAGE_PREFIX=${IMAGE_PREFIX} \
-              AIRFLOW_IMAGE_NAME=${AIRFLOW_IMAGE_NAME} \
-              IMAGE_TAG=${IMAGE_TAG}"""
+    stage('Docker Build and Run ') {
+        timeout(20){
+            sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+        }
     }
-    stage('Docker Run') {
-        sh """make run_airflow IMAGE_PREFIX=${IMAGE_PREFIX} \
-              AIRFLOW_IMAGE_NAME=${AIRFLOW_IMAGE_NAME} \
-              IMAGE_TAG=${IMAGE_TAG}"""
+    stage('Validate Container') {
+        sh "sudo docker inspect ${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
     }
-    stage('Publish'){
-        NAME="${IMAGE_PREFIX}/${AIRFLOW_IMAGE_NAME}:${IMAGE_TAG}"
-        ART_NAME="${AIRFLOW_IMAGE_NAME}:${IMAGE_TAG}"
-        publish.artifactory(NAME,ART_NAME)
-
+    stage('Image Publish'){
+        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
         if (GERRIT_EVENT_TYPE == 'change-merged') {
-            publish.artifactory(NAME,"ucp/airflow:latest")
-            publish.quay(NAME,"attcomdev/airflow:latest")
+            publish.artifactory (IMAGE, IMAGE_LATEST)
+            publish.quay (IMAGE, QUAY_IMAGE_LATEST)
         }
     }
 }
