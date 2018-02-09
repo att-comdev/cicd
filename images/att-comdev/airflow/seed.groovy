@@ -1,10 +1,6 @@
 import groovy.json.JsonSlurper
 def jsonSlurper = new JsonSlurper()
-def AirflowJson = '''{"projects":[
-                        {"name":"airflow",
-                         "repo":"att-comdev/shipyard",
-                         "path":"**"
-                         },
+def UCP_deps = '''{"projects":[
                         {"name":"armada",
                          "repo":"att-comdev/armada",
                          "path":"**"
@@ -15,14 +11,56 @@ def AirflowJson = '''{"projects":[
                          }
                     ]}'''
 
-def Json = jsonSlurper.parseText(AirflowJson)
+def Json = jsonSlurper.parseText(UCP_deps)
 
-JOB_FOLDER="images/att-comdev/airflow"
+JOB_FOLDER="images/att-comdev/shipyard/airflow"
 folder(JOB_FOLDER)
 pipelineJob("${JOB_FOLDER}/airflow") {
     triggers {
         gerritTrigger {
             silentMode(false)
+            serverName('Gerrithub-jenkins')
+            gerritProjects {
+                gerritProject {
+                    compareType('PLAIN')
+                    pattern("att-comdev/shipyard")
+                    branches {
+                        branch {
+                            compareType('ANT')
+                            pattern("**/master")
+                        }
+                    }
+                    filePaths {
+                        filePath {
+                            compareType('ANT')
+                            pattern("**")
+                        }
+                    }
+                    disableStrictForbiddenFileVerification(false)
+                }
+            }
+            triggerOnEvents {
+                patchsetCreated {
+                    excludeDrafts(true)
+                    excludeTrivialRebase(true)
+                    excludeNoCodeChange(true)
+                }
+                changeMerged()
+            }
+        }
+    }
+    definition {
+        cps {
+          script(readFileFromWorkspace("${JOB_FOLDER}/Jenkinsfile"))
+            sandbox()
+        }
+    }
+}
+
+pipelineJob("${JOB_FOLDER}/airflow-integration") {
+    triggers {
+        gerritTrigger {
+            silentMode(true)
             serverName('Gerrithub-jenkins')
             gerritProjects {
                 for (project in Json.projects) {
@@ -46,18 +84,13 @@ pipelineJob("${JOB_FOLDER}/airflow") {
                 }
             }
             triggerOnEvents {
-                patchsetCreated {
-                    excludeDrafts(true)
-                    excludeTrivialRebase(true)
-                    excludeNoCodeChange(true)
-                }
                 changeMerged()
             }
         }
     }
     definition {
         cps {
-            script(readFileFromWorkspace("${JOB_FOLDER}/Jenkinsfile"))
+          script(readFileFromWorkspace("${JOB_FOLDER}/Jenkinsfile"))
             sandbox()
         }
     }
