@@ -1,0 +1,50 @@
+currentBuild.displayName = "#${BUILD_NUMBER} master"
+NODE_NAME="charts-${BUILD_NUMBER}"
+NODE_TMPL="integration/genesis-single.yaml"
+HELM_VERSION="2.7.2"
+GIT_COMMIT=""
+HELMTOOLKIT_COMMIT=""
+
+vm(NODE_NAME, NODE_TMPL) {
+    stage('Install Helm'){
+        git "https://github.com/openstack/openstack-helm-infra"
+        HELMTOOLKIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=10 --verify HEAD').trim()
+        sh 'make dev-deploy setup-host'
+        sh 'make dev-deploy k8s'
+    }
+    stage('Project Checkout'){
+        git "https://github.com/${REPO}"
+        GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=10 --verify HEAD').trim()
+        def chartVersion = readYaml file: "${JOB_BASE_NAME}/Chart.yaml"
+        def chartOverride = readYaml file: "${JOB_BASE_NAME}/Chart.yaml", text: "version: GIT_COMMIT.HELMTOOLKIT_COMMIT
+        sh 'sudo rm -rf ${JOB_BASE_NAME}/Chart.yaml'
+        writeYaml file: "${JOB_BASE_NAME}/Chart.yaml", data: chartOverride
+        sh "cat ${JOB_BASE_NAME}/Chart.yaml"
+    }
+    stage('Build & Package'){
+        def status = sh(returnStatus: true, script: make)
+        if (status != 0) {
+            currentBuild.result = 'FAILED'
+            notify.msg("Charts build failed for ${GIT_COMMIT}!")
+        }else{
+            notify.msg("Charts were built for ${GIT_COMMIT}")
+        }
+    }
+    stage('Publish'){
+        ARTF_REPO="charts/${REPO}/${JOB_BASE_NAME}/"
+
+        // we don't need helm-toolkit.tgz here.
+        sh "find . -iname 'helm-toolkit*.tgz' -delete"
+
+        def server = Artifactory.server 'artifactory'
+        def uploadSpec = """{"files": [{"pattern":"${JOB_BASE_NAME}*.tgz","target":"${ARTF_REPO}"}]}"""
+        server.upload(uploadSpec)
+        notify.msg("Chart for ${JOB_BASE_NAME} pushed to ${ARTF_REPO}")
+
+        publish.setProperty ('jenkins-artifactory', 'https://artifacts-aic.atlantafoundry.com/artifactory/api/storage/clcp-manifests', "${RELEASE_CURRENT_KEY}=${ARTF_WEB_URL}/${ARTF_REPO}${JOB_BASE_NAME}-0.9.${BUILD_NUMBER}-${GIT_COMMIT}")
+        publish.setProperty ('jenkins-artifactory', 'https://artifacts-aic.atlantafoundry.com/artifactory/api/storage/clcp-manifests', "${RELEASE_STATUS_KEY}=NoStatus")
+    }
+    stage('Clean Workspace'){
+        cleanWs()
+    }
+}
