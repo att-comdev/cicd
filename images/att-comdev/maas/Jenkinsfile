@@ -9,6 +9,7 @@ vm(NODE_NAME, NODE_TMPL) {
               make images IMAGE_LIST="${JOB_BASE_NAME}"    \
                           IMAGE_PREFIX="${GERRIT_PROJECT}" \
                           IMAGE_SUFFIX="${JOB_BASE_NAME}"  \
+                          LABEL="change number=${GERRIT_CHANGE_NUMBER}"  \
                           IMAGE_TAG="${GERRIT_CHANGE_NUMBER}"'''
     }
 //    stage('Test'){
