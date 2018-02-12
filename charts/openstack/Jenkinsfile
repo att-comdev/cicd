@@ -1,0 +1,117 @@
+currentBuild.displayName = "#${BUILD_NUMBER} master"
+HELM_VERSION="2.7.2"
+GIT_COMMIT=""
+
+//bash script start:
+def build_charts = '''
+
+    helm_install(){
+        #sudo apt-get install -y --no-install-recommends git make curl ca-certificates
+        TMP_DIR="$(mktemp -d)"
+        URL="https://artifacts-aic.atlantafoundry.com/artifactory/googleapis-helm/helm-v2.7.2-linux-amd64.tar.gz"
+        curl -sSL ${URL} | tar -zxv --strip-components=1 -C ${TMP_DIR}
+        sudo mv -v ${TMP_DIR}/helm /usr/local/bin/helm
+    }
+
+    helm_serve(){
+        helm init --client-only
+        if [ -z "$(curl -s 127.0.0.1:8879 | grep 'Helm Repository')" ]; then
+            helm serve & > /dev/null
+            while [ -z "$(curl -s 127.0.0.1:8879 | grep 'Helm Repository')" ]; do
+                sleep 1
+                echo "Waiting for Helm Repository"
+            done
+        fi
+
+        if helm repo list | grep -q "^stable" ; then
+            helm repo remove stable
+        fi
+
+        helm repo add local http://localhost:8879/charts
+        #helm plugin install https://github.com/technosophos/helm-template
+    }
+
+    record_fail(){
+        echo -e "\n project $1 failed: " | tee -a ${failed_log}
+        cat ${job_log} | tee -a ${failed_log}
+        #Fail logged, continue building charts manually:
+        helm_pkg
+    }
+
+    cleanup(){
+        rm -rf build && mkdir build
+    }
+
+    helm_pkg(){
+        #Some projects fail to create charts with make or don't have Makefile,
+        #I want to create and upload their charts anyway:
+        for i in $(ls charts | grep -v '.tgz'); do
+            helm dep up charts/${i}
+            helm package charts/${i}
+        done
+    }
+
+    make_charts(){
+        echo '############### Building Charts ######################'
+        set -xe
+        cd ${WDIR}
+        helm_install
+        helm_serve
+        make helm-toolkit
+        if [ -f Makefile ]; then
+            make ''' + JOB_BASE_NAME + ''' 
+        else
+            helm_pkg
+        fi
+        echo '#################### Done! ###########################'
+
+    }
+
+    set -e # script will fail on any error
+    WDIR=`pwd`
+    cleanup && cd build
+    make_charts
+    '''
+/* end of bash script. */
+
+node("openstack-helm-charts"){
+    stage('Project Checkout'){
+        git "https://github.com/${REPO}"
+        GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+        def chartVersion = readYaml file: "${JOB_BASE_NAME}/Chart.yaml"
+        def chartOverride = readYaml file: "${JOB_BASE_NAME}/Chart.yaml", text: "version: 0.9.${BUILD_NUMBER}-"+GIT_COMMIT
+        sh 'sudo rm -rf ${JOB_BASE_NAME}/Chart.yaml'
+        writeYaml file: "${JOB_BASE_NAME}/Chart.yaml", data: chartOverride
+        sh "cat ${JOB_BASE_NAME}/Chart.yaml"
+    }
+    stage('Build & Package'){
+        def status = sh(returnStatus: true, script: build_charts)
+        if (status != 0) {
+            currentBuild.result = 'FAILED'
+            notify.msg("Charts build failed for ${GIT_COMMIT}!")
+        }else{
+            notify.msg("Charts were built for ${GIT_COMMIT}")
+        }
+    }
+    stage('Publish'){
+        if ( GERRIT_EVENT_TYPE == 'change-merged' ){
+            ARTF_REPO="charts/${REPO}/${JOB_BASE_NAME}/"
+        } else {
+            ARTF_REPO="charts/${REPO}/patchsets/${JOB_BASE_NAME}/"
+        }
+
+        // we don't need helm-toolkit.tgz here.
+        sh "find . -iname 'helm-toolkit*.tgz' -delete"
+
+        def server = Artifactory.server 'artifactory'
+        def uploadSpec = """{"files": [{"pattern":"${JOB_BASE_NAME}*.tgz","target":"${ARTF_REPO}"}]}"""
+        server.upload(uploadSpec)
+        notify.msg("Chart for ${JOB_BASE_NAME} pushed to ${ARTF_REPO}")
+
+        publish.setProperty ('jenkins-artifactory', 'https://artifacts-aic.atlantafoundry.com/artifactory/api/storage/clcp-manifests', "${RELEASE_CURRENT_KEY}=${RELEASE_CURRENT_KEY}=${ARTF_WEB_URL}/${ARTF_REPO}${JOB_BASE_NAME}-0.9.${BUILD_NUMBER}-${GIT_COMMIT}")
+        publish.setProperty ('jenkins-artifactory', 'https://artifacts-aic.atlantafoundry.com/artifactory/api/storage/clcp-manifests', "${RELEASE_STATUS_KEY}=NoStatus")
+    }
+    stage('Clean Workspace'){
+        cleanWs()
+    }
+}
