@@ -8,9 +8,13 @@ ARTF_URL = env.ARTF_DOCKER_URL
 SHIPYARD_IMAGE_PS = "${ARTF_URL}/ucp-patchset/shipyard:${SHIPYARD_PS}"
 SHIPYARD_IMAGE = "${ARTF_URL}/ucp/shipyard:${SHIPYARD_VERSION}"
 SHIPYARD_IMAGE_LATEST = "${ARTF_URL}/ucp/shipyard:latest"
-
+PROJECT_REF="${GERRIT_REFSPEC}"
 vm(NODE_NAME, NODE_TMPL) {
-    gerrithub.clone("att-comdev/shipyard", GERRIT_REFSPEC)
+    if(env.GERRIT_NEWREV){
+        echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+        PROJECT_REF=env.GERRIT_NEWREV
+    }
+    gerrithub.clone("att-comdev/shipyard", PROJECT_REF)
     sh 'sudo apt-get install make'
     stage('Checkout'){
         if (GERRIT_EVENT_TYPE != 'change-merged') {
