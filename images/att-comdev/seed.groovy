@@ -6,7 +6,6 @@ def imagesJson = '''{ "UCP":[{
                                   "shipyard"
                                   ]
                         }]}'''
-
 def jsonSlurper = new JsonSlurper()
 def object = jsonSlurper.parseText(imagesJson)
 
