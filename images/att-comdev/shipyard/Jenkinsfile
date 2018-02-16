@@ -2,15 +2,28 @@ JENKINS_VM_LAUNCH='local-vm-launch'
 NODE_NAME="shipyard-${BUILD_NUMBER}"
 NODE_TMPL="integration/genesis-single.yaml"
 
-SHIPYARD_VERSION = "0.1.0-${GERRIT_CHANGE_NUMBER}"
-SHIPYARD_PS = "${GERRIT_CHANGE_NUMBER}.${GERRIT_PATCHSET_NUMBER}"
-ARTF_URL = env.ARTF_DOCKER_URL
-SHIPYARD_IMAGE_PS = "${ARTF_URL}/ucp-patchset/shipyard:${SHIPYARD_PS}"
-SHIPYARD_IMAGE = "${ARTF_URL}/ucp/shipyard:${SHIPYARD_VERSION}"
-SHIPYARD_IMAGE_LATEST = "${ARTF_URL}/ucp/shipyard:latest"
+SHIPYARD_VERSION = "${GERRIT_PATCHSET_REVISION}"
+SHIPYARD_IMAGE_PS = "ucp-patchset/shipyard:${SHIPYARD_VERSION}"
+SHIPYARD_IMAGE = "ucp/shipyard:${SHIPYARD_VERSION}"
+SHIPYARD_IMAGE_LATEST = "ucp/shipyard:latest"
+SHIPYARD_QUAY_IMAGE_LATEST="attcomdev/shipyard:latest"
 
 vm(NODE_NAME, NODE_TMPL) {
-    gerrithub.clone("att-comdev/shipyard", GERRIT_REFSPEC)
+    if(env.GERRIT_NEWREV){
+        echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+        SHIPYARD_VERSION=env.GERRIT_NEWREV
+    }
+    checkout([$class: 'GitSCM', 
+              branches: [[name: SHIPYARD_VERSION]], 
+              doGenerateSubmoduleConfigurations: false, 
+              extensions: [[$class: 'LocalBranch', 
+                            localBranch: 'jenkins']], 
+                            submoduleCfg: [], 
+                            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*', 
+                                                 url: 'https://review.gerrithub.io/att-comdev/shipyard']]])
+    sh 'git checkout master'
+    sh 'git merge jenkins'
+    //gerrithub.clone("att-comdev/shipyard", PROJECT_REF)
     sh 'sudo apt-get install make'
     stage('Checkout'){
         if (GERRIT_EVENT_TYPE != 'change-merged') {
@@ -20,7 +33,7 @@ vm(NODE_NAME, NODE_TMPL) {
     }
     stage('Docker Build') {
         timeout(20){
-               sh  "sudo make build_shipyard IMAGE_TAG='${BUILD_NUMBER}'"
+               sh  "sudo make build_shipyard LABEL='commit-id=${SHIPYARD_VERSION}' IMAGE_TAG='${BUILD_NUMBER}'"
                sh  "sudo docker tag attcomdev/shipyard:${BUILD_NUMBER} ${SHIPYARD_IMAGE}"
         }
     }
@@ -32,38 +45,13 @@ vm(NODE_NAME, NODE_TMPL) {
     }
 
     stage('Validate Container') {
-        sh 'sudo docker ps'
+        sh "sudo docker inspect ${SHIPYARD_IMAGE}"
     }
-
-    stage('Publish'){
-        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
-                usernameVariable: 'ARTIFACTORY_USER',
-                passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
-
-            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
-
-            sh "sudo docker login ${opts} ${ARTF_URL}"
-            sh "sudo docker push ${SHIPYARD_IMAGE}"
-
-            if (GERRIT_EVENT_TYPE == 'change-merged') {
-                sh "sudo docker tag ${SHIPYARD_IMAGE} ${SHIPYARD_IMAGE_LATEST}"
-                sh "sudo docker push ${SHIPYARD_IMAGE_LATEST}"
-            }
-        }
-        withCredentials([usernamePassword(credentialsId: 'jenkins-quay',
-                usernameVariable: 'QUAY_USER',
-                passwordVariable: 'QUAY_PASSWORD')]) {
-
-            opts = '-u $QUAY_USER -p $QUAY_PASSWORD'
-
-            sh "sudo docker login ${opts} quay.io"
-            sh "sudo docker tag ${SHIPYARD_IMAGE} ${QUAY_URL}/attcomdev/shipyard:${SHIPYARD_PS}"
-            sh "sudo docker push ${QUAY_URL}/attcomdev/shipyard:${SHIPYARD_PS}"
-
-            if (GERRIT_EVENT_TYPE == 'change-merged') {
-                sh "sudo docker tag ${QUAY_URL}/attcomdev/shipyard:${SHIPYARD_PS} ${QUAY_URL}/attcomdev/shipyard:latest"
-                sh "sudo docker push ${QUAY_URL}/attcomdev/shipyard:latest"
-            }
+    stage('Image Publish'){ 
+        publish.artifactory (SHIPYARD_IMAGE, SHIPYARD_IMAGE)
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory (SHIPYARD_IMAGE, SHIPYARD_IMAGE_LATEST)
+            publish.quay (SHIPYARD_IMAGE, SHIPYARD_QUAY_IMAGE_LATEST)
         }
     }
 }
