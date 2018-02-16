@@ -6,20 +6,12 @@ def imagesJson = '''{ "UCP":[{
                                   "shipyard"
                                   ]
                         }]}'''
-
 def jsonSlurper = new JsonSlurper()
 def object = jsonSlurper.parseText(imagesJson)
 
 for (entry in object.UCP) {
     for (image in entry.images) {
       pipelineJob("images/${entry.repo}/${image}/${image}") {
-            parameters {
-                stringParam {
-                    defaultValue(GERRIT_REFSPEC)
-                    description('Pass att-comdev/cicd code refspec to the job')
-                    name ('CICD_GERRIT_REFSPEC')
-                }
-            }
             triggers {
                 gerritTrigger {
                     serverName('Gerrithub-jenkins')
