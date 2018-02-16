@@ -1,69 +1,44 @@
 JENKINS_VM_LAUNCH='local-vm-launch'
-NODE_NAME="shipyard-${BUILD_NUMBER}"
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
 NODE_TMPL="integration/genesis-single.yaml"
 
-SHIPYARD_VERSION = "0.1.0-${GERRIT_CHANGE_NUMBER}"
-SHIPYARD_PS = "${GERRIT_CHANGE_NUMBER}.${GERRIT_PATCHSET_NUMBER}"
-ARTF_URL = env.ARTF_DOCKER_URL
-SHIPYARD_IMAGE_PS = "${ARTF_URL}/ucp-patchset/shipyard:${SHIPYARD_PS}"
-SHIPYARD_IMAGE = "${ARTF_URL}/ucp/shipyard:${SHIPYARD_VERSION}"
-SHIPYARD_IMAGE_LATEST = "${ARTF_URL}/ucp/shipyard:latest"
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="att-comdev"
+IMAGE_NAME="${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
+
+IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
 vm(NODE_NAME, NODE_TMPL) {
-    gerrithub.clone("att-comdev/shipyard", GERRIT_REFSPEC)
-    sh 'sudo apt-get install make'
     stage('Checkout'){
-        if (GERRIT_EVENT_TYPE != 'change-merged') {
-            SHIPYARD_IMAGE = SHIPYARD_IMAGE_PS
+        if(env.GERRIT_NEWREV){
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            IMAGE_TAG=env.GERRIT_NEWREV
         }
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            gerrithub.checkoutAndMerge("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG,"")
+            //SHIPYARD_IMAGE = SHIPYARD_IMAGE_PS
+        } else {
+            gerrithub.clone("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG)
+        }
+        sh 'sudo apt-get install make'
         currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
     }
-    stage('Docker Build') {
+    stage('Docker Build and Run ') {
         timeout(20){
-               sh  "sudo make build_shipyard IMAGE_TAG='${BUILD_NUMBER}'"
-               sh  "sudo docker tag attcomdev/shipyard:${BUILD_NUMBER} ${SHIPYARD_IMAGE}"
+            sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
         }
     }
-
-    stage('Docker Run') {
-        timeout(20){
-            sh  "sudo make run_shipyard IMAGE_TAG='${BUILD_NUMBER}'"
-        }
-    }
-
     stage('Validate Container') {
-        sh 'sudo docker ps'
+        sh "sudo docker inspect ${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}
     }
-
-    stage('Publish'){
-        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
-                usernameVariable: 'ARTIFACTORY_USER',
-                passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
-
-            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
-
-            sh "sudo docker login ${opts} ${ARTF_URL}"
-            sh "sudo docker push ${SHIPYARD_IMAGE}"
-
-            if (GERRIT_EVENT_TYPE == 'change-merged') {
-                sh "sudo docker tag ${SHIPYARD_IMAGE} ${SHIPYARD_IMAGE_LATEST}"
-                sh "sudo docker push ${SHIPYARD_IMAGE_LATEST}"
-            }
-        }
-        withCredentials([usernamePassword(credentialsId: 'jenkins-quay',
-                usernameVariable: 'QUAY_USER',
-                passwordVariable: 'QUAY_PASSWORD')]) {
-
-            opts = '-u $QUAY_USER -p $QUAY_PASSWORD'
-
-            sh "sudo docker login ${opts} quay.io"
-            sh "sudo docker tag ${SHIPYARD_IMAGE} ${QUAY_URL}/attcomdev/shipyard:${SHIPYARD_PS}"
-            sh "sudo docker push ${QUAY_URL}/attcomdev/shipyard:${SHIPYARD_PS}"
-
-            if (GERRIT_EVENT_TYPE == 'change-merged') {
-                sh "sudo docker tag ${QUAY_URL}/attcomdev/shipyard:${SHIPYARD_PS} ${QUAY_URL}/attcomdev/shipyard:latest"
-                sh "sudo docker push ${QUAY_URL}/attcomdev/shipyard:latest"
-            }
+    stage('Image Publish'){
+        publish.artifactory (IMAGE, ${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG})
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory (IMAGE, IMAGE_LATEST)
+            publish.quay (IMAGE, QUAY_IMAGE_LATEST)
         }
     }
 }
