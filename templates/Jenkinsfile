@@ -1,0 +1,61 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="nc"
+IMAGE_NAME="${JOB_BASE_NAME}"
+IMAGE_VERSION=0.1.0
+
+//Defaults to OpenStack flavor medium server with Ubuntu 16.04 w/git and make installed
+vm2 {
+    stage('Checkout'){
+        if(env.GERRIT_NEWREV){
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            IMAGE_TAG=env.GERRIT_NEWREV
+        }
+        IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+     
+        checkout poll: false,
+                 scm: [$class: 'GitSCM',
+                 branches: [[name: "${IMAGE_TAG}"]],
+                 doGenerateSubmoduleConfigurations: false,
+                 extensions: [[$class: 'LocalBranch',
+                            localBranch: 'jenkins'],
+                           [$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: ""]],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
+                                                 url: ${INTERNAL_GERRIT_URL}/${JOB_BASE_NAME}"]]]
+        if(GERRIT_EVENT_TYPE != 'patchset_created') {
+              sh '''git config user.email "attcomdev.jenkins@gmail.com"
+                    git config user.name "Jenkins"
+                    git pull --rebase origin master'''          
+        }
+    }
+    
+    stage('Build') {
+        sh 'sudo make images IMAGE_PREFIX=${IMAGE_PREFIX} \
+                             IMAGE_NAME=${IMAGE_NAME} \
+                             DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
+                             LABEL="org.label-schema.vcs-ref=${IMAGE_TAG} \
+                             --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} \
+                             --label org.label-schema.version=${IMAGE_VERSION}-${BUILD_NUMBER}" \
+                             IMAGE_TAG=${IMAGE_TAG}'
+    }
+
+    stage('Functional Tests') {
+        sh 'sudo make functional-tests'
+    }
+    
+    stage('Functional Tests') {
+        sh 'sudo make integration-tests'
+    }
+
+    stage('Publish') {
+        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_TAG}")
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory (IMAGE, IMAGE_LATEST)
+        }
+     }
+}
+
