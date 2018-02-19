@@ -1,0 +1,29 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="my-component-${BUILD_NUMBER}"
+NODE_TMPL="node/my-size-of-node.yaml" //xsmall, small, medium, large, xlarge,
+
+PROJECT_VERSION = "${GERRIT_PATCHSET_REVISION}"  //commit id
+PROJECT_IMAGE = "attcomdev/my-component:${PROJECT_VERSION}"
+PROJECT_IMAGE_LATEST = "attcomdev/my-component:latest"
+PROJECT_QUAY_IMAGE_LATEST="attcomdev/my-component:latest"
+
+vm(NODE_NAME, NODE_TMPL) {
+    stage('Checkout'){
+
+    }
+    stage('Build') {
+
+    }
+
+    stage('Test') {
+
+    }
+
+    stage('Publish') {
+
+    }
+    stage('Publish'){
+
+    }
+}
+
