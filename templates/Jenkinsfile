@@ -1,0 +1,51 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="my-component-${BUILD_NUMBER}"
+NODE_TMPL="node/my-size-of-node.yaml" //xsmall, small, medium, large, xlarge,
+
+PROJECT_VERSION = "${GERRIT_PATCHSET_REVISION}"  //commit id
+PROJECT_IMAGE = "attcomdev/my-component:${PROJECT_VERSION}"
+PROJECT_IMAGE_LATEST = "attcomdev/my-component:latest"
+PROJECT_QUAY_IMAGE_LATEST="attcomdev/my-component:latest"
+
+vm(NODE_NAME, NODE_TMPL) {
+    stage('Checkout'){
+        if(env.GERRIT_NEWREV){  
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            PROJECT_VERSION=env.GERRIT_NEWREV
+        }
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            //merge with current master before testing patchset
+            gerrithub.cloneToBranch("att-comdev/my-component", PROJECT_VERSION,"")
+            gerrithub.rebase()
+        } else {
+           gerrithub.clone("att-comdev/my-component", PROJECT_VERSION)
+        }
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+    }
+    stage('Build') {
+        timeout(20){
+            sh "sudo make images IMAGE_NAME=${PROJECT_IMAGE} LABEL='org.label-schema.vcs-ref=${PROJECT_VERSION} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${BUILD_NUMBER}"
+        }
+    }
+
+    stage('Run') {
+        timeout(20){
+            //make should also install any dependencies needed for component
+            sh  "sudo make run IMAGE_NAME=${PROJECT_IMAGE}'"
+        }
+    }
+
+    stage('Test') {
+        timeout(60){
+           //Deploy new image using stable chart version
+        }
+    }
+    stage('Publish'){ 
+        publish.artifactory (PROJECT_IMAGE, PROJECT_IMAGE)
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory (PROJECT_IMAGE, PROJECT_IMAGE_LATEST)
+            publish.quay (PROJECT_IMAGE, PROJECT_QUAY_IMAGE_LATEST)
+        }
+    }
+}
+
