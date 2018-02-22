@@ -6,13 +6,14 @@ PROM_NODE_TMPL = "promenade/promenade.yaml"
 
 IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
 DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
-IMAGE_PREFIX="att-comdev"
+PYTHON_BASE_IMAGE="python:3.6"
+IMAGE_PREFIX="airshipit"
 
 PROM_BUNDLE = "promenade-bundle.tgz"
 ARTF_PROM_BUNDLE = "ucp/promenade/${IMAGE_TAG}/${PROM_BUNDLE}"
 
-IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
-QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
+IMAGE_LATEST="${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
 // node info { node : [hostname, ip] }
@@ -94,7 +95,7 @@ vms {
                             userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
                                                  url: "https://git.openstack.org/openstack/airship-${JOB_BASE_NAME}"]]]
             if(GERRIT_EVENT_TYPE != 'change-merged') {
-                sh '''git config user.email "attcomdev.jenkins@gmail.com"
+                sh '''git config user.email "airship.jenkins@gmail.com"
                     git config user.name "Jenkins"
                     git pull --rebase origin master'''
             } 
