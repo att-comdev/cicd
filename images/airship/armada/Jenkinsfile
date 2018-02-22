@@ -4,14 +4,15 @@ NODE_BASE = "armada-${BUILD_NUMBER}"
 NODE_TMPL = "promenade/promenade.yaml"
 IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
 DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
-IMAGE_PREFIX="att-comdev"
+PYTHON_BASE_IMAGE="python:3.5"
+IMAGE_PREFIX="airshipit"
 
 PROM_BUNDLE = "promenade-bundle.tgz"
 ARTF_PROM_BUNDLE = "ucp/armada-bundle/${IMAGE_TAG}/${PROM_BUNDLE}"
 ARTF_ARMADA_MANIFEST = "clcp-integration/region/atl-lab1/armada/openstack-helm.yaml"
-PROMENADE_IMAGE="${ARTF_DOCKER_URL}/att-comdev/promenade:latest"
+PROMENADE_IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/promenade:latest"
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
-QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 // node info { node : [hostname, ip] }
 NODES = [ build:[], genesis:[], master1:[], master2:[], worker:[]]
@@ -93,13 +94,13 @@ vms {
             }
             gerrit.cloneToBranch("https://git.openstack.org/openstack/airship-${JOB_BASE_NAME}", IMAGE_TAG,"${JOB_BASE_NAME}")
             if(GERRIT_EVENT_TYPE != 'change-merged') {
-                sh '''git config user.email "attcomdev.jenkins@gmail.com"
+                sh '''git config user.email "airship.jenkins@gmail.com"
                     git config user.name "Jenkins"
                     git pull --rebase origin master'''
             }
             sh "sudo docker pull ${PROMENADE_IMAGE}"
             dir(env.WORKSPACE+"/armada"){
-                sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+                sh "sudo make images IMAGE_PREFIX=${IMAGE_PREFIX} PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE} IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
                 sh 'sudo docker images | grep armada'
             }
             publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
@@ -209,4 +210,5 @@ vms {
             }
         }
     }
+
 }
