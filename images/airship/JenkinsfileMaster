@@ -1,0 +1,33 @@
+
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+IMAGE_PREFIX="airship"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
+IMAGE="${ARTF_DOCKER_URL}/airship/${JOB_BASE_NAME}"
+
+vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64'){
+    stage('Build & Checkout'){
+        vm2.setproxy()
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            IMAGE_TAG="${GERRIT_NEWREV}"
+        }
+        gerrit.cloneToBranch("${GIT_REPO}", IMAGE_TAG,"")
+
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            gerrit.rebase()
+        }
+
+        sh "sudo apt-get install -y curl make docker-ce"
+
+        build.makeImages()
+    }
+    stage('Publish'){
+        publish.artifactory("${IMAGE}:${IMAGE_TAG}","airship/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory ("${IMAGE}:${IMAGE_TAG}", IMAGE_LATEST)
+            publish.quay ("${IMAGE}:${IMAGE_TAG}", QUAY_IMAGE_LATEST)
+        }
+    }
+}
