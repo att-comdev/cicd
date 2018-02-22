@@ -1,0 +1,49 @@
+
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+IMAGE_PREFIX="airship"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}"
+PYTHON_BASE_IMAGES = [ "shipyard" : "python:3.5",
+                       "drydock" : "python:3.5" ,
+                       "armada" : "python:3.5" ,
+                       "pegleg" : "python:3.6" ,
+                       "promenade" : "python:3.6" ]
+
+UBUNTU_BASE_IMAGES = [ "airflow" : "${AIRSHIP_BASE_IMAGE}",
+                       "sstream-cache" : "${AIRSHIP_BASE_IMAGE}",
+                       "maas-region-controller" : "${AIRSHIP_BASE_IMAGE}",
+                       "maas-rack-controller" : "${AIRSHIP_BASE_IMAGE}",
+                       "deckhand" : "${AIRSHIP_BASE_IMAGE}" ]
+
+
+vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64'){
+    stage('Build & Checkout'){
+        vm2.setproxy()
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            IMAGE_TAG="${GERRIT_NEWREV}"
+        }
+        gerrit.cloneToBranch("${GIT_REPO}", IMAGE_TAG,"")
+
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            gerrit.rebase()
+        }
+
+        UBUNTU_BASE_IMAGE = UBUNTU_BASE_IMAGES."${JOB_BASE_NAME}"
+        PYTHON_BASE_IMAGE = PYTHON_BASE_IMAGES."${JOB_BASE_NAME}"
+        echo ("Base images: UBUNTU ${UBUNTU_BASE_IMAGE} PYTHON: ${PYTHON_BASE_IMAGE} ")
+
+        sh "sudo apt-get update -y"
+        sh "sudo apt-get install -y make"
+        sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE} UBUNTU_BASE_IMAGE=${UBUNTU_BASE_IMAGE} IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+
+    }
+    stage('Publish'){
+        publish.artifactory("${IMAGE}:${IMAGE_TAG}","airship/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory ("${IMAGE}:${IMAGE_TAG}", IMAGE_LATEST)
+        }
+    }
+}
