@@ -6,18 +6,16 @@ def imagesJson = '''{ "UCP":[{
                                   "shipyard"
                                   ]
                         }]}'''
-
 def jsonSlurper = new JsonSlurper()
 def object = jsonSlurper.parseText(imagesJson)
 
 for (entry in object.UCP) {
     for (image in entry.images) {
-      pipelineJob("images/${entry.repo}/${image}/${image}") {
-            parameters {
-                stringParam {
-                    defaultValue(GERRIT_REFSPEC)
-                    description('Pass att-comdev/cicd code refspec to the job')
-                    name ('CICD_GERRIT_REFSPEC')
+        pipelineJob("images/${entry.repo}/${image}/${image}") {
+            configure {
+                node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
+                    durationName 'hour'
+                    count '3'
                 }
             }
             triggers {
@@ -43,6 +41,9 @@ for (entry in object.UCP) {
                            excludeNoCodeChange(false)
                         }
                         changeMerged()
+                        commentAddedContains {
+                           commentAddedCommentContains('recheck')
+                        }
                     }
                 }
 
