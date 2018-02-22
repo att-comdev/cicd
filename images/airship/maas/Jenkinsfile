@@ -4,6 +4,7 @@ NODE_TMPL="docker/ubuntu.m1.medium.yaml"
 
 IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
 DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+UBUNTU_BASE_IMAGE = "ubuntu:16.04"
 IMAGE_PREFIX="att-comdev"
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
@@ -29,7 +30,7 @@ vm(NODE_NAME, NODE_TMPL) {
     }
     stage('Docker Build and Run ') {
         timeout(20){
-            sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+            sh "sudo make images IMAGE_PREFIX=${IMAGE_PREFIX} UBUNTU_BASE_IMAGE=${UBUNTU_BASE_IMAGE} IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
         }
     }
     stage('Validate Container') {

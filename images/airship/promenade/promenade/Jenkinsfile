@@ -6,6 +6,7 @@ PROM_NODE_TMPL = "promenade/promenade.yaml"
 
 IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
 DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+PYTHON_BASE_IMAGE = "python:3.6"
 IMAGE_PREFIX="att-comdev"
 
 PROM_BUNDLE = "promenade-bundle.tgz"
