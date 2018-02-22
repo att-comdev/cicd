@@ -56,3 +56,40 @@ for (entry in object.UCP) {
         }
     }
 }
+imagesJson = '''{ "github":[{
+                        "repo":"att-comdev",
+                        "images":[
+                                  "shipyard",
+                                  "drydock",
+                                  "maas",
+                                  "deckhand",
+                                  "armada"
+                                  ]
+                        }]}'''
+
+jsonSlurper = new JsonSlurper()
+object = jsonSlurper.parseText(imagesJson)
+
+for (entry in object.UCP) {
+    for (image in entry.images) {
+      pipelineJob("images/${entry.repo}/${image}/${image}-master") {
+            parameters {
+                stringParam {
+                    defaultValue("${image}")
+                    description('Name of repo in att-comdev to build')
+                    name ('PROJECT_NAME')
+                }
+            }
+            scm {
+               github('${entry.repo}/${image}')
+            }
+
+            definition {
+               cps {
+                   script(readFileFromWorkspace("images/${entry.repo}/Jenkinsfile"))
+                   sandbox()
+               }
+            }
+        }
+    }
+}
