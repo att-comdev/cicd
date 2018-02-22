@@ -1,0 +1,20 @@
+JENKINS_VM_LAUNCH = 'local-vm-launch'
+
+NODE_NAME = "${PROJECT_NAME}-${BUILD_NUMBER}"
+NODE_TMPL = "promenade/promenade.yaml"
+
+currentBuild.displayName = "#${BUILD_NUMBER} master"
+
+vm(NODE_NAME, NODE_TMPL) {
+    stage('Build'){
+        checkout([$class: 'GitSCM', branches: [[name: "${COMMIT_ID}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: "https://github.com/att-comdev/${PROJECT_NAME}"]]])
+        GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+        echo ("${GIT_COMMIT}")
+        sh "sudo apt-get install -y docker.io curl make"
+        sh "sudo make images DOCKER_REGISTRY=${ARTF_DOCKER_URL} IMAGE_TAG=${GIT_COMMIT} IMAGE_PREFIX=att-comdev LABEL='org.label-schema.vcs-ref=${GIT_COMMIT} --label org.label-schema.vcs-url=https://github.com/att-comdev/${PROJECT_NAME} --label org.label-schema.version=${VERSION}-${BUILD_NUMBER}'"
+    }
+    stage('Publish'){
+        publish.artifactory("${ARTF_DOCKER_URL}/att-comdev/${PROJECT_NAME}:${GIT_COMMIT}","att-comdev/${PROJECT_NAME}:${GIT_COMMIT}")
+
+    }
+}
