@@ -13,8 +13,8 @@ def clone(String project, String refspec){
 }
 
 //This method is used so that we can checkout the patchset to a local
-//branch and then merge it with the current master before we build and test
-def checkoutAndMerge(String project, String refspec, String targetDirectory){
+//branch and then rebase it locally with the current master before we build and test
+def cloneToBranch(String project, String refspec, String targetDirectory){
     checkout poll: false,
     scm: [$class: 'GitSCM',
               branches: [[name: refspec]],
@@ -26,6 +26,11 @@ def checkoutAndMerge(String project, String refspec, String targetDirectory){
                             submoduleCfg: [],
                             userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
                                                  url: "https://review.gerrithub.io/" + project]]]
-    sh 'git checkout master'
-    sh 'git merge jenkins'
+    rebase()
+}
+
+def rebase(){
+    sh '''git config user.email "attcomdev.jenkins@gmail.com"
+          git config user.name "Jenkins"
+          git pull --rebase origin master'''
 }
