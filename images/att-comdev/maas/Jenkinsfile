@@ -1,38 +1,59 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
 NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
-NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
-currentBuild.displayName = "${GERRIT_EVENT_TYPE}-${BUILD_NUMBER}"
+NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="att-comdev"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
+
+IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
 vm(NODE_NAME, NODE_TMPL) {
-    gerrithub.clone(GERRIT_PROJECT,GERRIT_REFSPEC)
-    stage('Build'){
-        sh '''export TERM='linux' DEBIAN_FRONTEND='noninteractive'
-              make images IMAGE_LIST="${JOB_BASE_NAME}"    \
-                          IMAGE_PREFIX="${GERRIT_PROJECT}" \
-                          IMAGE_SUFFIX="${JOB_BASE_NAME}"  \
-                          IMAGE_TAG="${GERRIT_CHANGE_NUMBER}"'''
-    }
-//    stage('Test'){
-//        // here should be tests implemented by UCP team.
-//    }
-    stage('Publish'){
-        IMG="${GERRIT_PROJECT}/${JOB_BASE_NAME}:${GERRIT_CHANGE_NUMBER}"
-        IMG_QUAY="attcomdev/${JOB_BASE_NAME}:${GERRIT_CHANGE_NUMBER}"
-        // on patchset-created (and other non merge events) we'll push img named like:
-        //Example: http://<art_path>/ucp-patchset/maas/maas-rack-controller:12345
-        IMG_REMOTE="ucp-patchset/maas/${JOB_BASE_NAME}:${GERRIT_CHANGE_NUMBER}"
-
-        if (GERRIT_EVENT_TYPE == 'change-merged'){
-        /*Two images will be pushed on merge (every merge will update ':latest' image)
-        Example: http://<art_path>/ucp/maas/maas-rack-controller:12345
-                 http://<art_path>/ucp/maas/maas-rack-controller:latest
-        IMG_QUAY path will remain the same for all events, + *_LATEST on merge */
-            IMG_REMOTE="ucp/maas/${JOB_BASE_NAME}:${GERRIT_CHANGE_NUMBER}"
-            IMG_LATEST="ucp/maas/${JOB_BASE_NAME}:latest"
-            IMG_QUAY_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
-            publish.artifactory(IMG,IMG_LATEST)
-            publish.quay(IMG,IMG_QUAY_LATEST)
+    
+    stage('Checkout'){
+        if(env.GERRIT_NEWREV){
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            IMAGE_TAG=env.GERRIT_NEWREV
+            IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
         }
-        publish.artifactory(IMG,IMG_REMOTE)
-        publish.quay(IMG,IMG_QUAY)
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+              branches: [[name: "${IMAGE_TAG}"]],
+              doGenerateSubmoduleConfigurations: false,
+              extensions: [[$class: 'LocalBranch',
+                            localBranch: 'jenkins'],
+                           [$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: ""]],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                                 url: "https://review.gerrithub.io/att-comdev/maas"]]]
+              sh '''git config user.email "attcomdev.jenkins@gmail.com"
+                    git config user.name "Jenkins"
+                    git pull --rebase origin master'''
+            //gerrithub.cloneToBranch("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG,"")
+            
+        } else {
+            gerrithub.clone("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG)
+        }
+        sh 'sudo apt-get install make'
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+    }
+    stage('Docker Build and Run ') {
+        timeout(20){
+            sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+        }
+    }
+    stage('Validate Container') {
+        sh "sudo docker inspect ${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+    }
+    stage('Image Publish'){
+        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory (IMAGE, IMAGE_LATEST)
+            publish.quay (IMAGE, QUAY_IMAGE_LATEST)
+        }
     }
 }

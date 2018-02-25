@@ -25,7 +25,13 @@ def Json = jsonSlurper.parseText(MySuperJson)
 JOB_FOLDER="images/att-comdev/maas"
 folder(JOB_FOLDER)
 for (project in Json.projects) {
-    pipelineJob("${JOB_FOLDER}/${project.name}") {
+    pipelineJob("${JOB_FOLDER}/${project.name}/${project.name}") {
+        configure {
+            node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
+                durationName 'hour'
+                count '4'
+            }
+        }
         triggers {
             gerritTrigger {
                 silentMode(false)
@@ -56,10 +62,13 @@ for (project in Json.projects) {
                 triggerOnEvents {
                     patchsetCreated {
                         excludeDrafts(true)
-                        excludeTrivialRebase(true)
+                        excludeTrivialRebase(false)
                         excludeNoCodeChange(true)
                      }
                     changeMerged()
+                    commentAddedContains {
+                        commentAddedCommentContains('recheck')
+                    }
                 }
             }
             definition {
