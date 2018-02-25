@@ -115,5 +115,3 @@ pipelineJob("${JOB_FOLDER}/airflow-integration") {
         }
     }
 }
-
-
