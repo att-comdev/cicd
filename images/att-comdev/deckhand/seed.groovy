@@ -48,4 +48,3 @@ pipelineJob("${JOB_BASE}/deckhand") {
         }
     }
 }
-

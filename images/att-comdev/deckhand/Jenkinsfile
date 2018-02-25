@@ -1,64 +1,67 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="docker/ubuntu.m1.medium.yaml"
 
-NODE_NAME="deckhand-${env.BUILD_NUMBER}"
-NODE_TMPL = "deckhand/deckhand.yaml"
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="att-comdev"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
 
-DECKHAND_VERSION = "0.1.0-${GERRIT_CHANGE_NUMBER}"
-DECKHAND_PS = "ps${GERRIT_CHANGE_NUMBER}.${GERRIT_PATCHSET_NUMBER}"
-
-ARTF_URL = env.ARTF_DOCKER_URL
-DECKHAND_IMAGE_PS = "${ARTF_URL}/ucp-patchset/deckhand:${DECKHAND_PS}"
-DECKHAND_IMAGE = "${ARTF_URL}/ucp/deckhand:${DECKHAND_VERSION}"
-DECKHAND_IMAGE_LATEST = "${ARTF_URL}/ucp/deckhand:latest"
+IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 
-
 vm(NODE_NAME, NODE_TMPL) {
-
-    stage('Image Build'){
-        gerrithub.clone("att-comdev/deckhand", GERRIT_REFSPEC)
-
-        if (GERRIT_EVENT_TYPE != 'change-merged') {
-            DECKHAND_IMAGE = DECKHAND_IMAGE_PS
+    stage('Checkout'){
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            checkout poll: false,
+            scm: [$class: 'GitSCM',
+              branches: [[name: "${IMAGE_TAG}"]],
+              doGenerateSubmoduleConfigurations: false,
+              extensions: [[$class: 'LocalBranch',
+                            localBranch: 'jenkins'],
+                           [$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: ""]],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                                 url: "https://review.gerrithub.io/${IMAGE_PREFIX}/${JOB_BASE_NAME}"]]]
+              sh '''git config user.email "attcomdev.jenkins@gmail.com"
+                    git config user.name "Jenkins"
+                    git pull --rebase origin master'''
+            //gerrithub.checkoutAndMerge("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG,"")
+            
+        } else {
+            gerrithub.clone("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG)
         }
-
-        sh 'sudo make build_deckhand'
-        sh "sudo docker tag attcomdev/deckhand ${DECKHAND_IMAGE}"
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
     }
-
-
-    stage('Image Publish'){
-        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
-                usernameVariable: 'ARTIFACTORY_USER',
-                passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
-
-            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
-
-            sh "sudo docker login ${opts} ${ARTF_URL}"
-            sh "sudo docker push ${DECKHAND_IMAGE}"
-
-            if (GERRIT_EVENT_TYPE == 'change-merged') {
-                sh "sudo docker tag ${DECKHAND_IMAGE} ${DECKHAND_IMAGE_LATEST}"
-                sh "sudo docker push ${DECKHAND_IMAGE_LATEST}"
-            }
+    stage('Docker Build and Run ') {
+        timeout(20){
+            sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
         }
     }
-
     stage('Test Functional') {
-        withEnv(["DECKHAND_IMAGE=${DECKHAND_IMAGE}",
-                 "DECKHAND_API_THREADS=1"]) {
+        withEnv(["DECKHAND_IMAGE=${IMAGE}",
+            "DECKHAND_API_THREADS=1"]) {
+            sh 'sudo apt-get -y install tox'
             sh 'tox -e functional'
         }
     }
-
-    stage('Results Publish') {
+    stage('Publish Gabbi Results') {
         publishHTML (target: [
-            allowMissing: false,
-            alwaysLinkToLastBuild: false,
-            keepAll: true,
-            reportDir: 'results',
-            reportFiles: 'index.html',
-            reportName: "Gabbi Functional"
-        ])
+        allowMissing: false,
+        alwaysLinkToLastBuild: false,
+        keepAll: true,
+        reportDir: 'results',
+        reportFiles: 'index.html',
+        reportName: "Gabbi Functional"])
+    }
+    stage('Image Publish'){
+        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory (IMAGE, IMAGE_LATEST)
+            publish.quay (IMAGE, QUAY_IMAGE_LATEST)
+        }
     }
 }
