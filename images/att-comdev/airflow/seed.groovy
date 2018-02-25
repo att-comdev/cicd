@@ -1,6 +1,10 @@
 import groovy.json.JsonSlurper
 def jsonSlurper = new JsonSlurper()
-def UCP_deps = '''{"projects":[
+def AirflowJson = '''{"projects":[
+                        {"name":"airflow",
+                         "repo":"att-comdev/shipyard",
+                         "path":"**"
+                         },
                         {"name":"armada",
                          "repo":"att-comdev/armada",
                          "path":"**"
@@ -11,72 +15,14 @@ def UCP_deps = '''{"projects":[
                          }
                     ]}'''
 
-def Json = jsonSlurper.parseText(UCP_deps)
+def Json = jsonSlurper.parseText(AirflowJson)
 
-JOB_FOLDER="images/att-comdev/shipyard/airflow"
+JOB_FOLDER="images/att-comdev/airflow"
 folder(JOB_FOLDER)
 pipelineJob("${JOB_FOLDER}/airflow") {
-    configure {
-                node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
-                    durationName 'hour'
-                    count '3'
-                }
-    }
     triggers {
         gerritTrigger {
             silentMode(false)
-            serverName('Gerrithub-jenkins')
-            gerritProjects {
-                gerritProject {
-                    compareType('PLAIN')
-                    pattern("att-comdev/shipyard")
-                    branches {
-                        branch {
-                            compareType('ANT')
-                            pattern("**/master")
-                        }
-                    }
-                    filePaths {
-                        filePath {
-                            compareType('ANT')
-                            pattern("**")
-                        }
-                    }
-                    disableStrictForbiddenFileVerification(false)
-                }
-            }
-            customUrl("\${CUSTOM_URL}")
-            triggerOnEvents {
-                patchsetCreated {
-                    excludeDrafts(true)
-                    excludeTrivialRebase(false)
-                    excludeNoCodeChange(true)
-                }
-                changeMerged()
-                commentAddedContains {
-                   commentAddedCommentContains('recheck')
-                }
-            }
-        }
-    }
-    definition {
-        cps {
-          script(readFileFromWorkspace("${JOB_FOLDER}/Jenkinsfile"))
-            sandbox()
-        }
-    }
-}
-
-pipelineJob("${JOB_FOLDER}/airflow-integration") {
-    configure {
-                node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
-                    durationName 'hour'
-                    count '3'
-                }
-    }
-    triggers {
-        gerritTrigger {
-            silentMode(true)
             serverName('Gerrithub-jenkins')
             gerritProjects {
                 for (project in Json.projects) {
@@ -99,18 +45,19 @@ pipelineJob("${JOB_FOLDER}/airflow-integration") {
                     }
                 }
             }
-          customUrl("\${CUSTOM_URL}")
             triggerOnEvents {
-                changeMerged()
-                commentAddedContains {
-                   commentAddedCommentContains('recheck')
+                patchsetCreated {
+                    excludeDrafts(true)
+                    excludeTrivialRebase(true)
+                    excludeNoCodeChange(true)
                 }
+                changeMerged()
             }
         }
     }
     definition {
         cps {
-          script(readFileFromWorkspace("${JOB_FOLDER}/Jenkinsfile"))
+            script(readFileFromWorkspace("${JOB_FOLDER}/Jenkinsfile"))
             sandbox()
         }
     }
