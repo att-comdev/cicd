@@ -63,6 +63,7 @@ def vms(body) {
 }
 
 vms {
+    sh 'sudo apt-get install -y docker.io make'
     stage('Nodes Wait'){
         def get_hname = {
             sh(returnStdout: true, script: 'echo -n $(hostname)')
