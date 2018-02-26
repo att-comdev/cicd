@@ -29,7 +29,7 @@ for (project in Json.projects) {
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                 durationName 'hour'
-                count '4'
+                count '5'
             }
         }
         triggers {
