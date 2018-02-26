@@ -7,7 +7,6 @@ DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
 IMAGE_PREFIX="att-comdev"
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
-CUSTOM_URL=''
 
 IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
@@ -37,7 +36,7 @@ vm(NODE_NAME, NODE_TMPL) {
         } else {
             gerrithub.clone("${IMAGE_PREFIX}/shipyard", IMAGE_TAG)
         }
-        sh 'sudo apt-get install make'
+        sh 'sudo apt-get install -y make docker.io'
         currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
     }
     stage('Docker Build and Run ') {
@@ -53,7 +52,6 @@ vm(NODE_NAME, NODE_TMPL) {
         if (GERRIT_EVENT_TYPE == 'change-merged') {
             publish.artifactory (IMAGE, IMAGE_LATEST)
             publish.quay (IMAGE, QUAY_IMAGE_LATEST)
-            CUSTOM_URL="https://artifacts-aic.atlantafoundry.com/artifactory/docker-cicd/att-comdev/${JOB_BASE_NAME}/${IMAGE_TAG}"
         }
     }
 }
