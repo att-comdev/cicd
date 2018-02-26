@@ -26,9 +26,8 @@ def cloneToBranch(String project, String refspec, String targetDirectory){
                             submoduleCfg: [],
                             userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
                                                  url: "https://review.gerrithub.io/" + project]]]
-    rebase()
 }
-
+//This method will rebase the local checkout with master and then continue build, tests, etc
 def rebase(){
     sh '''git config user.email "attcomdev.jenkins@gmail.com"
           git config user.name "Jenkins"
