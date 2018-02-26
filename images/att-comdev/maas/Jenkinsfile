@@ -11,7 +11,7 @@ QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
 IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
 vm(NODE_NAME, NODE_TMPL) {
-    
+    sh 'sudo apt-get install -y docker.io make'
     stage('Checkout'){
         if(env.GERRIT_NEWREV){
             echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")

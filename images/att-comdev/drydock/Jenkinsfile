@@ -12,6 +12,7 @@ QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
 IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
 vm(NODE_NAME, NODE_TMPL) {
+    sh 'sudo apt-get install -y docker.io make'
     stage('Checkout'){
         if(env.GERRIT_NEWREV){
             echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
@@ -37,17 +38,14 @@ vm(NODE_NAME, NODE_TMPL) {
         } else {
             gerrithub.clone("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG)
         }
-        
         currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
     }
     stage('Docker Build') {
         timeout(20){
-            sh 'sudo apt-get install make'
             sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
         }
     }
     stage('Test Coverage') {
-        sh 'sudo apt-get install make'
         sh "sudo make coverage_test DOCKER_REGISTRY=${ARTF_DOCKER_URL} IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} IMAGE_TAG=${IMAGE_TAG}"
     }
     stage('Docker Run') {
