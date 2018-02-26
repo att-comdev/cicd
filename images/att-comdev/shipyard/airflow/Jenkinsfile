@@ -37,7 +37,7 @@ vm(NODE_NAME, NODE_TMPL) {
         } else {
             gerrithub.clone("${IMAGE_PREFIX}/shipyard", IMAGE_TAG)
         }
-        sh 'sudo apt-get install make'
+        sh 'sudo apt-get install -y make docker.io'
         currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
     }
     stage('Docker Build and Run ') {
