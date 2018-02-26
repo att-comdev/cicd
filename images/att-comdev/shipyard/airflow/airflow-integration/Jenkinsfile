@@ -1,0 +1,37 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+
+IMAGE_TAG=""
+IMAGE_NAME="airflow"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="att-comdev"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
+IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_TAG}"
+
+vm(NODE_NAME, NODE_TMPL) {
+    sh 'sudo apt-get install -y docker.io make'
+    stage('Checkout'){
+        gerrit.clone("${IMAGE_PREFIX}/shipyard", "origin/master")
+        IMAGE_TAG = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+        echo ("${IMAGE_TAG}")
+        IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_TAG}"
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
+    }
+    stage('Docker Build and Run ') {
+        timeout(20){
+            sh "sudo make images IMAGE_PREFIX=${IMAGE_PREFIX} IMAGE_NAME=${IMAGE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+        }
+    }
+    stage('Validate Container') {
+        sh "sudo docker inspect ${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_TAG}"
+    }
+    stage('Image Publish'){
+        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_TAG}")
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory (IMAGE, IMAGE_LATEST)
+            publish.quay (IMAGE, QUAY_IMAGE_LATEST)
+        }
+    }
+}

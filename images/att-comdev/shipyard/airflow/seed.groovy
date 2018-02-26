@@ -45,7 +45,6 @@ pipelineJob("${JOB_FOLDER}/airflow") {
                     disableStrictForbiddenFileVerification(false)
                 }
             }
-            customUrl("\${CUSTOM_URL}")
             triggerOnEvents {
                 patchsetCreated {
                     excludeDrafts(true)
@@ -99,7 +98,6 @@ pipelineJob("${JOB_FOLDER}/airflow-integration") {
                     }
                 }
             }
-          customUrl("\${CUSTOM_URL}")
             triggerOnEvents {
                 changeMerged()
                 commentAddedContains {
@@ -110,7 +108,7 @@ pipelineJob("${JOB_FOLDER}/airflow-integration") {
     }
     definition {
         cps {
-          script(readFileFromWorkspace("${JOB_FOLDER}/Jenkinsfile"))
+          script(readFileFromWorkspace("${JOB_FOLDER}/airflow-integration/Jenkinsfile"))
             sandbox()
         }
     }
