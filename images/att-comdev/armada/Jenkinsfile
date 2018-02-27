@@ -85,44 +85,21 @@ vms {
 
     stage('Checkout Promenade'){
         node("${NODE_BASE}-build"){
+            sh "sudo apt-get install -y docker.io make"
             gerrithub.clone("att-comdev/promenade", "*/master")
             if(env.GERRIT_NEWREV){
                 echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
                 IMAGE_TAG=env.GERRIT_NEWREV
                 IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
             }
+            gerrithub.cloneToBranch("${IMAGE_PREFIX}/${JOB_BASE_NAME}",IMAGE_TAG,JOB_BASE_NAME)
             if(GERRIT_EVENT_TYPE != 'change-merged') {
-                checkout poll: false,
-                scm: [$class: 'GitSCM',
-                branches: [[name: IMAGE_TAG]],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [
-                    [$class: 'LocalBranch',
-                            localBranch: 'jenkins'],
-                            [$class: 'RelativeTargetDirectory',
-                            relativeTargetDir: "${JOB_BASE_NAME}"]],
-                            submoduleCfg: [],
-                            userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-                                                 url: "https://review.gerrithub.io/att-comdev/${JOB_BASE_NAME}"]]]
-                sh '''git config user.email "attcomdev.jenkins@gmail.com"
-                    git config user.name "Jenkins"
-                    git pull --rebase origin master'''
-            } else {
-                checkout poll: false,
-                scm: [$class: 'GitSCM',
-                branches: [[name: IMAGE_TAG]],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [
-                    [$class: 'LocalBranch',
-                            localBranch: 'jenkins'],
-                            [$class: 'RelativeTargetDirectory',
-                            relativeTargetDir: "${JOB_BASE_NAME}"]],
-                            submoduleCfg: [],
-                            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                                                 url: "https://review.gerrithub.io/att-comdev/${JOB_BASE_NAME}"]]]
+                dir(env.WORKSPACE+"/${JOB_BASE_NAME}"){
+                    gerrit.rebase()
+                }
             }
             sh "sudo docker pull ${PROMENADE_IMAGE}"
-            dir(env.WORKSPACE+"/armada"){
+            dir(env.WORKSPACE+"/${JOB_BASE_NAME}"){
                 sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
                 sh 'sudo docker images | grep armada'
             }
