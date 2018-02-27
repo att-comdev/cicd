@@ -1,57 +1,73 @@
 import groovy.json.JsonSlurper
-
-def imagesJson = '''{ "UCP":[{
-                        "repo":"att-comdev",
-                        "images":[
-                                  "shipyard"
-                                  ]
-                        }]}'''
 def jsonSlurper = new JsonSlurper()
-def object = jsonSlurper.parseText(imagesJson)
 
-for (entry in object.UCP) {
-    for (image in entry.images) {
-        pipelineJob("images/${entry.repo}/${image}/${image}") {
-            configure {
-                node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
-                    durationName 'hour'
-                    count '3'
-                }
+//add new projects here:
+def MySuperJson = '''{"projects":[
+                        {"name":"drydock",
+                         "repo":"att-comdev/drydock",
+                         "branch":"**/master",
+                         "path":"**"
+                         },
+                         {"name":"deckhand",
+                         "repo":"att-comdev/deckhand",
+                         "branch":"**/master",
+                         "path":"**"
+                         },
+                         {"name":"shipyard",
+                         "repo":"att-comdev/shipyard",
+                         "branch":"**/master",
+                         "path":"**"
+                         }
+                    ]}'''
+
+def Json = jsonSlurper.parseText(MySuperJson)
+for (project in Json.projects) {
+    pipelineJob("images/${project.repo}/${project.name}") {
+        configure {
+            node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
+                durationName 'hour'
+                count '4'
             }
-            triggers {
-                gerritTrigger {
-                    serverName('Gerrithub-jenkins')
-                    gerritProjects {
-                        gerritProject {
-                            compareType('PLAIN')
-                            pattern("${entry.repo}/${image}")
-                            branches {
-                                branch {
+        }
+        triggers {
+            gerritTrigger {
+                silentMode(false)
+                serverName('Gerrithub-jenkins')
+                gerritProjects {
+                    gerritProject {
+                        compareType('PLAIN')
+                        pattern("${project.repo}")
+                        branches {
+                            branch {
                                 compareType("ANT")
                                 pattern("**")
-                                }
                             }
-                            disableStrictForbiddenFileVerification(false)
                         }
-                    }
-                    triggerOnEvents {
-                        patchsetCreated {
-                           excludeDrafts(false)
-                           excludeTrivialRebase(false)
-                           excludeNoCodeChange(false)
+                        filePaths {
+                            filePath {
+                                compareType("ANT")
+                                pattern("${project.path}")
+                            }
                         }
-                        changeMerged()
-                        commentAddedContains {
-                           commentAddedCommentContains('recheck')
-                        }
+                        disableStrictForbiddenFileVerification(false)
                     }
                 }
-
-                definition {
-                    cps {
-                      script(readFileFromWorkspace("images/${entry.repo}/${image}/Jenkinsfile"))
-                        sandbox()
+                triggerOnEvents {
+                    patchsetCreated {
+                        excludeDrafts(true)
+                        excludeTrivialRebase(false)
+                        excludeNoCodeChange(true)
+                     }
+                    changeMerged()
+                    commentAddedContains {
+                        commentAddedCommentContains('recheck')
                     }
+                }
+            }
+            definition {
+                cps {
+                  script(readFileFromWorkspace("images/${project.repo}/Jenkinsfile"))
+                    sandbox()
                 }
             }
         }
