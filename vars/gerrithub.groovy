@@ -33,3 +33,20 @@ def rebase(){
           git config user.name "Jenkins"
           git pull --rebase origin master'''
 }
+
+//Replace clone and rebase methods 
+def checkout(String revision, String branchToClone, String refspec, String targetDirectory){
+   if(revision){
+       IMAGE_TAG=revision
+   }
+   cloneToBranch(branchToClone, refspec, targetDirectory)
+   if(!revision) {
+       dir(env.WORKSPACE+"/"+targetDirectory){
+           rebase()
+       }
+   }
+}
+
+def makeImages(){
+   sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=\${JOB_BASE_NAME} DOCKER_REGISTRY=\${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=\${IMAGE_TAG} --label org.label-schema.vcs-url=\${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-\${BUILD_NUMBER}' IMAGE_TAG=\${IMAGE_TAG}"
+}
