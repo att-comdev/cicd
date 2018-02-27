@@ -33,3 +33,16 @@ def rebase(){
           git config user.name "Jenkins"
           git pull --rebase origin master'''
 }
+
+//Replace clone and rebase methods 
+def checkout(String revision, String branchToClone, String refspec, String targetDirectory){
+   if(revision){
+       IMAGE_TAG=revision
+   }
+   cloneToBranch(branchToClone, refspec, targetDirectory)
+   if(!revision) {
+       dir(env.WORKSPACE+"/"+targetDirectory){
+           rebase()
+       }
+   }
+}
