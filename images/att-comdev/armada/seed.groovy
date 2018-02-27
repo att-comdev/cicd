@@ -1,4 +1,5 @@
-import groovy.json.JsonSlurper
+
+rt groovy.json.JsonSlurper
 
 def imagesJson = '''{ "UCP":[{
                         "repo":"att-comdev",
@@ -47,7 +48,6 @@ for (entry in object.UCP) {
                         }
                     }
                 }
-
                 definition {
                     cps {
                       script(readFileFromWorkspace("images/${entry.repo}/${image}/Jenkinsfile"))
