@@ -28,24 +28,14 @@ vm(NODE_NAME, NODE_TMPL) {
     }
     stage('Docker Build and Run ') {
         timeout(20){
-            sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+            sh "sudo make images IMAGE_PREFIX=${IMAGE_PREFIX} IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
         }
     }
-    stage('Test Functional') {
-        withEnv(["DECKHAND_IMAGE=${IMAGE}",
-            "DECKHAND_API_THREADS=1"]) {
-            sh 'sudo apt-get -y install tox'
-            sh 'tox -e functional'
+    stage('Run & Validate'){
+        gerrithub.clone("att-comdev/treasuremap", 'master')
+        dir ("deployment_files"){
+            sh "sudo docker run --rm -t -v \$(pwd):/target ${IMAGE} pegleg site collect atl-lab1 > atl-lab1.yaml"
         }
-    }
-    stage('Publish Gabbi Results') {
-        publishHTML (target: [
-        allowMissing: false,
-        alwaysLinkToLastBuild: false,
-        keepAll: true,
-        reportDir: 'results',
-        reportFiles: 'index.html',
-        reportName: "Gabbi Functional"])
     }
     stage('Image Publish'){
         publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
