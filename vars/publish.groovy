@@ -45,4 +45,7 @@ def artifactory (String src, String dst) {
 def quay (String src, String dst) {
     image('jenkins-quay', QUAY_URL, src, "${QUAY_URL}/${dst}")
 }
-
+ 
+def secureImage (String creds, String url, String src, String dst) {
+    image('secure-artifactory', ARTF_SECURE_DOCKER_URL, src, dst)
+}
