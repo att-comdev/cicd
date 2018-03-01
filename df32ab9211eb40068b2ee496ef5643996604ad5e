@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b158c4b_9b41ab1f",
+        "filename": "images/calico/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-03-01T15:59:42Z",
+      "side": 1,
+      "message": "Since we are just doing a checkout can we use the github command?  something like github url: \u0027https...\u0027, branch: \u0027*/master\u0027",
+      "revId": "df32ab9211eb40068b2ee496ef5643996604ad5e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fac5637c_7f5c46d5",
+        "filename": "images/calico/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-03-01T15:59:42Z",
+      "side": 1,
+      "message": "Can we add a publish with a commit-id?",
+      "revId": "df32ab9211eb40068b2ee496ef5643996604ad5e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
