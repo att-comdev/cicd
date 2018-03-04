@@ -109,15 +109,17 @@ def setproxy(){
              [Service]
              Environment="HTTP_PROXY=${HTTP_PROXY}"
              Environment="HTTPS_PROXY=${HTTP_PROXY}"
-             Environment="NO_PROXY=127.0.0.1,localhost"
+             Environment="NO_PROXY=${NO_PROXY}"
              EOF'''
         sh'''cat <<-EOF | sudo tee -a /etc/environment
              http_proxy=${HTTP_PROXY}
              https_proxy=${HTTP_PROXY}
+             no_proxy=${NO_PROXY}
              EOF'''
         sh "sudo systemctl daemon-reload"
         sh "sudo systemctl restart docker"
         sh 'export http_proxy=${HTTP_PROXY}'
         sh 'export https_proxy=${HTTP_PROXY}'
+        sh 'export no_proxy=${NO_PROXY}'
     }
 }
