@@ -102,6 +102,12 @@ def call(udata = 'bootstrap.sh',
   return ip
 }
 
+/**
+ * This method is used for any Jenkins pipelines that are behind the proxy.  They are currently
+ * set to global variables in Jenkins, if you have no firewall you can define these parameters as
+ * empty string in globals.
+ *
+ */
 def setproxy(){
     if (HTTP_PROXY){
         sh'''sudo mkdir -p /etc/systemd/system/docker.service.d
@@ -109,15 +115,17 @@ def setproxy(){
              [Service]
              Environment="HTTP_PROXY=${HTTP_PROXY}"
              Environment="HTTPS_PROXY=${HTTP_PROXY}"
-             Environment="NO_PROXY=127.0.0.1,localhost"
+             Environment="NO_PROXY=${NO_PROXY}"
              EOF'''
         sh'''cat <<-EOF | sudo tee -a /etc/environment
              http_proxy=${HTTP_PROXY}
              https_proxy=${HTTP_PROXY}
+             no_proxy=${NO_PROXY}
              EOF'''
         sh "sudo systemctl daemon-reload"
         sh "sudo systemctl restart docker"
         sh 'export http_proxy=${HTTP_PROXY}'
         sh 'export https_proxy=${HTTP_PROXY}'
+        sh 'export no_proxy=${NO_PROXY}'
     }
 }
