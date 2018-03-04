@@ -1,17 +1,37 @@
-//Use this method to build images in a repeatable fashion
+/**
+ * This method is used to build images in Docker Image build pipelines
+ */
 def makeImages(){
    sh '''
       sudo make images \
       IMAGE_PREFIX=${IMAGE_PREFIX} \
-      IMAGE_NAME=\${JOB_BASE_NAME} \
-      DOCKER_REGISTRY=\${ARTF_DOCKER_URL} \
-      LABEL='org.label-schema.vcs-ref=\${IMAGE_TAG} \
-      --label org.label-schema.vcs-url=\${GERRIT_CHANGE_URL} \
-      --label org.label-schema.version=0.1.0-\${BUILD_NUMBER}' \
-      IMAGE_TAG=\${IMAGE_TAG}
+      IMAGE_NAME=${JOB_BASE_NAME} \
+      DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
+      LABEL=org.label-schema.vcs-ref=${IMAGE_TAG} \
+      --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} \
+      --label org.label-schema.version=0.1.0-${BUILD_NUMBER} \
+      IMAGE_TAG=${IMAGE_TAG}
    '''
 }
 
+
+
+/**
+ * This method is temporary until all component Makefiles are using the same entry point to
+ * build images.
+ */
+def makeComponent(){
+   sh '''
+      sudo make build_${JOB_BASE_NAME} \
+      IMAGE_PREFIX=${IMAGE_PREFIX} \
+      IMAGE_NAME=${JOB_BASE_NAME} \
+      DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
+      LABEL=org.label-schema.vcs-ref=${IMAGE_TAG} \
+      --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} \
+      --label org.label-schema.version=0.1.0-${BUILD_NUMBER} \
+      IMAGE_TAG=${IMAGE_TAG}
+   '''
+}
 /**
  * Provides docker image sha256 digest
  *
