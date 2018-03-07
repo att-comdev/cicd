@@ -49,3 +49,13 @@ def quay (String src, String dst) {
 def secureImage (String creds, String url, String src, String dst) {
     image('secure-artifactory', ARTF_SECURE_DOCKER_URL, src, dst)
 }
+
+def addArtifactoryProperty (String creds, String url, String property, String value) {
+    withCredentials([usernamePassword(credentialsId: creds,
+                    usernameVariable: 'REPO_USER',
+                    passwordVariable: 'REPO_PASSWORD')]) {
+
+       opts = '-u $REPO_USER:$REPO_PASSWORD -X PUT'
+       sh "curl ${opts} ${url}?properties=${property}=${value}"
+   }
+}
