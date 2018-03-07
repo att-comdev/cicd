@@ -49,3 +49,21 @@ def quay (String src, String dst) {
 def secureImage (String creds, String url, String src, String dst) {
     image('secure-artifactory', ARTF_SECURE_DOCKER_URL, src, dst)
 }
+
+/**
+ * Sets property to the artifact (file/directory/respository) in Artifactory
+ *
+ * @param properties "key1=value1;key2=value2" string
+ * @param url artifact URL, e.g. "${ARTF_DOCKER_URL}/aic-clcp-manifests"
+ * @param creds jenkins credentials ID; 'jenkins-artifactory' or
+ *        'secure-artifactory' at the moment
+ */
+def setProperty (String creds, String url, String properties) {
+    withCredentials([usernamePassword(credentialsId: creds,
+                    usernameVariable: 'REPO_USER',
+                    passwordVariable: 'REPO_PASSWORD')]) {
+
+       opts = '-u $REPO_USER:$REPO_PASSWORD -X PUT'
+       sh "curl ${opts} ${url}?properties=${properties}"
+   }
+}
