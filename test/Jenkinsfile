@@ -1,0 +1,18 @@
+pipeline {
+    agent any 
+    stages {
+        stage('Test setProperty') {
+            steps {
+                sh "echo URL: " + params.url
+                sh "echo Properties: " + params.prop
+                publish.setProperty(params.creds, params.url, params.prop)
+            }
+        }
+        stage('Test getImageDigest') {
+            steps {
+                sh "echo " + params.image
+                sh "echo Digest: " + build.getImageDigest(params.image)
+            }
+        }
+    }
+}
