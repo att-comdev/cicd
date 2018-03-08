@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1b0b24b_4f6d6b4f",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-03-08T18:21:35Z",
+      "side": 1,
+      "message": "Can we switch this to just addProperty and put comments saying that it is for Artifactory use?",
+      "revId": "550418edbb9c97432107c7767665cc0a4d7fb556",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
