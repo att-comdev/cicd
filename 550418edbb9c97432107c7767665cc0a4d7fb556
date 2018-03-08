@@ -16,6 +16,41 @@
       "revId": "550418edbb9c97432107c7767665cc0a4d7fb556",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "07fe4366_c810ab5b",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-03-08T18:31:59Z",
+      "side": 1,
+      "message": "Possibly put property and value into 1 string, so that this could be used to put through any combination of key value pair or pairs.  properties\u003dkey\u003dvalue;key\u003dvalue;",
+      "parentUuid": "b1b0b24b_4f6d6b4f",
+      "revId": "550418edbb9c97432107c7767665cc0a4d7fb556",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b83e4dd3_030f5c89",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-03-08T18:31:59Z",
+      "side": 1,
+      "message": "properties\u003d${aProperty}",
+      "revId": "550418edbb9c97432107c7767665cc0a4d7fb556",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
