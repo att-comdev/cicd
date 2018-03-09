@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "561cc19a_57c1228f",
+        "filename": "vars/build.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-03-09T00:59:32Z",
+      "side": 1,
+      "message": "should be String, as it returns string",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 3
+      },
+      "revId": "6b2934e86d26c74f33faf90ca89da12fe5688383",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
