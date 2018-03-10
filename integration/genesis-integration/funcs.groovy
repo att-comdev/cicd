@@ -13,7 +13,7 @@
 def openstack_cmd(String cmd, String mount = "") {
     keystone_image = "kolla/ubuntu-source-keystone:3.0.3"
 
-    docker_env = " -e OS_AUTH_URL=http://keystone/v3" +
+    docker_env = " -e OS_AUTH_URL=http://keystone.openstack.svc.cluster.local/v3" +
                  " -e OS_PROJECT_DOMAIN_NAME=default" +
                  " -e OS_USER_DOMAIN_NAME=default" +
                  " -e OS_PROJECT_NAME=admin" +
