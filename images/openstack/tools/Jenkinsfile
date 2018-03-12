@@ -1,0 +1,43 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="integration/genesis-single.yaml"
+
+IMAGE_TAG= "${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="openstackhelm"
+IMAGE_NAME="${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+
+IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+
+vm(NODE_NAME, NODE_TMPL) {
+    stage('Checkout'){
+        sh 'sudo apt-get install make'
+        if(env.GERRIT_NEWREV){
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            IMAGE_TAG=env.GERRIT_NEWREV
+        }
+        checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: "${IMAGE_TAG}"]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                     url: 'https://git.openstack.org/openstack/openstack-helm']]]
+        IMAGE_TAG = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+        IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_NUMBER}"
+
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+    }
+    stage('Docker Build') {
+        timeout(20){
+            dir("${WORKSPACE}/tools/images/${JOB_BASE_NAME}"){
+                sh "sudo make images IMAGE_PREFIX=${IMAGE_PREFIX} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0' IMAGE_TAG=${IMAGE_TAG}.${BUILD_NUMBER}"
+            }
+        }
+    }
+    stage('Publish'){
+        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_NUMBER}")
+    }
+}
