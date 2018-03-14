@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "81ddb086_0799d178",
+        "filename": "test/seed.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-03-14T18:23:07Z",
+      "side": 1,
+      "message": "Update test to use clcp-manifests",
+      "parentUuid": "8b9d5158_47da428a",
+      "revId": "3d2131946f55384a61e146d73735e86fa8697de9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3d8d6fca_35ea4aff",
         "filename": "vars/publish.groovy",
         "patchSetId": 8
