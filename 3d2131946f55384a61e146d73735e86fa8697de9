@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b9d5158_47da428a",
+        "filename": "test/seed.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-03-14T18:20:14Z",
+      "side": 1,
+      "message": "https://artifacts-aic.atlantafoundry.com/artifactory/api/storage/  (api/storage) needs to be there",
+      "revId": "3d2131946f55384a61e146d73735e86fa8697de9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d8d6fca_35ea4aff",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-03-14T18:20:14Z",
+      "side": 1,
+      "message": "We can always assume that url\u003d\u003d https://artifacts-aic.atlantafoundry.com/artifactory/api/storage/  and the variable we send through will be the repoName.  (clcp-manifests, etc)",
+      "revId": "3d2131946f55384a61e146d73735e86fa8697de9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
