@@ -6,7 +6,8 @@ def projects = ['armada':'charts/.*',
                 'drydock':'charts/.*',
                 'promenade':'charts/.*',
                 'shipyard':'charts/.*',
-                'maas':'charts/.*']
+                'maas':'charts/.*',
+                'divingbell':'.*']
 
 projects.each { project_name, file_path ->
     JOB_NAME=project_name
@@ -36,7 +37,7 @@ projects.each { project_name, file_path ->
         triggers {
             gerritTrigger {
                 serverName('Gerrithub-jenkins')
-//                silentMode(true)
+                silentMode(true)
                 gerritProjects {
                     gerritProject {
                         compareType('PLAIN')
