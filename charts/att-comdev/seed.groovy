@@ -33,6 +33,8 @@ projects.each { project_name, file_path ->
                 defaultValue('patchset-created')
                 description('patchset-created or change-merged')
             }
+            stringParam('RELEASE_CURRENT_KEY',"5EC.chart.${project_name}.dev.current")
+            stringParam('RELEASE_STATUS_KEY',"5EC.chart.${project_name}.dev.status")
         }
         triggers {
             gerritTrigger {
