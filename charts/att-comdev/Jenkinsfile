@@ -92,30 +92,54 @@ def build_charts = '''
 
 vm(NODE_NAME,NODE_TMPL){
     stage('Project Checkout'){
-        gerrithub.clone(GERRIT_PROJECT,GERRIT_REFSPEC)
-    }
-    stage('Make Charts'){
-        def status = sh(returnStatus: true, script: build_charts)
-        if (status != 0) {
-            currentBuild.result = 'FAILED'
-            slack.msg("Charts build failed for ${GERRIT_CHANGE_NUMBER}!")
-        }else{
-            slack.msg("Charts were built for ${GERRIT_CHANGE_NUMBER}")
-        }
-    }
-    stage('Publish'){
-        if ( GERRIT_EVENT_TYPE == 'change-merged' ){
-            ARTF_REPO="ucp/charts/${PROJECT_NAME}/"
+        if(env.GERRIT_NEWREV){
+            gerrithub.cloneToBranch(GERRIT_PROJECT, env.GERRIT_NEWREV, "jenkins")
         } else {
-            ARTF_REPO="ucp/charts/ps/${GERRIT_CHANGE_NUMBER}/"
+            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_REFSPEC, "jenkins")
+            dir("${WORKSPACE}/jenkins"){
+                gerrithub.rebase()
+            }
+        }       
+        dir("${WORKSPACE}/jenkins"){
+            def file_location=""
+            //Remove after divingbell is updated
+            if("${JOB_BASE_NAME} == "divingbell"){
+                file_location = "Chart.yaml"
+            } else {
+                file_location = "charts/${JOB_BASE_NAME}/Chart.yaml"
+            }
+            GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+            def chartVersion = readYaml file: file_location
+            def chartOverride = readYaml file: file_location, text: "version: 0.9.0-"+GIT_COMMIT
+            sh "sudo rm -rf ${file_location}"
+            writeYaml file: file_location, data: chartOverride
         }
+    }
+    dir("${WORKSPACE}/jenkins"){
+        stage('Make Charts'){
+            def status = sh(returnStatus: true, script: build_charts)
+            if (status != 0) {
+                currentBuild.result = 'FAILED'
+                slack.msg("Charts build failed for ${GERRIT_CHANGE_NUMBER}!")
+            }else{
+                slack.msg("Charts were built for ${GERRIT_CHANGE_NUMBER}")
+            }
+        }
+        stage('Publish'){
+            if ( GERRIT_EVENT_TYPE == 'change-merged' ){
+                ARTF_REPO="att-comdev/charts/${JOB_BASE_NAME}/"
+            }
 
-        // we don't need helm-toolkit.tgz here.
-        sh "find . -iname 'helm-toolkit*.tgz' -delete"
+            sh "find . -iname 'helm-toolkit*.tgz' -delete"
 
-        def server = Artifactory.server 'artifactory'
-        def uploadSpec = """{"files": [{"pattern":"*.tgz","target":"${ARTF_REPO}"}]}"""
-        server.upload(uploadSpec)
-        slack.msg("Charts from ${GERRIT_PROJECT} pushed to ${ARTF_REPO}")
+            def server = Artifactory.server 'artifactory'
+            def uploadSpec = """{"files": [{"pattern":"*.tgz","target":"${ARTF_REPO}"}]}"""
+            server.upload(uploadSpec)
+            
+            publish.setProperty ('jenkins-artifactory', 'clcp-manifests', "${RELEASE_CURRENT_KEY}=0.9.0-${GIT_COMMIT}")
+            publish.setProperty ('jenkins-artifactory', 'clcp-manifests', "${RELEASE_STATUS_KEY}=NoStatus")
+    
+            slack.msg("Charts from ${GERRIT_PROJECT} pushed to ${ARTF_REPO}")
+        }
     }
 }
