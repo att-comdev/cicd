@@ -31,14 +31,6 @@ def build_charts = '''
         fi
 
         helm repo add local http://localhost:8879/charts
-        #helm plugin install https://github.com/technosophos/helm-template
-    }
-
-    record_fail(){
-        echo -e "\n project $1 failed: " | tee -a ${failed_log}
-        cat ${job_log} | tee -a ${failed_log}
-        #Fail logged, continue building charts manually:
-        helm_pkg
     }
 
     cleanup(){
@@ -67,9 +59,9 @@ def build_charts = '''
         set -xe
         cd ${WDIR}
         if [ -f Makefile ]; then
-            make charts &> ${job_log} || record_fail
+            make charts
         else
-            helm_pkg &>> ${job_log} || record_fail
+            helm_pkg
         fi
         echo '#################### Done! ###########################'
 
@@ -77,45 +69,65 @@ def build_charts = '''
 
     set -e # script will fail on any error
     WDIR=`pwd`
-    job_log=${WDIR}/job.log
-    failed_log=${WDIR}/failed.log
     cleanup && cd build
     prepare_env
     make_charts
-
-    if [ -f $failed_log ]; then
-        cat $failed_log
-        exit 1
-    fi
     '''
 /* end of bash script. */
 
-vm(NODE_NAME,NODE_TMPL){
+node("att-comdev-charts"){
     stage('Project Checkout'){
-        gerrithub.clone(GERRIT_PROJECT,GERRIT_REFSPEC)
-    }
-    stage('Make Charts'){
-        def status = sh(returnStatus: true, script: build_charts)
-        if (status != 0) {
-            currentBuild.result = 'FAILED'
-            notify.msg("Charts build failed for ${GERRIT_CHANGE_NUMBER}!")
-        }else{
-            notify.msg("Charts were built for ${GERRIT_CHANGE_NUMBER}")
-        }
-    }
-    stage('Publish'){
-        if ( GERRIT_EVENT_TYPE == 'change-merged' ){
-            ARTF_REPO="ucp/charts/${PROJECT_NAME}/"
+        cleanWs()
+        if(env.GERRIT_NEWREV){
+            gerrithub.cloneToBranch(GERRIT_PROJECT, env.GERRIT_NEWREV, "jenkins")
         } else {
-            ARTF_REPO="ucp/charts/ps/${GERRIT_CHANGE_NUMBER}/"
+            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_REFSPEC, "jenkins")
+            dir("${WORKSPACE}/jenkins"){
+                gerrithub.rebase()
+            }
         }
+        dir("${WORKSPACE}/jenkins"){
+            def file_location=""
+            //Remove after divingbell is updated
+            if("${JOB_BASE_NAME}" == "divingbell"){
+                file_location = "${JOB_BASE_NAME}/Chart.yaml"
+            } else {
+                file_location = "charts/${JOB_BASE_NAME}/Chart.yaml"
+            }
+            GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+            def chartVersion = readYaml file: file_location
+            def chartOverride = readYaml file: file_location, text: "version: 0.9.${BUILD_NUMBER}-"+GIT_COMMIT
+            sh "sudo rm -rf ${file_location}"
+            writeYaml file: file_location, data: chartOverride
+        }
+    }
+    dir("${WORKSPACE}/jenkins"){
+        stage('Make and Publish Charts'){
+            def status = sh(returnStatus: true, script: build_charts)
+            if (status != 0) {
+                currentBuild.result = 'FAILED'
+                notify.msg("Charts build failed for ${GERRIT_CHANGE_NUMBER}!")
+            }else{
+                notify.msg("Charts were built for ${GERRIT_CHANGE_NUMBER}")
+            }
+            if(status == 0){
+                if ( GERRIT_EVENT_TYPE == 'change-merged' ){
+                    ARTF_REPO="charts/att-comdev/${JOB_BASE_NAME}/"
+                } else {
+                    ARTF_REPO="charts/att-comdev/patchsets/${JOB_BASE_NAME}/"
+                }
 
-        // we don't need helm-toolkit.tgz here.
-        sh "find . -iname 'helm-toolkit*.tgz' -delete"
+                sh "find . -iname 'helm-toolkit*.tgz' -delete"
 
-        def server = Artifactory.server 'artifactory'
-        def uploadSpec = """{"files": [{"pattern":"*.tgz","target":"${ARTF_REPO}"}]}"""
-        server.upload(uploadSpec)
-        notify.msg("Charts from ${GERRIT_PROJECT} pushed to ${ARTF_REPO}")
+                def server = Artifactory.server 'artifactory'
+                def uploadSpec = """{"files": [{"pattern":"*${JOB_BASE_NAME}*0.9.${BUILD_NUMBER}*.tgz","target":"${ARTF_REPO}"}]}"""
+                server.upload(uploadSpec)
+                if ( GERRIT_EVENT_TYPE == 'change-merged' ){
+                    publish.setProperty ('jenkins-artifactory', '${ARTF_API_URL}/clcp-manifests', "${RELEASE_CURRENT_KEY}=${ARTF_WEB_URL}/${ARTF_REPO}${JOB_BASE_NAME}-0.9.${BUILD_NUMBER}-${GIT_COMMIT}.tgz")
+                    publish.setProperty ('jenkins-artifactory', '${ARTF_API_URL}/clcp-manifests', "${RELEASE_STATUS_KEY}=NoStatus")
+                }
+                notify.msg("Charts from ${GERRIT_PROJECT} pushed to ${ARTF_REPO}")
+            }
+        }
     }
 }
