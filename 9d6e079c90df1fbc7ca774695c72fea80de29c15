@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "257065c1_54d6707f",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 24
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-03-19T17:39:00Z",
+      "side": 1,
+      "message": "Hm - reqs are dependent on specific release.\n\nNewton will have differnt reqs then ocata, etc.\nI would use a matrix of IDs for each release.",
+      "revId": "9d6e079c90df1fbc7ca774695c72fea80de29c15",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa9f41d3_32b170f9",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 24
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-03-19T17:39:00Z",
+      "side": 1,
+      "message": "This is good. Only reason for using pretty formatting was to get the number smaller.\n\nNow when we want to have it as full commit ID. This is not needed.",
+      "revId": "9d6e079c90df1fbc7ca774695c72fea80de29c15",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e0da43a_024d744b",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 24
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-03-19T17:39:00Z",
+      "side": 1,
+      "message": "Whitespaces throughout doc.",
+      "revId": "9d6e079c90df1fbc7ca774695c72fea80de29c15",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
