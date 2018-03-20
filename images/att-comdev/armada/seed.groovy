@@ -18,6 +18,10 @@ for (entry in object.UCP) {
                     count '4'
                 }
             }
+            parameters {
+                stringParam('RELEASE_CURRENT_KEY',"5EC.images.${image}.dev.current")
+                stringParam('RELEASE_STATUS_KEY',"5EC.images.${image}.dev.status")
+            }
             triggers {
                 gerritTrigger {
                     serverName('Gerrithub-jenkins')
