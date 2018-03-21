@@ -1,0 +1,15 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+
+vm(NODE_NAME, NODE_TMPL) {
+   stage('Test setProperty'){
+      sh "echo URL: " + params.url
+      sh "echo Properties: " + params.prop
+      publish.setProperty(params.creds, params.url, params.prop)
+   }
+   stage('Test getImageDigest'){
+      sh "echo " + params.image
+      sh "echo Digest: " + build.getImageDigest(params.image)
+   }
+}
