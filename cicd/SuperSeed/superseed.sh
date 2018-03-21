@@ -85,7 +85,12 @@ find_seed(){
 git_clone ${GERRIT_PROJECT} ${WORKSPACE} ${GERRIT_REFSPEC}
 find_seed
 set +x
-copy_seed ${SEED_PATH}
+
+if [[ ! ${SEED_PATH} =~ ^tests/ ]]; then
+    copy_seed ${SEED_PATH}
+else
+    echo "Not copying seed, because it's tests seed."
+fi
 
 #Empty space for DSL script debug information:
 echo -e "=================================================\n"
