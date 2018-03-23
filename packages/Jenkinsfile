@@ -1,0 +1,323 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+artf_repo="ubuntu-packages/pool/"
+artf_ubuntu_repo="https://$ARTF_WEB_URL/ubuntu"
+
+// this must match GPG key used for packages signing
+packager="attcomdev.jenkins"
+packager_email="attcomdev.jenkins@gmail.com"
+
+/* Bash array below defines packages we will be re-building/backporting
+ * Format: ('package1' 'release1' 'show_version1' \
+ *          'package2' 'release2' 'show_version2' \
+ *           ...)
+ *  - package - package to be re-built/backported
+ *  - release - Ubuntu distribution release we are taking src package from:
+ *              https://packages.ubuntu.com/
+ *  - show_version - command to run to get version of binary
+*/
+def packages_array = '''\
+  declare -a packages=('iproute2' 'artful-updates' 'ip -V' \
+                       'ethtool' 'artful' 'ethtool --version')
+'''
+
+// this is fake GPG secret key for 1w, it will never be used anywhere
+// real key, if needed, must be kept as Jenkins secret
+// used to sign .deb packages
+gpg_fake_secret = '''\
+-----BEGIN PGP PRIVATE KEY BLOCK-----
+Version: GnuPG v1
+
+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
+obeyz1dlhkDNJtAu0HhQ
+=M9rC
+-----END PGP PRIVATE KEY BLOCK-----
+'''
+// there must not be any empty lines in this file
+// used to setup trust in GPG for the secret key gpg_fake_secret above
+gpg_fake_otrust = '''\
+# List of assigned trustvalues, created Mon 26 Mar 2018 08:17:08 AM PDT
+# (Use "gpg --import-ownertrust" to restore them)
+4125405B3718A3870A90F3437FCF50831D528192:6:'''
+
+/* start of bash scripts */
+
+def define_environment = """
+  echo "export packager=$packager" | tee -a ~/environment_setup.sh
+  echo "export packager_email=$packager_email" | tee -a ~/environment_setup.sh
+  echo "export artf_repo=$artf_repo" | tee -a ~/environment_setup.sh
+  echo "export artf_ubuntu_repo=$artf_ubuntu_repo" | tee -a ~/environment_setup.sh
+  echo "$packages_array" | tee -a ~/environment_setup.sh
+"""
+def setup_gpg = '''
+
+  set -xe
+  source ~/environment_setup.sh
+
+  # Additional packages
+  # haveged is for gpg to generate key faster
+  sudo apt-get install -y gnupg haveged
+
+  # Package signing key parameters
+  cat <<EOF > ~/gpg.unattended
+Key-Type: RSA
+Key-Length: 2048
+Subkey-Type: RSA
+Subkey-Length: 2048
+Name-Real: $packager
+Name-Email: $packager_email
+Expire-Date: 1m
+EOF
+
+  cat ~/gpg.unattended
+
+  # Create package signing key
+  # this takes forever on a VM
+  gpg --gen-key --batch ~/gpg.unattended
+  gpg --list-keys
+'''
+def setup_gpg_fakekey = """
+
+  set -xe
+
+  echo '${gpg_fake_otrust}' | gpg --import-ownertrust
+  echo '${gpg_fake_secret}' | gpg --import
+  gpg --list-keys
+"""
+def setup_builder = '''
+
+  set -xe
+  source ~/environment_setup.sh
+
+  # http://packaging.ubuntu.com/html/getting-set-up.html
+  # 2.1. Install basic packaging software
+  sudo apt-get install -y pbuilder ubuntu-dev-tools apt-file
+
+  # pbuilder config
+  cat <<EOF > ~/.pbuilderrc
+COMPONENTS="main restricted universe multiverse"
+EOF
+  cat ~/.pbuilderrc
+
+  # 2.1.3. Set up pbuilder
+  #pbuilder-dist xenial create
+  sudo pbuilder --create --mirror $artf_ubuntu_repo --debootstrapopts --variant=buildd
+'''
+def build_packages = '''
+
+  set -xe
+  source ~/environment_setup.sh
+
+  # 2.2.5. Configure your shell
+  export DEBFULLNAME=$packager
+  export DEBEMAIL=$packager_email
+  artf_ubuntu_repo=$artf_ubuntu_repo
+
+  echo "${packages[@]}"
+
+  index=0
+  while [ "${index}" -lt "${#packages[*]}" ]
+  do
+
+    package=${packages[$index]}
+    release=${packages[$index+1]}
+    show_version=${packages[$index+2]}
+
+    # 3.7. Getting the code
+    pull-lp-source --mirror=${artf_ubuntu_repo} ${package} ${release}
+
+    # build package
+    backportpackage --mirror=${artf_ubuntu_repo} --build --workdir=. ./${package}*\\.dsc
+
+    let index=${index}+3
+
+  done
+
+  ls -l buildresult/
+'''
+def smoke_test = '''
+
+  set -xe
+  source ~/environment_setup.sh
+
+  echo ${packages[@]}
+
+  index=0
+  while [ "${index}" -lt "${#packages[*]}" ]
+  do
+
+    package=${packages[$index]}
+    release=${packages[$index+1]}
+    show_version=${packages[$index+2]}
+
+    # show current version if installed
+    dpkg -l "${package}*" && eval ${show_version}
+
+    # Smoke test: testing install
+    sudo dpkg -i buildresult/${package}*\\.deb
+
+    # show updated version
+    dpkg -l "${package}*" && eval ${show_version}
+
+    let index=${index}+3
+
+  done
+'''
+def publish_packages = '''
+
+  set -xe
+  source ~/environment_setup.sh
+
+  curl_opts="-u${ARTIFACTORY_USER}:${ARTIFACTORY_PASSWORD} -X PUT"
+  repo_opts="deb.component=main;deb.architecture=amd64"
+
+  pushd buildresult/
+  for package in $(ls -1 *\\.deb); do
+
+    sha1=$(sha1sum ${package} | cut -d' ' -f1)
+    md5=$(md5sum ${package} | cut -d' ' -f1)
+    sha256=$(sha256sum ${package} | cut -d' ' -f1)
+
+    curl_headers=("--header" "X-Checksum-SHA1:${sha1}")
+    curl_headers+=("--header" "X-Checksum-MD5:${md5}")
+    curl_headers+=("--header" "X-Checksum-SHA256:${sha256}")
+
+    # extracting distribution, e.g. xenial-backports
+    mkdir -p tmp/${package}
+    dpkg -X ${package} tmp/${package}/
+    distribution=$(find tmp/${package}/ -name "changelog.Debian.gz" \
+      -exec dpkg-parsechangelog -l {} \\; | awk '/Distribution/ {print $2}')
+
+    # package push
+    # WARNING: this exposes login and password
+    if [[ ${UPLOAD_PACKAGES} == true ]]; then
+      curl ${curl_opts} ${curl_headers[@]} \
+        "${artf_repo}/${package};deb.distribution=${distribution};${repo_opts}" \
+        -T ${package}
+    else
+      echo "Not uploading package: ${package}"
+    fi
+  done
+  popd
+'''
+/* end of bash scripts */
+
+vm(NODE_NAME, NODE_TMPL) {
+   stage('Setup environment'){
+
+    sh(returnStatus: true, script: define_environment)
+
+    sh "env | sort"
+
+    sh "cat ~/environment_setup.sh"
+    sh "sudo cp -p /etc/apt/sources.list{,.old}"
+    sh "sudo sed -i -e 's|nova.clouds.archive.ubuntu.com|$ARTF_WEB_URL|g' /etc/apt/sources.list"
+    sh "sudo sed -i -e 's|security.ubuntu.com|$ARTF_WEB_URL|g' /etc/apt/sources.list"
+    sh "sudo apt-get -y update"
+    sh "sudo apt-get -y upgrade"
+
+    if (FAKE_GPG_KEY == 'false') {
+      // standard key setup
+      sh(returnStatus: true, script: setup_gpg)
+    } else {
+      // we also can setup GPG with test fake key, instead of standard key setup above
+      sh(returnStatus: true, script: setup_gpg_fakekey)
+    }
+
+    sh(returnStatus: true, script: setup_builder)
+  }
+
+  stage('Build packages'){
+
+    sh(returnStatus: true, script: build_packages)
+  }
+
+  stage('Smoke Test packages'){
+
+    sh(returnStatus: true, script: smoke_test)
+  }
+
+  stage('Publish packages'){
+
+    // this contains loop to properly identify
+    //sh(returnStatus: true, script: publish_packages)
+
+    sh "pwd; ls -l; echo UPLOAD_PACKAGES: $UPLOAD_PACKAGES"
+    dir ("buildresult/"){
+      sh "pwd; ls -l"
+
+      // FIXME: deb.distribution needs to be derived from package,
+      // see publish_packages shell script above
+      if (UPLOAD_PACKAGES == 'true') {
+        artf = Artifactory.server 'artifactory'
+        uploadSpec = """{"files": [{
+                    "pattern": "*.deb",
+                    "target": "${artf_repo}",
+                    "props": "deb.distribution=xenial-backports;deb.component=main;deb.architecture=amd64",
+                    "flat": "true"
+                  }]}"""
+        artf.publishBuildInfo(artf.upload(uploadSpec))
+      } else {
+        echo 'Not uploading packages, as UPLOAD_PACKAGES has noot been enabled'
+      }
+    }
+  }
+}
