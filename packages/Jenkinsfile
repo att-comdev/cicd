@@ -1,0 +1,188 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+packager="attcomdev.jenkins"
+packager_email="attcomdev.jenkins@gmail.com"
+export artf_repo="$ARTF_WEB_URL/ubuntu-packages/pool"
+
+/* start of bash scripts */
+def show_environment = '''
+  echo "=== Environment ==="
+  env
+  pwd
+  id
+  cat /etc/os-release
+  uname -a
+  hostname
+  cat /etc/apt/sources.list
+'''
+def setup_gpg = '''
+  
+  set -xe
+  # Additional packages
+  # rng-tools if mostly for gpg to generate key faster
+  sudo apt -y install gnupg rng-tools
+
+  # Package signing key parameters
+  cat <<EOF > gpg.unattended
+Key-Type: RSA
+Key-Length: 4096
+Subkey-Type: RSA
+Subkey-Length: 4096
+Name-Real: $packager
+Name-Email: $packager_email
+Expire-Date: 2y
+EOF
+
+  # Create pacgpg.unattendedkage signing key
+  cat gpg.unattended
+  gpg --gen-key --batch gpg.unattended
+  gpg --list-keys
+'''
+def setup_builder = '''
+  
+  set -xe
+  # http://packaging.ubuntu.com/html/getting-set-up.html
+  # 2.1. Install basic packaging software
+  sudo apt -y install pbuilder ubuntu-dev-tools apt-file
+
+  # pbuilder config
+  cat <<EOF > ~/.pbuilderrc
+COMPONENTS="main restricted universe multiverse"
+EOF
+
+  # 2.1.3. Set up pbuilder
+  #pbuilder-dist xenial create
+  sudo pbuilder --create --mirror ${artf_ubuntu_repo} --debootstrapopts --variant=buildd
+'''
+def build_packages = '''
+
+  set -xe
+  # 2.2.5. Configure your shell
+  export DEBFULLNAME="${packager}"
+  export DEBEMAIL="${packager_email}"
+
+  index=0
+  while [ "${index}" -lt "${#packages[*]}" ]
+  do
+
+    package=${packages[$index]}
+    release=${packages[$index+1]}
+    dcs=${packages[$index+2]}
+    show_version=${packages[$index+3]}
+
+    echo
+    echo "index: ${index}"
+    echo "package: ${package}"
+    echo "release version: ${release}"
+    echo "dcs file: ${dcs}"
+    echo "version command: ${show_version}"
+    echo
+
+    # 3.7. Getting the code
+    pull-lp-source --mirror=${artf_ubuntu_repo} ${package} ${release}
+
+    # build package
+    backportpackage --mirror=${artf_ubuntu_repo} --build --workdir=. ./${dcs}
+
+    let index=${index}+4
+
+  done
+'''
+def smoke_test = '''
+
+  set -xe
+  index=0
+  while [ "${index}" -lt "${#packages[*]}" ]
+  do
+
+    package=${packages[$index]}
+    release=${packages[$index+1]}
+    dcs=${packages[$index+2]}
+    show_version=${packages[$index+3]}
+
+    echo
+    echo "index: ${index}"
+    echo "package: ${package}"
+    echo "release version: ${release}"
+    echo "dcs file: ${dcs}"
+    echo "version command: ${show_version}"
+    echo
+
+    # show current version if installed
+    dpkg -l "${package}*" && eval ${show_version}
+
+    # Smoke test: testing install
+    sudo dpkg -i buildresult/${package}*\\.deb
+
+    # show updated version
+    dpkg -l "${package}*" && eval ${show_version}
+
+    let index=${index}+4
+
+  done
+'''
+def publish_packages = '''
+
+  set -xe
+  curl_opts="-u${artf_user}:${artf_pass} -XPUT"
+  repo_opts="deb.component=main;deb.architecture=amd64"
+
+  pushd buildresult/
+  for package in $(ls -1 *\\.deb); do
+
+    sha1=$(sha1sum ${package} | cut -d' ' -f1)
+    md5=$(md5sum ${package} | cut -d' ' -f1)
+    sha256=$(sha256sum ${package} | cut -d' ' -f1)
+
+    curl_headers=("--header" "X-Checksum-SHA1:${sha1}")
+    curl_headers+=("--header" "X-Checksum-MD5:${md5}")
+    curl_headers+=("--header" "X-Checksum-SHA256:${sha256}")
+
+    mkdir -p tmp/${package}
+    dpkg -X ${package} tmp/${package}/
+    distribution=$(find tmp/${package}/ -name "changelog.Debian.gz" \
+      -exec dpkg-parsechangelog -l {} \\; | awk '/Distribution/ {print $2}')
+
+    echo curl ${curl_opts} ${curl_headers[@]} \
+      "${artf_repo}/${package};deb.distribution=${distribution};${repo_opts}" \
+      -T ${package}
+  done
+  popd
+'''
+/* end of bash scripts */
+
+vm(NODE_NAME, NODE_TMPL) {
+   stage('Setup environment'){
+
+    def status = 0
+
+    sh(returnStatus: true, script: show_environment)
+
+    //status = sh(returnStatus: true, script: setup_repos_and_update)
+    sh "sudo cp -p /etc/apt/sources.list /etc/apt/sources.list.old"
+    sh "sudo sed -i -e 's|nova.clouds.archive.ubuntu.com|$ARTF_WEB_URL|g' /etc/apt/sources.list"
+    sh "sudo sed -i -e 's|security.ubuntu.com|$ARTF_WEB_URL|g' /etc/apt/sources.list"
+    //sh "echo $sources_list | sudo tee -a /etc/apt/sources.list"
+    sh "sudo apt-get -y update && sudo apt-get -y upgrade"
+
+    sh(returnStatus: true, script: setup_gpg)
+
+    sh(returnStatus: true, script: setup_builder)
+  }
+
+  stage('Build packages'){
+
+    status = sh(returnStatus: true, script: build_packages)
+  }
+
+  stage('Test packages'){
+
+    status = sh(returnStatus: true, script: smoke_test)
+  }
+
+  stage('Publish packages'){
+
+    status = sh(returnStatus: true, script: publish_packages)
+  }
+}
