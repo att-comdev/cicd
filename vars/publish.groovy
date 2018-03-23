@@ -71,6 +71,7 @@ def setProperty (String creds, String url, String properties) {
        opts = '-u $REPO_USER:$REPO_PASSWORD -X PUT'
        sh "curl ${opts} ${url}?properties=${properties}"
    }
+}
 /**
  * Sets property to the artifact (file/directory/respository) in Artifactory
  *
@@ -82,5 +83,4 @@ def setProperty (String creds, String url, String properties) {
 def setProperty (String creds, String url, Map properties) {
       def p = properties.collect { it }.join(';')
       setProperty(creds, url, p)
-   }
 }
