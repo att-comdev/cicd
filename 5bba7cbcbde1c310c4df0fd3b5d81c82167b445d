@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6162feb4_ebc34a17",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 29
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-03-23T14:47:18Z",
+      "side": 1,
+      "message": "I suggest to only enable stable/ocata - as our requirements image is locked to \u0027ocata\u0027.\n\nThis then will only trigger on ocata changes, so we don\u0027t get strange newton and all failures.",
+      "revId": "5bba7cbcbde1c310c4df0fd3b5d81c82167b445d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
