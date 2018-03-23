@@ -1,0 +1,6 @@
+data.charts.dependencies.type: git
+data.charts.dependencies.openstack-helm.location: "https://github.com/openstack/openstack-helm"
+data.charts.dependencies.openstack-helm.subpath: "helm-toolkit"
+data.charts.dependencies.openstack-helm.reference: "16c6d31155a9831bf040ddf934b6626247d43583"
+data.charts.dependencies.openstack-helm-infra.location: "https://github.com/openstack/openstack-helm-infra"
+data.charts.dependencies.openstack-helm-infra.reference: "ac6b9b4037826d2acd453cb8ed126ae5fd258571"
