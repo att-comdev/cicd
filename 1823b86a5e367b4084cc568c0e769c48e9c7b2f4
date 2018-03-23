@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "145139c4_a330b243",
+        "filename": "vars/build.groovy",
+        "patchSetId": 15
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-03-23T13:43:51Z",
+      "side": 1,
+      "message": "I would really try to void lines longer then 80, or especially 120 chars. It\u0027s very hard to read/review.",
+      "revId": "1823b86a5e367b4084cc568c0e769c48e9c7b2f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e803edbe_0d04ed27",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 15
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-03-23T13:43:51Z",
+      "side": 1,
+      "message": "Might be good to consider passing in a list rather \"item1,item2,item3\" from usage perspective.",
+      "revId": "1823b86a5e367b4084cc568c0e769c48e9c7b2f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
