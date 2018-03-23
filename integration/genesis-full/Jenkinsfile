@@ -1,0 +1,319 @@
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.DumperOptions;
+
+import groovy.json.JsonSlurperClassic
+import groovy.json.JsonOutput
+
+
+JENKINS_SLAVE_BUILDER = 'genesis-builder'
+
+PROM_BUILD_NODE_NAME = "prom-build"
+PROM_BUILD_NODE_IP = '10.24.20.99'
+GENESIS_NODE_NAME = "genesis"
+GENESIS_NODE_IP = '10.24.20.100'
+
+
+PROMENADE_IMAGE='${ARTF_DOCKER_URL}/att-comdev/promenade@sha256:e08b077c5d75f725120dfa1900dffbde790661b8815af90083ff19c6edcfbc2d'
+PEGLEG_IMAGE='${ARTF_DOCKER_URL}/att-comdev/pegleg:b5aed4df775a2dd665f16e8a0674a0bab869431a'
+
+MANIFEST_PREFIX='region/atl-lab1'
+
+PROM_BUILD_TMPL = "${MANIFEST_PREFIX}/bootstrap/prom-build/prom-build.yaml"
+GENESIS_TMPL = "${MANIFEST_PREFIX}/bootstrap/genesis/genesis.yaml"
+
+SONOBUOY_CFG="${MANIFEST_PREFIX}/test/sonobuoy.yaml"
+
+ARTF_BASE="clcp-integration/${JOB_BASE_NAME}/${BUILD_NUMBER}"
+DECKHAND_URL='http://deckhand-int.ucp.svc.cluster.local:9000/api/v1.0'
+
+def setup_interfaces = {
+    sh '''cat << EOF | sudo tee -a /etc/network/interfaces
+iface ens3 inet dhcp
+iface ens4 inet dhcp
+iface ens5 inet dhcp
+iface ens6 inet dhcp
+iface ens7 inet dhcp
+iface ens8 inet dhcp
+EOF
+
+sudo ifup ens4
+sudo ifup ens5
+sudo ifup ens6
+sudo ifup ens7
+sudo ifup ens8'''
+}
+def genesis_setup = {
+    gerrithub.clone("att-comdev/treasuremap", '${GERRIT_PATCHSET_REVISION}')
+    // funcs.groovy
+
+    git 'https://review.gerrithub.io/att-comdev/cicd'
+
+    def funcs = load "${WORKSPACE}/integration/genesis-integration/funcs.groovy"
+
+    funcs.jenkins_slave_destroy(PROM_BUILD_NODE_NAME)
+    funcs.jenkins_slave_launch(PROM_BUILD_NODE_NAME,
+        "${WORKSPACE}/clcp-integration/${PROM_BUILD_TMPL}", PROM_BUILD_NODE_IP)
+
+    funcs.jenkins_slave_destroy(GENESIS_NODE_NAME)
+    funcs.jenkins_slave_launch(GENESIS_NODE_NAME,
+        "${WORKSPACE}/clcp-integration/${GENESIS_TMPL}", GENESIS_NODE_IP)
+
+    stage("Nodes Geting Ready") {
+        timeout (14) {
+            node(PROM_BUILD_NODE_NAME) {
+                sh 'echo "Welcome $(hostname)"'
+            }
+            node(GENESIS_NODE_NAME) {
+                sh 'echo "Welcome $(hostname)"'
+            }
+        }
+    }
+}
+
+
+//// ipmi utils
+
+def ipmi_power_off = {
+    withCredentials([usernamePassword(credentialsId: 'integration-ipmi',
+                                      usernameVariable: 'IPMI_USERNAME',
+                                      passwordVariable: 'IPMI_PASSWORD')]) {
+        for (ip = 11; ip <= 14; ip++) {
+            opts = "-I lanplus -H 10.23.104.${ip} -U \$IPMI_USERNAME -P \$IPMI_PASSWORD"
+            sh ("ipmitool ${opts} chassis power off")
+        }
+    }
+}
+
+
+def prom_build_prepare = {
+    stage("Build Prepare") {
+        gerrithub.clone("att-comdev/treasuremap", '${GERRIT_PATCHSET_REVISION}')
+        checkout poll: false,
+            scm: [$class: 'GitSCM',
+            branches: [[name: 'master']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[$class: 'RelativeTargetDirectory',
+                relativeTargetDir: 'clcp-integration']],
+            submoduleCfg: [],
+            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                url: 'ssh://jenkins-attcomdev@10.24.20.18:29418/clcp-integration',
+                    credentialsId:'jenkins-stage-master']]]
+        sh "cp ${WORKSPACE}/clcp-integration/secrets/artifactory_docker_key.yaml ${WORKSPACE}/deployment_files/site/atl-lab1/secrets/passphrases/"
+
+        ipmi_power_off()
+    }
+}
+
+//// artf utils
+
+def artf = Artifactory.server 'artifactory'
+
+def artf_spec = { pattern, target ->
+    spec = ['files': [['pattern': pattern,
+                       'target': target,
+                       'flat': true]]]
+    return new JsonOutput().toJson(spec)
+}
+
+def artf_publish = { pattern, target ->
+    info = artf.upload(artf_spec(pattern, target))
+    artf.publishBuildInfo(info)
+}
+
+def artf_download = { pattern, target ->
+    artf.download(artf_spec(pattern, target))
+}
+
+
+def site_config_publish = {
+    stage('Site Config Publish') {
+        sh "tar czf site-config.tar.gz atl-lab1_yaml"
+        artf_publish('site-config.tar.gz', "${ARTF_BASE}/configs/")
+    }
+}
+
+def stable_site_config_publish = {
+    stage('Stable Site Config Publish') {
+        artf_publish('site-config.tar.gz', "${ARTF_BASE}/stable/configs/")
+    }
+}
+def pegleg_site_collect = {
+    stage('pegleg Site Collect') {
+        sh "mkdir ${WORKSPACE}/atl-lab1_yaml"
+        sh "sudo docker run --rm -t -v \$(pwd):/target ${PEGLEG_IMAGE} pegleg site -p /target/deployment_files collect atl-lab1 -s /target/atl-lab1_yaml"
+    }
+}
+
+
+def prom_config_gen = {
+    stage ("Promenade Config Gen") {
+        opts = '--rm -t -w /target -v $(pwd):/target'
+        cmd = "promenade generate-certs -o atl-lab1_yaml/ atl-lab1_yaml/*.yaml"
+        sh "sudo docker run ${opts} ${PROMENADE_IMAGE} ${cmd}"
+
+        sh "mkdir -p promenade-bundle"
+        cmd = "promenade build-all --validators -o promenade-bundle atl-lab1_yaml/*.yaml"
+        sh "sudo docker run ${opts} ${PROMENADE_IMAGE} ${cmd}"
+    }
+}
+
+
+def prom_config_publish = {
+    stage ("Promenade Config Publish") {
+        sh 'tar czf promenade-bundle.tar.gz promenade-bundle'
+        artf_publish('promenade-bundle.tar.gz', "${ARTF_BASE}/configs/")
+    }
+}
+
+
+def prom_deploy = {
+    stage ("Promenade Deploy k8s") {
+
+        artf_download("${ARTF_BASE}/configs/promenade-bundle.tar.gz", "")
+        sh "tar xzf promenade-bundle.tar.gz"
+
+        dir ("promenade-bundle") {
+            timeout (60) {
+                sh "sudo bash genesis.sh"
+                sh "sudo bash validate-genesis.sh"
+            }
+        }
+        sh "sudo kubectl get pods --all-namespaces -o wide"
+    }
+}
+
+
+
+//// deckhand utils
+def deckhand_load = {
+    stage('Deckhand Load') {
+
+        artf_download("${ARTF_BASE}/configs/site-config.tar.gz", "")
+        sh "tar xzf site-config.tar.gz"
+          checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: 'master']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [[$class: 'RelativeTargetDirectory',
+                    relativeTargetDir: 'shipyard']],
+                submoduleCfg: [],
+                userRemoteConfigs: [[url: 'https://review.gerrithub.io/att-comdev/shipyard']]]
+
+        dir ("shipyard/tools") {
+                sh "./deckhand_load_yaml.sh atl_lab1 ${WORKSPACE}/atl-lab1_yaml"
+        }
+    }
+}
+
+
+//// drydock provisioning
+
+def site_deploy = {
+
+
+    def design = "deckhand+${DECKHAND_URL}/revisions/1/rendered-documents"
+
+    stage ('Shipyard Site Deploy') {
+
+        dir ("shipyard/tools") {
+            sh '''export namespace=ucp
+                export max_shipyard_count=80
+                export shipyard_query_time=90
+                export OS_AUTH_URL=http://keystone.ucp.svc.cluster.local:80/v3
+                export OS_PASSWORD=password
+                export OS_PROJECT_DOMAIN_NAME=default
+                export OS_PROJECT_NAME=service
+                export OS_USERNAME=shipyard
+                export OS_USER_DOMAIN_NAME=default
+                bash execute_shipyard_action.sh deploy_site'''
+        }
+    }
+}
+
+
+def sonobuoy_run = {
+    if (SONOBUOY_ENABLED.toBoolean()) {
+        stage('Sonobuoy E2E (v0.9.0)') {
+            sh 'mkdir -p /tmp/sonobuoy' // test results
+
+            sh "cat ${SONOBUOY_CFG} |sudo kubectl apply -f -"
+
+            timeout (12) {
+                cmd = 'sudo kubectl get pods -n heptio-sonobuoy |grep 1/1'
+                while (sh(returnStatus: true, script: cmd)) sleep 30
+            }
+
+            timeout (120) {
+                cmd = 'sudo kubectl get pods -n heptio-sonobuoy |grep 1/1'
+                while (!sh(returnStatus: true, script: cmd)) sleep 300
+            }
+        }
+
+        stage('Sonobuoy Publish') {
+
+            artf_publish('/tmp/sonobuoy/*.tar.gz', "${ARTF_BASE}/sonobuoy/")
+
+            sh 'mkdir -p results'
+            sh 'tar xf /tmp/sonobuoy/*.tar.gz -C results'
+
+            junit 'results/plugins/e2e/results/junit_01.xml'
+        }
+    }
+}
+
+def debug_report = {
+    stage('Debug Report'){
+        sh "sudo apt-get install -y jq"
+        sh "sudo bash /usr/local/bin/debug-report.sh"
+        artf_publish('debug-genesis.tgz', "${ARTF_BASE}/logs/")
+    }
+}
+def console_logs_publish = {
+    stage('Build Log Publish') {
+
+        sh "wget -q ${BUILD_URL}/consoleText"
+        sh 'tar czf consoleText.tar.gz consoleText'
+
+        artf_publish('consoleText.tar.gz', "${ARTF_BASE}/logs/")
+    }
+}
+
+
+
+//// main flow
+
+node(JENKINS_SLAVE_BUILDER) {
+    genesis_setup()
+}
+
+node(PROM_BUILD_NODE_NAME) {
+    prom_build_prepare()
+    pegleg_site_collect()
+    prom_config_gen()
+    prom_config_publish()
+    site_config_publish()
+}
+
+node(GENESIS_NODE_NAME) {
+    try {
+        setup_interfaces()
+
+        prom_deploy()
+
+    // upload Drydock site YAMLs into Deckhand
+        deckhand_load()
+
+    // Deploy_site
+        site_deploy()
+
+    // e2e kubernetes conformance tests (optional)
+        sonobuoy_run()
+    } finally{
+        debug_report()
+    }
+}
+
+node(PROM_BUILD_NODE_NAME) {
+    // stable_site_config_publish()
+    console_logs_publish()
+}
