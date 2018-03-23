@@ -16,6 +16,24 @@
       "revId": "92383c725df8148906257fae2cd4b06d932100aa",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3ce2f0c_17d6b2c8",
+        "filename": "vars/build.groovy",
+        "patchSetId": 14
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-03-23T09:17:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e67b3fbb_1233781f",
+      "revId": "92383c725df8148906257fae2cd4b06d932100aa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
