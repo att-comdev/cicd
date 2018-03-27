@@ -37,6 +37,20 @@ def image (String creds, String url, String src, String dst) {
    }
 }
 
+def artifactory (String src, String dst, String test) {
+    if(!"${RELEASE_CURRENT_KEY}"){
+        RELEASE_CURRENT_KEY="5EC.images.${JOB_BASE_NAME}.current"
+    }
+    image('jenkins-artifactory', ARTF_DOCKER_URL, src,
+          "${ARTF_DOCKER_URL}/${dst}")
+    if("${GERRIT_EVENT_TYPE}" == "change-merged"){
+        def imageDigest=build.getImageDigest(dst)
+        setProperty('jenkins-artifactory',
+                    "${ARTF_API_URL}/clcp-manifests",
+                    "${RELEASE_CURRENT_KEY}=${imageDigest}")
+    }
+}
+
 def artifactory (String src, String dst) {
     image('jenkins-artifactory', ARTF_DOCKER_URL, src,
           "${ARTF_DOCKER_URL}/${dst}")
