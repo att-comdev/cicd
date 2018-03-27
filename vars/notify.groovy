@@ -1,6 +1,7 @@
 
 // Required credentials names
 //  - jenkins-slack
+//  - jenkins-somethingelse
 
 // Jenkins global env variables (: examples)
 // - SLACK_URL : https://att-comdev.slack.com/services/hooks/jenkins-ci/
@@ -8,8 +9,8 @@
 
 
 def msg(String msg, String channel=SLACK_DEFAULT_CHANNEL){
-// Usage example:  funcs.slack_msg( "${env.GERRIT_CHANGE_URL} is OK!")
-// Custom channel: funcs.slack_msg( "${env.GERRIT_CHANGE_URL} is OK!",'#my_channel')
+// Usage example:  notify.msg( "${env.GERRIT_CHANGE_URL} is OK!")
+// Custom channel: notify.msg( "${env.GERRIT_CHANGE_URL} is OK!",'#my_channel')
     slackSend(
         baseUrl: SLACK_URL,
         tokenCredentialId: 'jenkins-slack',

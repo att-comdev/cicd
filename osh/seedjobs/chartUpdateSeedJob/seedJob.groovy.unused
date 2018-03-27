@@ -91,13 +91,13 @@ repositoryContents.each {
      
   
   
-     def slack = """
+     def notify = """
      def message = ""
      for(anError in RESULTS) {
          message=message + anError +'\n'
      }
      if(message != ""){
-           slackSend channel: '@staceyfletcher', message: message, tokenCredentialId: 'staceyfletcher'
+           notifySend channel: '@staceyfletcher', message: message, tokenCredentialId: 'staceyfletcher'
      }\n"""
   
   pipelineJob("ThirdPartyGating/OSH-ChartUpdate/"+folderProject+"/HelmChart-"+dirName.replaceAll('/','-')) {
