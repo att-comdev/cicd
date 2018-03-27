@@ -1,0 +1,28 @@
+import groovy.json.JsonSlurper
+JENKINS_VM_LAUNCH='local-vm-launch'
+
+def jsonSlurper = new JsonSlurper()
+
+node('openstack-helm-charts') {
+   stage('Query Artifactory'){
+      withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'REPO_USER',
+                    passwordVariable: 'REPO_PASSWORD')]) {
+         
+           sh 'echo "items.find(${AQL_FIND}).include(${AQL_INCLUDE})" > aql.txt'
+           sh "cat ./aql.txt"
+            
+           def cmd = 'curl -vv -u ${REPO_USER}:${REPO_PASSWORD} -X POST -H \"content-type: text/plain\" -T ./aql.txt ${ARTF_WEB_URL}/api/search/aql'
+           def jsonDocument = sh (script: cmd, returnStdout: true)
+          
+           jsonSlurper = new JsonSlurper()
+           def object = jsonSlurper.parseText(jsonDocument)
+
+           for (entry in object.results) {
+               for (aProperty in entry.properties){
+                   println(aProperty.key+": "+aProperty.value)
+               }
+           }
+        }
+   }
+}
