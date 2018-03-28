@@ -3,7 +3,8 @@ import groovy.json.JsonSlurper
 def imagesJson = '''{ "UCP":[{
                         "repo":"att-comdev",
                         "images":[
-                                  "shipyard"
+                                  "shipyard",
+                                  "nagios"
                                   ]
                         }]}'''
 def jsonSlurper = new JsonSlurper()
@@ -11,6 +12,7 @@ def object = jsonSlurper.parseText(imagesJson)
 
 for (entry in object.UCP) {
     for (image in entry.images) {
+        folder("images/${entry.repo}/${image}")
         pipelineJob("images/${entry.repo}/${image}/${image}") {
             configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
