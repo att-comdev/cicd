@@ -195,7 +195,7 @@ def call(name, tmpl, Closure body) {
         }
 
     } catch (error) {
-        slack.msg("Pipeline failed: ${error}")
+        notify.msg("Pipeline failed: ${error}")
         error(error)
 
     } finally {
