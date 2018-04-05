@@ -32,7 +32,7 @@ def vms(body) {
         body()
 
     } catch (error) {
-        slack.msg("Pipeline failed: ${error}")
+        notify.msg("Pipeline failed: ${error}")
         error(error)
     } finally {
         node(JENKINS_VM_LAUNCH) {
@@ -50,7 +50,7 @@ def vms(body) {
                                                         repository: 'att-comdev-jenkins-logs',
                                                         version: '$BUILD_NUMBER'
                 } catch (Exception e){
-                    //TODO slack notify of failure to upload Jenkins logs to cicd team.
+                    //TODO notify of failure to upload Jenkins logs to cicd team.
                 }
             }
             stage('Nodes Destroy') {

@@ -4,22 +4,19 @@ JENKINS_VM_LAUNCH = 'local-vm-launch'
 PROM_NODE_BASE = "promenade-${BUILD_NUMBER}"
 PROM_NODE_TMPL = "promenade/promenade.yaml"
 
-PROM_VERSION = "0.1.0-${GERRIT_CHANGE_NUMBER}"
-PROM_PS = "ps${GERRIT_CHANGE_NUMBER}.${GERRIT_PATCHSET_NUMBER}"
-
-ARTF_URL = env.ARTF_DOCKER_URL
-PROM_IMAGE_PS = "${ARTF_URL}/ucp-patchset/promenade:${PROM_PS}"
-PROM_IMAGE = "${ARTF_URL}/ucp/promenade:${PROM_VERSION}"
-PROM_IMAGE_LATEST = "${ARTF_URL}/ucp/promenade:latest"
+IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="att-comdev"
 
 PROM_BUNDLE = "promenade-bundle.tgz"
-ARTF_PROM_BUNDLE = "ucp/promenade/${PROM_VERSION}/${PROM_BUNDLE}"
+ARTF_PROM_BUNDLE = "ucp/promenade/${IMAGE_TAG}/${PROM_BUNDLE}"
 
-
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
+IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
 // node info { node : [hostname, ip] }
 PROM_NODES = [build:[], genesis:[], master1:[], master2:[], worker:[]]
-
 
 // wrapper for main flow
 def vms(body) {
@@ -79,37 +76,51 @@ vms {
 
     stage('Promenade Build'){
         node("${PROM_NODE_BASE}-build"){
-            gerrithub.clone("att-comdev/promenade", GERRIT_REFSPEC)
-
-            if (GERRIT_EVENT_TYPE != 'change-merged') {
-                PROM_IMAGE = PROM_IMAGE_PS // use patchset
+             if(env.GERRIT_NEWREV){
+                echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+                IMAGE_TAG=env.GERRIT_NEWREV
+                IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
             }
+            if(GERRIT_EVENT_TYPE != 'change-merged') {
+                checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: IMAGE_TAG]],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [
+                    [$class: 'LocalBranch',
+                            localBranch: 'jenkins'],
+                            [$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: ""]],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                                 url: "https://review.gerrithub.io/att-comdev/${JOB_BASE_NAME}"]]]
+                sh '''git config user.email "attcomdev.jenkins@gmail.com"
+                    git config user.name "Jenkins"
+                    git pull --rebase origin master'''
+            } else {
+                checkout poll: false,
+                scm: [$class: 'GitSCM',
+                branches: [[name: IMAGE_TAG]],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [
+                    [$class: 'LocalBranch',
+                            localBranch: 'jenkins'],
+                            [$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: ""]],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                                 url: "https://review.gerrithub.io/att-comdev/${JOB_BASE_NAME}"]]]
+            }
+
             currentBuild.displayName = "${GERRIT_EVENT_TYPE}-${env.BUILD_NUMBER}"
 
             sh "sudo apt-get install -y docker.io curl"
-            sh "sudo docker build -t ${PROM_IMAGE} ."
+            sh "sudo docker build -t ${IMAGE} --label org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER} ."
+            sh "sudo docker inspect ${IMAGE} | grep promenade"
+            publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+            
         }
     }
-
-    stage('Promenade Publish'){
-        node("${PROM_NODE_BASE}-build"){
-            withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
-                    usernameVariable: 'ARTIFACTORY_USER',
-                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
-
-                opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
-
-                sh "sudo docker login ${opts} ${ARTF_URL}"
-                sh "sudo docker push ${PROM_IMAGE}"
-
-                if (GERRIT_EVENT_TYPE == 'change-merged') {
-                    sh "sudo docker tag ${PROM_IMAGE} ${PROM_IMAGE_LATEST}"
-                    sh "sudo docker push ${PROM_IMAGE_LATEST}"
-                }
-            }
-        }
-    }
-
 
     //// artf utils
 
@@ -142,7 +153,7 @@ vms {
            """
 
            sh "echo '${config}' > tools/gate/config-env"
-           sh "sudo ./tools/gate/build.sh ${PROM_IMAGE}"
+           sh "sudo ./tools/gate/build.sh ${IMAGE}"
 
            spec = artf_spec("tools/gate/${PROM_BUNDLE}", ARTF_PROM_BUNDLE)
            artf.publishBuildInfo(artf.upload(spec))
@@ -164,15 +175,13 @@ vms {
             jn = "genesis.sh"
         }
 
-        timeout (10) {
+        timeout (25) {
             dir("${WORKSPACE}/promenade-bundle") {
                sh ("sudo ./${jn}")
                sh ("sudo ./${vn}")
             }
         }
     }
-
-
     stage('Genesis Up'){
         node("${PROM_NODE_BASE}-genesis") {
             prom_up("genesis")
@@ -209,4 +218,3 @@ vms {
         }
     }
 }
-

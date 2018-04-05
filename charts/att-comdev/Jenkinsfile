@@ -98,9 +98,9 @@ vm(NODE_NAME,NODE_TMPL){
         def status = sh(returnStatus: true, script: build_charts)
         if (status != 0) {
             currentBuild.result = 'FAILED'
-            slack.msg("Charts build failed for ${GERRIT_CHANGE_NUMBER}!")
+            notify.msg("Charts build failed for ${GERRIT_CHANGE_NUMBER}!")
         }else{
-            slack.msg("Charts were built for ${GERRIT_CHANGE_NUMBER}")
+            notify.msg("Charts were built for ${GERRIT_CHANGE_NUMBER}")
         }
     }
     stage('Publish'){
@@ -116,6 +116,6 @@ vm(NODE_NAME,NODE_TMPL){
         def server = Artifactory.server 'artifactory'
         def uploadSpec = """{"files": [{"pattern":"*.tgz","target":"${ARTF_REPO}"}]}"""
         server.upload(uploadSpec)
-        slack.msg("Charts from ${GERRIT_PROJECT} pushed to ${ARTF_REPO}")
+        notify.msg("Charts from ${GERRIT_PROJECT} pushed to ${ARTF_REPO}")
     }
 }
