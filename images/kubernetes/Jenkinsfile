@@ -22,7 +22,7 @@ vm(NODE_NAME,NODE_TMPL) {
         def stage_status = sh(returnStatus: true, script: build_release )
         if (stage_status != 0) {
             currentBuild.result = 'FAILED'
-            slack.msg("${RELEASE_BRANCH}: Build failed!")
+            notify.msg("${RELEASE_BRANCH}: Build failed!")
         }
     }
 
@@ -63,9 +63,9 @@ vm(NODE_NAME,NODE_TMPL) {
         def build_status = sh(returnStatus: true, script: uploadScript )
         if (build_status != 0) {
             currentBuild.result = 'FAILED'
-            slack.msg("Kubernetes ${RELEASE_BRANCH}: Upload failed!")
+            notify.msg("Kubernetes ${RELEASE_BRANCH}: Upload failed!")
         }else{
-            slack.msg("Kubernetes: new ${RELEASE_BRANCH} available!")
+            notify.msg("Kubernetes: new ${RELEASE_BRANCH} available!")
         }
     }
 }
