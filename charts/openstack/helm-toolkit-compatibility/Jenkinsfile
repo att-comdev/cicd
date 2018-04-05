@@ -77,11 +77,11 @@ vm(NODE_NAME,NODE_TMPL){
             def warning_msg = "WARNING: Check failed for ${GERRIT_CHANGE_NUMBER}!\n"
             def error_msg = readFile "${WORKSPACE}/build/failed.log"
             def urls_msg  = "\n${GERRIT_CHANGE_URL} \n${BUILD_URL}"
-            slack.msg(warning_msg + error_msg + urls_msg)
+            notify.msg(warning_msg + error_msg + urls_msg)
             //also we'll notify #jenkins channel
-            slack.msg(warning_msg + error_msg + urls_msg, '#jenkins')
+            notify.msg(warning_msg + error_msg + urls_msg, '#jenkins')
         }else{
-            slack.msg("${GERRIT_CHANGE_NUMBER} is OK")
+            notify.msg("${GERRIT_CHANGE_NUMBER} is OK")
         }
     }
 }

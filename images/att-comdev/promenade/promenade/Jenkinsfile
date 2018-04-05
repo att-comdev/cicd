@@ -37,7 +37,7 @@ def vms(body) {
         body()
 
     } catch (error) {
-        slack.msg("Pipeline failed: ${error}")
+        notify.msg("Pipeline failed: ${error}")
         error(error)
 
     } finally {

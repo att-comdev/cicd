@@ -36,9 +36,9 @@ try{
                 currentBuild.result = 'FAILED'
 
                 //def output = readFile('build/failed.log').trim()
-                funcs.slack_msg("Charts build failed for ${env.GERRIT_CHANGE_NUMBER}!")
+                notify.msg("Charts build failed for ${env.GERRIT_CHANGE_NUMBER}!")
             }else{
-                funcs.slack_msg("pathchset ${env.GERRIT_CHANGE_NUMBER} is OK")
+                notify.msg("pathchset ${env.GERRIT_CHANGE_NUMBER} is OK")
             }
         }
     }
