@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ada744d0_cab08fa6",
+        "filename": "packages/Jenkinsfile",
+        "patchSetId": 129
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1012094
+      },
+      "writtenOn": "2018-04-06T03:59:14Z",
+      "side": 1,
+      "message": "suggest using variable name for repeated file",
+      "range": {
+        "startLine": 104,
+        "startChar": 46,
+        "endLine": 104,
+        "endChar": 65
+      },
+      "revId": "cc12adf5305dcc92ccbc8f79a86ef463891f89b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "15cfffea_924c53ea",
+        "filename": "packages/Jenkinsfile",
+        "patchSetId": 129
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1012094
+      },
+      "writtenOn": "2018-04-06T03:59:14Z",
+      "side": 1,
+      "message": "A few things.\n1. I don\u0027t think you need the sleep 30 here, you just want to be generating entropy during the keygen process to make it as fast as possible.\n2. Should kill the job after generating the key\n3. Use while loop instead of for loop (so there is no baked in assumption about 10,000 iterations of `ls -R /` lasting long enough until the end of the keygen process)\n4. There are apt packages like haveged you can use to generate entropy. This may be worth trying to see if it improves keygen time for VM which you mentioned was slow with `ls -r /`",
+      "range": {
+        "startLine": 133,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 17
+      },
+      "revId": "cc12adf5305dcc92ccbc8f79a86ef463891f89b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
