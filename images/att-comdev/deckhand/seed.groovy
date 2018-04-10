@@ -3,7 +3,6 @@ JOB_BASE = 'images/att-comdev/deckhand'
 folder(JOB_BASE)
 
 pipelineJob("${JOB_BASE}/deckhand") {
-
     configure {
         node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
             durationName 'hour'
