@@ -8,12 +8,15 @@ IMAGE_PREFIX="att-comdev"
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
 
-IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
-
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 
 vm(NODE_NAME, NODE_TMPL) {
     stage('Checkout'){
+        if(env.GERRIT_NEWREV){
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            IMAGE_TAG="${GERRIT_NEWREV}"
+        }
+        IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_NUMBER}"
         if(GERRIT_EVENT_TYPE != 'change-merged') {
             checkout poll: false,
             scm: [$class: 'GitSCM',
@@ -29,8 +32,6 @@ vm(NODE_NAME, NODE_TMPL) {
               sh '''git config user.email "attcomdev.jenkins@gmail.com"
                     git config user.name "Jenkins"
                     git pull --rebase origin master'''
-            //gerrithub.checkoutAndMerge("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG,"")
-            
         } else {
             gerrithub.clone("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG)
         }
@@ -38,25 +39,25 @@ vm(NODE_NAME, NODE_TMPL) {
     }
     stage('Docker Build and Run ') {
         timeout(20){
-            sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+            sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}.${BUILD_NUMBER}"
         }
     }
-    stage ('Run Tests'){
+    stage ('Functional Tests'){
         sh 'sudo apt-get -y install tox ara'
-        parallel(
-            Functional: {
-                withEnv(["DECKHAND_IMAGE=${IMAGE}",
+        timeout(10){
+            withEnv(["DECKHAND_IMAGE=${IMAGE}",
                 "DECKHAND_API_THREADS=4"]) {
-                    sh 'tox -e functional'
-                }
-            },
-            Integration: {
-                withEnv(["DECKHAND_IMAGE=${IMAGE}",
-                    "DECKHAND_API_THREADS=4"]) {
-                    sh './tools/integration-tests.sh'
-                }
+                sh 'tox -e functional'
             }
-        )
+        }
+    }
+    stage('Integration Tests'){
+        timeout(40){
+            withEnv(["DECKHAND_IMAGE=${IMAGE}",
+                "DECKHAND_API_THREADS=4"]) {
+                sh './tools/integration-tests.sh'
+            }
+        }
     }
     stage('Publish Gabbi Results') {
         publishHTML (target: [
@@ -68,7 +69,7 @@ vm(NODE_NAME, NODE_TMPL) {
         reportName: "Gabbi Functional"])
     }
     stage('Image Publish'){
-        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_NUMBER}")
         if (GERRIT_EVENT_TYPE == 'change-merged') {
             publish.artifactory (IMAGE, IMAGE_LATEST)
             publish.quay (IMAGE, QUAY_IMAGE_LATEST)
