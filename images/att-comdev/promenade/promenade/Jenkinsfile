@@ -1,4 +1,3 @@
-
 JENKINS_VM_LAUNCH = 'local-vm-launch'
 
 PROM_NODE_BASE = "promenade-${BUILD_NUMBER}"
@@ -9,11 +8,10 @@ DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
 IMAGE_PREFIX="att-comdev"
 
 PROM_BUNDLE = "promenade-bundle.tgz"
-ARTF_PROM_BUNDLE = "ucp/promenade/${IMAGE_TAG}/${PROM_BUNDLE}"
+ARTF_PROM_BUNDLE = "ucp/promenade/${GERRIT_PATCHSET_REVISION}/${BUILD_NUMBER}/${PROM_BUNDLE}"
 
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
-IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
 // node info { node : [hostname, ip] }
 PROM_NODES = [build:[], genesis:[], master1:[], master2:[], worker:[]]
@@ -76,11 +74,11 @@ vms {
 
     stage('Promenade Build'){
         node("${PROM_NODE_BASE}-build"){
-             if(env.GERRIT_NEWREV){
+            if(env.GERRIT_NEWREV){
                 echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
-                IMAGE_TAG=env.GERRIT_NEWREV
-                IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+                IMAGE_TAG="${GERRIT_NEWREV}"
             }
+            IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_NUMBER}"
             if(GERRIT_EVENT_TYPE != 'change-merged') {
                 checkout poll: false,
                 scm: [$class: 'GitSCM',
@@ -116,8 +114,7 @@ vms {
 
             sh "sudo apt-get install -y docker.io curl"
             sh "sudo docker build -t ${IMAGE} --label org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER} ."
-            sh "sudo docker inspect ${IMAGE} | grep promenade"
-            publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+            publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_NUMBER}")
         }
     }
 
