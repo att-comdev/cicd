@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "970cac51_25eb008f",
+        "filename": "images/att-comdev/armada/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1011942
+      },
+      "writtenOn": "2018-04-10T19:49:16Z",
+      "side": 1,
+      "message": "IMAGE_TAG is defined here and then overridden below. Maybe change L10 to be:\n\n    ARTF_PROM_BUNDLE \u003d \"ucp/armada-bundle/${GERRIT_PATCHSET_REVISION}/${PROM_BUNDLE}\"",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 41
+      },
+      "revId": "9a17b6e774eee7d1aa7a7b98c03b25e09a9fc5c1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
