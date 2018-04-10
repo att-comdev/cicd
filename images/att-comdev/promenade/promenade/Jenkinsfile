@@ -13,7 +13,6 @@ ARTF_PROM_BUNDLE = "ucp/promenade/${IMAGE_TAG}/${PROM_BUNDLE}"
 
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
-IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
 // node info { node : [hostname, ip] }
 PROM_NODES = [build:[], genesis:[], master1:[], master2:[], worker:[]]
@@ -76,11 +75,11 @@ vms {
 
     stage('Promenade Build'){
         node("${PROM_NODE_BASE}-build"){
-             if(env.GERRIT_NEWREV){
+            if(env.GERRIT_NEWREV){
                 echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
-                IMAGE_TAG=env.GERRIT_NEWREV
-                IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+                IMAGE_TAG="${GERRIT_NEWREV}"
             }
+            IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_NUMBER}"
             if(GERRIT_EVENT_TYPE != 'change-merged') {
                 checkout poll: false,
                 scm: [$class: 'GitSCM',

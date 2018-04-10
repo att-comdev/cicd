@@ -2,7 +2,7 @@ JENKINS_VM_LAUNCH = 'local-vm-launch'
 
 NODE_BASE = "armada-${BUILD_NUMBER}"
 NODE_TMPL = "promenade/promenade.yaml"
-IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
+IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}.${BUILD_NUMBER}"
 DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
 IMAGE_PREFIX="att-comdev"
 
@@ -12,7 +12,6 @@ ARTF_ARMADA_MANIFEST = "clcp-integration/region/atl-lab1/armada/openstack-helm.y
 PROMENADE_IMAGE="${ARTF_DOCKER_URL}/ucp/promenade:latest"
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
-IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 // node info { node : [hostname, ip] }
 NODES = [ build:[], genesis:[], master1:[], master2:[], worker:[]]
 
@@ -88,9 +87,9 @@ vms {
             gerrithub.clone("att-comdev/promenade", "*/master")
             if(env.GERRIT_NEWREV){
                 echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
-                IMAGE_TAG=env.GERRIT_NEWREV
-                IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+                IMAGE_TAG="${GERRIT_NEWREV}"
             }
+            IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_NUMBER}"
             if(GERRIT_EVENT_TYPE != 'change-merged') {
                 checkout poll: false,
                 scm: [$class: 'GitSCM',
