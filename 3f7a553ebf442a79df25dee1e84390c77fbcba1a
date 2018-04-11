@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6964bea7_84ed05f6",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 28
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-11T19:48:23Z",
+      "side": 1,
+      "message": "Is there a reason we need to clone into folder \u0027jenkins\u0027?\nHaving it directly would avoid need of using dir(jenkins)",
+      "revId": "3f7a553ebf442a79df25dee1e84390c77fbcba1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d1601457_c2681d1f",
+        "filename": "charts/att-comdev/seed.groovy",
+        "patchSetId": 28
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-11T19:48:23Z",
+      "side": 1,
+      "message": "I would break this out in a variable all the 5EC parts - as later it\u0027s likely to change.",
+      "revId": "3f7a553ebf442a79df25dee1e84390c77fbcba1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
