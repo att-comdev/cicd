@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39a2aec5_1d236be2",
+        "filename": "charts/openstack/Jenkinsfile",
+        "patchSetId": 38
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-11T19:50:41Z",
+      "side": 1,
+      "message": "aritfacts-aic... URL has a variable - use that.",
+      "revId": "d7f9f3c49bef99214a583a64eb995f178cd2caf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "239ee3dc_a0e03c21",
+        "filename": "charts/openstack/seed.groovy",
+        "patchSetId": 38
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-11T19:50:41Z",
+      "side": 1,
+      "message": "Suggest to use variable for 5EC hardcoded names",
+      "revId": "d7f9f3c49bef99214a583a64eb995f178cd2caf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
