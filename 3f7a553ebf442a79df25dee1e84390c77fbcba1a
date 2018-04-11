@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "2aa2af72_898db9dd",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 28
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-04-11T20:20:37Z",
+      "side": 1,
+      "message": "Probably don\u0027t need these",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 49
+      },
+      "revId": "3f7a553ebf442a79df25dee1e84390c77fbcba1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6964bea7_84ed05f6",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 28
