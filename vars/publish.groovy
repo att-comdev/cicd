@@ -84,3 +84,21 @@ def setProperty (String creds, String url, Map properties) {
       def p = properties.collect { it }.join(';')
       setProperty(creds, url, p)
 }
+
+/**
+ * Publish files (html, logs, xml, etc) artifacts to Artifactory
+ *
+ * @param file File to upload to Artifactory
+ * @param repo Repository to upload artifact to
+**/
+def putArtifacts (String file, String repo) {
+     artf = Artifactory.server 'artifactory'
+
+     spec = """{"files": [{
+                "pattern": "${file}",
+                "target": "${repo}",
+                "flat": "true"
+            }]}"""
+
+     artf.publishBuildInfo(artf.upload(spec))
+}
