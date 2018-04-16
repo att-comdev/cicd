@@ -34,31 +34,12 @@ def openstack_cmd(String cmd, String mount = "") {
 
 def stack_create(String name, String tmpl) {
 
-
     withCredentials([usernamePassword(credentialsId: 'jenkins-openstack-18',
                                           usernameVariable: 'OS_USERNAME',
                                           passwordVariable: 'OS_PASSWORD')]) {
-
-        cmd = openstack_cmd("openstack stack create -t /target/\$(basename ${tmpl}) ${name}", "\$(dirname ${tmpl})")
+        //This will wait until the VM comes up and will error if it hasn't in 15 minutes
+        cmd = openstack_cmd("openstack stack create --wait --timeout 15 -t /target/\$(basename ${tmpl}) ${name}", "\$(dirname ${tmpl})")
         code = sh (script: cmd, returnStatus: true)
-        if (!code) {
-            // todo: improve timeouts to more user friendly look
-            timeout = 300
-            for (i = 0; i < timeout; i=i+10) {
-                sleep 30
-                cmd = openstack_cmd("openstack stack show -f value -c stack_status ${name}")
-                ret = sh (script: cmd, returnStdout: true).trim()
-                if (ret == "CREATE_COMPLETE") {
-                    print "Stack ${name} created!"
-                    return
-                } else if (ret != "CREATE_IN_PROGRESS") {
-                    print "Failed to create stack ${name}"
-                    sh "exit 1"
-                }
-            }
-        }
-        print "Failed to create stack ${name}"
-        sh "exit 1"
     }
 }
 
@@ -67,13 +48,12 @@ def stack_delete(String name) {
     withCredentials([usernamePassword(credentialsId: 'jenkins-openstack-18',
                                           usernameVariable: 'OS_USERNAME',
                                           passwordVariable: 'OS_PASSWORD')]) {
-
         cmd = openstack_cmd("openstack stack delete --yes $name")
         code = sh (script: cmd, returnStatus: true)
         if (!code) {
-            timeout = 30
-            for (i = 0; i < timeout; i=i+5) {
-                sleep 10
+                timeout = 30
+                for (i = 0; i < timeout; i=i+5) {
+                    sleep 10
                 cmd = openstack_cmd("openstack stack list")
                 ret = sh (script: cmd, returnStdout: true)
                 if (!ret.contains(name)) {
@@ -164,8 +144,6 @@ def jenkins_vm_destroy(String name) {
     stack_delete(name)
 }
 
-
-
 // single node/vm job template
 //  - create vm based on gven template
 //  - clean-up after exceptions/failures
@@ -199,11 +177,26 @@ def call(name, tmpl, Closure body) {
         error(error)
 
     } finally {
-        stage ('Node Destroy') {
-            node(launch_node) {
-                jenkins_vm_destroy(name)
+        try {
+            node(name){
+                stage("Publish Jenkins Logs"){
+                    try{
+                        publish.putArtifacts(logs.getJenkinsConsoleOutput(), "logs/${JOB_NAME}/")
+                    } catch (error){
+                        notify.msg("Logs published failed: ${error}")
+                    }
+                }
+            }
+        } finally {
+            stage ('Node Destroy') {
+                node(launch_node) {
+                    try {
+                        jenkins_vm_destroy(name)
+                    } catch (error) {
+                        notify.msg("Node destroy failed: ${error}")
+                    }
+                }
             }
         }
     }
 }
-
