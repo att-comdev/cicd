@@ -1,0 +1,11 @@
+
+def = fip = vm(NODE_TMPL, NODE_DATA, NODE_POSTFIX, true) {
+  sh('sudo apt-get update')
+ 
+  sh('mkdir .ssh')
+  sh("echo ${SSH_KEY} >> .ssh/authorized_keys")
+}
+
+currentBuild.displayName = "#${BUILD_NUMBER} vm-${NODE_POSTFIX}-${fip}"
+print "Access VM on Floating IP => ${ip}"
+
