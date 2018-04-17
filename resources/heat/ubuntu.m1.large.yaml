@@ -1,0 +1,37 @@
+heat_template_version: newton
+
+description: Large instance.
+
+resources:
+  server:
+    type: OS::Nova::Server
+    properties:
+      image: cicd-ubuntu-16.04-server-cloudimg-amd64
+      flavor: m1.large
+      key_name: jenkins-slave-keypair
+      networks:
+        - port: { get_resource: server_port }
+
+      user_data:
+        str_replace:
+          template: {get_file: bootstrap.sh}
+          params:
+            $message: Hello World!
+
+  server_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: private
+      security_groups: [jenkins-security]
+
+  server_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: public
+      port_id: { get_resource: server_port }
+
+outputs:
+  floating_ip:
+    description: The external IP associated to the server
+    value: { get_attr: [server_floating_ip, floating_ip_address] }
+
