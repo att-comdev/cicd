@@ -11,13 +11,12 @@
 
 
 def openstack_cmd(String cmd, String mount = "") {
-    keystone_image = "kolla/ubuntu-source-keystone:3.0.3"
 
-    docker_env = " -e OS_AUTH_URL=http://keystone/v3" +
+    docker_env = " -e OS_AUTH_URL=${OS_AUTH_URL}" +
                  " -e OS_PROJECT_DOMAIN_NAME=default" +
                  " -e OS_USER_DOMAIN_NAME=default" +
-                 " -e OS_PROJECT_NAME=service" +
-                 " -e OS_REGION_NAME=RegionOne" +
+                 " -e OS_PROJECT_NAME=${OS_PROJECT_NAME}" +
+                 " -e OS_REGION_NAME=${OS_REGION_NAME}" +
                  " -e OS_USERNAME=\$OS_USERNAME" +
                  " -e OS_PASSWORD=\$OS_PASSWORD" +
                  " -e OS_IDENTITY_API_VERSION=3"
@@ -28,7 +27,7 @@ def openstack_cmd(String cmd, String mount = "") {
         docker_opts += " -v ${mount}:/target"
     }
 
-    return "docker run ${docker_opts} ${docker_env} ${keystone_image} ${cmd}"
+    return "sudo docker run ${docker_opts} ${docker_env} ${OS_KEYSTONE_IMAGE} ${cmd}"
 }
 
 
@@ -105,13 +104,13 @@ def jenkins_node_config(String name, String host) {
         <name>${name}</name>
         <description></description>
         <remoteFS>/home/ubuntu/jenkins</remoteFS>
-        <numExecutors>4</numExecutors>
+        <numExecutors>2</numExecutors>
         <mode>EXCLUSIVE</mode>
         <retentionStrategy class=\"hudson.slaves.RetentionStrategy\$Always\"/>
         <launcher class=\"hudson.plugins.sshslaves.SSHLauncher\" plugin=\"ssh-slaves@1.5\">
         <host>${host}</host>
         <port>22</port>
-        <credentialsId>jenkins</credentialsId>
+        <credentialsId>jenkins-slave-ssh</credentialsId>
         </launcher>
         <label>${name}</label>
         <nodeProperties/>
@@ -127,7 +126,7 @@ def jenkins_node_create(String name, String host) {
                                       usernameVariable: 'JENKINS_USER',
                                       passwordVariable: 'JENKINS_TOKEN')]) {
 
-        opts = "-s \$JENKINS_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+        opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
         cmd = "echo '${config}' | java -jar \$JENKINS_CLI ${opts} create-node ${name}"
         sh (script: cmd, returnStatus: true)
     }
@@ -139,7 +138,7 @@ def jenkins_node_delete(String name) {
                                       usernameVariable: 'JENKINS_USER',
                                       passwordVariable: 'JENKINS_TOKEN')]) {
 
-        opts = "-s \$JENKINS_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+        opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
         cmd = "java -jar \$JENKINS_CLI $opts delete-node $name"
         code = sh (script: cmd , returnStatus: true)
         // todo: handle exit code properly
@@ -147,41 +146,47 @@ def jenkins_node_delete(String name) {
 }
 
 
-def jenkins_vm_launch(String name, String tmpl, String host = "") {
+/**
+ * Crate single node VM from heat template/user-data
+ *
+ * @param nodeTemplate Heat template relative to resources/heat
+ * @param userData Bootstrap script for the VM
+ * @param vmPostfix Additional postfix to identify the VM
+**/
+def call(nodeTemplate, userData, vmPostfix = '', keepRunning = false, Closure body) {
 
-    stack_create(name, tmpl)
+    // node used for launching VMs
+    def launch_node = 'jenkins-node-launch'
 
-    // use floating ip if not specified
-    if (!host) {
-        host = stack_ip_get(name)
+    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+
+    // optionally uer may supply additional identified for the VM
+    // this makes it easier to find it in OpenStack
+    if (vmPostfix) {
+      name += "-${vmPostfix}"
     }
-    jenkins_node_create (name, host)
-}
 
-
-def jenkins_vm_destroy(String name) {
-    jenkins_node_delete(name)
-    stack_delete(name)
-}
-
-
-
-// single node/vm job template
-//  - create vm based on gven template
-//  - clean-up after exceptions/failures
-//  - timeout if node is not getting ready
-
-def call(name, tmpl, Closure body) {
-
-    // node used for launching vms
-    def launch_node = 'local-vm-launch'
+    def ip = ""
 
     try {
         stage ('Node Launch') {
             node(launch_node) {
-                jenkins_vm_launch(name, "${HOME}/${tmpl}")
+                tmpl = libraryResource "heat/${nodeTemplate}"
+                writeFile file: 'template.yaml', text: tmpl
 
-                timeout (14) {
+                udata = libraryResource "heat/${userData}"
+                writeFile file: 'bootstrap.sh', text: udata
+
+                stack_create(name, "${WORKSPACE}/template.yaml")
+                ip = stack_ip_get(name)
+            }
+
+            node('master') {
+              jenkins_node_create (name, ip)
+            }
+
+            node(launch_node) {
+                 timeout (14) {
                     node(name) {
                         sh 'hostname'
                     }
@@ -200,10 +205,17 @@ def call(name, tmpl, Closure body) {
 
     } finally {
         stage ('Node Destroy') {
-            node(launch_node) {
-                jenkins_vm_destroy(name)
+           if (!keepRunning) {
+                node('master') {
+                    jenkins_node_delete(name)
+                }
+                node(launch_node) {
+                    stack_delete(name)
+                }
             }
         }
     }
+
+    return ip
 }
 
