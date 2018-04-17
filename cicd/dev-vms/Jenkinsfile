@@ -1,0 +1,7 @@
+
+
+
+vm(NODE_TMPL, NODE_DATA, NODE_POSTFIX, true) {
+  sh('echo hostname')
+}
+
