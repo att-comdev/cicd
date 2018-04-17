@@ -171,15 +171,20 @@ def jenkins_vm_destroy(String name) {
 //  - clean-up after exceptions/failures
 //  - timeout if node is not getting ready
 
-def call(name, tmpl, Closure body) {
+def call(tmpl, Closure body) {
 
     // node used for launching vms
     def launch_node = 'local-vm-launch'
+    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
 
     try {
         stage ('Node Launch') {
             node(launch_node) {
-                jenkins_vm_launch(name, "${HOME}/${tmpl}")
+
+                heat_tmpl = libraryResource "heat/${tmpl}"
+                writeFile file: tmpl, text: heat_tmpl
+
+                jenkins_vm_launch(name, tmpl)
 
                 timeout (14) {
                     node(name) {
