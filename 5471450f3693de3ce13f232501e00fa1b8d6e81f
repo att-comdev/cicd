@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fcb0c26_b1c52abb",
+        "filename": "dev/seed.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-04-17T23:01:11Z",
+      "side": 1,
+      "message": "Can we start putting all seed.groovy into the root level? We eventually want to get to 1 seed.groovy that will run all jobs, so maybe start now?",
+      "revId": "5471450f3693de3ce13f232501e00fa1b8d6e81f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef220945_290e8765",
+        "filename": "dev/seed.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-04-17T23:01:11Z",
+      "side": 1,
+      "message": "Suggestions on other parameters that they can set:  base environment: { UCP, kubeadm + osh, single-node, multi-node } Name of nodes (this value would only be appended to the VM name, as we will want to use a regex on deleting them. }\n\nTime of use:  Maybe allow them to set a shorter timespan for the VM life but not longer than the default. \n\nImage base version: Allow them to specify a new Ubuntu image by giving the url to it.",
+      "revId": "5471450f3693de3ce13f232501e00fa1b8d6e81f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
