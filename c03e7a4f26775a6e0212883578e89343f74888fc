@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "87a1b7b8_472b16f2",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-04-17T18:27:18Z",
+      "side": 1,
+      "message": "Trying the native method and renamed to setFileSpecs which is what Artifactory documentation says this section is doing.",
+      "parentUuid": "88c96814_71844497",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 12
+      },
+      "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e71c71f_b6590fb6",
         "filename": "vars/publish.groovy",
         "patchSetId": 10
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "5ee20037_2c1fafec",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-04-17T18:27:18Z",
+      "side": 1,
+      "message": "Yea, I am use to get/set and haven\u0027t used put post, but I guess upload is actually sending a PUT to artifactory so I\u0027m fine with that.  Updated.",
+      "parentUuid": "67c9d493_59007256",
+      "range": {
+        "startLine": 110,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 19
+      },
+      "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "56563d6b_8fc851a9",
         "filename": "vars/vm.groovy",
         "patchSetId": 10
@@ -76,6 +124,24 @@
       "writtenOn": "2018-04-17T02:57:21Z",
       "side": 1,
       "message": "need to handle return value if failed.\nshould we also send a message that node creation failed?",
+      "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a8b0cc97_dcb66eff",
+        "filename": "vars/vm.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-04-17T18:27:18Z",
+      "side": 1,
+      "message": "OpenStack prints out the event logs into Jenkins console output so we will see when the stack is created.",
+      "parentUuid": "56563d6b_8fc851a9",
       "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -99,6 +165,24 @@
     },
     {
       "key": {
+        "uuid": "1d41c764_12a70b7d",
+        "filename": "vars/vm.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-04-17T18:27:18Z",
+      "side": 1,
+      "message": "Method isn\u0027t needed as far as I can see, so I\u0027m going to remove it.  The next piece of code prints out the ip already.",
+      "parentUuid": "c2745c87_fb55a408",
+      "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d4bbffb_1b0fa7c5",
         "filename": "vars/vm.groovy",
         "patchSetId": 10
@@ -110,6 +194,24 @@
       "writtenOn": "2018-04-17T02:57:21Z",
       "side": 1,
       "message": "could this be a nice function?",
+      "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a70531d_0d155dfc",
+        "filename": "vars/vm.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-04-17T18:27:18Z",
+      "side": 1,
+      "message": "I\u0027ve extracted it, but still not super nice into logs",
+      "parentUuid": "2d4bbffb_1b0fa7c5",
       "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
