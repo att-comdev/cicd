@@ -13,11 +13,11 @@
 def openstack_cmd(String cmd, String mount = "") {
     keystone_image = "kolla/ubuntu-source-keystone:3.0.3"
 
-    docker_env = " -e OS_AUTH_URL=http://keystone/v3" +
+    docker_env = " -e OS_AUTH_URL=${OS_AUTH_URL}" +
                  " -e OS_PROJECT_DOMAIN_NAME=default" +
                  " -e OS_USER_DOMAIN_NAME=default" +
-                 " -e OS_PROJECT_NAME=service" +
-                 " -e OS_REGION_NAME=RegionOne" +
+                 " -e OS_PROJECT_NAME=${OS_PROJECT_NAME}" +
+                 " -e OS_REGION_NAME=${OS_REGION_NAME}" +
                  " -e OS_USERNAME=\$OS_USERNAME" +
                  " -e OS_PASSWORD=\$OS_PASSWORD" +
                  " -e OS_IDENTITY_API_VERSION=3"
@@ -165,21 +165,31 @@ def jenkins_vm_destroy(String name) {
 }
 
 
-
-// single node/vm job template
-//  - create vm based on gven template
-//  - clean-up after exceptions/failures
-//  - timeout if node is not getting ready
-
-def call(name, tmpl, Closure body) {
+/**
+ * Crate single node VM from heat template/user-data
+ *
+ * @param nodeTemplate Heat template relative to resources/heat
+ * @param userData Bootstrap script for the VM
+**/
+def call(nodeTemplate, userData, Closure body) {
 
     // node used for launching vms
     def launch_node = 'local-vm-launch'
 
+    // I believe this is generic enough for VM names
+    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+
     try {
         stage ('Node Launch') {
             node(launch_node) {
-                jenkins_vm_launch(name, "${HOME}/${tmpl}")
+
+                tmpl = libraryResource "heat/${nodeTemplate}"
+                writeFile file: 'template.yaml', text: tmpl
+
+                udata = libraryResource "heat/${userData}"
+                writeFile file: 'bootstrap.sh', text: udata
+
+                jenkins_vm_launch(name, "${WORKSPACE}/${nodeTemplate}")
 
                 timeout (14) {
                     node(name) {
