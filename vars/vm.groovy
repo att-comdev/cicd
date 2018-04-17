@@ -165,21 +165,31 @@ def jenkins_vm_destroy(String name) {
 }
 
 
-
-// single node/vm job template
-//  - create vm based on gven template
-//  - clean-up after exceptions/failures
-//  - timeout if node is not getting ready
-
-def call(name, tmpl, Closure body) {
+/**
+ * Crate single node VM from heat template/user-data
+ *
+ * @param nodeTemplate Heat template relative to resources/heat
+ * @param userData Bootstrap script for the VM
+**/
+def call(nodeTemplate, userData, Closure body) {
 
     // node used for launching vms
     def launch_node = 'local-vm-launch'
 
+    // I believe this is generic enough for VM names
+    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+
     try {
         stage ('Node Launch') {
             node(launch_node) {
-                jenkins_vm_launch(name, "${HOME}/${tmpl}")
+
+                tmpl = libraryResource "heat/${nodeTemplate}"
+                writeFile file: 'template.yaml', text: tmpl
+
+                udata = libraryResource "heat/${userData}"
+                writeFile file: 'bootstrap.sh', text: udata
+
+                jenkins_vm_launch(name, "${WORKSPACE}/${nodeTemplate}")
 
                 timeout (14) {
                     node(name) {
