@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "88c96814_71844497",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-17T08:47:03Z",
+      "side": 1,
+      "message": "I\u0027m not a real programmer, but this probably should be private. I\u0027ve read that groovy doesn\u0027t really support private methods.\n\nMethod name is not self-explanatory.",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 12
+      },
+      "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e71c71f_b6590fb6",
         "filename": "vars/publish.groovy",
         "patchSetId": 10
@@ -13,6 +36,29 @@
       "writtenOn": "2018-04-17T02:57:21Z",
       "side": 1,
       "message": "This can be written as groovy native structure.\nminor comment though.",
+      "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67c9d493_59007256",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-17T08:47:03Z",
+      "side": 1,
+      "message": "publish.uploadArtifacts() name is OK, but getXxxx/setXxxx/putXxxx names might also be good.",
+      "range": {
+        "startLine": 110,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 19
+      },
       "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
