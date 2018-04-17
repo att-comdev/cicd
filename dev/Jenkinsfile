@@ -1,0 +1,8 @@
+
+NODE_TMPL = 'ubuntu.m1.medium.yaml'
+USER_DATA = 'bootstrap.sh'
+
+vm(NODE_TMPL, USER_DATA) {
+  sh('echo hostname')
+}
+
