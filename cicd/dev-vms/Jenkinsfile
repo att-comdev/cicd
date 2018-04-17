@@ -1,0 +1,11 @@
+
+
+currentBuild.displayName = "#${BUILD_NUMBER} vm-${NODE_POSTFIX}"
+
+vm(NODE_TMPL, NODE_DATA, NODE_POSTFIX, true) {
+  sh('sudo apt-get update')
+ 
+  shi('mkdir .ssh')
+  sh("echo ${SSH_KEY} >> .ssh/authorized_keys")
+}
+
