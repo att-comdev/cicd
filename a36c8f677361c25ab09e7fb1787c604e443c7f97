@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74ed60e8_d84b93a3",
+        "filename": "resources/heat/ubuntu.m1.xxlarge.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-04-17T19:36:21Z",
+      "side": 1,
+      "message": "m1.xxlarge",
+      "range": {
+        "startLine": 10,
+        "startChar": 17,
+        "endLine": 10,
+        "endChar": 23
+      },
+      "revId": "a36c8f677361c25ab09e7fb1787c604e443c7f97",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
