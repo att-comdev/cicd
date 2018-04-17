@@ -22,6 +22,30 @@
       "revId": "a36c8f677361c25ab09e7fb1787c604e443c7f97",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7ca4e5bb_23116c4a",
+        "filename": "resources/heat/ubuntu.m1.xxlarge.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-17T20:22:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74ed60e8_d84b93a3",
+      "range": {
+        "startLine": 10,
+        "startChar": 17,
+        "endLine": 10,
+        "endChar": 23
+      },
+      "revId": "a36c8f677361c25ab09e7fb1787c604e443c7f97",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
