@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b80b62f_6ff3f896",
+        "filename": "resources/heat/ubuntu.m1.large.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-04-17T18:07:17Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "bae0f393d70f9c97524c2a651694c843d33fd186",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "013cccf8_29d9d4eb",
+        "filename": "resources/heat/ubuntu.m1.medium.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-04-17T18:07:17Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "bae0f393d70f9c97524c2a651694c843d33fd186",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c4e25ab7_d7d30537",
+        "filename": "resources/heat/ubuntu.m1.small.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-04-17T18:07:17Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "bae0f393d70f9c97524c2a651694c843d33fd186",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ad53c34_4b9b44a8",
+        "filename": "resources/heat/ubuntu.m1.xlarge.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-04-17T18:07:17Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "bae0f393d70f9c97524c2a651694c843d33fd186",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
