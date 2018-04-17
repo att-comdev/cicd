@@ -1,0 +1,8 @@
+
+def fip = vm2(NODE_DATA, NODE_IMAGE, NODE_FLAVOR, NODE_POSTFIX, 'basic', true) {
+  sh ('hostname')
+  sh("echo ${SSH_KEY} >> /home/ubuntu/.ssh/authorized_keys")
+}
+
+currentBuild.displayName = "#${BUILD_NUMBER} VM ${NODE_POSTFIX} ${fip}"
+print "Access VM on Floating IP => ubuntu@${fip}"
