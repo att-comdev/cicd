@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e71c71f_b6590fb6",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-17T02:57:21Z",
+      "side": 1,
+      "message": "This can be written as groovy native structure.\nminor comment though.",
+      "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "56563d6b_8fc851a9",
+        "filename": "vars/vm.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-17T02:57:21Z",
+      "side": 1,
+      "message": "need to handle return value if failed.\nshould we also send a message that node creation failed?",
+      "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2745c87_fb55a408",
+        "filename": "vars/vm.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-17T02:57:21Z",
+      "side": 1,
+      "message": "need to handle return value if failed.",
+      "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d4bbffb_1b0fa7c5",
+        "filename": "vars/vm.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-17T02:57:21Z",
+      "side": 1,
+      "message": "could this be a nice function?",
+      "revId": "c03e7a4f26775a6e0212883578e89343f74888fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
