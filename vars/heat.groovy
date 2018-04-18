@@ -31,14 +31,14 @@ def openstack_cmd(String cmd, String mount = "") {
 }
 
 
-def stack_create(String name, String tmpl, String imageName) {
+def stack_create(String name, String tmpl, String cloudImage) {
 
 
     withCredentials([usernamePassword(credentialsId: 'jenkins-openstack-18',
                                           usernameVariable: 'OS_USERNAME',
                                           passwordVariable: 'OS_PASSWORD')]) {
 
-        cmd = openstack_cmd("openstack stack create -t /target/\$(basename ${tmpl}) ${name} --parameter 'image=${imageName}'", "\$(dirname ${tmpl})")
+        cmd = openstack_cmd("openstack stack create -t /target/\$(basename ${tmpl}) ${name} --parameter 'cloudImage=${cloudImage}'", "\$(dirname ${tmpl})")
         code = sh (script: cmd, returnStatus: true)
         if (!code) {
             // todo: improve timeouts to more user friendly look
@@ -98,56 +98,6 @@ def stack_ip_get(String name) {
     }
 }
 
-//jenkins-slave-ssh is already in use for the foundry.  We need to standardize to something not in use.
-def jenkins_node_config(String name, String host) {
-    config = """<slave>
-        <name>${name}</name>
-        <description></description>
-        <remoteFS>/home/ubuntu/jenkins</remoteFS>
-        <numExecutors>2</numExecutors>
-        <mode>EXCLUSIVE</mode>
-        <retentionStrategy class=\"hudson.slaves.RetentionStrategy\$Always\"/>
-        <launcher class=\"hudson.plugins.sshslaves.SSHLauncher\" plugin=\"ssh-slaves@1.5\">
-        <host>${host}</host>
-        <port>22</port>
-        <credentialsId>jenkins-ssh-slave</credentialsId>
-        <maxNumRetries>0</maxNumRetries>
-        <retryWaitTime>0</retryWaitTime>
-        <label>${name}</label>
-        <nodeProperties/>
-        <sshHostKeyVerificationStrategy class="hudson.plugins.sshslaves.verifiers.NonVerifyingKeyVerificationStrategy"/>
-        <userId>ubuntu</userId>
-        </slave>"""
-    return config
-}
-
-
-def jenkins_node_create(String name, String host) {
-    config = jenkins_node_config(name, host)
-    withCredentials([usernamePassword(credentialsId: 'jenkins-token',
-                                      usernameVariable: 'JENKINS_USER',
-                                      passwordVariable: 'JENKINS_TOKEN')]) {
-
-        opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
-        cmd = "echo '${config}' | java -jar \$JENKINS_CLI ${opts} create-node ${name}"
-        sh (script: cmd, returnStatus: true)
-    }
-}
-
-
-def jenkins_node_delete(String name) {
-    withCredentials([usernamePassword(credentialsId: 'jenkins-token',
-                                      usernameVariable: 'JENKINS_USER',
-                                      passwordVariable: 'JENKINS_TOKEN')]) {
-
-        opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
-        cmd = "java -jar \$JENKINS_CLI $opts delete-node $name"
-        code = sh (script: cmd , returnStatus: true)
-        // todo: handle exit code properly
-    }
-}
-
-
 /**
  * Crate single node VM from heat template/user-data
  *
@@ -155,70 +105,23 @@ def jenkins_node_delete(String name) {
  * @param userData Bootstrap script for the VM
  * @param vmPostfix Additional postfix to identify the VM
 **/
-def call(nodeTemplate, userData, imageName, vmPostfix = '', keepRunning = false, Closure body) {
+def call(name, nodeTemplate, cloudImage) {
 
     // node used for launching VMs
     def launch_node = 'jenkins-node-launch'
 
-    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
-
-    // optionally uer may supply additional identified for the VM
-    // this makes it easier to find it in OpenStack
-    if (vmPostfix) {
-      name += "-${vmPostfix}"
-    }
-
-    def ip = ""
-
     try {
-        stage ('Node Launch') {
+        stage ('Run OpenStack Command') {
             node(launch_node) {
-                tmpl = libraryResource "heat/nova/${nodeTemplate}"
+              tmpl = libraryResource "${nodeTemplate}"
                 writeFile file: 'template.yaml', text: tmpl
 
-                udata = libraryResource "heat/${userData}"
-                writeFile file: 'bootstrap.sh', text: udata
-
-                stack_create(name, "${WORKSPACE}/template.yaml", imageName)
-                ip = stack_ip_get(name)
-            }
-
-            node('master') {
-              jenkins_node_create (name, ip)
-            }
-
-            node(launch_node) {
-                 timeout (14) {
-                    node(name) {
-                        sh 'hostname'
-                    }
-                }
+                stack_create(name, "${WORKSPACE}/template.yaml", cloudImage)
             }
         }
-
-        // body executed under specified vm node
-        node (name) {
-            body()
-        }
-
     } catch (error) {
-        notify.msg("Pipeline failed: ${error}")
+        notify.msg("OpenStack Command Failed: ${error}")
         error(error)
 
-    } finally {
-        stage ('Node Destroy') {
-           if (!keepRunning) {
-                node('master') {
-                    jenkins_node_delete(name)
-                }
-                node(launch_node) {
-                    stack_delete(name)
-                }
-            }
-        }
     }
-
-    return ip
 }
-
-
