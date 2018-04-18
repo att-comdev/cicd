@@ -1,0 +1,13 @@
+heat_template_version: 2016-10-14
+
+resources:
+  image:
+    type: OS::Glance::Image
+    properties:
+      container_format: bare
+      disk_format: qcow2
+      location: https://cloud-images.ubuntu.com/releases/17.10/release/ubuntu-17.10-server-cloudimg-amd64-disk1.img
+      min_disk: 10
+      min_ram: 1024
+      name: ubuntu-17.10
+      os_distro: ubuntu
