@@ -1,0 +1,20 @@
+heat_template_version: ocata
+
+parameters:
+  cloudImage:
+    type: string
+    default: https://artifacts-aic.atlantafoundry.com/artifactory/ubuntu-images/bionic/current/bionic-server-cloudimg-amd64.img
+  imageName:
+    type: string
+    default: Ubuntu-18.04
+resources:
+  image:
+    type: OS::Glance::Image
+    properties:
+      container_format: bare
+      disk_format: qcow2
+      location: { get_param: cloudImage }
+      min_disk: 10
+      min_ram: 1024
+      name: { get_param: imageName }
+      os_distro: ubuntu
