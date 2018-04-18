@@ -1,20 +1,30 @@
-heat_template_version: newton
+heat_template_version: ocata
 
-description: XXLarge instance.
+description: This template brings up a stack, setting flavor, size of VM, port & floating IP
 
+parameters:
+  image:
+    type: string
+    default: cicd-ubuntu-16.04-server-cloudimg-amd64
+  flavor:
+    type: string
+    default: m1.large
+  bootstrap:
+    type: string
+    default: bootstrap.sh
 resources:
   server:
     type: OS::Nova::Server
     properties:
-      image: cicd-ubuntu-16.04-server-cloudimg-amd64
-      flavor: m1.xxlarge
+      image: { get_param: image }
+      flavor: { get_param: flavor }
       key_name: jenkins-slave-keypair
       networks:
         - port: { get_resource: server_port }
 
       user_data:
         str_replace:
-          template: {get_file: bootstrap.sh}
+          template: {get_file: { get_param: bootstrap } }
           params:
             $message: Hello World!
 
