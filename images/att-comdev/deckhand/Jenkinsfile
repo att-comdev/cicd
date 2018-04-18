@@ -48,6 +48,13 @@ vm(NODE_NAME, NODE_TMPL) {
             sh 'tox -e functional'
         }
     }
+    stage('Test Integration') {
+        withEnv(["DECKHAND_IMAGE=${IMAGE}",
+            "DECKHAND_API_THREADS=4"]) {
+            sh 'sudo apt-get -y install tox'
+            sh 'tox -e integration'
+        }
+    }
     stage('Publish Gabbi Results') {
         publishHTML (target: [
         allowMissing: false,
