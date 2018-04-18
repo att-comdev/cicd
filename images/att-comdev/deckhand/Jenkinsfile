@@ -1,6 +1,6 @@
 JENKINS_VM_LAUNCH='local-vm-launch'
 NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
-NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+NODE_TMPL="deckhand/deckhand.yaml"
 
 IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
 DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
@@ -41,12 +41,22 @@ vm(NODE_NAME, NODE_TMPL) {
             sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
         }
     }
-    stage('Test Functional') {
-        withEnv(["DECKHAND_IMAGE=${IMAGE}",
-            "DECKHAND_API_THREADS=1"]) {
-            sh 'sudo apt-get -y install tox'
-            sh 'tox -e functional'
-        }
+    stage ('Run Tests'){
+        sh 'sudo apt-get -y install tox ara'
+        parallel(
+            Functional: {
+                withEnv(["DECKHAND_IMAGE=${IMAGE}",
+                "DECKHAND_API_THREADS=1"]) {
+                    sh 'tox -e functional'
+                }
+            },
+            Integration: {
+                withEnv(["DECKHAND_IMAGE=${IMAGE}",
+                    "DECKHAND_API_THREADS=1"]) {
+                    sh './tools/integration-tests.sh'
+                }
+            }
+        )
     }
     stage('Publish Gabbi Results') {
         publishHTML (target: [
