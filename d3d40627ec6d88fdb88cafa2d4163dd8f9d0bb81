@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18205107_f342689b",
+        "filename": "resources/heat/nova/ubuntu.m1.large.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-18T14:28:58Z",
+      "side": 1,
+      "message": "Name is not matching image templates",
+      "revId": "d3d40627ec6d88fdb88cafa2d4163dd8f9d0bb81",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
