@@ -2,11 +2,16 @@ heat_template_version: newton
 
 description: Large instance.
 
+parameters:
+  image:
+    type: string
+    default: cicd-ubuntu-16.04-server-cloudimg-amd64
+
 resources:
   server:
     type: OS::Nova::Server
     properties:
-      image: cicd-ubuntu-16.04-server-cloudimg-amd64
+      image: { get_param: image }
       flavor: m1.large
       key_name: jenkins-slave-keypair
       networks:
