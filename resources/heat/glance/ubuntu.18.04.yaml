@@ -1,0 +1,17 @@
+heat_template_version: 2016-10-14
+
+parameters:
+  cloudImage:
+    type: string
+    default: https://artifacts-aic.atlantafoundry.com/artifactory/ubuntu-images/bionic/current/bionic-server-cloudimg-amd64.img
+resources:
+  image:
+    type: OS::Glance::Image
+    properties:
+      container_format: bare
+      disk_format: qcow2
+      location: { get_param: cloudImage }
+      min_disk: 10
+      min_ram: 1024
+      name: ubuntu-18.04
+      os_distro: ubuntu
