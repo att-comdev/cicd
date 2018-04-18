@@ -219,3 +219,34 @@ def call(nodeTemplate, userData, vmPostfix = '', keepRunning = false, Closure bo
     return ip
 }
 
+/**
+ * Crate single node VM from heat template/user-data
+ *
+ * @param nodeTemplate Heat template relative to resources/heat
+ * @param userData Bootstrap script for the VM
+ * @param vmPostfix Additional postfix to identify the VM
+**/
+def call(nodeTemplate) {
+
+    // node used for launching VMs
+    def launch_node = 'jenkins-node-launch'
+
+    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+
+    try {
+        stage ('Run OpenStack Command') {
+            node(launch_node) {
+              tmpl = libraryResource "${nodeTemplate}"
+                writeFile file: 'template.yaml', text: tmpl
+
+                stack_create(name, "${WORKSPACE}/template.yaml")
+            }
+        }
+    } catch (error) {
+        notify.msg("OpenStack Command Failed: ${error}")
+        error(error)
+
+    }
+}
+
+
