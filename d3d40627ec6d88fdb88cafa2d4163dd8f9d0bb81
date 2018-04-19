@@ -16,6 +16,24 @@
       "revId": "d3d40627ec6d88fdb88cafa2d4163dd8f9d0bb81",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0b9be29_16143f09",
+        "filename": "resources/heat/nova/ubuntu.m1.large.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-19T16:31:29Z",
+      "side": 1,
+      "message": "That is because cicd-ubuntu-16.04-server-cloudimg-amd64 image has not been uploaded into glance. It currently exists only on mtn13b1 openstack glance",
+      "parentUuid": "18205107_f342689b",
+      "revId": "d3d40627ec6d88fdb88cafa2d4163dd8f9d0bb81",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
