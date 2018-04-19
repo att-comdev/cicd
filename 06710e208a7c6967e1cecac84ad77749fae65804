@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d317d52_e8653d82",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-19T16:36:23Z",
+      "side": 1,
+      "message": "https://github.com/att-comdev/cicd/commit/e8bee932dcd208b039c89668da57de7ea64a2731",
+      "revId": "06710e208a7c6967e1cecac84ad77749fae65804",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
