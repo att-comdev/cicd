@@ -45,6 +45,30 @@
       "revId": "cc12adf5305dcc92ccbc8f79a86ef463891f89b8",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7403923_56e70915",
+        "filename": "packages/Jenkinsfile",
+        "patchSetId": 129
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-19T22:37:21Z",
+      "side": 1,
+      "message": "That was an amazing suggestion to install haveged. It just works now. Thank you.",
+      "parentUuid": "15cfffea_924c53ea",
+      "range": {
+        "startLine": 133,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 17
+      },
+      "revId": "cc12adf5305dcc92ccbc8f79a86ef463891f89b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
