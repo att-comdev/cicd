@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08b9c543_786f4a16",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 16
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-19T16:47:35Z",
+      "side": 1,
+      "message": "Spaces.",
+      "revId": "a7984f694144442967bfab0396895d9902c65270",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
