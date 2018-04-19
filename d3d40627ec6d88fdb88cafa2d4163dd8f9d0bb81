@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "6149fb71_4917c0fb",
+        "filename": "resources/heat/glance/ubuntu.16.04.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-19T16:33:01Z",
+      "side": 1,
+      "message": "Should we mirror this repo?",
+      "revId": "d3d40627ec6d88fdb88cafa2d4163dd8f9d0bb81",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6cac266d_57353d37",
+        "filename": "resources/heat/glance/ubuntu.17.10.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-19T16:33:01Z",
+      "side": 1,
+      "message": "Should we mirror this repo?",
+      "revId": "d3d40627ec6d88fdb88cafa2d4163dd8f9d0bb81",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "18205107_f342689b",
         "filename": "resources/heat/nova/ubuntu.m1.large.yaml",
         "patchSetId": 1
