@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3b147f5_87b94141",
+        "filename": "vars/vm.groovy",
+        "patchSetId": 33
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-19T16:22:55Z",
+      "side": 1,
+      "message": "It\u0027s called \u0027key_name: jenkins-slave-keypair\u0027 in OpenStack, and used in all heat templates.",
+      "revId": "fc6e81a7d11bf96c1c8f3db1514d123abf05ad19",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
