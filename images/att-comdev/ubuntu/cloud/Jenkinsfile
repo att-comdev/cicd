@@ -1,0 +1,54 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+//NODE_TMPL="resources/heat/ubuntu1804.m1.large.yaml"
+NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+artf_repo="cloud-images-local/"
+artf_ubuntu_repo="https://$ARTF_WEB_URL/ubuntu"
+
+/* start of bash scripts */
+
+def hello_world = '''
+  echo "Hello world."
+'''
+
+/* end of bash scripts */
+
+vm(NODE_NAME, NODE_TMPL) {
+   stage('Setup environment'){
+
+    sh(returnStatus: true, script: hello_world)
+  }
+
+  stage('Build images'){
+
+    sh(returnStatus: true, script: hello_workd)
+  }
+
+  stage('Smoke Test images'){
+
+    sh(returnStatus: true, script: hello_world)
+  }
+
+  stage('Publish images'){
+
+    sh(returnStatus: true, script: hello_world)
+
+    sh "pwd; ls -l; echo UPLOAD_PACKAGES: $UPLOAD_PACKAGES"
+
+    sh "touch cicd-123.img"
+    sh "pwd; ls -l"
+
+    if (UPLOAD_PACKAGES == 'true') {
+      artf = Artifactory.server 'artifactory'
+      uploadSpec = """{"files": [{
+                   "pattern": "cicd-*.img",
+                   "target": "${artf_repo}",
+                   "flat": "true"
+                }]}"""
+      //artf.publishBuildInfo(artf.upload(uploadSpec))
+      artf.upload(uploadSpec)
+    } else {
+      echo 'Not uploading packages, as UPLOAD_PACKAGES has noot been enabled'
+    }
+  }
+}
