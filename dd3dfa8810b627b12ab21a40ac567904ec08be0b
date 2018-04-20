@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78c881b4_7e221e0b",
+        "filename": "charts/att-comdev/seed.groovy",
+        "patchSetId": 30
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-20T15:55:39Z",
+      "side": 1,
+      "message": "indent off",
+      "revId": "dd3dfa8810b627b12ab21a40ac567904ec08be0b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
