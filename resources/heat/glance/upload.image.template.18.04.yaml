@@ -4,6 +4,9 @@ parameters:
   cloudImage:
     type: string
     default: https://artifacts-aic.atlantafoundry.com/artifactory/ubuntu-images/bionic/current/bionic-server-cloudimg-amd64.img
+  imageName:
+    type: string
+    default: Ubuntu-18.04
 resources:
   image:
     type: OS::Glance::Image
@@ -13,5 +16,5 @@ resources:
       location: { get_param: cloudImage }
       min_disk: 10
       min_ram: 1024
-      name: ubuntu-18.04
+      name: { get_param: imageName }
       os_distro: ubuntu
