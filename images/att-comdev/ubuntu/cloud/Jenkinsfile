@@ -1,0 +1,151 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+//NODE_TMPL="resources/heat/ubuntu1804.m1.large.yaml"
+//NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+NODE_TMPL="docker/ubuntu1804.m1.medium.yaml"
+
+// this is where we upload modified image
+artf_cloud_images_repo_local="https://$ARTF_WEB_URL/cloud-images-local/"
+// here we have local ubuntu mirror with packages
+artf_ubuntu_repo="https://$ARTF_WEB_URL/ubuntu"
+// source cloud image
+cloud_image_path="https://$ARTF_WEB_URL/ubuntu-images/releases/xenial/release"
+cloud_image_name="ubuntu-16.04-server-cloudimg-amd64-disk1.img"
+// modified cloud image
+cloud_image_name_local="cicd-$cloud_image_name"
+/* Bash array below defines packages we will be embedding into images
+ * Format: ('package1' ['package2'] ...)
+ *  - package - package to be embedded
+*/
+def packages_array = '''
+  declare -a packages=('default-jre-headless' 'docker.io')
+'''
+
+/* start of bash scripts */
+
+def define_environment = """
+  echo "export artf_cloud_images_repo_local=$artf_cloud_images_repo_local" | tee -a ~/environment_setup.sh
+  echo "export artf_ubuntu_repo=$artf_ubuntu_repo" | tee -a ~/environment_setup.sh
+  echo "export cloud_image_path=$cloud_image_path" | tee -a ~/environment_setup.sh
+  echo "export cloud_image_name=$cloud_image_name" | tee -a ~/environment_setup.sh
+  echo "export cloud_image_name_local=$cloud_image_name_local" | tee -a ~/environment_setup.sh
+  echo "$packages_array" | tee -a ~/environment_setup.sh
+"""
+def get_orig_image = '''
+
+  set -xe
+  source ~/environment_setup.sh
+
+  curl -s -O -L ${cloud_image_path}/${cloud_image_name}
+  cp -p ${cloud_image_name}{,.orig}
+  ls -l
+'''
+def repo_config = '''
+
+  set -xe
+  source ~/environment_setup.sh
+
+  # sg is used here because we do not logout/login after adding user ubuntu to the supplementary kvm group
+  sg kvm -c "virt-cat --add ${cloud_image_name} /etc/apt/sources.list" | tee sources.list
+  sed -i "s|http://archive.ubuntu.com/ubuntu/|${artf_ubuntu_repo}|g; s|http://security.ubuntu.com/ubuntu/|${artf_ubuntu_repo}|g" sources.list
+  cat sources.list
+'''
+def prep_bootstrap_script = '''
+
+  set -xe
+  source ~/environment_setup.sh
+
+  cat <<EOF | tee bootstrap.sh
+#!/bin/bash
+set -xe
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get -q -y --no-install-recommends -o Dpkg::Options::=--force-confnew install ${packages[@]}
+rm -rf /var/lib/apt/lists/*
+
+# this is to disable cloud-init rewriting our repositories on boot
+echo 'apt_preserve_sources_list: true' | tee /etc/cloud/cloud.cfg.d/99_localrepo.cfg
+
+# add ubuntu user to docker group (Ubuntu 16.04 - works, 18.04 - doesn\'t work)
+getent passwd ubuntu && usermod -a -G docker ubuntu
+EOF
+'''
+def customize_image = '''
+
+  set -xe
+  source ~/environment_setup.sh
+
+  # sg is used here because we do not logout/login after adding user ubuntu to the supplementary kvm group
+  sg kvm -c "virt-customize --upload sources.list:/etc/apt/sources.list --run bootstrap.sh --add ${cloud_image_name}"
+'''
+def compress_image = '''
+
+  set -xe
+  source ~/environment_setup.sh
+
+  sg kvm -c "virt-sparsify --compress ${cloud_image_name} ${cloud_image_name}.sparse"
+  ls -l
+'''
+/* end of bash scripts */
+
+vm( "ubuntu.m1.large.yaml","bootstrap.sh", "ubuntu-18.04","",true){
+//vm(NODE_NAME, NODE_TMPL) {
+   stage('Setup environment'){
+
+    sh(returnStatus: true, script: define_environment)
+
+    sh "sudo cp -p /etc/apt/sources.list{,.old}"
+    sh "sudo sed -i -e 's|nova.clouds.archive.ubuntu.com|$ARTF_WEB_URL|g' /etc/apt/sources.list"
+    sh "sudo sed -i -e 's|security.ubuntu.com|$ARTF_WEB_URL|g' /etc/apt/sources.list"
+    sh "sudo apt-get -y update"
+    //sh "sudo apt-get -y upgrade"
+    sh "sudo apt-get install -y libguestfs-tools"
+    // need 644 permissions on kernel, https://bugs.launchpad.net/fuel/bug/1467579, comment #9
+    sh "sudo dpkg-statoverride --update --add root root 0644 /boot/vmlinuz-\$(uname -r)"
+    // we do not logout/login, thus need to use sg to access kvm group permisions
+    sh "sudo usermod -a -G kvm ubuntu"
+  }
+
+  stage('Get original image'){
+
+    sh(returnStatus: true, script: get_orig_image)
+  }
+
+  stage('Repository configuration'){
+
+    sh(returnStatus: true, script: repo_config)
+  }
+
+  stage('Prepare bootstrap script'){
+
+    sh(returnStatus: true, script: prep_bootstrap_script)
+  }
+
+  stage('Customize cloud image'){
+
+    sh(returnStatus: true, script: customize_image)
+  }
+
+  stage('Compress cloud image'){
+
+    sh(returnStatus: true, script: compress_image)
+  }
+
+  stage('Publish images'){
+
+    sh "ln $cloud_image_name.sparse $cloud_image_name_local"
+
+    if (UPLOAD_IMAGES == 'true') {
+      artf = Artifactory.server 'artifactory'
+      uploadSpec = """{"files": [{
+                   "pattern": "cicd-*.img",
+                   "target": "${artf_repo}",
+                   "flat": "true"
+                }]}"""
+      //artf.publishBuildInfo(artf.upload(uploadSpec))
+      artf.upload(uploadSpec)
+    } else {
+      echo 'Not uploading packages, as UPLOAD_IMAGES has noot been enabled'
+    }
+  }
+}
