@@ -4,6 +4,7 @@ def imagesJson = '''{ "UCP":[{
                         "repo":"att-comdev",
                         "images":[
                                   "shipyard"
+                                  "prometheus-openstack-exporter"
                                   ]
                         }]}'''
 def jsonSlurper = new JsonSlurper()
