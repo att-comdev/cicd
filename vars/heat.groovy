@@ -31,14 +31,14 @@ def openstack_cmd(String cmd, String mount = "") {
 }
 
 
-def stack_create(String name, String tmpl, String cloudImage) {
+def stack_create(String name, String tmpl, String parameters) {
 
 
     withCredentials([usernamePassword(credentialsId: 'jenkins-openstack-18',
                                           usernameVariable: 'OS_USERNAME',
                                           passwordVariable: 'OS_PASSWORD')]) {
 
-        cmd = openstack_cmd("openstack stack create -t /target/\$(basename ${tmpl}) ${name} --parameter 'cloudImage=${cloudImage}'", "\$(dirname ${tmpl})")
+      cmd = openstack_cmd("openstack stack create -t /target/\$(basename ${tmpl}) ${name} ${parameters}", "\$(dirname ${tmpl})")
         code = sh (script: cmd, returnStatus: true)
         if (!code) {
             // todo: improve timeouts to more user friendly look
@@ -105,7 +105,7 @@ def stack_ip_get(String name) {
  * @param userData Bootstrap script for the VM
  * @param vmPostfix Additional postfix to identify the VM
 **/
-def call(name, nodeTemplate, cloudImage) {
+def call(name, nodeTemplate, parameters) {
 
     // node used for launching VMs
     def launch_node = 'jenkins-node-launch'
@@ -116,7 +116,7 @@ def call(name, nodeTemplate, cloudImage) {
               tmpl = libraryResource "${nodeTemplate}"
                 writeFile file: 'template.yaml', text: tmpl
 
-                stack_create(name, "${WORKSPACE}/template.yaml", cloudImage)
+                stack_create(name, "${WORKSPACE}/template.yaml", parameters)
             }
         }
     } catch (error) {
