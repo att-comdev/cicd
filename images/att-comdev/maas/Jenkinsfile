@@ -28,7 +28,7 @@ vm(NODE_NAME, NODE_TMPL) {
                            [$class: 'RelativeTargetDirectory',
                             relativeTargetDir: ""]],
                             submoduleCfg: [],
-                            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                            userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
                                                  url: "https://review.gerrithub.io/att-comdev/maas"]]]
               sh '''git config user.email "attcomdev.jenkins@gmail.com"
                     git config user.name "Jenkins"
