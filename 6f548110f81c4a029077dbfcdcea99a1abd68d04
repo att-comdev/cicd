@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02564fed_285f7780",
+        "filename": "images/att-comdev/drydock/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-04-23T15:52:04Z",
+      "side": 1,
+      "message": "Whitespace",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 8
+      },
+      "revId": "6f548110f81c4a029077dbfcdcea99a1abd68d04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
