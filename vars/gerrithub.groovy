@@ -34,7 +34,7 @@ def rebase(){
           git pull --rebase origin master'''
 }
 
-//Replace clone and rebase methods 
+//Replace clone and rebase methods
 def checkout(String revision, String branchToClone, String refspec, String targetDirectory){
    if(revision){
        IMAGE_TAG=revision
@@ -45,4 +45,21 @@ def checkout(String revision, String branchToClone, String refspec, String targe
            rebase()
        }
    }
+}
+
+def cloneProject(String project, String branch, String refspec, String targetDirectory){
+//This method is used so that we can checkout different project
+//from any patchset in different pipelines
+// Usage example: gerrithub.clone("att-comdev/cicd", "*/master", "refs/XX/XX/XX" "cicd")
+    checkout poll: false,
+    scm: [$class: 'GitSCM',
+              branches: [[name: "${branch}"]],
+              doGenerateSubmoduleConfigurations: false,
+              extensions: [[$class: 'LocalBranch',
+                            localBranch: 'jenkins'],
+                           [$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: targetDirectory]],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[refspec: "${refspec}",
+                                                 url: "https://review.gerrithub.io/" + project]]]
 }
