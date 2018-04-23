@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa5c79d5_f46eefbd",
+        "filename": "images/att-comdev/maas/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-23T15:46:39Z",
+      "side": 1,
+      "message": "blank space",
+      "revId": "65c6f2295bdb70d4c192f41b1e00ffc0e26c1bfa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
