@@ -102,7 +102,7 @@ vms {
                             [$class: 'RelativeTargetDirectory',
                             relativeTargetDir: "${JOB_BASE_NAME}"]],
                             submoduleCfg: [],
-                            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                            userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
                                                  url: "https://review.gerrithub.io/att-comdev/${JOB_BASE_NAME}"]]]
                 sh '''git config user.email "attcomdev.jenkins@gmail.com"
                     git config user.name "Jenkins"
