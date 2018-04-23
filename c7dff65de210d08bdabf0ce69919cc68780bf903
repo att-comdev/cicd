@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aebfaa7d_dab02576",
+        "filename": "images/att-comdev/deckhand/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-04-23T15:47:11Z",
+      "side": 1,
+      "message": "whitespace",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 12
+      },
+      "revId": "c7dff65de210d08bdabf0ce69919cc68780bf903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
