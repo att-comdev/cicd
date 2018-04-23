@@ -7,7 +7,7 @@ def clone(String project, String refspec){
          doGenerateSubmoduleConfigurations: false,
          extensions: [[$class: 'CleanBeforeCheckout']],
          submoduleCfg: [],
-         userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+         userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
          url: "https://review.gerrithub.io/" + project ]]]
 }
 
@@ -23,7 +23,7 @@ def cloneToBranch(String project, String refspec, String targetDirectory){
                            [$class: 'RelativeTargetDirectory',
                             relativeTargetDir: targetDirectory]],
                             submoduleCfg: [],
-                            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                            userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
                                                  url: "https://review.gerrithub.io/" + project]]]
 }
 
