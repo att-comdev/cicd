@@ -46,3 +46,18 @@ def checkout(String revision, String branchToClone, String refspec, String targe
        }
    }
 }
+
+def cloneProject(String project, String branch, String targetDirectory){
+//This method is used so that we can checkout different project
+//from any patchset in different pipelines
+    checkout poll: false,
+    scm: [$class: 'GitSCM',
+              branches: [[name: "*"+branch]],
+              doGenerateSubmoduleConfigurations: false,
+              extensions: [[$class: 'LocalBranch',
+                            localBranch: 'jenkins'],
+                           [$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: targetDirectory]],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[url: "https://review.gerrithub.io/" + project]]]
+}
