@@ -3,7 +3,8 @@ import groovy.json.JsonSlurper
 def imagesJson = '''{ "UCP":[{
                         "repo":"att-comdev",
                         "images":[
-                                  "shipyard"
+                                  "shipyard",
+                                  "pegleg"
                                   ]
                         }]}'''
 def jsonSlurper = new JsonSlurper()
