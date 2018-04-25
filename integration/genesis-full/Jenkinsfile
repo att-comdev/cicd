@@ -48,7 +48,7 @@ def genesis_setup = {
 
     git 'https://review.gerrithub.io/att-comdev/cicd'
 
-    def funcs = load "${WORKSPACE}/integration/genesis-integration/funcs.groovy"
+    def funcs = load "${WORKSPACE}/integration/funcs.groovy"
 
     funcs.jenkins_slave_destroy(PROM_BUILD_NODE_NAME)
     funcs.jenkins_slave_launch(PROM_BUILD_NODE_NAME,
