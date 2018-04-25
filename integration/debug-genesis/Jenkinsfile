@@ -1,0 +1,32 @@
+import groovy.json.JsonSlurperClassic
+import groovy.json.JsonOutput
+
+GENESIS_NODE_NAME = "genesis"
+
+//// artf utils
+
+def artf = Artifactory.server 'artifactory'
+
+def artf_spec = { pattern, target ->
+    spec = ['files': [['pattern': pattern,
+                       'target': target,
+                       'flat': true]]]
+    return new JsonOutput().toJson(spec)
+}
+
+def artf_publish = { pattern, target ->
+    info = artf.upload(artf_spec(pattern, target))
+    artf.publishBuildInfo(info)
+}
+def debug_report = {
+    stage('Debug Report'){
+        sh "sudo bash /usr/local/bin/debug-report.sh"
+        artf_publish('debug-genesis.tgz', "${ARTF_BASE}/logs/${BUILD_NUMBER}")
+    }
+}
+
+node(GENESIS_NODE_NAME) {
+    timeout (60) {
+        debug_report()
+    }
+}

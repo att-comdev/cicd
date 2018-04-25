@@ -15,8 +15,8 @@ VMX_NODE_NAME = "vmx"
 VMX_NODE_IP = '10.24.20.101'
 
 
-PROMENADE_IMAGE='artifacts-aic.atlantafoundry.com/att-comdev/promenade@sha256:e08b077c5d75f725120dfa1900dffbde790661b8815af90083ff19c6edcfbc2d'
-PEGLEG_IMAGE='artifacts-aic.atlantafoundry.com/att-comdev/pegleg:b5aed4df775a2dd665f16e8a0674a0bab869431a'
+PROMENADE_IMAGE='${ARTF_DOCKER_URL}/att-comdev/promenade@sha256:e08b077c5d75f725120dfa1900dffbde790661b8815af90083ff19c6edcfbc2d'
+PEGLEG_IMAGE='${ARTF_DOCKER_URL}/att-comdev/pegleg:b5aed4df775a2dd665f16e8a0674a0bab869431a'
 
 MANIFEST_PREFIX='region/atl-lab1'
 
