@@ -50,7 +50,7 @@ def checkout(String revision, String branchToClone, String refspec, String targe
 def cloneProject(String project, String branch, String refspec, String targetDirectory){
 //This method is used so that we can checkout different project
 //from any patchset in different pipelines
-// Usage example: gerrithub.clone("att-comdev/cicd", "*/master", "refs/XX/XX/XX" "cicd")
+// Usage example: gerrithub.cloneProject("att-comdev/cicd", "*/master", "refs/XX/XX/XX" "cicd")
     checkout poll: false,
     scm: [$class: 'GitSCM',
               branches: [[name: "${branch}"]],
