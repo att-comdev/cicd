@@ -33,7 +33,7 @@ vm(NODE_NAME, NODE_TMPL) {
     }
     try {
         stage('Run & Validate'){
-            gerrithub.clone("att-comdev/treasuremap", 'master')
+            gerrithub.cloneProject("att-comdev/treasuremap", 'master',"","treasuremap")
             sh "sudo docker run --rm -t -v \$(pwd):/target ${IMAGE} pegleg site -p /target/treasuremap/deployment_files collect atl-lab1 -s /target"
         }
         stage('Image Publish'){
