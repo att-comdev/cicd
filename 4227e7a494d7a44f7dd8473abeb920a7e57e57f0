@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1b93080_8b37b4ad",
+        "filename": "resources/heat/stack/ubuntu.stack.template.yaml",
+        "patchSetId": 24
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-27T18:22:49Z",
+      "side": 1,
+      "message": "this needs to be a parameter as pipelines will have different init scripts.",
+      "revId": "4227e7a494d7a44f7dd8473abeb920a7e57e57f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "36edb726_9f93d763",
+        "filename": "vars/node.groovy",
+        "patchSetId": 24
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-27T18:22:49Z",
+      "side": 1,
+      "message": "I think would be nice to call file jenkins.groovy\n\nthen functions would fo\n\njenkins.node_create() - and no need to add extra stuff.\nAdn all this is strictly related to Jenkins",
+      "revId": "4227e7a494d7a44f7dd8473abeb920a7e57e57f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b43bbe3_de2d41e3",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 24
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-04-27T18:22:49Z",
+      "side": 1,
+      "message": "I think is now only needed in stack.groovy.\nDo we call any direct commands now?",
+      "revId": "4227e7a494d7a44f7dd8473abeb920a7e57e57f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
