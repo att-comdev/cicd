@@ -79,9 +79,9 @@ node("att-comdev-charts"){
     stage('Project Checkout'){
         cleanWs()
         if(env.GERRIT_NEWREV){
-            gerrithub.cloneToBranch(GERRIT_PROJECT, env.GERRIT_NEWREV, "jenkins")
+            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_NEWREV, "jenkins","")
         } else {
-            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_REFSPEC, "jenkins")
+            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
             dir("${WORKSPACE}/jenkins"){
                 gerrithub.rebase()
             }
