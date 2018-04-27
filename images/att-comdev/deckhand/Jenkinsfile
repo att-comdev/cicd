@@ -58,15 +58,6 @@ vm(NODE_NAME, NODE_TMPL) {
             }
         )
     }
-    stage('Publish Gabbi Results') {
-        publishHTML (target: [
-        allowMissing: false,
-        alwaysLinkToLastBuild: false,
-        keepAll: true,
-        reportDir: 'results',
-        reportFiles: 'index.html',
-        reportName: "Gabbi Functional"])
-    }
     stage('Image Publish'){
         publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
         if (GERRIT_EVENT_TYPE == 'change-merged') {
