@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cdae2de_8ee78b25",
+        "filename": "vars/gerrithub.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-04-30T20:36:27Z",
+      "side": 1,
+      "message": "Question: why don\u0027t we just have 2 gerrithub.clone() methods with different parameters? Method overloads are supported.",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 88
+      },
+      "revId": "f52c5382e77c787c5d48509d1c96ae10059e2b4d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
