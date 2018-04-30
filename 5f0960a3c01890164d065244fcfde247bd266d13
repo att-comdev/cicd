@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97e9b9e7_8880e6de",
+        "filename": "resources/heat/nova/flavor.template.yaml",
+        "patchSetId": 59
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-04-30T22:42:51Z",
+      "side": 1,
+      "message": "Left over comment?",
+      "revId": "5f0960a3c01890164d065244fcfde247bd266d13",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
