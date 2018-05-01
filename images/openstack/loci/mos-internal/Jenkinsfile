@@ -1,0 +1,7 @@
+
+
+
+vm2( 'bootstrap.sh', 'cicd-bionic-server-cloudimg-amd64') {
+
+}
+
