@@ -9,6 +9,7 @@ parameters:
   flavor:
     type: string
     default: m1.large
+
 resources:
   server:
     type: OS::Nova::Server
@@ -21,7 +22,7 @@ resources:
 
       user_data:
         str_replace:
-          template: {get_file: bootstrap.sh }
+          template: {get_file: bootstrap.sh}
           params:
             $message: Hello World!
 
