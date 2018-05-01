@@ -1,0 +1,177 @@
+get_configs()
+{
+    declare -A project_config=(
+      [mos-horizon]="profiles:horizon apache,packages:pycrypto"
+      [mos-keystone]="profiles:apache ldap,packages:pycrypto python-openstackclient"
+      [mos-heat]="profiles:apache,packages:pycrypto,distpackages:curl"
+      [mos-glance]="profiles:glance ceph,packages:pycrypto python-swiftclient"
+      [mos-cinder]="profiles:cinder lvm ceph qemu,packages:pycrypto python-swiftclient"
+      [mos-neutron]="profiles:neutron linuxbridge openvswitch,packages:pycrypto"
+      [mos-nova]="profiles:nova ceph linuxbridge openvswitch configdrive qemu apache,packages:pycrypto"
+      [mos-nova-1804]="profiles:nova ceph linuxbridge openvswitch configdrive qemu apache,packages:pycrypto,distpackages:libssl1.0.0"
+      [mos-neutron-sriov]="profiles:neutron linuxbridge openvswitch,packages:pycrypto,distpackages:ethtool lshw"
+    )
+    config_profile="$(echo ${project_config[$1]} | awk -F ',' '{print $1}' | awk -F ':' '{print $2}')"
+    config_package="$(echo ${project_config[$1]} | awk -F ',' '{print $2}' | awk -F ':' '{print $2}')"
+    config_distpackage="$(echo ${project_config[$1]} | awk -F ',' '{print $3}' | awk -F ':' '{print $2}')"
+    echo "$config_profile,$config_package,$config_distpackage"
+}
+
+get_commitid()
+{
+    # clone project locally to get the commit id
+    git clone $GERRIT_URL/$GERRIT_PROJECT && \
+        cd $GERRIT_PROJECT && \
+        git fetch $GERRIT_URL/$GERRIT_PROJECT $GERRIT_REFSPEC && \
+        git checkout FETCH_HEAD
+    commitid="$(git log -1 --pretty=format:'%H')"
+    cd .. && rm -rf $GERRIT_PROJECT
+    echo "$commitid"
+}
+
+get_branch()
+{
+    branchname="$(echo $GERRIT_BRANCH |  cut -d '/' -f 2)"
+    if [ "$branchname" = "master" ]; then
+        branchname="ocata"
+    fi
+    echo "$branchname"
+}
+
+clone_loci()
+{
+    rm -rf loci
+    git clone https://github.com/openstack/loci.git
+    cd loci
+}
+
+ARTIFACTORY_IP="135.25.13.186"
+FOUNDRY_URL="docker-aic.atlantafoundry.com"
+GERRIT_URL="ssh://jenkins@gerrit.mtn5.cci.att.com:29418"
+LOCAL_NGNIX_URL="http://135.25.13.187/repo"
+def locibuild = '''
+export http_proxy=http://one.proxy.att.com:8888/
+export https_proxy=http://one.proxy.att.com:8888/
+export no_proxy=localhost,127.0.0.1
+
+branch=`get_branch`
+commit_id=`get_commitid`
+docker login -u "mos" -p "$ATLANTAFOUNDRY_PASS" $FOUNDRY_URL
+
+setup_mirror_repo()
+{
+    # to avoid exposing ssh keys in the loci build image layers
+    # setup local mirror repo on the build slave running ngnix server at http://LOCAL_NGNIX_URL/repo/
+    # Build loci image by cloning from local mirror repo using http
+
+    ngnix_path="/opt/loci/web"
+    local_repo_proj_dir="$ngnix_path/repo/$GERRIT_CHANGE_NUMBER"
+    rm -rf $local_repo_proj_dir
+    git clone --mirror $GERRIT_URL/$GERRIT_PROJECT $local_repo_proj_dir/$GERRIT_PROJECT
+    cd $local_repo_proj_dir/$GERRIT_PROJECT && git update-server-info && cd $WORKSPACE/loci
+}
+
+build_requirements_tar()
+{
+    # create requirements container and export as tar
+    # copy it into artifactory mos-requirements repo
+    requirements_repo_cred="${ARTIFACTORY_USER}:${ARTIFACTORY_PASS}"
+    wheel_container="loci-mos-wheel-${commit_id}-${BUILD_TIMESTAMP}"
+    wheels_tar="wheels_${1}.tar"
+    wheels_tar_url="http://$ARTIFACTORY_IP/artifactory/mos-requirements/stable"
+    sudo docker create --name $wheel_container $foundry_repo/$1 bash
+    sudo docker export -o $wheels_tar $wheel_container
+    sudo chmod +r $wheels_tar
+    sudo docker stop $wheel_container && sudo docker rm $wheel_container
+    curl -s -u$requirements_repo_cred -T $wheels_tar "$wheels_tar_url/$wheels_tar"
+    rm -rf $wheels_tar
+}
+
+build_image()
+{
+    gerrit_proj="${1-$GERRIT_PROJECT}"
+    project="$(echo $gerrit_proj | cut -d '-' -f 2)"
+    docker_repo="$ARTIFACTORY_IP/docker-local"
+    aicubuntu1804img="$FOUNDRY_URL/ubuntu/18.04/nc-ubuntu-18.04:2018-05-01_05-48-21"
+    aicubuntu1604img="$FOUNDRY_URL/ubuntu/16.04/nc-ubuntu-16.04:2018-05-01_12-21-32"
+    foundry_repo="$FOUNDRY_URL/openstack/$branch/loci/mos"
+    project_repo="$LOCAL_NGNIX_URL/$GERRIT_CHANGE_NUMBER/$GERRIT_PROJECT"
+    wheels_image="requirements@sha256:9b1c035ad38470c27ba58ff53b8da685393d98ed1558e26fcc1a149b8288bef3"
+    build_tag="$foundry_repo/${gerrit_proj}:${commit_id}.${BUILD_TIMESTAMP}"
+    build_args="--build-arg http_proxy=$http_proxy \
+        --build-arg https_proxy=$https_proxy \
+        --build-arg no_proxy=$no_proxy \
+        --build-arg PROJECT_REPO=$project_repo \
+        --build-arg PROJECT_REF=$GERRIT_REFSPEC \
+        --build-arg PROJECT=$project "
+    loci_version="$(git --git-dir=$WORKSPACE/loci/.git rev-parse HEAD)"
+    label_args="--label org.label-schema.vcs-ref=$commit_id \
+        --label org.label-schema.vcs-url=$GERRIT_CHANGE_URL \
+        --label org.label-schema.version=0.9.0 \
+        --label org.label-schema.loci-ref=$loci_version"
+
+    if [ "$gerrit_proj" = "mos-nova-1804" ] || [ "$gerrit_proj" = "mos-neutron-sriov" ]; then
+        sudo docker pull $aicubuntu1804img
+        base_image_sha="$(sudo docker inspect --format='{{index .RepoDigests 0}}' $aicubuntu1804img)"
+    else
+        sudo docker pull $aicubuntu1604img
+        base_image_sha="$(sudo docker inspect --format='{{index .RepoDigests 0}}' $aicubuntu1604img)"
+    fi
+    build_args+=" --build-arg FROM=$base_image_sha"
+    label_args+=" --label org.label-schema.base-image=$base_image_sha"
+
+    if [ "$GERRIT_PROJECT" != "requirements" ]; then
+        build_requirements_tar $wheels_image
+
+        configs=`get_configs $gerrit_proj`
+        profile="$(echo $configs | cut -d ',' -f 1)"
+        package="$(echo $configs | cut -d ',' -f 2)"
+        distpackage="$(echo $configs | cut -d ',' -f 3)"
+
+        # build image
+        sudo -E docker build \
+            --build-arg PROFILES="$profile" \
+            --build-arg PIP_PACKAGES="$package" \
+            --build-arg DIST_PACKAGES="$distpackage" \
+            --build-arg WHEELS=$wheels_tar_url/$wheels_tar \
+            $build_args $label_args --tag $build_tag .
+    else
+        sudo -E docker build \
+            $build_args $label_args --tag $build_tag .
+    fi
+    # push the image to foundry
+    sudo docker push $build_tag
+    image_sha="$(sudo docker inspect --format='{{index .RepoDigests 0}}' $build_tag)"
+    echo "To pull the image execute... sudo docker pull $image_sha"
+    echo "$(echo $gerrit_proj | tr [a-z] [A-Z] | tr '-' '_')_LOCI=$image_sha" >> $WORKSPACE/artifacts/docker_image_pull.txt
+
+    # cleanup local image after push into foundry
+    sudo docker rmi $build_tag
+}
+
+rm -rf artifacts
+mkdir -p artifacts
+
+clone_loci
+setup_mirror_repo
+build_image
+case $GERRIT_PROJECT in
+ mos-nova)
+    build_image mos-nova-1804
+    ;;
+ mos-neutron)
+    build_image mos-neutron-sriov
+    ;;
+ *)
+    ;;
+esac
+
+# cleanup local mirror_repo
+rm -rf $local_repo_proj_dir
+
+'''
+
+vm2( 'bootstrap.sh', 'cicd-bionic-server-cloudimg-amd64') {
+
+}
+
