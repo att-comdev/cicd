@@ -17,17 +17,20 @@ def call(udata = 'bootstrap.sh',
          image = 'cicd-ubuntu-16.04-server-cloudimg-amd64',
          flavor = 'm1.medium',
          postfix = '',
+         buildtype = 'basic',
          leak = false,
          Closure body) {
 
     // resolve args to heat parameters
-  def parameters = " --parameter image=${image}" +
-                   " --parameter flavor=${flavor}"
+    def parameters = " --parameter image=${image}" +
+                     " --parameter flavor=${flavor}"
 
     // node used for launching VMs
     def launch_node = 'jenkins-node-launch'
 
     def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+
+    def stack_template="heat/stack/ubuntu.${buildtype}.stack.template.yaml"
 
     // optionally uer may supply additional identified for the VM
     // this makes it easier to find it in OpenStack
@@ -40,7 +43,7 @@ def call(udata = 'bootstrap.sh',
     try {
         stage ('Node Launch') {
             node(launch_node) {
-                tmpl = libraryResource "heat/stack/ubuntu.stack.template.yaml"
+                tmpl = libraryResource "${stack_template}"
                 writeFile file: 'template.yaml', text: tmpl
 
                 data = libraryResource "heat/stack/${udata}"
@@ -84,16 +87,14 @@ def call(udata = 'bootstrap.sh',
             //     }
             // }
         } finally {
-            stage ('Node Destroy') {
-                node(launch_node) {
-                  if (!leak) {
-                     node('master') {
-                       jenkins.node_delete(name)
-                     }
-                    node(launch_node) {
-                      heat.stack_delete(name)
+            if (!leak) {
+                stage ('Node Destroy') {
+                    node('master') {
+                        jenkins.node_delete(name)
                     }
-                  }
+                    node(launch_node) {
+                       heat.stack_delete(name)
+                    }
                 }
             }
         }
