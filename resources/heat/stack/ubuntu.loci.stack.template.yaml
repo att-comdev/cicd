@@ -1,0 +1,44 @@
+heat_template_version: ocata
+
+description: This template brings up a stack, setting flavor, size of VM, port & floating IP
+
+parameters:
+  image:
+    type: string
+    default: cicd-ubuntu-16.04-server-cloudimg-amd64
+  flavor:
+    type: string
+    default: m1.large
+
+resources:
+  server:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name: jenkins-slave-keypair
+      networks:
+        - port: { get_resource: server_port }
+
+      user_data:
+        str_replace:
+          template: {get_file: loci-bootstrap.sh}
+          params:
+            $message: Hello World!
+
+  server_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: private
+      security_groups: [jenkins-security]
+
+  server_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: public
+      port_id: { get_resource: server_port }
+
+outputs:
+  floating_ip:
+    description: The external IP associated to the server
+    value: { get_attr: [server_floating_ip, floating_ip_address] }
