@@ -9,6 +9,9 @@ parameters:
   flavor:
     type: string
     default: m1.large
+  bootstrapfile:
+    type: string
+    default: bootstrap.sh
 resources:
   server:
     type: OS::Nova::Server
@@ -21,7 +24,7 @@ resources:
 
       user_data:
         str_replace:
-          template: {get_file: bootstrap.sh }
+          template: {get_file: { get_param: bootstrapfile }}
           params:
             $message: Hello World!
 

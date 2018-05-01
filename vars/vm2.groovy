@@ -22,7 +22,8 @@ def call(udata = 'bootstrap.sh',
 
     // resolve args to heat parameters
   def parameters = " --parameter image=${image}" +
-                   " --parameter flavor=${flavor}"
+                   " --parameter flavor=${flavor}" +
+                   " --parameter bootstrapfile=${udata}"
 
     // node used for launching VMs
     def launch_node = 'jenkins-node-launch'
