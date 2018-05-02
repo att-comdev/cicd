@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "1971f588_775ef141",
+        "filename": "images/att-comdev/deckhand/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-05-02T15:56:34Z",
+      "side": 1,
+      "message": "Every publish with build_number..?",
+      "range": {
+        "startLine": 19,
+        "startChar": 82,
+        "endLine": 19,
+        "endChar": 94
+      },
+      "revId": "b8d8e8ec1b3842050d8afe37a58edfc34177bf58",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bd93f93f_a49f4e02",
         "filename": "images/att-comdev/deckhand/Jenkinsfile",
         "patchSetId": 5
