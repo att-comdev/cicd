@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd93f93f_a49f4e02",
+        "filename": "images/att-comdev/deckhand/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-05-02T15:53:03Z",
+      "side": 1,
+      "message": "I think Felipe wants this to be removed -\u003e https://review.gerrithub.io/#/c/att-comdev/cicd/+/409332/\n\nDo we want two different PS..?",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 5
+      },
+      "revId": "b8d8e8ec1b3842050d8afe37a58edfc34177bf58",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
