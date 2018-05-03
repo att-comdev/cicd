@@ -1,0 +1,41 @@
+NODE_NAME = "${JOB_BASE_NAME}-CodeReviewDev-${BUILD_NUMBER}"
+NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
+
+vm(NODE_NAME,NODE_TMPL){
+    stage('Project Checkout'){
+        cleanWs()
+        //To be removed once all projects are controlling their own dependencies
+        //bootstrap was not loading as expected
+        sh '''sudo apt-get install -y \
+              git make docker.io gcc python tox \
+              build-essential \
+              python3-minimal \
+              python3-setuptools \
+              python-pip \
+              python-dev \
+              python-flake8 \
+              python3-pip \
+              libffi-dev \
+              libssl-dev'''
+        if(env.GERRIT_NEWREV){
+            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_NEWREV,"jenkins")
+        } else {
+            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
+            dir("${WORKSPACE}/jenkins"){
+                gerrithub.rebase()
+            }
+        }
+    }
+    dir("${WORKSPACE}/jenkins"){
+        stage('Code-Review'){
+            def status = sh(returnStatus: true, script: "sudo -H make tests")
+            if (status != 0) {
+                currentBuild.result = 'FAILED'
+                notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
+            }else{
+                notify.msg("Code Review successful for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}")
+            }
+        }
+    }
+}
