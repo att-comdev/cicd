@@ -36,7 +36,7 @@ vm(NODE_NAME, NODE_TMPL) {
             //gerrithub.cloneToBranch("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG,"")
             
         } else {
-            gerrithub.clone("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG)
+            gerrithub.clone("${IMAGE_PREFIX}/maas", IMAGE_TAG)
         }
         sh 'sudo apt-get install make'
         currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
