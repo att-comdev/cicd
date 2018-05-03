@@ -1,0 +1,27 @@
+NODE_NAME = "MyCodeReview"
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+
+node(NODE_NAME){
+    stage('Project Checkout'){
+        cleanWs()
+        if(env.GERRIT_NEWREV){
+            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_NEWREV,"jenkins")
+        } else {
+            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
+            dir("${WORKSPACE}/jenkins"){
+                gerrithub.rebase()
+            }
+        }
+    }
+    dir("${WORKSPACE}/jenkins"){
+        stage('Code-Review'){
+            def status = sh(returnStatus: true, script: "sudo -H make tests")
+            if (status != 0) {
+                currentBuild.result = 'FAILED'
+                notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
+            }else{
+                notify.msg("Code Review successful for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}")
+            }
+        }
+    }
+}
