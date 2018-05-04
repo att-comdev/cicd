@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ae9cd56_30e0b69c",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-05-04T19:00:53Z",
+      "side": 1,
+      "message": "Not needed here. declared in Line#31",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 32
+      },
+      "revId": "4cb93b4b0afe376bf76f87708346455b99d8c9bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
