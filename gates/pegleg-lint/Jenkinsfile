@@ -1,0 +1,130 @@
+import static com.att.nccicd.config.Conf.*
+
+def slaveLabel = "worker-${UUID.randomUUID().toString()}"
+
+SITE_BRANCH='master'
+GLOBAL_BRANCH='master'
+SITE_MANIFEST_REF='master'
+GLOBAL_MANIFEST_REF='master'
+
+def globalCheckout = {
+    checkout poll: false,
+        scm: [$class: 'GitSCM',
+        branches: [[name: "${GLOBAL_BRANCH}"]],
+        doGenerateSubmoduleConfigurations: false,
+        extensions: [[$class: 'RelativeTargetDirectory',
+            relativeTargetDir: "$GLOBAL_REPO"]],
+        submoduleCfg: [],
+        userRemoteConfigs: [[refspec: "${GLOBAL_MANIFEST_REF}",
+            url: "ssh://$SSH_REPO_USER@$GERRIT_URL/$GLOBAL_REPO",
+                credentialsId:'jenkins-gerrit-mtn5-key']]]
+}
+
+def siteCheckout = {
+    checkout poll: false,
+        scm: [$class: 'GitSCM',
+        branches: [[name: "${SITE_BRANCH}"]],
+        doGenerateSubmoduleConfigurations: false,
+        extensions: [[$class: 'RelativeTargetDirectory',
+            relativeTargetDir: "$SITE_REPO"]],
+        submoduleCfg: [],
+        userRemoteConfigs: [[refspec: "${SITE_MANIFEST_REF}",
+            url: "ssh://$SSH_REPO_USER@$GERRIT_URL/$SITE_REPO",
+                credentialsId:'jenkins-gerrit-mtn5-key']]]
+}
+
+def secretCheckout = {
+    checkout poll: false,
+        scm: [$class: 'GitSCM',
+        branches: [[name: 'master']],
+        doGenerateSubmoduleConfigurations: false,
+        extensions: [[$class: 'RelativeTargetDirectory',
+            relativeTargetDir: "$SECRETS_REPO"]],
+        submoduleCfg: [],
+        userRemoteConfigs: [[refspec: 'master',
+            url: "ssh://$SSH_REPO_USER@$GERRIT_URL/$SECRETS_REPO",
+                credentialsId:'jenkins-gerrit-mtn5-key']]]
+}
+
+// If triggered from global repo, use master site/secrets. If trigger from site repo, use master global/secrets.
+def manageCheckout = {
+    if("${GERRIT_PROJECT}" == "$GLOBAL_REPO") {
+        GLOBAL_BRANCH = "${GERRIT_PATCHSET_REVISION}"
+        GLOBAL_MANIFEST_REF = "${GERRIT_REFSPEC}"
+    } else {
+        SITE_BRANCH = "${GERRIT_PATCHSET_REVISION}"
+        SITE_MANIFEST_REF = "${GERRIT_REFSPEC}"
+    }
+}
+
+podTemplate(label: slaveLabel, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  securityContext:
+    runAsUser: 10000
+""", containers: [
+  containerTemplate(name: 'pegleg', image: "$PEGLEG_IMAGE", command: 'cat', ttyEnabled: true),
+  containerTemplate(name: 'promenade',
+    image: 'artifacts-aic.atlantafoundry.com/att-comdev/promenade@sha256:e8a6d6e671fa330e63a91b978757c3cde241aad81f2166aebc9a0880702c0f7c',
+    command: 'cat',
+    ttyEnabled: true,
+    envVars: [
+        envVar(key: 'http_proxy', value: 'http://one.proxy.att.com:8888'),
+        envVar(key: 'https_proxy', value: 'http://one.proxy.att.com:8888')
+    ])]) {
+
+  node(slaveLabel) {
+
+        stage('Checkout') {
+            manageCheckout()
+            globalCheckout()
+            siteCheckout()
+            secretCheckout()
+        }
+
+        stage('Pegleg Lint & Render') {
+            container('pegleg') {
+                pegleg.lintWithinContainer("$SITE_REPO", "$GLOBAL_REPO", "$SECRETS_REPO")
+            }
+        }
+
+        stage('Promenade Generate Genesis Script') {
+            // Global/type change, need to prom-gen each site
+            if("${GERRIT_PROJECT}" == "$GLOBAL_REPO") {
+                container('pegleg') {
+                    sh """
+                        ls -d $SITE_REPO/site/*/ | cut -d '/' -f3 | while read d
+                            do mkdir -p \$d; pegleg site -p $SITE_REPO -a $GLOBAL_REPO -a $SECRETS_REPO collect \$d -s \$d
+                        done
+                    """
+                }
+                container('promenade') {
+                    sh """
+                        ls -d $SITE_REPO/site/*/ | cut -d '/' -f3 | while read d
+                            do promenade generate-certs -o \$d \$(realpath \$(ls \$d/*.*)); \
+                                promenade build-all --validators -o \$d \$(realpath \$(ls \$d/*.*))
+                        done
+                    """
+                }
+            // Site change, only need to prom-gen those that changed
+            } else {
+                container('pegleg') {
+                    sh """
+                        git -C \$(pwd)/$SITE_REPO diff --name-only HEAD~1..HEAD | cut -d '/' -f2 | uniq | while read d
+                            do mkdir -p \$d; pegleg site -p $SITE_REPO -a $GLOBAL_REPO -a $SECRETS_REPO collect \$d -s \$d
+                        done
+                    """
+                }
+                container('promenade') {
+                    sh """
+                        git -C \$(pwd)/$SITE_REPO diff --name-only HEAD~1..HEAD | cut -d '/' -f2 | uniq | while read d
+                            do promenade generate-certs -o \$d \$(realpath \$(ls \$d/*.*)); \
+                                promenade build-all --validators -o \$d \$(realpath \$(ls \$d/*.*))
+                        done
+                    """
+                }
+            }
+        }
+  }
+}
