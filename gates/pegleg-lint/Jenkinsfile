@@ -1,0 +1,77 @@
+import static com.att.nccicd.config.Conf.*
+
+def slaveLabel = "worker-${UUID.randomUUID().toString()}"
+
+SITE_BRANCH='master'
+GLOBAL_BRANCH='master'
+SITE_MANIFEST_REF='master'
+GLOBAL_MANIFEST_REF='master'
+
+def globalCheckout = {
+    checkout poll: false,
+        scm: [$class: 'GitSCM',
+        branches: [[name: "${GLOBAL_BRANCH}"]],
+        doGenerateSubmoduleConfigurations: false,
+        extensions: [[$class: 'RelativeTargetDirectory',
+            relativeTargetDir: "$GLOBAL_REPO"]],
+        submoduleCfg: [],
+        userRemoteConfigs: [[refspec: "${GLOBAL_MANIFEST_REF}",
+            url: "ssh://$SSH_REPO_USER@$GERRIT_URL/$GLOBAL_REPO",
+                credentialsId:'jenkins-gerrit-mtn5-key']]]
+}
+
+def siteCheckout = {
+    checkout poll: false,
+        scm: [$class: 'GitSCM',
+        branches: [[name: "${SITE_BRANCH}"]],
+        doGenerateSubmoduleConfigurations: false,
+        extensions: [[$class: 'RelativeTargetDirectory',
+            relativeTargetDir: "$SITE_REPO"]],
+        submoduleCfg: [],
+        userRemoteConfigs: [[refspec: "${SITE_MANIFEST_REF}",
+            url: "ssh://$SSH_REPO_USER@$GERRIT_URL/$SITE_REPO",
+                credentialsId:'jenkins-gerrit-mtn5-key']]]
+}
+
+def secretCheckout = {
+    checkout poll: false,
+        scm: [$class: 'GitSCM',
+        branches: [[name: 'master']],
+        doGenerateSubmoduleConfigurations: false,
+        extensions: [[$class: 'RelativeTargetDirectory',
+            relativeTargetDir: "$SECRETS_REPO"]],
+        submoduleCfg: [],
+        userRemoteConfigs: [[refspec: 'master',
+            url: "ssh://$SSH_REPO_USER@$GERRIT_URL/$SECRETS_REPO",
+                credentialsId:'jenkins-gerrit-mtn5-key']]]
+}
+
+def manageCheckout = {
+    if("${GERRIT_PROJECT}" == "$GLOBAL_REPO") {
+        GLOBAL_BRANCH = "${GERRIT_PATCHSET_REVISION}"
+        GLOBAL_MANIFEST_REF = "${GERRIT_REFSPEC}"
+    } else {
+        SITE_BRANCH = "${GERRIT_PATCHSET_REVISION}"
+        SITE_MANIFEST_REF = "${GERRIT_REFSPEC}"
+    }
+}
+
+podTemplate(label: slaveLabel, containers: [
+  containerTemplate(name: 'pegleg', image: "$PEGLEG_IMAGE", command: 'cat', ttyEnabled: true)]) {
+
+  node(slaveLabel) {
+
+        stage('Checkout') {
+            manageCheckout()
+            globalCheckout()
+            siteCheckout()
+            secretCheckout()
+        }
+
+        stage('Pegleg Lint') {
+            container('pegleg') {
+                pegleg.lintWithinContainer("$SITE_REPO", "$GLOBAL_REPO", "$SECRETS_REPO")
+            }
+        }
+  }
+}
