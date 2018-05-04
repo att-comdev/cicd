@@ -4,82 +4,11 @@ NODE_TMPL = "charts/ubuntu.m1.medium.yaml"
 CURRENT_VERSION = "0.1.0.${GERRIT_CHANGE_NUMBER}"
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 
-//bash script start:
-def build_charts = '''
-
-    helm_install(){
-
-        sudo apt-get install -y --no-install-recommends git make curl ca-certificates
-        TMP_DIR="$(mktemp -d)"
-        URL="https://artifacts-aic.atlantafoundry.com/artifactory/googleapis-helm/helm-v2.7.2-linux-amd64.tar.gz"
-        curl -sSL ${URL} | tar -zxv --strip-components=1 -C ${TMP_DIR}
-        sudo mv -v ${TMP_DIR}/helm /usr/local/bin/helm
-    }
-
-    helm_serve(){
-        helm init --client-only
-        if [ -z "$(curl -s 127.0.0.1:8879 | grep 'Helm Repository')" ]; then
-            helm serve & > /dev/null
-            while [ -z "$(curl -s 127.0.0.1:8879 | grep 'Helm Repository')" ]; do
-                sleep 1
-                echo "Waiting for Helm Repository"
-            done
-        fi
-
-        if helm repo list | grep -q "^stable" ; then
-            helm repo remove stable
-        fi
-
-        helm repo add local http://localhost:8879/charts
-    }
-
-    cleanup(){
-        rm -rf build && mkdir build
-    }
-
-    prepare_env(){
-        git clone -q --depth 1 https://git.openstack.org/openstack/openstack-helm.git
-        cd openstack-helm
-        helm_install
-        helm_serve
-        make helm-toolkit
-    }
-
-    helm_pkg(){
-        #Some projects fail to create charts with make or don't have Makefile,
-        #I want to create and upload their charts anyway:
-        for i in $(ls charts | grep -v '.tgz'); do
-            helm dep up charts/${i}
-            helm package charts/${i}
-        done
-    }
-
-    make_charts(){
-        echo '############### Building Charts ######################'
-        set -xe
-        cd ${WDIR}
-        if [ -f Makefile ]; then
-            make charts
-        else
-            helm_pkg
-        fi
-        echo '#################### Done! ###########################'
-
-    }
-
-    set -e # script will fail on any error
-    WDIR=`pwd`
-    cleanup && cd build
-    prepare_env
-    make_charts
-    '''
-/* end of bash script. */
-
 node("att-comdev-charts"){
     stage('Project Checkout'){
         cleanWs()
         if(env.GERRIT_NEWREV){
-            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_NEWREV, "jenkins","")
+            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_NEWREV, "jenkins")
         } else {
             gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
             dir("${WORKSPACE}/jenkins"){
@@ -103,7 +32,7 @@ node("att-comdev-charts"){
     }
     dir("${WORKSPACE}/jenkins"){
         stage('Make and Publish Charts'){
-            def status = sh(returnStatus: true, script: build_charts)
+            def status = sh(returnStatus: true, script: "sudo make ${JOB_BASE_NAME}")
             if (status != 0) {
                 currentBuild.result = 'FAILED'
                 notify.msg("Charts build failed for ${GERRIT_CHANGE_NUMBER}!")
@@ -116,8 +45,6 @@ node("att-comdev-charts"){
                 } else {
                     ARTF_REPO="charts/att-comdev/patchsets/${JOB_BASE_NAME}/"
                 }
-
-                sh "find . -iname 'helm-toolkit*.tgz' -delete"
 
                 def server = Artifactory.server 'artifactory'
                 def uploadSpec = """{"files": [{"pattern":"*${JOB_BASE_NAME}*0.9.${BUILD_NUMBER}*.tgz","target":"${ARTF_REPO}"}]}"""
