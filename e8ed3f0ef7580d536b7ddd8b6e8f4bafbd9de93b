@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "891d73c0_1e39b691",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1010324
+      },
+      "writtenOn": "2018-05-07T18:59:13Z",
+      "side": 1,
+      "message": "sudo make is pretty ugly - is this required?",
+      "range": {
+        "startLine": 31,
+        "startChar": 57,
+        "endLine": 31,
+        "endChar": 62
+      },
+      "revId": "e8ed3f0ef7580d536b7ddd8b6e8f4bafbd9de93b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
