@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ab8a606_ad548ec9",
+        "filename": "resources/heat/stack/loci-bootstrap.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-05-07T15:01:37Z",
+      "side": 1,
+      "message": "Should be installed already in cicd-xxxxxxx images. But it doesn\u0027t hurt, and could be left as is (e.g. if someone external would be using our code from github).",
+      "range": {
+        "startLine": 16,
+        "startChar": 19,
+        "endLine": 16,
+        "endChar": 28
+      },
+      "revId": "6a72a13908743a95202078cf7f952c9610ec0941",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
