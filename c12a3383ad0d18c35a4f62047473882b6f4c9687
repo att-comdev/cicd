@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93f7f58c_543b8271",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-05-11T14:30:11Z",
+      "side": 1,
+      "message": "Add proper job description, please.",
+      "revId": "c12a3383ad0d18c35a4f62047473882b6f4c9687",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89135860_b7266762",
+        "filename": "code-review/seed.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-05-11T14:30:11Z",
+      "side": 1,
+      "message": "What would it be launched against? In simple words.\nOr better add a comment and proper job description, please.",
+      "range": {
+        "startLine": 8,
+        "startChar": 20,
+        "endLine": 13,
+        "endChar": 25
+      },
+      "revId": "c12a3383ad0d18c35a4f62047473882b6f4c9687",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
