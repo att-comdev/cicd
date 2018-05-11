@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d62e6c58_66a03e88",
+        "filename": "dev/seed.groovy",
+        "patchSetId": 40
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-05-11T14:41:27Z",
+      "side": 1,
+      "message": "add displayName() and description()",
+      "revId": "23f64e493d1aa69f976a99dd65a171b424cb21f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
