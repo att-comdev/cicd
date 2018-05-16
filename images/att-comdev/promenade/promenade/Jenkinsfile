@@ -117,7 +117,6 @@ vms {
             sh "sudo apt-get install -y docker.io curl"
             sh "sudo docker build -t ${IMAGE} --label org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER} ."
             sh "sudo docker inspect ${IMAGE} | grep promenade"
-            publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
         }
     }
 
@@ -214,6 +213,15 @@ vms {
                 }
             }
             sh 'sudo kubectl get pods --all-namespaces -o wide'
+        }
+    }
+    stage('Image Publish'){
+        node("${PROM_NODE_BASE}-build"){
+            publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+            if (GERRIT_EVENT_TYPE == 'change-merged') {
+                publish.artifactory (IMAGE, IMAGE_LATEST)
+                publish.quay (IMAGE, QUAY_IMAGE_LATEST)
+            }
         }
     }
 }
