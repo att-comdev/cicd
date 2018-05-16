@@ -34,7 +34,11 @@ vm(NODE_NAME, NODE_TMPL) {
     try {
         stage('Run & Validate'){
             gerrithub.cloneProject("att-comdev/treasuremap", 'master',"","treasuremap")
-            sh "sudo docker run --rm -t -v \$(pwd):/target ${IMAGE} pegleg site -p /target/treasuremap/deployment_files collect atl-lab1 -s /target"
+            // NOTE(fmontei): P001 is warn because many of our Treasuremap documents use
+            // cleartext, even if they're so-called "secret" types. P005 is warn
+            // because missing substitution source issues may happen when running
+            // Deckhand + Pegleg in isolation.
+            sh "sudo docker run --rm -t -v \$(pwd):/target ${IMAGE} pegleg site -p /target/treasuremap/deployment_files collect atl-lab1 -s /target -w P001 -w P005"
         }
         stage('Image Publish'){
             publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
