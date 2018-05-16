@@ -54,7 +54,7 @@ for (entry in object.images) {
 
                 definition {
                     cps {
-                        script(readFileFromWorkspace("images/${entry.repo}/${pipelineName}/Jenkinsfile"))
+                        script(readFileFromWorkspace("images/${entry.repo}/Jenkinsfile${pipelineName}"))
                         sandbox()
                     }
                 }
