@@ -28,8 +28,8 @@ for (entry in object.UCP) {
                             pattern("${entry.repo}/${image}")
                             branches {
                                 branch {
-                                compareType("ANT")
-                                pattern("**")
+                                   compareType("ANT")
+                                   pattern("**")
                                 }
                             }
                             disableStrictForbiddenFileVerification(false)
@@ -47,7 +47,6 @@ for (entry in object.UCP) {
                         }
                     }
                 }
-
                 definition {
                     cps {
                       script(readFileFromWorkspace("images/${entry.repo}/${image}/Jenkinsfile"))
