@@ -47,7 +47,6 @@ for (entry in object.UCP) {
                         }
                     }
                 }
-
                 definition {
                     cps {
                       script(readFileFromWorkspace("images/${entry.repo}/${image}/Jenkinsfile"))
