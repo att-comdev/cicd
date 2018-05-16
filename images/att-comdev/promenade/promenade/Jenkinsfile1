@@ -216,4 +216,12 @@ vms {
             sh 'sudo kubectl get pods --all-namespaces -o wide'
         }
     }
+    stage('Image Publish'){
+        node("${PROM_NODE_BASE}-build"){
+            if (GERRIT_EVENT_TYPE == 'change-merged') {
+                publish.artifactory (IMAGE, IMAGE_LATEST)
+                publish.quay (IMAGE, QUAY_IMAGE_LATEST)
+            }
+        }
+    }
 }
