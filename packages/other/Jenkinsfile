@@ -1,0 +1,57 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+
+/* start of bash scripts */
+def get_distribution = '''
+  mkdir -p tmp/${package}
+  dpkg -X ${package} tmp/${package}/
+  distribution=$(find tmp/${package}/ -name "changelog.Debian.gz" \
+    -exec dpkg-parsechangelog -l {} \\; | awk '/Distribution/ {print $2}')
+  echo "Distribution: ${distribution}"
+'''
+/* end of bash scripts */
+
+  vm(NODE_NAME, NODE_TMPL) {
+   stage('Setup environment') {
+
+    if (GERRIT_SSH_CREDS != '') {
+
+      print 'Accessing Gerrit via SSH with credentials provided.'
+      gerrit.clone("https://${GERRIT_HOST}/${GERRIT_PROJECT}", '*/master', "${GERRIT_SSH_CREDS}")
+    } else {
+
+      print 'Accessing Gerrit via HTTPS.'
+      gerrit.clone("https://${GERRIT_HOST}/${GERRIT_PROJECT}", '*/master')
+    }
+    sh "git checkout FETCH_HEAD"
+  }
+
+  stage('Build package') {
+
+    sh "bash ./build.sh \"${PACKAGE}\" \"${PACKAGE_VERSION}\""
+  }
+
+  stage('Publish packages') {
+
+    sh """ls -l *\\.deb
+          echo UPLOAD_PACKAGES ${UPLOAD_PACKAGES}
+          echo ARTF_REPOSITORY_PATH ${ARTF_REPOSITORY_PATH}"""
+
+    // TODO: deb.distribution needs to be derived from package,
+    // see 'get_distribution' shell script defined above. Currently we are
+    // building for xenial only
+    if (UPLOAD_PACKAGES == 'true') {
+      artf = Artifactory.server 'artifactory'
+      uploadSpec = """{"files": [{
+                  "pattern": "*.deb",
+                  "target": "${ARTF_REPOSITORY_PATH}",
+                  "props": "deb.distribution=xenial;deb.component=main;deb.architecture=amd64",
+                  "flat": "true"
+                }]}"""
+      artf.publishBuildInfo(artf.upload(uploadSpec))
+    } else {
+      echo 'Not uploading packages, as UPLOAD_PACKAGES has not been enabled.'
+    }
+  }
+}
