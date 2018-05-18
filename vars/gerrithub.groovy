@@ -1,3 +1,6 @@
+// TODO: Gerrit URL should be (global?) variable
+// TODO: remane file to gerrit.groovy after generalization
+
 def clone(String project, String refspec){
 // Usage example: gerrithub.clone("att-comdev/cicd", "origin/master")
 // clone refspec: gerrithub.clone("att-comdev/cicd", "${env.GERRIT_REFSPEC}")
