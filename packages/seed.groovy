@@ -1,4 +1,4 @@
-JOB_FOLDER="packages"
+JOB_FOLDER="packages/ubuntu"
 JOB_NAME="BuildPackages"
 
 folder(JOB_FOLDER)
