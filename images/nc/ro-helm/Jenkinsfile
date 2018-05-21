@@ -1,0 +1,60 @@
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="nc"
+IMAGE_NAME="ro"
+IMAGE_VERSION="1.0.0"
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+IMAGE_LATEST="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${IMAGE_NAME}:latest"
+
+vm2() {
+   stage('Checkout') {
+       cleanWs()
+       if (GERRIT_EVENT_TYPE == 'change-merged') {
+           IMAGE_TAG="${GERRIT_NEWREV}"
+       }
+       checkout poll: false,
+           scm: [$class: 'GitSCM',
+           branches: [[name: "${IMAGE_TAG}"]],
+           doGenerateSubmoduleConfigurations: false,
+           extensions: [[$class: 'RelativeTargetDirectory',
+           relativeTargetDir: 'ro-helm']],
+           submoduleCfg: [],
+           userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+           url: '${INTERNAL_GERRIT_SSH}/ro-helm',
+           credentialsId:'jenkins-gerrit-mtn5-key']]]
+
+       checkout poll: false,
+           scm: [$class: 'GitSCM',
+           branches: [[name: 'master']],
+           doGenerateSubmoduleConfigurations: false,
+           extensions: [[$class: 'RelativeTargetDirectory',
+           relativeTargetDir: 'ro-clcp-inventory']],
+           submoduleCfg: [],
+           userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+           url: '${INTERNAL_GERRIT_SSH}/ro-clcp-inventory',
+           credentialsId:'jenkins-gerrit-mtn5-key']]]
+   }
+   stage('Init') {
+       dir("${WORKSPACE}/ro-helm/scripts"){
+           sh('sudo bash init.sh')
+       }
+   }
+   stage('Build') {
+       echo 'Building RO Image file.'
+       dir("${WORKSPACE}/ro-helm"){
+           sh('make images IMAGE_PREFIX=${IMAGE_PREFIX} \
+                           IMAGE_NAME=${IMAGE_NAME} \
+                           DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
+                           LABEL="org.label-schema.vcs-ref=${IMAGE_TAG} \
+                           --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} \
+                           --label org.label-schema.version=${IMAGE_VERSION}-${BUILD_NUMBER}" \
+                           IMAGE_TAG=${IMAGE_TAG}')
+       }
+   }
+   stage('Publish') {
+       echo "publish image to artifactory"
+       publish.artifactory ("${IMAGE_NAME}:${IMAGE_TAG}", "${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+       if (GERRIT_EVENT_TYPE == 'change-merged') {
+           publish.artifactory ("${IMAGE_NAME}:${IMAGE_TAG}", IMAGE_LATEST)
+       }
+   }
+}
