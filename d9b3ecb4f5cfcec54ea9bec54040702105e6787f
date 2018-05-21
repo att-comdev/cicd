@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bd19cf9_5aa2bcae",
+        "filename": "packages/other/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-05-21T15:01:07Z",
+      "side": 1,
+      "message": "Should we make use of \"vm2\" now? Wasn\u0027t sure if upstream is using yet.",
+      "revId": "d9b3ecb4f5cfcec54ea9bec54040702105e6787f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d8b306d_05454543",
+        "filename": "packages/other/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-05-21T15:01:07Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "d9b3ecb4f5cfcec54ea9bec54040702105e6787f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44eac9cc_c0e3d47d",
+        "filename": "packages/other/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-05-21T15:01:07Z",
+      "side": 1,
+      "message": "not*",
+      "revId": "d9b3ecb4f5cfcec54ea9bec54040702105e6787f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "000f1436_6d06edbc",
+        "filename": "packages/other/seed.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-05-21T15:01:07Z",
+      "side": 1,
+      "message": "Does this end up getting used anywhere in the associated Jenkinsfile?",
+      "revId": "d9b3ecb4f5cfcec54ea9bec54040702105e6787f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
