@@ -1,0 +1,87 @@
+import groovy.json.*
+
+// Proxy settings:
+PROXY="http_proxy=http://one.proxy.att.com:8888/ https_proxy=http://one.proxy.att.com:8888/"
+
+ def assert_var_empty(name){
+    def name=env.name
+    def value
+    def "value=\$$name"
+    if ( value == null && "GERRIT_BRANCH" != "proposed"){
+        print 'Variable $name is empty or not set.'
+        print 'Exiting now.'
+        exit 1
+}
+}
+
+
+  def git_clone(gerrit_project, gerrit_prject, gerrit_refspec){
+    def project_name=gerrit_project
+    def local_path=gerrit_project
+    def refspec=gerrit_refspec
+    def gerrit_url='ssh://jenkins@gerrit.mtn5.cci.att.com:29418'
+
+    if ( local_path ==~ ^[\/\.]*$ ){
+        print 'Bad local path $local_path'
+        exit 1
+}
+    if ( refspec == null){
+        echo "Empty refspec given"
+        exit 1
+}
+
+    sh "rm -rf $local_path"
+
+    sh "git clone $gerrit_url/$project_name $local_path"
+
+    sh "pushd $local_path"
+    if ( refspec ==~ ^refs\/ ){
+        sh "git fetch $gerrit_url/$project_name $refspec"
+        sh "git checkout FETCH_HEAD"
+}
+    else{
+        sh "git checkout $refspec"
+}
+
+    sh "popd"
+}
+}
+
+def use_venv(){
+    if ( env.USE_VENV == "true" )
+        sh "virtualenv venv"
+        sh "source venv/bin/activate"
+
+    def filePath = 'requirements.txt'
+    def file = new File(filePath)
+
+        if (file.exists()){
+          sh "pip install -r requirements.txt"
+}
+    else{
+        print "Building package out of venv"
+}
+}
+
+def build_package {
+    sh "export ${PROXY} && use_venv"
+    sh "unset http_proxy https_proxy"
+    sh "cd ${GERRIT_PROJECT}"
+    sh "python setup.py sdist"
+
+}
+
+//JOB PARAMETERS:
+assert_var_empty GERRIT_PROJECT
+assert_var_empty GERRIT_REFSPEC
+assert_var_empty GERRIT_BRANCH
+assert_var_empty GERRIT_EVENT_TYPE
+
+GERRIT_PROJECT=env.GERRIT_PROJECT
+GERRIT_BRANCH=env.GERRIT_BRANCH
+GERRIT_EVENT_TYPE=env.GERRIT_EVENT_TYPE
+GERRIT_REFSPEC=env.GERRIT_REFSPEC
+COMPONENT_NAME=sh "`echo env.GERRIT_PROJECT | sed "s/mos-//"`"
+
+     sh "git_clone $GERRIT_PROJECT $GERRIT_PROJECT $GERRIT_REFSPEC"
+     build_package
