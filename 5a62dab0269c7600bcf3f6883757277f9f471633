@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "060084b0_f425ceed",
+        "filename": "images/ro-helm/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-05-22T18:20:40Z",
+      "side": 1,
+      "message": "I don\u0027t know if this will be right for this Jenkins, might want to echo $JAVA_HOME to see where it is first",
+      "revId": "5a62dab0269c7600bcf3f6883757277f9f471633",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8240b67b_a29fd335",
+        "filename": "images/ro-helm/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-05-22T18:20:40Z",
+      "side": 1,
+      "message": "Remove 15-17",
+      "revId": "5a62dab0269c7600bcf3f6883757277f9f471633",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
