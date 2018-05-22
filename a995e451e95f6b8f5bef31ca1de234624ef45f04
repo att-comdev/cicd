@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5cdee35_6bfda65a",
+        "filename": "packages/other/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-05-22T14:16:59Z",
+      "side": 1,
+      "message": "We don\u0027t need params. We can give ${GERRIT_BRANCH}. Same for all.",
+      "range": {
+        "startLine": 20,
+        "startChar": 32,
+        "endLine": 20,
+        "endChar": 38
+      },
+      "revId": "a995e451e95f6b8f5bef31ca1de234624ef45f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6f68fd7_61a843c3",
+        "filename": "packages/other/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-05-22T14:16:59Z",
+      "side": 1,
+      "message": "I think we are doing clean before checkout. So I guess we don\u0027t need `dir` the workspace will already be in GERRIT_PROJECT",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 35
+      },
+      "revId": "a995e451e95f6b8f5bef31ca1de234624ef45f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad53e5e7_2d39ca62",
+        "filename": "packages/other/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-05-22T14:16:59Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 36
+      },
+      "revId": "a995e451e95f6b8f5bef31ca1de234624ef45f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
