@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04cc1435_a333c886",
+        "filename": "images/att-comdev/maas/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-05-23T14:44:58Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "3f281569515e90b78ff9ea9f4762219370ab3dca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c63dc21_98dc13d9",
+        "filename": "images/att-comdev/maas/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-05-23T14:44:58Z",
+      "side": 1,
+      "message": "I know this isn\u0027t anything that\u0027s changed with this particular PS, but I believe there\u0027s a function in the \"gerrithub\" shared lib that does this exact checkout - I believe it\u0027s called \"cloneToBranch\"",
+      "revId": "3f281569515e90b78ff9ea9f4762219370ab3dca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
