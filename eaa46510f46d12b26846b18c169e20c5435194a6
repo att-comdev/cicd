@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "576086b7_d9815abd",
+        "filename": "images/att-comdev/prometheus-openstack-exporter/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-05-23T15:05:02Z",
+      "side": 1,
+      "message": "I would recommend using the function in the \"gerrithub\" shared lib, I think it does exactly what you\u0027re doing here, if you pass the correct params.",
+      "revId": "eaa46510f46d12b26846b18c169e20c5435194a6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
