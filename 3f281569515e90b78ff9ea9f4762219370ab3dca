@@ -33,6 +33,29 @@
       "revId": "3f281569515e90b78ff9ea9f4762219370ab3dca",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0217d2c2_22a7b1fe",
+        "filename": "images/att-comdev/maas/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-05-23T14:48:51Z",
+      "side": 1,
+      "message": "why not ${JOB_BASE_NAME} ?",
+      "range": {
+        "startLine": 39,
+        "startChar": 45,
+        "endLine": 39,
+        "endChar": 49
+      },
+      "revId": "3f281569515e90b78ff9ea9f4762219370ab3dca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
