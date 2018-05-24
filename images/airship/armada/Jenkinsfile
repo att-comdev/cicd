@@ -1,0 +1,212 @@
+JENKINS_VM_LAUNCH = 'local-vm-launch'
+
+NODE_BASE = "armada-${BUILD_NUMBER}"
+NODE_TMPL = "promenade/promenade.yaml"
+IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="att-comdev"
+
+PROM_BUNDLE = "promenade-bundle.tgz"
+ARTF_PROM_BUNDLE = "ucp/armada-bundle/${IMAGE_TAG}/${PROM_BUNDLE}"
+ARTF_ARMADA_MANIFEST = "clcp-integration/region/atl-lab1/armada/openstack-helm.yaml"
+PROMENADE_IMAGE="${ARTF_DOCKER_URL}/att-comdev/promenade:latest"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
+IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+// node info { node : [hostname, ip] }
+NODES = [ build:[], genesis:[], master1:[], master2:[], worker:[]]
+
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+// wrapper for main flow
+def vms(body) {
+    try {
+        stage('Nodes Launch') {
+            node(JENKINS_VM_LAUNCH) {
+                NODES.each { key, value ->
+                    vm.jenkins_vm_launch("${NODE_BASE}-${key}",
+                                         "${env.HOME}/${NODE_TMPL}")
+                }
+            }
+        }
+
+        body()
+
+    } catch (error) {
+        notify.msg("Pipeline failed: ${error}")
+        error(error)
+    } finally {
+        node(JENKINS_VM_LAUNCH) {
+            stage("Publish Jenkins Logs"){
+                try{
+                    sh "curl -s -o ./${GERRIT_CHANGE_NUMBER}-${GERRIT_PATCHSET_NUMBER}.log ${BUILD_URL}consoleText"
+                    nexusArtifactUploader artifacts: [[ artifactId: 'armada',
+                                                        classifier: '',
+                                                        file: GERRIT_CHANGE_NUMBER+'-'+GERRIT_PATCHSET_NUMBER+'.log']],
+                                                        credentialsId: 'nexus3',
+                                                        groupId: 'att-comdev',
+                                                        nexusUrl: '$NEXUS3_URL',
+                                                        nexusVersion: 'nexus3',
+                                                        protocol: 'http',
+                                                        repository: 'att-comdev-jenkins-logs',
+                                                        version: '$BUILD_NUMBER'
+                } catch (Exception e){
+                    //TODO notify of failure to upload Jenkins logs to cicd team.
+                }
+            }
+            stage('Nodes Destroy') {
+                NODES.each { key, value ->
+                    vm.jenkins_vm_destroy("${NODE_BASE}-${key}")
+                }
+            }
+        }
+    }
+}
+
+vms {
+    stage('Nodes Wait'){
+        def get_hname = {
+            sh(returnStdout: true, script: 'echo -n $(hostname)')
+        }
+
+        def get_ip = { iface ->
+            cmd = "ifconfig ${iface} | grep 'inet addr:' | cut -d: -f2 | awk '{ print \$1}'"
+            sh(returnStdout: true, script: cmd).trim()
+        }
+
+        timeout (15) {
+            NODES.each { key, value ->
+                node ("${NODE_BASE}-${key}") {
+                    NODES."${key}" = [get_hname(), get_ip('ens3')]
+                }
+            }
+            print " *** Noode info ***\n${NODES}"
+        }
+    }
+
+    stage('Checkout Promenade'){
+        node("${NODE_BASE}-build"){
+            gerrit.clone("https://git.openstack.org/openstack/airship-promenade", "*/master")
+            if(env.GERRIT_NEWREV){
+                echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+                IMAGE_TAG=env.GERRIT_NEWREV
+                IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+            }
+            gerrit.cloneToBranch("https://git.openstack.org/openstack/airship-${JOB_BASE_NAME}", IMAGE_TAG,"${JOB_BASE_NAME}")
+            if(GERRIT_EVENT_TYPE != 'change-merged') {
+                sh '''git config user.email "attcomdev.jenkins@gmail.com"
+                    git config user.name "Jenkins"
+                    git pull --rebase origin master'''
+            }
+            sh "sudo docker pull ${PROMENADE_IMAGE}"
+            dir(env.WORKSPACE+"/armada"){
+                sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+                sh 'sudo docker images | grep armada'
+            }
+            publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+        }
+    }
+
+    artf = Artifactory.server 'artifactory'
+
+    def artf_spec = { pattern, target ->
+        return """
+            {"files": [{
+                "pattern": "${pattern}",
+                "target": "${target}",
+                "flat": "true"
+            }]}
+        """
+    }
+
+    stage('Promenade Config'){
+       node("${NODE_BASE}-build"){
+
+           def config = """
+              IMAGE_ARMADA=${IMAGE}
+              CALICO_IP_AUTODETECTION_METHOD='interface=ens3'
+              GENESIS_HOSTNAME=${NODES.genesis[0]}
+              GENESIS_IP=${NODES.genesis[1]}
+              MASTER1_HOSTNAME=${NODES.master1[0]}
+              MASTER1_IP=${NODES.master1[1]}
+              MASTER2_HOSTNAME=${NODES.master2[0]}
+              MASTER2_IP=${NODES.master2[1]}
+              WORKER_HOSTNAME=${NODES.worker[0]}
+              WORKER_IP=${NODES.worker[1]}
+           """
+           sh "echo '${config}' > tools/gate/config-env"
+
+           timeout(30) {
+               sh "sudo bash tools/gate/build.sh ${PROMENADE_IMAGE}"
+           }
+
+           spec = artf_spec("tools/gate/${PROM_BUNDLE}", ARTF_PROM_BUNDLE)
+           artf.publishBuildInfo(artf.upload(spec))
+       }
+    }
+
+    def prom_up = { hname ->
+
+        spec = artf_spec(ARTF_PROM_BUNDLE, "")
+        artf.download(spec)
+
+        sh ("tar -xvf ${PROM_BUNDLE}")
+
+        jn = "join-${hname}.sh"
+        vn = "validate-${hname}.sh"
+
+        if (hname == "genesis") {
+            jn = "genesis.sh"
+        }
+
+        timeout (40) {
+            dir("${WORKSPACE}/promenade-bundle") {
+               sh ("sudo bash ${jn}")
+               sh ("sudo bash ${vn}")
+            }
+        }
+    }
+
+    stage('Genesis Up'){
+        node("${NODE_BASE}-genesis") {
+            prom_up("genesis")
+        }
+    }
+    stage('Master1 Join'){
+        node("${NODE_BASE}-master1") {
+            prom_up(NODES.master1[0])
+        }
+    }
+
+    stage('Master2 Join'){
+        node("${NODE_BASE}-master2") {
+            prom_up(NODES.master2[0])
+        }
+    }
+
+    stage('Worker Join'){
+        node("${NODE_BASE}-worker") {
+            prom_up(NODES.worker[0])
+        }
+    }
+
+    stage('Cluster Validate'){
+        node("${NODE_BASE}-genesis") {
+            timeout (40) {
+                dir("${WORKSPACE}/promenade-bundle") {
+                   sh ('sudo bash validate-cluster.sh')
+                   sh ('sudo bash final-validation.sh')
+                }
+            }
+            sh 'sudo kubectl get pods --all-namespaces -o wide'
+        }
+    }
+    stage('Image Publish'){
+        node("${NODE_BASE}-build"){
+            publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+            if (GERRIT_EVENT_TYPE == 'change-merged') {
+                publish.artifactory (IMAGE, IMAGE_LATEST)
+                publish.quay (IMAGE, QUAY_IMAGE_LATEST)
+            }
+        }
+    }
+}
