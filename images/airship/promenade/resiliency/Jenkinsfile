@@ -1,0 +1,85 @@
+
+import groovy.json.JsonSlurperClassic
+
+
+NODE_NAME = "promenade-resiliency-${BUILD_NUMBER}"
+NODE_TMPL = 'promenade/promenade-virsh.yaml'
+
+BASE_IMAGE = "${ARTF_WEB_URL}/ubuntu-images/ubuntu-16.04-server-cloudimg-amd64-disk1.img"
+
+if (!env.GERRIT_REFSPEC) {
+    GERRIT_REFSPEC = 'master'
+    GERRIT_EVENT_TYPE = "manual (${GERRIT_REFSPEC})"
+}
+
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+
+
+// handle generic Promenade stage
+def promenade_stage = { item ->
+    try {
+        def cmd = "${WORKSPACE}/tools/g2/stages/${item.script}"
+        if (item.arguments) {
+            def args = item.arguments.collect {e -> return "'${e}'"}
+            cmd = cmd + " " + args.join(" ")
+        }
+        timeout (30) {
+            ansiColor('xterm') {
+                withEnv(["BASE_IMAGE_URL=${BASE_IMAGE}"]) {
+                    sh cmd
+                }
+            }
+        }
+
+    } catch (err) {
+        if (item.on_error) {
+            sh "${WORKSPACE}/tools/g2/on_error/${item.on_error}"
+        }
+        error(err)
+
+    } finally {
+        if (item.publish) {
+             if (item.publish.junit) {
+                 item.publish.junit.each {
+                     junit it
+                 }
+             }
+         }
+    }
+}
+
+
+//// main flow
+
+vm(NODE_NAME, NODE_TMPL) {
+
+    stage('Prepare') {
+        gerrit.clone("https://git.openstack.org/openstack/airship-promenade", GERRIT_REFSPEC)
+
+        ansiColor('xterm') {
+            sh "${WORKSPACE}/tools/setup_gate.sh"
+        }
+    }
+
+    sh 'mkdir -p tmp'
+
+    def mfpath = "${WORKSPACE}/tools/g2/manifests/resiliency.json"
+    def mf = readFile mfpath
+    def manifest = new JsonSlurperClassic().parseText(mf)
+
+    def env = ["GATE_MANIFEST=${mfpath}",
+               "GATE_UTILS=${WORKSPACE}/tools/g2/lib/all.sh",
+               "GATE_DEBUG=0",
+               "TEMP_DIR=${WORKSPACE}/tmp"]
+
+    // given manifest contains stage names and related scripts to enable
+    // pipeline to be written in a generic way calling predefined steps.
+    // The loop executes stages in the defined order
+    manifest.stages.each {
+        stage(it.name) {
+            withEnv(env) {
+                promenade_stage(it)
+            }
+        }
+    }
+}
