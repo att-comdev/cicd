@@ -8,7 +8,7 @@ def clone(String url, String refspec){
          extensions: [[$class: 'CleanBeforeCheckout']],
          submoduleCfg: [],
          userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-         url: "url" ]]]
+         url: url ]]]
 }
 
 def cloneToBranch(String url, String refspec, String targetDirectory){
@@ -24,7 +24,7 @@ def cloneToBranch(String url, String refspec, String targetDirectory){
                             relativeTargetDir: targetDirectory]],
                             submoduleCfg: [],
                             userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-                                                 url: "url"]]]
+                                                 url: url]]]
 }
 
 def rebase(){
@@ -60,5 +60,5 @@ def cloneProject(String url, String branch, String refspec, String targetDirecto
                             relativeTargetDir: targetDirectory]],
                             submoduleCfg: [],
                             userRemoteConfigs: [[refspec: "${refspec}",
-                                                 url: "url"]]]
+                                                 url: url]]]
 }
