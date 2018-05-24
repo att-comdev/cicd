@@ -1,0 +1,252 @@
+def deploy_osh_loci = '''#!/bin/bash
+HTTP_PROXY=http://one.proxy.att.com:8888
+HTTPS_PROXY=http://one.proxy.att.com:8888
+NOPROXY=127.0.0.1,localhost
+KUBERNETES_API_SERVER=172.17.0.1
+
+#image name parameters
+MOS_KEYSTONE_LOCI="${MOS_KEYSTONE_LOCI:-$ARTF_DOCKER_URL/openstack/ocata/loci/mos/mos-keystone@sha256:1cf05309d9f6b444a1a63e62b2277c0d882657f7a718c99777d23c14240bf5aa}"
+MOS_HEAT_LOCI="${MOS_HEAT_LOCI:-$ARTF_DOCKER_URL/openstack/ocata/loci/mos/mos-heat@sha256:63cbd9596dd5a2da1f9857d45d842c39ba54e574f3aa2c52fbb8547156864b8c}"
+MOS_HORIZON_LOCI="${MOS_HORIZON_LOCI:-$ARTF_DOCKER_URL/openstack/ocata/loci/mos/mos-horizon@sha256:3a7e1b5f0358e74fca7e4b8f84fde73e992ae7ce3cc51cf1f6f3446f382cd4ac}"
+MOS_GLANCE_LOCI="${MOS_GLANCE_LOCI:-$ARTF_DOCKER_URL/openstack/ocata/loci/mos/mos-glance@sha256:fb8f823f22b7f4319f5a9e83bbd31d2f8ec30ae169b415f5a197a3c605ab2430}"
+MOS_CINDER_LOCI="${MOS_CINDER_LOCI:-$ARTF_DOCKER_URL/openstack/ocata/loci/mos/mos-cinder@sha256:5a30e01b2a1d83a02617f211773f09ccf063fdf5155635fbebdefb40e2f91b64}"
+MOS_NOVA_LOCI="${MOS_NOVA_LOCI:-$ARTF_DOCKER_URL/openstack/ocata/loci/mos/mos-nova@sha256:4b5b618ddb7dfb74e88760bc39c024d8ab6c3c8835b0547f4a8208be33d93fb9}"
+MOS_NOVA_1804_LOCI="${MOS_NOVA_1804_LOCI:-$ARTF_DOCKER_URL/openstack/ocata/loci/mos/mos-nova-1804@sha256:eed1424f576a538320063af9c555fbc5a197e41946857b08190e309f8e5c06cb}"
+MOS_NEUTRON_LOCI="${MOS_NEUTRON_LOCI:-$ARTF_DOCKER_URL/openstack/ocata/loci/mos/mos-neutron@sha256:ced99f89db0072d9d443cc3f026e1dba9d2030af41e1a331b41b6c4377f65aa5}"
+MOS_NEUTRON_SRIOV_LOCI="${MOS_NEUTRON_SRIOV_LOCI:-$ARTF_DOCKER_URL/openstack/ocata/loci/mos/mos-neutron-sriov@sha256:ffe866f10f4328bfd6df277438359e918a421fa9b0abfc6b6de2bcd2fa19bac5}"
+
+
+check_image_version()
+{
+sudo docker run --rm --name testkeystone -it $MOS_KEYSTONE_LOCI  bash -c "keystone-manage --version"
+sudo docker run --rm --name testheat -it $MOS_HEAT_LOCI  bash -c "heat-manage --version"
+sudo docker run --rm --name testglance -it $MOS_GLANCE_LOCI  bash -c "glance-manage --version"
+sudo docker run --rm --name testcinder -it $MOS_CINDER_LOCI  bash -c "cinder-manage --version"
+sudo docker run --rm --name testnova -it $MOS_NOVA_LOCI  bash -c "nova-manage --version"
+sudo docker run --rm --name testnova1804 -it $MOS_NOVA_1804_LOCI  bash -c "nova-manage --version"
+sudo docker run --rm --name testneutron -it $MOS_NEUTRON_LOCI  bash -c "neutron-manage --version"
+sudo docker run --rm --name testneutronsriov -it $MOS_NEUTRON_SRIOV_LOCI  bash -c "neutron-manage --version"
+}
+
+clone_OSH()
+{
+    for proj in openstack-helm openstack-helm-infra
+    do
+    rm -rf $proj
+    git clone https://git.openstack.org/openstack/$proj.git
+    echo "$proj head is at $(git --git-dir=$WORKSPACE/$proj/.git rev-parse HEAD)" >> $WORKSPACE/artifacts/OSH.txt
+    done
+}
+
+setup_env()
+{
+    # add proxy to environment
+    sudo sh -c "echo \'export HTTP_PROXY=$HTTP_PROXY
+export HTTPS_PROXY=$HTTPS_PROXY
+export http_proxy=$HTTP_PROXY
+export https_proxy=$HTTPS_PROXY
+export no_proxy=${NOPROXY},${KUBERNETES_API_SERVER},.svc.cluster.local
+export NO_PROXY=${NOPROXY},${KUBERNETES_API_SERVER},.svc.cluster.local\' >> /etc/environment"
+
+    source /etc/environment
+}
+
+setup_proxy()
+{
+    sed -i -e "s|\\(http: \\).*|\\1$HTTP_PROXY|" \\
+        -e "s|\\(https: \\).*|\\1$HTTPS_PROXY|" \\
+        -e "s|\\(noproxy: \\).*|\\1$NOPROXY,$KUBERNETES_API_SERVER|" openstack-helm-infra/roles/build-images/defaults/main.yml
+
+    sed -i -e "s|\\(http: \\).*|\\1$HTTP_PROXY|" \\
+        -e "s|\\(https: \\).*|\\1$HTTPS_PROXY|" \\
+        -e "s|\\(noproxy: \\).*|\\1$NOPROXY,$KUBERNETES_API_SERVER|" openstack-helm-infra/roles/deploy-package/defaults/main.yml
+        
+    sed -i -e "s|\\(http: \\).*|\\1$HTTP_PROXY|" \\
+        -e "s|\\(https: \\).*|\\1$HTTPS_PROXY|" \\
+        -e "s|\\(noproxy: \\).*|\\1$NOPROXY,$KUBERNETES_API_SERVER|" openstack-helm-infra/roles/deploy-python-pip/defaults/main.yml
+
+    sed -i -e "s|\\(http: \\).*|\\1$HTTP_PROXY|" \\
+        -e "s|\\(https: \\).*|\\1$HTTPS_PROXY|" \\
+        -e "s|\\(noproxy: \\).*|\\1$NOPROXY,$KUBERNETES_API_SERVER|" openstack-helm-infra/roles/deploy-docker/defaults/main.yml  
+
+    sed -i \'/external_dns_nameservers/a\\
+      - 135.37.9.16\\
+      - 135.38.244.16\' openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml
+}
+
+image_overrides()
+{
+    loci_yaml="${WORKSPACE}/openstack-helm/tools/overrides/releases/ocata/loci.yaml"
+# update keystone image
+    sed -i -e "s|\\(keystone_api:\\).*|\\1 \'$MOS_KEYSTONE_LOCI\'|" \\
+        -e "s|\\(keystone_credential_rotate:\\).*|\\1 \'$MOS_KEYSTONE_LOCI\'|" \\
+        -e "s|\\(keystone_credential_setup:\\).*|\\1 \'$MOS_KEYSTONE_LOCI\'|" \\
+        -e "s|\\(keystone_db_sync:\\).*|\\1 \'$MOS_KEYSTONE_LOCI\'|" \\
+        -e "s|\\(keystone_fernet_rotate:\\).*|\\1 \'$MOS_KEYSTONE_LOCI\'|" \\
+        -e "s|\\(keystone_domain_manage:\\).*|\\1 \'$MOS_KEYSTONE_LOCI\'|" \\
+        -e "s|\\(keystone_fernet_setup:\\).*|\\1 \'$MOS_KEYSTONE_LOCI\'|"   $loci_yaml
+
+# update heat image
+    sed -i -e "s|\\( bootstrap:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(db_drop:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(db_init:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(glance_bootstrap:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(heat_api:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(heat_cfn:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(heat_cloudwatch:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(heat_db_sync:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(heat_engine:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(heat_engine_cleaner:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(keystone_bootstrap:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(ks_endpoints:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(ks_service:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\(ks_user:\\).*|\\1 \'$MOS_HEAT_LOCI\'|" \\
+        -e "s|\\( scripted_test:\\).*|\\1 \'$MOS_HEAT_LOCI\'|"   $loci_yaml
+
+# update heat image
+    sed -i -e "s|\\(horizon:\\).*|\\1 \'$MOS_HORIZON_LOCI\'|" \\
+        -e "s|\\(horizon_db_sync:\\).*|\\1 \'$MOS_HORIZON_LOCI\'|"   $loci_yaml
+
+# update glance image
+    sed -i -e "s|\\(glance_api:\\).*|\\1 \'$MOS_GLANCE_LOCI\'|" \\
+        -e "s|\\(glance_db_sync:\\).*|\\1 \'$MOS_GLANCE_LOCI\'|" \\
+        -e "s|\\(glance_registry:\\).*|\\1 \'$MOS_GLANCE_LOCI\'|"   $loci_yaml
+
+# update cinder image
+    sed -i -e "s|\\(cinder_api:\\).*|\\1 \'$MOS_CINDER_LOCI\'|" \\
+        -e "s|\\(cinder_backup:\\).*|\\1 \'$MOS_CINDER_LOCI\'|" \\
+        -e "s|\\(cinder_db_sync:\\).*|\\1 \'$MOS_CINDER_LOCI\'|" \\
+        -e "s|\\(cinder_scheduler:\\).*|\\1 \'$MOS_CINDER_LOCI\'|" \\
+        -e "s|\\(cinder_volume:\\).*|\\1 \'$MOS_CINDER_LOCI\'|" \\
+        -e "s|\\(cinder_volume_usage_audit:\\).*|\\1 \'$MOS_CINDER_LOCI\'|"   $loci_yaml
+
+# update nova images
+    sed -i -e "s|\\(nova_api:\\).*|\\1 \'$MOS_NOVA_LOCI\'|" \\
+        -e "s|\\(nova_cell_setup:\\).*|\\1 \'$MOS_NOVA_LOCI\'|" \\
+        -e "s|\\(nova_compute:\\).*|\\1 \'$MOS_NOVA_1804_LOCI\'|" \\
+        -e "s|\\(nova_compute_ironic:\\).*|\\1 \'$MOS_NOVA_LOCI\'|" \\
+        -e "s|\\(nova_compute_ssh:\\).*|\\1 \'$MOS_NOVA_LOCI\'|" \\
+        -e "s|\\(nova_conductor:\\).*|\\1 \'$MOS_NOVA_LOCI\'|" \\
+        -e "s|\\(nova_consoleauth:\\).*|\\1 \'$MOS_NOVA_LOCI\'|" \\
+        -e "s|\\(nova_db_sync:\\).*|\\1 \'$MOS_NOVA_LOCI\'|" \\
+        -e "s|\\(nova_novncproxy:\\).*|\\1 \'$MOS_NOVA_LOCI\'|" \\
+        -e "s|\\(nova_placement:\\).*|\\1 \'$MOS_NOVA_LOCI\'|" \\
+        -e "s|\\(nova_scheduler:\\).*|\\1 \'$MOS_NOVA_LOCI\'|" \\
+        -e "s|\\(nova_spiceproxy:\\).*|\\1 \'$MOS_NOVA_LOCI\'|"   $loci_yaml
+
+# update neutron images
+    sed -i -e "s|\\(neutron_db_sync:\\).*|\\1 \'$MOS_NEUTRON_LOCI\'|" \\
+        -e "s|\\(neutron_dhcp:\\).*|\\1 \'$MOS_NEUTRON_LOCI\'|" \\
+        -e "s|\\(neutron_l3:\\).*|\\1 \'$MOS_NEUTRON_LOCI\'|" \\
+        -e "s|\\(neutron_linuxbridge_agent:\\).*|\\1 \'$MOS_NEUTRON_LOCI\'|" \\
+        -e "s|\\(neutron_metadata:\\).*|\\1 \'$MOS_NEUTRON_LOCI\'|" \\
+        -e "s|\\(neutron_openvswitch_agent:\\).*|\\1 \'$MOS_NEUTRON_LOCI\'|" \\
+        -e "s|\\(neutron_server:\\).*|\\1 \'$MOS_NEUTRON_LOCI\'|" \\
+        -e "s|\\(neutron_sriov_agent:\\).*|\\1 \'$MOS_NEUTRON_SRIOV_LOCI\'|" \\
+        -e "s|\\(neutron_sriov_agent_init:\\).*|\\1 \'$MOS_NEUTRON_SRIOV_LOCI\'|"   $loci_yaml
+}
+
+run_install()
+{
+    cd openstack-helm
+    export OSH_EXTRA_HELM_ARGS="--values=./tools/overrides/releases/ocata/loci.yaml"
+
+    ./tools/deployment/developer/common/000-install-packages.sh
+    ./tools/deployment/developer/common/010-deploy-k8s.sh
+
+    # Allow kubectl to pull images from Atlantafoundry
+    sudo docker login -u "$ARTIFACTORY_USER" -p "$ARTIFACTORY_PASSWORD" "$ARTF_DOCKER_URL"
+
+    ./tools/deployment/developer/common/020-setup-client.sh
+    ./tools/deployment/developer/common/030-ingress.sh
+    ./tools/deployment/developer/ceph/040-ceph.sh
+    ./tools/deployment/developer/ceph/045-ceph-ns-activate.sh
+    ./tools/deployment/developer/ceph/050-mariadb.sh
+    ./tools/deployment/developer/ceph/060-rabbitmq.sh
+    ./tools/deployment/developer/ceph/070-memcached.sh
+    ./tools/deployment/developer/ceph/080-keystone.sh
+    ./tools/deployment/developer/ceph/090-heat.sh
+    ./tools/deployment/developer/ceph/100-horizon.sh
+    ./tools/deployment/developer/ceph/110-ceph-radosgateway.sh
+
+    # update cirros image location to internal mirror to allow access from rally container without proxy
+    sed -i -e "s|http://download.cirros-cloud.net/0.3.5/|http://mirrors-aic.it.att.com/other_images/ops_simple_images/|" \\
+        ${WORKSPACE}/openstack-helm/glance/values.yaml
+
+    ./tools/deployment/developer/ceph/120-glance.sh
+    ./tools/deployment/developer/ceph/130-cinder.sh
+    ./tools/deployment/developer/ceph/140-openvswitch.sh
+    ./tools/deployment/developer/ceph/150-libvirt.sh
+    ./tools/deployment/developer/ceph/160-compute-kit.sh
+}
+
+install_docker_ce()
+{
+    # setup proxy
+    sudo mkdir -p /etc/systemd/system/docker.service.d
+    sudo sh -c "echo \'[Service]
+Environment="HTTP_PROXY=$HTTP_PROXY"
+Environment="HTTPS_PROXY=$HTTPS_PROXY"
+Environment="NO_PROXY=$NOPROXY"\' >> /etc/systemd/system/docker.service.d/http-proxy.conf"
+
+    sudo chmod 640 /etc/systemd/system/docker.service.d/http-proxy.conf
+    sudo apt-get install -y \\
+    apt-transport-https \\
+    ca-certificates \\
+    curl \\
+    software-properties-common
+
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    sudo add-apt-repository \\
+        "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    sudo apt-get update
+    sudo apt-get install -y docker-ce=17.12.0~ce-0~ubuntu
+}
+
+run_tests()
+{
+# todo fix helm test failure on glance due to proxy error while downloading from http://download.cirros-cloud.net
+    for service in keystone heat horizon glance cinder nova neutron
+    do
+        helm test --debug $service >> $WORKSPACE/artifacts/helm_tests.log || \\
+            kubectl logs "${service}-test" --namespace openstack >> $WORKSPACE/artifacts/helm_tests.log
+    done
+}
+
+artifact_logs()
+{
+    cd /var/log && \\
+    sudo tar --warning=no-file-changed -czf $WORKSPACE/artifacts/$BUILD_TAG.tar.gz . || \\
+    cd $WORKSPACE
+    sudo chown jenkins:jenkins $WORKSPACE/artifacts/$BUILD_TAG.tar.gz
+}
+
+parse_logs()
+{
+    if grep -q "FAILED:" $WORKSPACE/artifacts/helm_tests.log ; then
+        echo "Helm test failed.. see log $WORKSPACE/artifacts/helm_tests.log"
+        exit 1
+    fi
+}
+
+rm -rf artifacts
+mkdir artifacts
+setup_env
+
+sudo apt-get update && sudo apt-get install -y git
+install_docker_ce
+clone_OSH
+setup_proxy
+image_overrides
+run_install
+run_tests
+#check_image_version
+artifact_logs
+parse_logs
+'''
+
+vm2( 'bootstrap.sh', 'cicd-bionic-server-cloudimg-amd64') {
+stage('deploy OSH AIO with loci images'){
+        def status = sh(returnStatus: true, script: deploy_osh_loci)
+        }
+}
