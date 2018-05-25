@@ -1,0 +1,40 @@
+#!ipxe
+
+set base-url ${NETBOOT_URL}
+set preseed-url ${PRESEED_URL}
+
+set ip-interface ${GENESIS_HOST_interface}
+set net0/ip ${GENESIS_HOST_ip}
+set net0/netmask ${GENESIS_HOST_mask}
+set net0/gateway ${GENESIS_HOST_gw}
+set dns ${GENESIS_HOST_dns}
+
+ifopen
+
+echo ==========================================================================
+echo
+echo                  Booting Ubuntu 16.04 Xenial installer...
+echo
+echo ==========================================================================
+echo IP: ${net0/ip} mask: ${net0/netmask} gateway: ${net0/gateway} DNS: ${dns}
+echo ==========================================================================
+
+# allow network to start
+sleep 5
+echo checking gateway...
+ping --count 3 ${net0/gateway} || goto failed
+echo checking DNS...
+ping --count 3 ${dns} || goto failed
+echo checking repository...
+ping --count 3 artifacts-aic.atlantafoundry.com || goto failed
+
+echo ==========================================================================
+
+kernel ${base-url}/linux initrd=initrd.gz vga=788 auto priority=critical locale=en_US.UTF-8 console-setup/ask_detect=false keymap=us netcfg/disable_autoconfig=true netcfg/choose_interface=${ip-interface} netcfg/get_ipaddress=${net0/ip} netcfg/get_netmask=${net0/netmask} netcfg/get_gateway=${net0/gateway} netcfg/get_hostname=ubuntu netcfg/get_domain=local netcfg/get_nameservers=${dns} url=${preseed-url} debian-installer/allow_unauthenticated_ssl=true || goto failed
+initrd ${base-url}/initrd.gz || goto failed
+boot || goto failed
+
+:failed
+echo ERROR: Boot failed, check network parameters and kernel/initrd locations in iPXE config.
+echo Executing iPXE shell. You can manually launch boot commands.
+shell
