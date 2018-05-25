@@ -1,0 +1,123 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+
+artf_ubuntu_repo="https://$ARTF_WEB_URL/ubuntu"
+
+/* start of bash scripts */
+
+// Note: iDRAC returns 'HTTP/1.1 204 No Content' in case of success, and 'jq' will return nothing in this case
+def power_on = """
+echo 'Powering ON Genesis host...'
+curl -s -k -u${GENESIS_HOST_OOM_user}:${GENESIS_HOST_OOM_password} \
+            -H 'Content-Type: application/json' -X POST \
+            -d '{"ResetType": "On"}' \
+            https://${GENESIS_HOST_OOM_ip}/redfish/v1/Systems/System.Embedded.1/Actions/ComputerSystem.Reset | jq '.'
+"""
+def power_off = """
+echo 'Powering OFF Genesis host...'
+curl -s -k -u${GENESIS_HOST_OOM_user}:${GENESIS_HOST_OOM_password} \
+            -H 'Content-Type: application/json' -X POST \
+            -d '{"ResetType": "ForceOff"}' \
+            https://${GENESIS_HOST_OOM_ip}/redfish/v1/Systems/System.Embedded.1/Actions/ComputerSystem.Reset | jq '.'
+"""
+def set_boot_from_cd = """
+echo 'Setting BootSourceOverrideTarget=Cd on Genesis host...'
+curl -s -k -u${GENESIS_HOST_OOM_user}:${GENESIS_HOST_OOM_password} \
+            -H 'Content-Type: application/json' -X PATCH \
+            -d '{"Boot": {"BootSourceOverrideTarget": "Cd"}}' \
+            https://${GENESIS_HOST_OOM_ip}/redfish/v1/Systems/System.Embedded.1 | jq '.'
+"""
+
+/* end of bash scripts */
+
+vm(NODE_NAME, NODE_TMPL) {
+  stage('Setup environment'){
+
+    sh "env | sort"
+    sh """sudo sed -i -e 's|nova.clouds.archive.ubuntu.com|$ARTF_WEB_URL|g; s|security.ubuntu.com|$ARTF_WEB_URL|g' /etc/apt/sources.list
+        sudo apt-get update && \
+        sudo apt-get install -y gcc make liblzma-dev genisoimage isolinux"""
+
+    if (iPXE_FROM == 'archive') {
+      withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                      usernameVariable: 'REPO_USER',
+                      passwordVariable: 'REPO_PASSWORD')]) {
+        opts = '-u $REPO_USER:$REPO_PASSWORD'
+        sh "curl ${opts} -s -L -o - ${iPXE_ARCHIVE_URL} | tar -jxf -"
+      }
+    } else if (iPXE_FROM == 'git') {
+        sh "git clone ${iPXE_GIT_URL}"
+    }
+    sh "ls -l"
+    
+    // Enable HTTPS, IPv6, ping utility, serial console in iPXE
+    sh """  conf=ipxe/src/config/general.h
+            sed -i '/DOWNLOAD_PROTO_HTTPS/ s/^#undef/#define/' \${conf} && grep DOWNLOAD_PROTO_HTTPS \${conf}
+            sed -i '/NET_PROTO_IPV6/ s/^#undef/#define/' \${conf} && grep NET_PROTO_IPV6 \${conf}
+            sed -i '/PING_CMD/ s|^//||' \${conf} && grep PING_CMD \${conf}
+            conf=ipxe/src/config/console.h
+            sed -i '/CONSOLE_SERIAL/ s|^//||' \${conf} && grep CONSOLE_SERIAL \${conf}
+            """
+  }
+  stage('Get templates') {
+
+    /* this requires to be pushed in separate gerrit change,
+     * leaving it for now
+
+    tmpl = libraryResource "genesis/preseed.cfg.template"
+    writeFile file: 'preseed.cfg.template', text: tmpl
+    tmpl = libraryResource "genesis/ipxe_boot.cfg.template"
+    writeFile file: 'ipxe_boot.cfg.template', text: tmpl
+    */
+
+    // downloading templates from artifactory
+    withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'REPO_USER',
+                    passwordVariable: 'REPO_PASSWORD')]) {
+      opts = '-u $REPO_USER:$REPO_PASSWORD'
+      sh """curl ${opts} -s -L -O ${PRESEED_CFG_URL_template}
+            curl ${opts} -s -L -O ${iPXE_BOOT_CFG_URL_template}"""
+    }
+  }
+  stage('Generate and upload preseed config') {
+
+    sh "envsubst '\${GENESIS_HOST_ip}:\${GENESIS_HOST_mask}:\${GENESIS_HOST_gw}:\${GENESIS_HOST_dns}:\${GENESIS_HOST_interface}' < \${PRESEED_CFG_URL_template##*/} | tee preseed-${GENESIS_HOST_ip}.cfg"
+
+    withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'REPO_USER',
+                    passwordVariable: 'REPO_PASSWORD')]) {
+      opts = '-u $REPO_USER:$REPO_PASSWORD'
+      sh "curl ${opts} -T preseed-${GENESIS_HOST_ip}.cfg \"https://${ARTF_WEB_URL}/${UPLOADS_PATH}/preseed-${GENESIS_HOST_ip}.cfg\""
+    }
+  }
+  stage('Generate and upload iPXE config') {
+
+    sh """
+        envsubst '\${NETBOOT_URL}:\${PRESEED_CFG_URL}:\${GENESIS_HOST_interface}' < ipxe_boot.cfg.template > ipxe_boot.cfg.template1
+        envsubst '\${GENESIS_HOST_ip}:\${GENESIS_HOST_mask}:\${GENESIS_HOST_gw}:\${GENESIS_HOST_dns}' < ipxe_boot.cfg.template1 | tee ipxe_boot-${GENESIS_HOST_ip}.cfg"""
+
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                        usernameVariable: 'REPO_USER',
+                        passwordVariable: 'REPO_PASSWORD')]) {
+          opts = '-u $REPO_USER:$REPO_PASSWORD'
+          sh "curl ${opts} -T ipxe_boot-${GENESIS_HOST_ip}.cfg \"https://${ARTF_WEB_URL}/${UPLOADS_PATH}/ipxe_boot-${GENESIS_HOST_ip}.cfg\""
+        }
+
+    // See http://ipxe.org/crypto
+    sh "openssl s_client -tls1_2 -showcerts -connect \${ARTF_WEB_URL%%/*}:443 < /dev/null 2> /dev/null | openssl x509 -outform PEM | tee \${ARTF_WEB_URL%%/*}.pem"
+  }
+  stage('iPXE ISO build and upload') {
+
+    dir('ipxe/src/') {
+        sh "make -j2 bin/ipxe.iso DEBUG=https:3,tls:3,x509:3,certstore:3,privkey:3,ocsp:3 TRUST=../../\${ARTF_WEB_URL%%/*}.pem EMBED=../../ipxe_boot-${GENESIS_HOST_ip}.cfg && ls -l bin/ipxe.iso"
+    }
+    sh "mv ipxe/src/bin/ipxe.iso ipxe-${GENESIS_HOST_ip}.iso"
+    artf = Artifactory.server 'artifactory'
+    uploadSpec = """{"files": [{
+                "pattern": "ipxe-${GENESIS_HOST_ip}.iso",
+                "target": "${UPLOADS_PATH}/"
+              }]}"""
+    artf.publishBuildInfo(artf.upload(uploadSpec))
+  }
+}
