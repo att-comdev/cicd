@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02d837e7_6a9d62a7",
+        "filename": "images/nc/ro-helm/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-04T13:32:18Z",
+      "side": 1,
+      "message": "You you are using default parameters form the library, then just omit them to generalize pipeline.",
+      "revId": "c75bd7f68d1bf7e6bc3be9bf3290bd901912ef9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "667f78ab_2f37ebbf",
+        "filename": "images/nc/ro-helm/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-04T13:32:18Z",
+      "side": 1,
+      "message": "I\u0027m not sure is this should be in upstream. Does it even work in upstream?",
+      "range": {
+        "startLine": 24,
+        "startChar": 46,
+        "endLine": 24,
+        "endChar": 50
+      },
+      "revId": "c75bd7f68d1bf7e6bc3be9bf3290bd901912ef9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1246c6f0_8ff46020",
+        "filename": "images/nc/ro-helm/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-04T13:32:18Z",
+      "side": 1,
+      "message": "Spaces.",
+      "revId": "c75bd7f68d1bf7e6bc3be9bf3290bd901912ef9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7213014_e35b9fc6",
+        "filename": "images/nc/ro-helm/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-04T13:32:18Z",
+      "side": 1,
+      "message": "Why do you use publish.artifactory() to publish to quay.io? There is separate library method for quay in library.",
+      "revId": "c75bd7f68d1bf7e6bc3be9bf3290bd901912ef9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
