@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a16dae67_cf1ca036",
+        "filename": "images/nc/ro-helm/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1014283
+      },
+      "writtenOn": "2018-06-04T17:51:09Z",
+      "side": 1,
+      "message": "I didn\u0027t add this to the original jenkinsfile, this was added by CICD in patch #2.",
+      "parentUuid": "02d837e7_6a9d62a7",
+      "revId": "c75bd7f68d1bf7e6bc3be9bf3290bd901912ef9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "667f78ab_2f37ebbf",
         "filename": "images/nc/ro-helm/Jenkinsfile",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "c75bd7f68d1bf7e6bc3be9bf3290bd901912ef9b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85a2f15e_b24338e8",
+        "filename": "images/nc/ro-helm/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1014283
+      },
+      "writtenOn": "2018-06-04T17:51:09Z",
+      "side": 1,
+      "message": "I didn\u0027t add this, again it was added in patch #2 by CICD.",
+      "parentUuid": "667f78ab_2f37ebbf",
+      "range": {
+        "startLine": 24,
+        "startChar": 46,
+        "endLine": 24,
+        "endChar": 50
+      },
+      "revId": "c75bd7f68d1bf7e6bc3be9bf3290bd901912ef9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     },
     {
       "key": {
@@ -70,6 +112,24 @@
       "writtenOn": "2018-06-04T13:32:18Z",
       "side": 1,
       "message": "Why do you use publish.artifactory() to publish to quay.io? There is separate library method for quay in library.",
+      "revId": "c75bd7f68d1bf7e6bc3be9bf3290bd901912ef9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b8e55ade_737a786e",
+        "filename": "images/nc/ro-helm/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1014283
+      },
+      "writtenOn": "2018-06-04T17:51:09Z",
+      "side": 1,
+      "message": "I\u0027m in the process of trying to get a working Jenkinsfile with a non-openstack component working.  That was part of a template that I was told would be overriden.  Again, this was part of a template that we were given by the CICD team.",
+      "parentUuid": "e7213014_e35b9fc6",
       "revId": "c75bd7f68d1bf7e6bc3be9bf3290bd901912ef9b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
