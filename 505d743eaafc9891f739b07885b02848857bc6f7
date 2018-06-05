@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5968b4e4_99d0fe0f",
+        "filename": "images/airship/drydock/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1011940
+      },
+      "writtenOn": "2018-06-05T15:07:21Z",
+      "side": 1,
+      "message": "same question as on several of the parallel PS, do we want this quay publish here?",
+      "range": {
+        "startLine": 49,
+        "startChar": 12,
+        "endLine": 49,
+        "endChar": 51
+      },
+      "revId": "505d743eaafc9891f739b07885b02848857bc6f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
