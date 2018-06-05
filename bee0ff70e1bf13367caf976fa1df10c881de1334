@@ -22,6 +22,75 @@
       "revId": "bee0ff70e1bf13367caf976fa1df10c881de1334",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d729f2a5_868eeed2",
+        "filename": "images/airship/armada/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1011940
+      },
+      "writtenOn": "2018-06-05T14:52:06Z",
+      "side": 1,
+      "message": ":s/Noode/Node",
+      "range": {
+        "startLine": 82,
+        "startChar": 26,
+        "endLine": 82,
+        "endChar": 27
+      },
+      "revId": "bee0ff70e1bf13367caf976fa1df10c881de1334",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb293477_c0225515",
+        "filename": "images/airship/armada/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1011940
+      },
+      "writtenOn": "2018-06-05T14:52:06Z",
+      "side": 1,
+      "message": "if IMAGE is not set on 92 above is not set because env.GERRIT_NEWREV is null, what is the behavior here?  Or... is env.GERRIT_NEWREV never null because of circumstances?",
+      "range": {
+        "startLine": 105,
+        "startChar": 33,
+        "endLine": 105,
+        "endChar": 38
+      },
+      "revId": "bee0ff70e1bf13367caf976fa1df10c881de1334",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c209a000_7cb5d867",
+        "filename": "images/airship/armada/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 1011940
+      },
+      "writtenOn": "2018-06-05T14:52:06Z",
+      "side": 1,
+      "message": "is this pushing the att-comdev image to quay, and is this separate/different than what\u0027s being published to quay by Zuul?",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 208,
+        "endChar": 55
+      },
+      "revId": "bee0ff70e1bf13367caf976fa1df10c881de1334",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
