@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7da169df_849ef66d",
+        "filename": "images/airship/promenade/promenade/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1011940
+      },
+      "writtenOn": "2018-06-05T14:58:32Z",
+      "side": 1,
+      "message": "not being familiar with the language, does this line exist to actually set any variables or output, or just to print out things in the logs so we can inspect later?",
+      "range": {
+        "startLine": 106,
+        "startChar": 12,
+        "endLine": 106,
+        "endChar": 62
+      },
+      "revId": "aa0fc179bbf52d90e6f8e0a99e8f2e1f5d416cf5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
