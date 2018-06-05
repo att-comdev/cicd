@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5b13c7d_94abdc86",
+        "filename": "images/airship/maas/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011940
+      },
+      "writtenOn": "2018-06-05T15:43:42Z",
+      "side": 1,
+      "message": "Do we want this quay publish here?",
+      "range": {
+        "startLine": 42,
+        "startChar": 12,
+        "endLine": 42,
+        "endChar": 51
+      },
+      "revId": "5977b3d23672f134f48ce7e5df34fc54c43e5ffd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
