@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f882e289_a99c875c",
+        "filename": "images/airship/armada/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-06-05T14:01:13Z",
+      "side": 1,
+      "message": "we can use this library publish.nexus_jenkins_log()",
+      "range": {
+        "startLine": 41,
+        "startChar": 20,
+        "endLine": 51,
+        "endChar": 80
+      },
+      "revId": "bee0ff70e1bf13367caf976fa1df10c881de1334",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
