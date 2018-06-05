@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6da4ee4c_af0340bd",
+        "filename": "images/airship/deckhand/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-06-05T14:23:50Z",
+      "side": 1,
+      "message": "gerrit.rebase()",
+      "range": {
+        "startLine": 22,
+        "startChar": 12,
+        "endLine": 24,
+        "endChar": 52
+      },
+      "revId": "9a2dc122149780d4e88e946a4b3b7831b58f25c3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
