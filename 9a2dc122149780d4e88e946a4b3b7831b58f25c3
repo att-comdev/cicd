@@ -22,6 +22,29 @@
       "revId": "9a2dc122149780d4e88e946a4b3b7831b58f25c3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "38fb8ba6_94fadb94",
+        "filename": "images/airship/deckhand/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1011940
+      },
+      "writtenOn": "2018-06-05T15:05:36Z",
+      "side": 1,
+      "message": "Same comment as Armada PS - do we want this quay publish?  If so, great, but I thought we were publishing to quay in zuul?  Maybe this is a different image/tag/publish?\nAlso, I didn\u0027t see this on the promenade PS, but that job is structured a little differently.",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 46,
+        "endChar": 51
+      },
+      "revId": "9a2dc122149780d4e88e946a4b3b7831b58f25c3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
