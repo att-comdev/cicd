@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "268ec7ec_479a4234",
+        "filename": "images/airship/shipyard/airflow/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1011940
+      },
+      "writtenOn": "2018-06-05T15:37:44Z",
+      "side": 1,
+      "message": "does this space matter?",
+      "range": {
+        "startLine": 30,
+        "startChar": 31,
+        "endLine": 30,
+        "endChar": 32
+      },
+      "revId": "e6b0b7a1646a09cf771752868b0186f7d2aea8b9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d783668_fa6efe46",
+        "filename": "images/airship/shipyard/airflow/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1011940
+      },
+      "writtenOn": "2018-06-05T15:37:44Z",
+      "side": 1,
+      "message": "since this specifies the IMAGE_NAME, will this end up building both Shipyard and Airflow images? I\u0027m not seeing a loop or list that this will use, unless the IMAGE_NAME is set to \"airflow shipyard\" somewhere.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 303
+      },
+      "revId": "e6b0b7a1646a09cf771752868b0186f7d2aea8b9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b70e88bb_96547a42",
+        "filename": "images/airship/shipyard/airflow/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011940
+      },
+      "writtenOn": "2018-06-05T15:37:44Z",
+      "side": 1,
+      "message": "Do we want this quay publish here?",
+      "range": {
+        "startLine": 42,
+        "startChar": 12,
+        "endLine": 42,
+        "endChar": 51
+      },
+      "revId": "e6b0b7a1646a09cf771752868b0186f7d2aea8b9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
