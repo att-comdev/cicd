@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ac3d99b_1fb1d0e9",
+        "filename": "packages/other/Jenkinsfile",
+        "patchSetId": 48
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-06-05T14:40:36Z",
+      "side": 1,
+      "message": "we have this new library for any url gerrit.clone() we can use that",
+      "range": {
+        "startLine": 34,
+        "startChar": 6,
+        "endLine": 41,
+        "endChar": 61
+      },
+      "revId": "54831d5d50aad86ce3bc385d3333459dd6b39461",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
