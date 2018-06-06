@@ -1,0 +1,23 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+COMMIT_ID=GERRIT_PATCHSET_REVISION
+
+vm2('bootstrap.sh','cicd-ubuntu-16.04-server-cloudimg-amd64','m1.large') {
+    stage('Checkout'){
+     //   sh '''sudo -i
+     //   mkdir -p /root/deploy && cd "$_"'''
+
+        gerrit.cloneToBranch("https://git.openstack.org/openstack/airship-in-a-bottle", COMMIT_ID,"/root/deploy")
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            sh '''git config user.email "airship.jenkins@gmail.com"
+                  git config user.name "Jenkins"
+                  git pull --rebase origin master'''
+        }
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+    }
+    stage('Run Airship') {
+        timeout(75){
+            sh 'cd /root/deploy/airship-in-a-bottle/manifests/dev_single_node'
+     //       sh './airship-in-a-bottle.sh'
+        }
+    }
+}
