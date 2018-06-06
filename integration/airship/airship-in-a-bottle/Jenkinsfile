@@ -1,0 +1,34 @@
+// pipeline for airship-in-a-bottle, more info at
+// http://www.airshipit.org/
+
+REPO_URL = 'https://git.openstack.org/openstack/airship-in-a-bottle'
+REPO_HOME = '/root/deploy/airship-in-a-bottle'
+
+
+vm2('bootstrap.sh', 'cicd-ubuntu-16.04-server-cloudimg-amd64', 'm1.xxlarge') {
+
+    stage('Checkout'){
+
+        sh 'sudo mkdir /root/deploy'
+        sh 'sudo setfacl -m u:ubuntu:rwx /root/deploy'
+        sh 'sudo setfacl -m u:ubuntu:rwx /root'
+
+        gerrit.cloneToBranch(REPO_URL, GERRIT_PATCHSET_REVISION, REPO_HOME)
+
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            dir(REPO_HOME) {
+                gerrit.rebase()
+            }
+        }
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+    }
+
+    stage('Run Airship') {
+        dir("${REPO_HOME}/manifests/dev_single_node"){
+            timeout(120){
+                sh 'sudo ./airship-in-a-bottle.sh -y'
+            }
+        }
+    }
+}
+
