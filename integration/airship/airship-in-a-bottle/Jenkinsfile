@@ -1,0 +1,33 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+COMMIT_ID=GERRIT_PATCHSET_REVISION
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="airship/airship.yaml"
+
+
+vm(NODE_NAME, NODE_TMPL) {
+    stage('Checkout'){
+        sh 'sudo mkdir /root/deploy'
+        sh 'sudo setfacl -m u:ubuntu:rwx /root/deploy'
+        sh 'sudo setfacl -m u:ubuntu:rwx /root'
+
+        gerrit.cloneToBranch("https://git.openstack.org/openstack/airship-in-a-bottle", COMMIT_ID,"/root/deploy")
+        dir("/root/deploy") {
+            if(GERRIT_EVENT_TYPE != 'change-merged') {
+                sh '''git config user.email "airship.jenkins@gmail.com"
+                      git config user.name "Jenkins"
+                      git pull --rebase origin master'''
+            }
+        }
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+    }
+    stage('Run Airship') {
+        dir("/root/deploy/manifests/dev_single_node/"){
+            timeout(120){
+                // FIXME: VM in airship/airship.yaml must have 20GB RAM and 4vCPU
+                sh """sed -i 's/  exit 1//g' ./airship-in-a-bottle.sh"""
+
+                sh 'sudo ./airship-in-a-bottle.sh -y'
+            }
+        }
+    }
+}
