@@ -16,12 +16,13 @@
 def call(udata = 'bootstrap.sh',
          image = 'cicd-ubuntu-16.04-server-cloudimg-amd64',
          flavor = 'm1.medium',
+         version = 'ocata',
          postfix = '',
          leak = false,
          Closure body) {
 
     // resolve args to heat parameters
-  def parameters = " --parameter image=${image}" +
+    def parameters = " --parameter image=${image}" +
                    " --parameter flavor=${flavor}"
 
     // node used for launching VMs
@@ -40,7 +41,7 @@ def call(udata = 'bootstrap.sh',
     try {
         stage ('Node Launch') {
             node(launch_node) {
-                tmpl = libraryResource "heat/stack/ubuntu.stack.template.yaml"
+                tmpl = libraryResource "heat/stack/ubuntu.stack.${version}.template.yaml"
                 writeFile file: 'template.yaml', text: tmpl
 
                 data = libraryResource "heat/stack/${udata}"
