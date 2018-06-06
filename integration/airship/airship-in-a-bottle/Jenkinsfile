@@ -1,0 +1,37 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+COMMIT_ID=GERRIT_PATCHSET_REVISION
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="airship/airship.yaml"
+REPO_HOME = '/root/deploy/airship-in-a-bottle'
+
+vm(NODE_NAME, NODE_TMPL) {
+    stage('Checkout'){
+        sh 'sudo mkdir /root/deploy'
+        sh 'sudo setfacl -m u:ubuntu:rwx /root/deploy'
+        sh 'sudo setfacl -m u:ubuntu:rwx /root'
+
+        gerrit.cloneToBranch("https://git.openstack.org/openstack/airship-in-a-bottle", COMMIT_ID, REPO_HOME)
+
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            dir(REPO_HOME) {
+                sh '''git config user.email "airship.jenkins@gmail.com"
+                      git config user.name "Jenkins"
+                      git pull --rebase origin master'''
+            }
+        }
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+    }
+
+    stage('Run Airship') {
+
+        dir(REPO_HOME) {
+            sh 'sed -i -e "s/172.24.4/172.24.8/g" manifests/dev_single_node/test_create_heat_stack.sh'
+        }
+
+        dir("${REPO_HOME}/manifests/dev_single_node"){
+            timeout(120){
+                sh 'sudo ./airship-in-a-bottle.sh -y'
+            }
+        }
+    }
+}
