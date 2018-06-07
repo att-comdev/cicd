@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcadaa84_24554106",
+        "filename": "vars/gerrithub.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-07T09:51:44Z",
+      "side": 0,
+      "message": "This method differs from gerrit.rebase() only by e-mail. I think we can safely drop it.",
+      "revId": "9048a4568ecf934982a6c04f67d36a75eda1df3d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb06ed0b_8ee72234",
+        "filename": "vars/gerrithub.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-07T09:51:44Z",
+      "side": 0,
+      "message": "This method is not used anywhere.",
+      "revId": "9048a4568ecf934982a6c04f67d36a75eda1df3d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
