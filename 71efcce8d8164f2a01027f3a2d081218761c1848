@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6e2c5c5_99f1b674",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-07T14:27:37Z",
+      "side": 1,
+      "message": "Should default always be 5EC.images.xxx.current?",
+      "revId": "71efcce8d8164f2a01027f3a2d081218761c1848",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
