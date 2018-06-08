@@ -23,7 +23,7 @@ vm(NODE_NAME,NODE_TMPL){
         } else {
             gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
             dir("${WORKSPACE}/jenkins"){
-                gerrithub.rebase()
+                gerrit.rebase()
             }
         }
     }
