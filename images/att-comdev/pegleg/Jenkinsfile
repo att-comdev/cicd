@@ -22,7 +22,7 @@ vm(NODE_NAME, NODE_TMPL) {
         }
         gerrithub.cloneToBranch("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG,"")
         if(GERRIT_EVENT_TYPE != 'change-merged') {
-            gerrithub.rebase()
+            gerrit.rebase()
         }
         currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
     }
