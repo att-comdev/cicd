@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "595248d9_f33f0680",
+        "filename": "charts/openstack/Jenkinsfile",
+        "patchSetId": 42
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-11T19:25:24Z",
+      "side": 1,
+      "message": "${ARTF_WEB_URL}",
+      "revId": "be3b470f5d91843972fb2ee0b5bdc5cb884486b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48209dc9_95b8d891",
+        "filename": "charts/openstack/Jenkinsfile",
+        "patchSetId": 42
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-11T19:25:24Z",
+      "side": 1,
+      "message": "${ARTF_WEB_URL}",
+      "revId": "be3b470f5d91843972fb2ee0b5bdc5cb884486b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
