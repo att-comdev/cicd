@@ -1,0 +1,9 @@
+Code-Review+2: Craig Anderson <craig.anderson@att.com>
+Code-Review+2: Roman Gorshunov <roman.gorshunov@att.com>
+Verified+1: Jenkins <attcomdev.jenkins@gmail.com>
+Workflow+1: Craig Anderson <craig.anderson@att.com>
+Submitted-by: <sb464f@att.com>
+Submitted-at: Tue, 12 Jun 2018 20:19:19 +0000
+Reviewed-on: https://review.gerrithub.io/411443
+Project: att-comdev/cicd
+Branch: refs/heads/master
