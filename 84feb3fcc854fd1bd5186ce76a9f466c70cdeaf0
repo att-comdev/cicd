@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48495fb6_4d5e572a",
+        "filename": "resources/heat/stack/loci-bootstrap.sh",
+        "patchSetId": 23
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-12T19:49:50Z",
+      "side": 1,
+      "message": "Why is this hack needed?",
+      "revId": "84feb3fcc854fd1bd5186ce76a9f466c70cdeaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a1b72a9_91e0cacd",
+        "filename": "resources/heat/stack/ubuntu.armada.cluster.stack.template.yaml",
+        "patchSetId": 23
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-12T19:49:50Z",
+      "side": 1,
+      "message": "Different repo.",
+      "revId": "84feb3fcc854fd1bd5186ce76a9f466c70cdeaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13f55fec_df44d285",
+        "filename": "resources/heat/stack/ubuntu.armada.cluster.stack.template.yaml",
+        "patchSetId": 23
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-12T19:49:50Z",
+      "side": 1,
+      "message": "Is it tested? ~/.ssh might not exist if no one logged onto the VM yet",
+      "revId": "84feb3fcc854fd1bd5186ce76a9f466c70cdeaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e041ac7_83717393",
+        "filename": "resources/heat/stack/ubuntu.armada.cluster.stack.template.yaml",
+        "patchSetId": 23
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-12T19:49:50Z",
+      "side": 1,
+      "message": "Would it work without shebang? Overall, method looks like a dirty hack.\nAt least use bash array.",
+      "revId": "84feb3fcc854fd1bd5186ce76a9f466c70cdeaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3cb3dc04_ee7d72d5",
+        "filename": "resources/heat/stack/ubuntu.armada.cluster.stack.template.yaml",
+        "patchSetId": 23
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-12T19:49:50Z",
+      "side": 1,
+      "message": "Use array?",
+      "revId": "84feb3fcc854fd1bd5186ce76a9f466c70cdeaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f6d3d82_cbdf710a",
+        "filename": "resources/heat/stack/ubuntu.armada.cluster.stack.template.yaml",
+        "patchSetId": 23
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-12T19:49:50Z",
+      "side": 1,
+      "message": ": not needed",
+      "revId": "84feb3fcc854fd1bd5186ce76a9f466c70cdeaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50bde1cb_71b34a69",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 23
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-12T19:49:50Z",
+      "side": 1,
+      "message": "Does it work in AF?",
+      "revId": "84feb3fcc854fd1bd5186ce76a9f466c70cdeaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b0662fc_47e06a78",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 23
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-12T19:49:50Z",
+      "side": 1,
+      "message": "typos: uer -\u003e user, identified -\u003e identifier",
+      "revId": "84feb3fcc854fd1bd5186ce76a9f466c70cdeaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d982892e_d5fe06a0",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 23
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-12T19:49:50Z",
+      "side": 1,
+      "message": "is it used anywhere?",
+      "revId": "84feb3fcc854fd1bd5186ce76a9f466c70cdeaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "42b7062f_72c7b311",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 23
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-12T19:49:50Z",
+      "side": 1,
+      "message": "Does it also apply proxy settings to apt?",
+      "revId": "84feb3fcc854fd1bd5186ce76a9f466c70cdeaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
