@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca651488_a5575b4e",
+        "filename": "images/att-comdev/maas/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-06-14T21:48:52Z",
+      "side": 1,
+      "message": "gerrit.rebase",
+      "range": {
+        "startLine": 25,
+        "startChar": 12,
+        "endLine": 25,
+        "endChar": 21
+      },
+      "revId": "bfae1715346c493dcbf683d5ef82cf194e034f7a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
