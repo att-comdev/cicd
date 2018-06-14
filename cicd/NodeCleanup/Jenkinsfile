@@ -1,0 +1,20 @@
+// node used for launching VMs
+def launch_node = 'jenkins-node-launch'
+
+def EXCLUDE_NODE_LIST = EXCLUDE_NODES.split()
+
+stage ('Node Destroy') {
+    node('master') {
+        for (exclude_node in EXCLUDE_NODE_LIST) {
+            if (DELETE_NODENAME.equalsIgnoreCase(exclude_node)) {
+                println "$DELETE_NODENAME belongs to list of critical nodes excluded for deletion"
+                println "Cannot delete node $DELETE_NODENAME"
+                sh "exit 1"
+            }
+        }
+        jenkins.node_delete(DELETE_NODENAME)
+    }
+    node(launch_node) {
+        heat.stack_delete(DELETE_NODENAME)
+    }
+}
