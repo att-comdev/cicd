@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "471ba0a3_685c8d18",
+        "filename": "resources/heat/stack/loci-bootstrap.sh",
+        "patchSetId": 23
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-06-14T15:24:50Z",
+      "side": 1,
+      "message": "I believe Docker-in-Docker.  Kaspars probably has the exact reasoning.",
+      "parentUuid": "48495fb6_4d5e572a",
+      "revId": "84feb3fcc854fd1bd5186ce76a9f466c70cdeaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a1b72a9_91e0cacd",
         "filename": "resources/heat/stack/ubuntu.armada.cluster.stack.template.yaml",
         "patchSetId": 23
