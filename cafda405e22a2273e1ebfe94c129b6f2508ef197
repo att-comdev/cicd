@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6b42362_7954181e",
+        "filename": "cicd/NodeCleanup/seed.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-06-14T15:57:45Z",
+      "side": 1,
+      "message": "\"${job_path}\" is the same as job_path.",
+      "revId": "cafda405e22a2273e1ebfe94c129b6f2508ef197",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
