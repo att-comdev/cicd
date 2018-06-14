@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7382fbd1_9beb03d8",
+        "filename": "cicd/NodeCleanup/seed.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-06-14T15:38:34Z",
+      "side": 1,
+      "message": "I believe we don\u0027t need any triggers for this, do we?",
+      "revId": "866bd96c71fcb42afae899d414711f9aeff2e782",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
