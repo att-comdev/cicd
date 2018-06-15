@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61a004f0_e8942908",
+        "filename": "src/att/comdev/cicd/config/conf.groovy",
+        "patchSetId": 53
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-15T16:01:22Z",
+      "side": 1,
+      "message": "Can\u0027t we use ${ARTF_WEB_URL} or something like that here? And move this var into this file.",
+      "revId": "35ef0b3065dacdaab93ac86c6c0f75c0b22f2b3c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
