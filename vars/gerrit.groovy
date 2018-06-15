@@ -11,6 +11,26 @@ def clone(String url, String refspec){
          url: url ]]]
 }
 
+/**
+ * Given Jenkins credentials, clones Git repository via SSH
+ *
+ * @param url "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
+ * @param refspec "xxxx/master" or other refspec
+ * @param creds jenkins SSH credentials ID
+*/
+def clone(String url, String refspec, String creds){
+// Usage example: gerrit.clone("ssh://${GERRIT_HOST}/${GERRIT_PROJECT}", '*/master', "jenkins-gerrit-ssh-creds")
+    checkout poll: false,
+    scm: [$class: 'GitSCM',
+         branches: [[name: refspec]],
+         doGenerateSubmoduleConfigurations: false,
+         extensions: [[$class: 'CleanBeforeCheckout']],
+         submoduleCfg: [],
+         userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
+         url: url,
+         credentialsId: creds ]]]
+}
+
 def cloneToBranch(String url, String refspec, String targetDirectory){
 //This method is used so that we can checkout the patchset to a local
 //branch and then rebase it locally with the current master before we build and test
@@ -24,7 +44,32 @@ def cloneToBranch(String url, String refspec, String targetDirectory){
                             relativeTargetDir: targetDirectory]],
                             submoduleCfg: [],
                             userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-                                                 url: url]]]
+                                                 url: url ]]]
+}
+
+/**
+ * Given Jenkins credentials, clones Git repository via SSH to the
+ * target directory to local branch and then rebase it locally with
+ * the current master before we build and test
+ *
+ * @param url "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
+ * @param refspec "xxxx/master" or other refspec
+ * @param targetDirectory local directory where to clone repo
+ * @param creds jenkins SSH credentials ID
+*/
+def cloneToBranch(String url, String refspec, String targetDirectory, String creds){
+    checkout poll: false,
+    scm: [$class: 'GitSCM',
+              branches: [[name: refspec]],
+              doGenerateSubmoduleConfigurations: false,
+              extensions: [[$class: 'LocalBranch',
+                            localBranch: 'jenkins'],
+                           [$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: targetDirectory]],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
+                                                 url: url,
+                                                 credentialsId: creds ]]]
 }
 
 def rebase(){
@@ -60,5 +105,31 @@ def cloneProject(String url, String branch, String refspec, String targetDirecto
                             relativeTargetDir: targetDirectory]],
                             submoduleCfg: [],
                             userRemoteConfigs: [[refspec: "${refspec}",
-                                                 url: url]]]
+                                                 url: url ]]]
+}
+
+/**
+ * Given Jenkins credentials, clones Git repository via SSH to the
+ * target directory and allows to checkout different project from any
+ * patchset in different pipelines
+ *
+ * @param url "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
+ * @param branch branch
+ * @param refspec "xxxx/master" or other refspec
+ * @param targetDirectory local directory where to clone repo
+ * @param creds jenkins SSH credentials ID
+*/
+def cloneProject(String url, String branch, String refspec, String targetDirectory, String creds){
+    checkout poll: false,
+    scm: [$class: 'GitSCM',
+              branches: [[name: "${branch}"]],
+              doGenerateSubmoduleConfigurations: false,
+              extensions: [[$class: 'LocalBranch',
+                            localBranch: 'jenkins'],
+                           [$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: targetDirectory]],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[refspec: "${refspec}",
+                                                 url: url,
+                                                 credentialsId: creds ]]]
 }
