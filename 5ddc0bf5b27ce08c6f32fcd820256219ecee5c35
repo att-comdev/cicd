@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46c38d9a_46236522",
+        "filename": "images/nc/ro-helm/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-06-20T00:28:07Z",
+      "side": 1,
+      "message": "Can you update your makefile to allow for labels to be passed to your docker build command?  They are required for deployment into System Test and beyond.\n\nShould have been in the example Makefile provided.",
+      "revId": "5ddc0bf5b27ce08c6f32fcd820256219ecee5c35",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
