@@ -16,6 +16,24 @@
       "revId": "5ddc0bf5b27ce08c6f32fcd820256219ecee5c35",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9495511e_4cd6887f",
+        "filename": "images/nc/ro-helm/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1014283
+      },
+      "writtenOn": "2018-06-20T21:45:12Z",
+      "side": 1,
+      "message": "I have a task for this now and will add it in our current iteration at ATT.  I saw your other comment about this being ok for the baseline.  Can this still move forward for now?",
+      "parentUuid": "46c38d9a_46236522",
+      "revId": "5ddc0bf5b27ce08c6f32fcd820256219ecee5c35",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
