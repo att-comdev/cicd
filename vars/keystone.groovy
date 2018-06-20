@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 /**
  * Retrieve a token from a site's IAM (Keystone
  * in the UCP namespace) that can potentially be
@@ -9,30 +11,26 @@
  * @return String The token supplied by IAM upon successful authentication
  */
 def retrieveToken(iamCredId, iamFqdn) {
-    withCredentials([[$class: "UsernamePasswordMultiBinding", credentialsId: iamCredId,
-            usernameVariable: "user", passwordVariable: "pw"]]) {
+    withCredentials([[$class: "UsernamePasswordMultiBinding",
+                      credentialsId: iamCredId,
+                      usernameVariable: "user",
+                      passwordVariable: "pass"]]) {
 
-        def conn = new URL("${iamFqdn}/v3/auth/tokens").openConnection()
-        conn.setRequestMethod("GET")
-        conn.setRequestProperty("Content-Type", "application/json")
-        conn.doOutput = true
+        def req = ["auth": [
+                     "identity": [
+                       "methods": ["password"],
+                       "password": [
+                         "user": ["name": user,
+                                  "domain": ["id": "default"],
+                                  "password": pass]]]]]
 
-        def requestJson = """ {
-            "auth": {
-                "identity": {
-                    "methods": ["password"],
-                    "password": {
-                        "user": {
-                            "name": "${user}",
-                            "domain": { "id": "default" },
-                            "password": "${pw}"
-                        }
-                    }
-                }
-            }
-        } """
+        def jreq = new JsonOutput().toJson(req)
 
-        conn.getOutputStream().write(requestJson.getBytes("UTF-8"))
-        return conn.getHeaderField("X-Subject-Token")
+        def res = httpRequest (url: iamFqdn,
+                               contentType: "APPLICATION_JSON",
+                               httpMode: "POST",
+                               requestBody: jreq)
+
+        return res.getHeaders()['X-Subject-Token'][0]
     }
 }
