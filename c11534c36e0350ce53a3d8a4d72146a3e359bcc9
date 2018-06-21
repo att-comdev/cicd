@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34620721_e80c71f5",
+        "filename": "images/nc/aqua/Jenkinsfile-AQUA",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T09:42:19Z",
+      "side": 1,
+      "message": "We have something like makeImages in vars/",
+      "revId": "c11534c36e0350ce53a3d8a4d72146a3e359bcc9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
