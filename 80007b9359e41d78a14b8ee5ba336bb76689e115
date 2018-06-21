@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eee809c0_2715842f",
+        "filename": "integration/airship/airship-in-a-bottle/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T10:06:31Z",
+      "side": 1,
+      "message": "There is a method in vars/ for that.",
+      "revId": "80007b9359e41d78a14b8ee5ba336bb76689e115",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73e759a7_397c1d8a",
+        "filename": "integration/airship/airship-in-a-bottle/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T10:06:31Z",
+      "side": 1,
+      "message": "./airship-in-a-bottle.sh -y",
+      "revId": "80007b9359e41d78a14b8ee5ba336bb76689e115",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
