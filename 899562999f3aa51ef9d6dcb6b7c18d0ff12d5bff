@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d9d4d09_cca23d5f",
+        "filename": "templates/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T14:36:34Z",
+      "side": 1,
+      "message": "There is library method for that.",
+      "revId": "899562999f3aa51ef9d6dcb6b7c18d0ff12d5bff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79a565ec_09cfd844",
+        "filename": "templates/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T14:36:34Z",
+      "side": 1,
+      "message": "There is library method for that.",
+      "revId": "899562999f3aa51ef9d6dcb6b7c18d0ff12d5bff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80e3d2d6_604a2eab",
+        "filename": "templates/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T14:36:34Z",
+      "side": 1,
+      "message": "There is library method for that.",
+      "revId": "899562999f3aa51ef9d6dcb6b7c18d0ff12d5bff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd0289b2_57695af6",
+        "filename": "templates/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T14:36:34Z",
+      "side": 1,
+      "message": "Properties upload missing.",
+      "revId": "899562999f3aa51ef9d6dcb6b7c18d0ff12d5bff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a91b1ba0_718cef72",
+        "filename": "templates/seed.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T14:36:34Z",
+      "side": 1,
+      "message": "I presume it\u0027s a draft, right?",
+      "revId": "899562999f3aa51ef9d6dcb6b7c18d0ff12d5bff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
