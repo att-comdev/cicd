@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50bebb9b_fd4b40c9",
+        "filename": "images/att-comdev/Jenkinsfile",
+        "patchSetId": 15
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T10:03:22Z",
+      "side": 1,
+      "message": "Use library function instead?",
+      "revId": "0c9f17b8bc872aebc6585bd35a12b7ff403655cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ddfafec_43fad815",
+        "filename": "images/att-comdev/Jenkinsfile",
+        "patchSetId": 15
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T10:03:22Z",
+      "side": 1,
+      "message": "build.makeImages()",
+      "revId": "0c9f17b8bc872aebc6585bd35a12b7ff403655cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0cd2108_4958e151",
+        "filename": "images/att-comdev/seed.groovy",
+        "patchSetId": 15
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T10:03:22Z",
+      "side": 1,
+      "message": "white space",
+      "revId": "0c9f17b8bc872aebc6585bd35a12b7ff403655cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d967b92_b0b23300",
+        "filename": "images/att-comdev/seed.groovy",
+        "patchSetId": 15
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-21T10:03:22Z",
+      "side": 1,
+      "message": "white space",
+      "revId": "0c9f17b8bc872aebc6585bd35a12b7ff403655cf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
