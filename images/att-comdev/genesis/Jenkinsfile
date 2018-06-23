@@ -1,0 +1,106 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+
+artf_ubuntu_repo="https://$ARTF_WEB_URL/ubuntu"
+iso_source="${artf_ubuntu_repo}/dists/xenial/main/installer-amd64/current/images/netboot/mini.iso"
+
+// get info about ISO image
+def iso_info(String img) {
+    sh "ls -l ${img}"
+    sh "isoinfo -d -i ${img}"
+    sh "fdisk -lu ${img}"
+    sh "dumpet -i ${img}"
+    sh "xorriso -indev ${img} -toc -pvd_info"
+}
+/* start of bash scripts */
+
+// Note: iDRAC returns 'HTTP/1.1 204 No Content' in case of success, and 'jq' will return nothing in this case
+def power_on = """
+echo 'Powering ON Genesis host...'
+curl -s -k -u${GENESIS_HOST_OOM_user}:${GENESIS_HOST_OOM_password} \
+            -H 'Content-Type: application/json' -X POST \
+            -d '{"ResetType": "On"}' \
+            https://${GENESIS_HOST_OOM_ip}/redfish/v1/Systems/System.Embedded.1/Actions/ComputerSystem.Reset | jq '.'
+"""
+def power_off = """
+echo 'Powering OFF Genesis host...'
+curl -s -k -u${GENESIS_HOST_OOM_user}:${GENESIS_HOST_OOM_password} \
+            -H 'Content-Type: application/json' -X POST \
+            -d '{"ResetType": "ForceOff"}' \
+            https://${GENESIS_HOST_OOM_ip}/redfish/v1/Systems/System.Embedded.1/Actions/ComputerSystem.Reset | jq '.'
+"""
+def set_boot_from_cd = """
+echo 'Setting BootSourceOverrideTarget=Cd on Genesis host...'
+curl -s -k -u${GENESIS_HOST_OOM_user}:${GENESIS_HOST_OOM_password} \
+            -H 'Content-Type: application/json' -X PATCH \
+            -d '{"Boot": {"BootSourceOverrideTarget": "Cd"}}' \
+            https://${GENESIS_HOST_OOM_ip}/redfish/v1/Systems/System.Embedded.1 | jq '.'
+"""
+
+/* end of bash scripts */
+
+vm(NODE_NAME, NODE_TMPL) {
+  stage('Setup environment'){
+
+    sh "env | sort"
+    sh """sudo sed -i -e 's|nova.clouds.archive.ubuntu.com|$ARTF_WEB_URL|g; s|security.ubuntu.com|$ARTF_WEB_URL|g' /etc/apt/sources.list
+        sudo apt-get update && \
+        sudo apt-get install -y xorriso isolinux && \
+        curl -O ${iso_source} && \
+        mkdir -p source/ dest/ && \
+        sudo mount -o loop \${iso_source##*/} source/
+        """
+    sh "rsync -av source/ dest/"
+    sh "chmod -R u+w dest/"
+    iso_info("mini.iso")
+  }
+
+  stage('Process preseed template') {
+
+    /* this requires to be pushed in separate gerrit change,
+     * leaving it for now
+    tmpl = libraryResource "genesis/preseed.cfg.template"
+    writeFile file: 'preseed.cfg.template', text: tmpl
+    */
+
+    // downloading template from artifactory
+    withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'REPO_USER',
+                    passwordVariable: 'REPO_PASSWORD')]) {
+      opts = '-u $REPO_USER:$REPO_PASSWORD'
+      sh "curl ${opts} -s -L -O ${PRESEED_CFG_URL_template}"
+    }
+
+    sh "envsubst '\${GENESIS_HOST_ip}:\${GENESIS_HOST_mask}:\${GENESIS_HOST_gw}:\${GENESIS_HOST_dns}:\${GENESIS_HOST_interface}' < \${PRESEED_CFG_URL_template##*/} | tee preseed-${GENESIS_HOST_ip}.cfg"
+
+  }
+
+  stage('Build ISO image'){
+    // re-calculating md5 sums
+    sh "find . -type f -print0 | xargs -0 md5sum | egrep -v \\"boot\.cat|md5sum\.txt\\" > md5sum.txt && mv md5sum.txt dest/"
+    sh """xorriso -system_id "LINUX"-as mkisofs -r \
+            -V "ATT_NC_Genesis_node_Install_disk" \
+            -cache-inodes \
+            -J -l -b isolinux.bin \
+            -c boot.cat -no-emul-boot \
+            -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin \
+            -eltorito-alt-boot \
+            -e boot/grub/efi.img \
+            -no-emul-boot \
+            -isohybrid-gpt-basdat \
+            -boot-load-size 4 -boot-info-table \
+            -o nc-genesis-${GENESIS_HOST_ip}.iso dest/
+       """
+    iso_info("nc-genesis-${GENESIS_HOST_ip}.iso")
+  }
+
+  stage('Upload ISO image and preseed file'){
+    artf = Artifactory.server 'artifactory'
+    filesSpec = """{"files": [
+                  {"pattern": "preseed-${GENESIS_HOST_ip}.cfg","target": "${UPLOADS_PATH}/"},
+                  {"pattern": "nc-genesis-${GENESIS_HOST_ip}.iso","target": "${UPLOADS_PATH}/"}
+                ]}"""
+    artf.publishBuildInfo(artf.upload(filesSpec))
+  }
+}
