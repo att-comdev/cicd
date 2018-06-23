@@ -1,0 +1,107 @@
+JENKINS_VM_LAUNCH='local-vm-launch'
+NODE_NAME="${JOB_BASE_NAME}-${BUILD_NUMBER}"
+NODE_TMPL="docker/ubuntu.m1.medium.yaml"
+
+// Stock Ubuntu netboot ISO
+iso_source="https://$ARTF_WEB_URL/ubuntu/dists/xenial/main/installer-amd64/current/images/netboot/mini.iso"
+// URL path w/o / where we upload nc-preseed-${GENESIS_HOST_ip}.cfg
+UPLOADS_PATH="genesis-build"
+
+PRESEED_TEMPLATE="https://$ARTF_WEB_URL/$UPLOADS_PATH/nc-preseed.cfg.template"
+// Boot menu patch needs to be uploaded into git, into att-condev/cicd, as a library file
+BOOT_MENU_TEMPLATE="https://$ARTF_WEB_URL/$UPLOADS_PATH/boot-menu.patch.template"
+
+// get info about ISO image
+def iso_info(String img) {
+    sh "ls -l ${img}"
+    sh "isoinfo -d -i ${img}"
+    sh "fdisk -lu ${img}"
+    sh "dumpet -i ${img}"
+    sh "xorriso -indev ${img} -toc -pvd_info"
+}
+
+/* end of bash scripts */
+
+vm(NODE_NAME, NODE_TMPL) {
+  stage('Setup environment'){
+
+    sh "env | sort"
+    sh """sudo sed -i -e 's|nova.clouds.archive.ubuntu.com|$ARTF_WEB_URL|g; s|security.ubuntu.com|$ARTF_WEB_URL|g' /etc/apt/sources.list
+        sudo apt-get update && \
+        sudo apt-get install -y xorriso isolinux genisoimage dumpet syslinux-utils && \
+        mkdir -p source/ dest/ && \
+        curl -O ${iso_source} && \
+        sudo mount -o loop mini.iso source/
+        """
+    iso_info("mini.iso")
+    sh "rsync -av source/ dest/"
+    sh "chmod -R u+w dest/"
+  }
+
+  stage('Get and process templates') {
+
+    /* this requires to be pushed in separate gerrit change,
+     * leaving it for now
+    tmpl = libraryResource "genesis/preseed.cfg.template"
+    writeFile file: 'preseed.cfg.template', text: tmpl
+    */
+
+    // downloading template from artifactory
+    withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'REPO_USER',
+                    passwordVariable: 'REPO_PASSWORD')]) {
+      opts = '-u $REPO_USER:$REPO_PASSWORD'
+      sh "curl ${opts} -s -L -O ${PRESEED_TEMPLATE}"
+      sh "curl ${opts} -s -L -O ${BOOT_MENU_TEMPLATE}"
+    }
+
+    sh """preseed_file_tmpl=${PRESEED_TEMPLATE}
+          preseed_file_tmpl=\${preseed_file_tmpl##*/}
+          boot_menu_patch_tmpl=${BOOT_MENU_TEMPLATE}
+          boot_menu_patch_tmpl=\${boot_menu_patch_tmpl##*/}
+          PRESEED_url="https://${ARTF_WEB_URL}/${UPLOADS_PATH}/nc-preseed-${GENESIS_HOST_ip}.cfg"
+          export PRESEED_url
+          envsubst '\${GENESIS_HOST_ip}:\${GENESIS_HOST_mask}:\${GENESIS_HOST_gw}:\${GENESIS_HOST_dns}:\${GENESIS_HOST_interface}' < \$preseed_file_tmpl > nc-preseed-${GENESIS_HOST_ip}.cfg
+          envsubst '\${GENESIS_HOST_ip}:\${GENESIS_HOST_mask}:\${GENESIS_HOST_gw}:\${GENESIS_HOST_dns}:\${GENESIS_HOST_interface}:\${PRESEED_url}' < \$boot_menu_patch_tmpl | tee boot-menu.patch
+       """
+    sh "pushd dest/ && patch -p2 < ../boot-menu.patch && popd"
+  }
+
+  stage('Build ISO image'){
+    // https://help.ubuntu.com/community/InstallCDCustomization
+    sh """mkisofs -r -V "ATT_NC_Genesis_node_Install_disk" \
+            -cache-inodes \
+            -J -l -b isolinux.bin \
+            -c boot.cat -no-emul-boot \
+            -boot-load-size 4 -boot-info-table \
+            -o nc-genesis-${GENESIS_HOST_ip}.iso dest/
+    """
+    // This makes ISO capable of booting from USB stick after dd'ing iso onto it
+    sh "isohybrid nc-genesis-${GENESIS_HOST_ip}.iso"
+    /*
+    sh """xorriso -system_id "LINUX" -as mkisofs -r \
+            -V "ATT_NC_Genesis_node_Install_disk" \
+            -cache-inodes \
+            -J -l -b isolinux.bin \
+            -c boot.cat -no-emul-boot \
+            -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin \
+            -eltorito-alt-boot \
+            -e boot/grub/efi.img \
+            -no-emul-boot \
+            -isohybrid-gpt-basdat \
+            -boot-load-size 4 -boot-info-table \
+            -o nc-genesis-${GENESIS_HOST_ip}.iso dest/
+    """
+    */
+    iso_info("nc-genesis-${GENESIS_HOST_ip}.iso")
+  }
+
+  stage('Upload ISO image and preseed file'){
+    artf = Artifactory.server 'artifactory'
+    filesSpec = """{"files": [
+                  {"pattern": "nc-preseed-${GENESIS_HOST_ip}.cfg","target": "${UPLOADS_PATH}/"},
+                  {"pattern": "nc-genesis-${GENESIS_HOST_ip}.iso","target": "${UPLOADS_PATH}/"}
+                ]}"""
+    artf.publishBuildInfo(artf.upload(filesSpec))
+  }
+}
