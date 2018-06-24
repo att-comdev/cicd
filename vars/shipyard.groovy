@@ -26,23 +26,23 @@ def createConfigdocsWithinContainer(uuid, bucketName) {
  * rest of the site.
  *
  * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
- * @param authToken An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
  * @param filePath A path to the file that you're looking to add to this collection of documents.
- * @param shipyardFqdn The Shipyard FQDN of the site you are creating documents against.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
  * @param bucketName The name given to the collection of documents you're creating - typically matches the site name.
  * @param bufferMode Indicates how the existing Shipyard Buffer should be handled - see: https://shipyard.readthedocs.io/en/latest/API.html?highlight=bufferMode for further details.
  */
-def createConfigdocs(uuid, authToken, filePath, shipyardFqdn, bucketName, bufferMode) {
-    sh """
-        curl -iv -H 'X-Context-Marker: ${uuid}' -H 'X-Auth-Token: ${authToken}' -H 'Content-Type: application/x-yaml' \
-            --data-binary \"@${filePath}\" ${shipyardFqdn}/api/v1.0/configdocs/${bucketName}?buffermode=${bufferMode} > response
-        cat response
-    """
+def createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode) {
+    def res = httpRequest(url: shipyardUrl + "/api/v1.0/configdocs/${bucketName}?buffermode=${bufferMode}",
+                            httpMode: "POST",
+                            customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
+                                            [name: "X-Auth-Token", value: token],
+                                            [name: "X-Context-Marker", value: uuid]],
+                            requestBody: filePath)
+    print res.content
 
-    def code = getResponseCode() as Integer
-    println "HTTP Response Code: " + code
-    if(code.compareTo(201) == 1) {
-        error("Build failed. Bad HTTP Response Code.")
+    if(res.status != 201) {
+        error("Failed to upload configdocs: ${res.status}")
     }
 }
 
@@ -72,19 +72,18 @@ def commitConfigDocsWithinContainer(uuid) {
  * the rest of the site.
  *
  * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
- * @param authToken An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
- * @param shipyardFqdn The Shipyard FQDN of the site you are creating documents against.
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @param shipyarUrl The Shipyard URL of the site you are creating documents against.
  */
-def commitConfigdocs(uuid, authToken, shipyardFqdn) {
-    sh """
-        curl -iv -X POST -H 'X-Context-Marker: ${uuid}' -H 'X-Auth-Token: ${authToken}' ${shipyardFqdn}/api/v1.0/commitconfigdocs > response
-        cat response
-    """
+def commitConfigdocs(uuid, token, shipyardUrl) {
+    def res = httpRequest(url: shipyardUrl + "/api/v1.0/commitconfigdocs",
+                            httpMode: "POST",
+                            customHeaders: [[name: "X-Auth-Token", value: token],
+                                            [name: "X-Context-Marker", value: uuid]])
+    print res.content
 
-    def code = getResponseCode() as Integer
-    println "HTTP Response Code: " + code
-    if(code.compareTo(201) == 1) {
-        error("Build failed. Bad HTTP Response Code.")
+    if (res.status != 200) {
+        error("Failed to commit configdocs: ${res.status}")
     }
 }
 
