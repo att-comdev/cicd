@@ -42,6 +42,17 @@ def stack_create(String name, String tmpl, String parameters) {
     }
 }
 
+def stackCreateWithReturn(String name, String tmpl, String parameters) {
+    withCredentials([usernamePassword(credentialsId: 'jenkins-openstack-18',
+                                            usernameVariable: 'OS_USERNAME',
+                                            passwordVariable: 'OS_PASSWORD')]) {
+
+        cmd = openstack_cmd("openstack stack create --wait --timeout 15 -t /target/\$(basename ${tmpl}) ${name} ${parameters}", "\$(dirname ${tmpl})")
+        ret = sh (script: cmd, returnStdout: true)
+        return ret
+    }
+}
+
 
 def stack_delete(String name) {
     withCredentials([usernamePassword(credentialsId: 'jenkins-openstack-18',
