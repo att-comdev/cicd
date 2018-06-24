@@ -42,7 +42,6 @@ def stack_create(String name, String tmpl, String parameters) {
     }
 }
 
-
 def stack_delete(String name) {
     withCredentials([usernamePassword(credentialsId: 'jenkins-openstack-18',
                                           usernameVariable: 'OS_USERNAME',
