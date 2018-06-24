@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 /**
  * Retrieve a token from a site's IAM (Keystone
  * in the UCP namespace) that can potentially be
@@ -34,5 +36,32 @@ def retrieveToken(iamCredId, iamFqdn) {
 
         conn.getOutputStream().write(requestJson.getBytes("UTF-8"))
         return conn.getHeaderField("X-Subject-Token")
+    }
+}
+
+// Clean version of getting Keystone token - todo: get into shared lib
+def getKeystoneToken(iamCredId, iamFqdn) {
+
+    withCredentials([[$class: "UsernamePasswordMultiBinding",
+                      credentialsId: iamCredId,
+                      usernameVariable: "user",
+                      passwordVariable: "pass"]]) {
+
+        def req = ["auth": [
+                   "identity": [
+                     "methods": ["password"],
+                     "password": [
+                       "user": ["name": user,
+                                "domain": ["id": "default"],
+                                "password": pass]]]]]
+
+        def jreq = new JsonOutput().toJson(req)
+
+        def res = httpRequest(url: iamFqdn + "/v3/auth/tokens",
+                               contentType: "APPLICATION_JSON",
+                               httpMode: "POST",
+                               requestBody: jreq)
+
+        return res.getHeaders()["X-Subject-Token"][0]
     }
 }
