@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "89ad893f_73dd1267",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 24
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-06-25T13:21:23Z",
+      "side": 1,
+      "message": "We need ocata images right now, tag below is to ocata",
+      "parentUuid": "257065c1_54d6707f",
+      "revId": "9d6e079c90df1fbc7ca774695c72fea80de29c15",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa9f41d3_32b170f9",
         "filename": "images/openstack/loci/Jenkinsfile",
         "patchSetId": 24
