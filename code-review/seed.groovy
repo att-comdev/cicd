@@ -15,6 +15,17 @@ pipelineJob("code-review") {
                     }
                     disableStrictForbiddenFileVerification(false)
                 }
+                gerritProject {
+                    compareType('REG_EXP')
+                    pattern("^aic-aqa-.*")
+                    branches {
+                        branch {
+                            compareType("ANT")
+                            pattern("**")
+                        }
+                    }
+                    disableStrictForbiddenFileVerification(false)
+                }
             }
             triggerOnEvents {
                 patchsetCreated {

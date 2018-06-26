@@ -1,8 +1,6 @@
-NODE_NAME = "${JOB_BASE_NAME}-CodeReviewDev-${BUILD_NUMBER}"
-NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
 
-vm(NODE_NAME,NODE_TMPL){
+vm2{
     stage('Project Checkout'){
         cleanWs()
         //To be removed once all projects are controlling their own dependencies
@@ -19,9 +17,35 @@ vm(NODE_NAME,NODE_TMPL){
               libffi-dev \
               libssl-dev'''
         if(env.GERRIT_NEWREV){
-            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_NEWREV,"jenkins")
+            if(JENKINS_ENV == "JENKINS_C"){
+                checkout poll: false,
+                scm: [$class: 'GitSCM',
+                    branches: [[name: GERRIT_NEWREV]],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'RelativeTargetDirectory',
+                                  relativeTargetDir: GERRIT_PROJECT ]],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                    url: INTERNAL_GERRIT_SSH+"/${GERRIT_PROJECT}",
+                    credentialsId:'jenkins-gerrit-mtn5-key']]]
+            } else {
+                gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_NEWREV, "jenkins")
+            }
         } else {
-            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
+            if(JENKINS_ENV == "JENKINS_C"){
+                     checkout poll: false,
+                scm: [$class: 'GitSCM',
+                    branches: [[name: GERIT_PATCHSET_REVISION]],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'RelativeTargetDirectory',
+                        relativeTargetDir: GERRIT_PROJECT]],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                        url: INTERNAL_GERRIT_SSH+"/${GERRIT_PROJECT}",
+                        credentialsId:'jenkins-gerrit-mtn5-key']]]
+            } else {
+                gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
+            }
             dir("${WORKSPACE}/jenkins"){
                 gerrit.rebase()
             }
