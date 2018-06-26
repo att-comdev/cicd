@@ -1,14 +1,14 @@
-NODE_NAME = "${JOB_BASE_NAME}-CodeReviewDev-${BUILD_NUMBER}"
-NODE_TMPL = "docker/ubuntu.m1.medium.yaml"
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
 
-vm(NODE_NAME,NODE_TMPL){
+vm2{
     stage('Project Checkout'){
         cleanWs()
         //To be removed once all projects are controlling their own dependencies
         //bootstrap was not loading as expected
+        //removing docker.io from the list of installed packages since it is
+        //causing the VM to stall and jobs stay at that stage for >15hrs
         sh '''sudo apt-get install -y \
-              git make docker.io gcc python tox \
+              git make gcc python tox \
               build-essential \
               python3-minimal \
               python3-setuptools \
@@ -18,12 +18,30 @@ vm(NODE_NAME,NODE_TMPL){
               python3-pip \
               libffi-dev \
               libssl-dev'''
+        vm2.setproxy()
         if(env.GERRIT_NEWREV){
-            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_NEWREV,"jenkins")
+            if(!GERRIT_HOST.contains('review')){
+                gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
+                                     GERRIT_NEWREV,
+                                     "jenkins",
+                                     INTERNAL_GERRIT_KEY)
+            } else {
+                gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_NEWREV, "jenkins")
+                dir("${WORKSPACE}/jenkins"){
+                    gerrit.rebase()
+                }
+            }
         } else {
-            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
-            dir("${WORKSPACE}/jenkins"){
-                gerrit.rebase()
+            if(!GERRIT_HOST.contains('review')){
+                gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
+                                     GERRIT_PATCHSET_REVISION,
+                                     "jenkins",
+                                     INTERNAL_GERRIT_KEY)
+            } else {
+                gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
+                dir("${WORKSPACE}/jenkins"){
+                    gerrit.rebase()
+                }
             }
         }
     }
