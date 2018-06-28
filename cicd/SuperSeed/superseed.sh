@@ -2,13 +2,25 @@
 
 set -xe
 
+export http_proxy=$HTTP_PROXY
+export https_proxy=$http_proxy
+
 git_clone(){
 
     local project_name=$1
     local local_path=$2
     local refspec=$3
-    local gerrit_url='http://gerrithub.io'
-    #local gerrit_url='ssh://jenkins@gerrithub.io:29418'
+
+    # Fail-safe option in case the job is run manually
+    if [ -z "${GERRIT_HOST}" ]; then
+        local gerrit_url='https://review.gerrithub.io'
+    else
+        if [ "${GERRIT_HOST}" = "review.gerrithub.io" ]; then
+            local gerrit_url='https://review.gerrithub.io'
+        else
+            local gerrit_url=$INTERNAL_GERRIT_SSH
+        fi
+    fi
 
     if [[ "${local_path}" =~ ^[\/\.]*$ ]]; then
         echo "ERROR: Bad local path '${local_path}'"
@@ -83,6 +95,7 @@ find_seed(){
 
 ######MAIN#####
 git_clone ${GERRIT_PROJECT} ${WORKSPACE} ${GERRIT_REFSPEC}
+
 find_seed
 set +x
 
