@@ -1,0 +1,28 @@
+import groovy.json.*
+
+
+vm2('loci-bootstrap.sh',
+    'cicd-ubuntu-16.04-server-cloudimg-amd64',
+    'm1.medium',
+    '',
+    'loci',
+    false){
+
+    stage('Clone OpenStack client'){
+        gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
+                             "${GERRIT_PATCHSET_REVISION}",
+                             "${GERRIT_PROJECT}",
+                             "${INTERNAL_GERRIT_KEY}")
+    }
+
+    stage('Updating host'){
+        pip.updateHost()
+    }
+    stage('Create pypirc file for pkg upload'){
+        pip.createPypirc('jenkins-artifactory')
+    }
+
+    stage('Build pip package and upload'){
+        pip.buildPackageAndUpload(GERRIT_PROJECT)
+    }
+}
