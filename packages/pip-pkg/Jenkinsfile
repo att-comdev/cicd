@@ -1,0 +1,57 @@
+import groovy.json.*
+
+def git_clone() {
+    sh "rm -rf ${GERRIT_PROJECT}"
+    gerrit.cloneProject("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}", "${PROJECT_REF}","${GERRIT_REFSPEC}", "${GERRIT_PROJECT}", "${INTERNAL_GERRIT_KEY}")
+    withCredentials([sshUserPrivateKey(credentialsId: INTERNAL_GERRIT_KEY,
+                                       keyFileVariable: 'SSH_KEY')]) {
+        withEnv(["GIT_SSH=/usr/bin/git-ssh-wrapper"]) {
+            dir ("${GERRIT_PROJECT}") {
+                sh "git fetch ${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT} ${GERRIT_REFSPEC} && git checkout FETCH_HEAD"
+            }
+        }
+    }
+    sh "sudo apt-get update"
+    sh "sudo apt install python-minimal -y"
+    sh "sudo apt install python-pip -y"
+}
+
+
+def build_package_and_upload() {
+    dir ("${GERRIT_PROJECT}") {
+        sh "python setup.py sdist bdist_wheel upload -r local"
+    }
+
+}
+
+def create_pypirc() {
+
+    withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'ARTIFACTORY_USER',
+                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+        sh '''#!/bin/bash
+cat << EOF > ~/.pypirc
+[distutils]
+index-servers = local
+[local]
+repository: ${ARTF_LOCAL_PYPI_URL}
+username: ${ARTIFACTORY_USER}
+password: ${ARTIFACTORY_PASSWORD}
+EOF
+'''
+    }
+}
+
+vm2('loci-bootstrap.sh',
+    'cicd-ubuntu-16.04-server-cloudimg-amd64',
+    'm1.medium',
+    '',
+    'loci',
+    false){
+
+    stage('Generate pip packages for openstack clients'){
+        git_clone()
+        create_pypirc()
+        build_package_and_upload()
+    }
+}
