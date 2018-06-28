@@ -24,7 +24,7 @@ freeStyleJob("${job_path}") {
 
     triggers {
         gerritTrigger {
-            serverName('Gerrithub-jenkins')
+            serverName('__ANY__')
             gerritProjects {
                 gerritProject {
                     compareType('PLAIN')
@@ -32,9 +32,40 @@ freeStyleJob("${job_path}") {
                     branches {
                         branch {
                             compareType('ANT')
-                            pattern("**/master")
+                            pattern("**")
                         }
                     }
+                    //forbiddenFilePaths {
+                    //    filePaths {
+                    //        compareType('ANT')
+                    //        pattern("vars/**")
+                    //    }
+                    //    filePaths {
+                    //        compareType('ANT')
+                    //        pattern("resources/**")
+                    //    }
+                    //}
+                    disableStrictForbiddenFileVerification(false)
+                }
+                gerritProject {
+                    compareType('PLAIN')
+                    pattern("nc-cicd")
+                    branches {
+                        branch {
+                            compareType('ANT')
+                            pattern("**")
+                        }
+                    }
+                    //forbiddenFilePaths {
+                    //    filePaths {
+                    //        compareType('ANT')
+                    //        pattern("vars/**")
+                    //    }
+                    //    filePaths {
+                    //        compareType('ANT')
+                    //        pattern("resources/**")
+                    //    }
+                    //}
                     disableStrictForbiddenFileVerification(false)
                 }
             }
