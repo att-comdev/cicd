@@ -32,7 +32,40 @@ freeStyleJob("${job_path}") {
                     branches {
                         branch {
                             compareType('ANT')
-                            pattern("**/master")
+                            pattern("**")
+                        }
+                    }
+                    forbiddenFilePaths {
+                        filePaths {
+                            compareType('ANT')
+                            pattern("vars/**")
+                        }
+                        filePaths {
+                            compareType('ANT')
+                            pattern("resources/**")
+                        }
+                    }
+                    disableStrictForbiddenFileVerification(false)
+                }
+            }
+            gerritProjects {
+                gerritProject {
+                    compareType('PLAIN')
+                    pattern("nc-cicd")
+                    branches {
+                        branch {
+                            compareType('ANT')
+                            pattern("**")
+                        }
+                    }
+                    forbiddenFilePaths {
+                        filePaths {
+                            compareType('ANT')
+                            pattern("vars/**")
+                        }
+                        filePaths {
+                            compareType('ANT')
+                            pattern("resources/**")
                         }
                     }
                     disableStrictForbiddenFileVerification(false)
