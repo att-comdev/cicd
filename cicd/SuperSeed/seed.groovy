@@ -2,6 +2,7 @@ base_path = "cicd"
 job_path = "${base_path}/SuperSeed"
 folder("${base_path}")
 
+
 freeStyleJob("${job_path}") {
     label('master')
     parameters {
