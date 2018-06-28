@@ -1,0 +1,73 @@
+import groovy.json.*
+
+  def git_clone(gerrit_project, gerrit_prject, gerrit_refspec){
+    def project_name=gerrit_project
+    def local_path=gerrit_project
+    def refspec=gerrit_refspec
+    def gerrit_url="${INTERNAL_GERRIT_URL}"
+    sh "rm -rf $local_path"
+    withCredentials([sshUserPrivateKey(credentialsId: INTERNAL_GERRIT_KEY,
+                                       keyFileVariable: 'SSH_KEY')]) {
+        // wrapper for custom git ssh key
+        // ssh -i $SSH_KEY $@
+        withEnv(["GIT_SSH=/usr/bin/git-ssh-wrapper"]) {
+            sh "ssh-keyscan -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} >> ~/.ssh/known_hosts"
+            sh "git clone ${INTERNAL_GERRIT_SSH}/${gerrit_project} ${gerrit_project}"
+            
+            dir ("${gerrit_project}"){
+            sh "git fetch ${INTERNAL_GERRIT_SSH}/${gerrit_project} ${gerrit_refspec} && git checkout FETCH_HEAD"
+            }
+            sh "sudo apt-get update"
+            sh "sudo apt install python-minimal -y"
+            sh "sudo apt install python-pip -y"
+        }
+    }
+    
+}
+
+
+def build_package() {
+    dir ("${GERRIT_PROJECT}"){
+    sh "python setup.py sdist bdist_wheel upload -r local"
+    }
+
+}
+
+def create_pypirc() {
+    
+    withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+            usernameVariable: 'ARTIFACTORY_USER',
+            passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+    sh '''#!/bin/bash
+cat << EOF > ~/.pypirc
+[distutils]
+index-servers = local
+[local]
+repository: ${ARTF_LOCAL_PYPI_URL}
+username: ${ARTIFACTORY_USER}
+password: ${ARTIFACTORY_PASSWORD}
+EOF
+'''
+}
+}
+
+vm2('loci-bootstrap.sh',
+         'cicd-ubuntu-16.04-server-cloudimg-amd64',
+         'm1.medium',
+         '',
+         'loci',
+          false){
+
+stage('Generate pip packages for openstack clients'){
+//JOB PARAMETERS:
+
+GERRIT_PROJECT=env.GERRIT_PROJECT
+GERRIT_BRANCH=env.GERRIT_BRANCH
+GERRIT_EVENT_TYPE=env.GERRIT_EVENT_TYPE
+GERRIT_REFSPEC=env.GERRIT_REFSPEC
+
+     git_clone(GERRIT_PROJECT, GERRIT_PROJECT, GERRIT_REFSPEC)
+     create_pypirc()
+     build_package()
+}
+}
