@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0516d4ac_13e9b1db",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T12:26:39Z",
+      "side": 1,
+      "message": "I\u0027m not sure I follow how this works.",
+      "revId": "c68e6411fec3a0993e1138b952e178b5420b2009",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53285570_241cc189",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T12:26:39Z",
+      "side": 1,
+      "message": "What if this variables are empty?",
+      "revId": "c68e6411fec3a0993e1138b952e178b5420b2009",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f7ed74b_ccc02634",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T12:26:39Z",
+      "side": 1,
+      "message": "Interesting.\nWhy don\u0027t we use just ${GERRIT_HOST} variable and that\u0027s it? Exernaly it will point to review.gerritgub.io, and internally - to internal URL.",
+      "revId": "c68e6411fec3a0993e1138b952e178b5420b2009",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2a87f61_0ce5b17a",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T12:26:39Z",
+      "side": 1,
+      "message": "Why did you add spacing? It does not change anything.",
+      "revId": "c68e6411fec3a0993e1138b952e178b5420b2009",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
