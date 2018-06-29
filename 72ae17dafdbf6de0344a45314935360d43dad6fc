@@ -70,6 +70,23 @@
     },
     {
       "key": {
+        "uuid": "782464bd_ecd08d21",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T14:13:25Z",
+      "side": 1,
+      "message": "Spacing.",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b5d1193_fe505562",
         "filename": "images/openstack/pip-pkg/Jenkinsfile",
         "patchSetId": 4
@@ -81,6 +98,23 @@
       "writtenOn": "2018-06-29T14:02:42Z",
       "side": 1,
       "message": "If you have standard params, then omit them. Just call vm2().",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d0385b6_ac6b5f21",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T14:13:25Z",
+      "side": 1,
+      "message": "Spacing is wrong from here and to the end of file.",
       "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
