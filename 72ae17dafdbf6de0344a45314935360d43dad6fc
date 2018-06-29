@@ -87,6 +87,23 @@
     },
     {
       "key": {
+        "uuid": "e9a36801_9989afe1",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-06-29T14:09:18Z",
+      "side": 1,
+      "message": "Don\u0027t think you need to do this.\nI believe you can call both\n\nGERROT_PROJECT or env.GERRI_PROJECT.\nplease try - and I would remove all this.",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0bc64fd7_8b00692d",
         "filename": "images/openstack/pip-pkg/Jenkinsfile",
         "patchSetId": 4
