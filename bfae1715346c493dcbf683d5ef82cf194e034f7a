@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "787dd577_840705c6",
+        "filename": "images/att-comdev/maas/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1013242
+      },
+      "writtenOn": "2018-06-29T14:20:26Z",
+      "side": 1,
+      "message": "It should the docker community edition package here (docker-ce) not the old docker.io",
+      "revId": "bfae1715346c493dcbf683d5ef82cf194e034f7a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ca651488_a5575b4e",
         "filename": "images/att-comdev/maas/Jenkinsfile",
         "patchSetId": 3
