@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "6aa885dd_496930cd",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T14:02:42Z",
+      "side": 1,
+      "message": "Spacing in the beginning.",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a97e10ed_594de599",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T14:02:42Z",
+      "side": 1,
+      "message": "There is library method in vars/ to git clone over SSH with credentials.",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "afe4e2ba_f3934707",
         "filename": "images/openstack/pip-pkg/Jenkinsfile",
         "patchSetId": 4
@@ -16,6 +50,74 @@
       "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09a48853_580e95ff",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T14:02:42Z",
+      "side": 1,
+      "message": "You don\u0027t need #!/bin/bash I think. Those sh() are run with something like \u0027bash -c ...\u0027.",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b5d1193_fe505562",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T14:02:42Z",
+      "side": 1,
+      "message": "If you have standard params, then omit them. Just call vm2().",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0bc64fd7_8b00692d",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T14:02:42Z",
+      "side": 1,
+      "message": "Once built, do you upload them somewhere?",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b44ec40b_06fc8353",
+        "filename": "images/openstack/pip-pkg/seed.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-06-29T14:02:42Z",
+      "side": 1,
+      "message": "If it\u0027s pip package, then why is it in images/ folder?",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
