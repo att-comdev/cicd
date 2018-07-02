@@ -3,19 +3,23 @@ import att.comdev.cicd.config.conf
 // node used for launching VMs
 def launch_node = 'jenkins-node-launch'
 
-def EXCLUDE_NODE_LIST = conf.EXCLUDE_NODES.split()
+stage ('Release Jenkins slave') {
 
-stage ('Node Destroy') {
-    node('master') {
-        for (exclude_node in EXCLUDE_NODE_LIST) {
-            if (DELETE_NODENAME.equalsIgnoreCase(exclude_node)) {
-                println "$DELETE_NODENAME belongs to list of critical nodes excluded for deletion"
-                println "Cannot delete node $DELETE_NODENAME"
-                sh "exit 1"
-            }
-        }
+    println("DELETE_NODENAME: " + DELETE_NODENAME)
+    println("EXCLUDE_NODE_LIST: " + EXCLUDE_NODE_LIST)
+
+    if (EXCLUDE_NODE_LIST.contains(" "+DELETE_NODENAME+" ")) {
+            println "$DELETE_NODENAME belongs to list of critical nodes excluded from deletion"
+            error "Cannot delete node $DELETE_NODENAME"
+    }
+    node(launch_node) {
         jenkins.node_delete(DELETE_NODENAME)
     }
+    node('master') {
+        jenkins.node_delete(DELETE_NODENAME)
+    }
+}
+stage ('Delete stack') {
     node(launch_node) {
         heat.stack_delete(DELETE_NODENAME)
     }
