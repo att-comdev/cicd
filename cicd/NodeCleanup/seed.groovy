@@ -4,7 +4,6 @@ folder("${base_path}")
 
 pipelineJob(job_path) {
     description("This job deletes the jenkins node and its underlying stack")
-    label('master')
     parameters {
         stringParam {
             name ('DELETE_NODENAME')
