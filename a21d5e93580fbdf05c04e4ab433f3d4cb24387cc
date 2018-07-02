@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "18a9e9a1_085f4a7e",
+        "filename": "vars/artifactory.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-07-02T20:24:28Z",
+      "side": 1,
+      "message": "I don\u0027t mind doing this, but would prefer to do so in a separate PS so that it can get properly tested/vetted by those most familiar with the pipes.",
+      "parentUuid": "42c65e27_560bf56d",
+      "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "81fabdd7_f927259a",
         "filename": "vars/artifactory.groovy",
         "patchSetId": 20
@@ -30,6 +48,24 @@
       "writtenOn": "2018-07-02T17:08:59Z",
       "side": 1,
       "message": "upload/download?",
+      "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e45b69_d42eabb0",
+        "filename": "vars/artifactory.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-07-02T20:24:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81fabdd7_f927259a",
       "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "065b345f_654da24c",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-07-02T20:24:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1fd07774_6ab698b0",
+      "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dca830e6_bde97463",
         "filename": "vars/gerrit.groovy",
         "patchSetId": 20
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "2fa3f702_7f00213d",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-07-02T20:24:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dca830e6_bde97463",
+      "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9bc9d7a9_4d09d666",
         "filename": "vars/gerrit.groovy",
         "patchSetId": 20
@@ -81,6 +153,24 @@
       "writtenOn": "2018-07-02T17:08:59Z",
       "side": 1,
       "message": "Looks similar to cloneToBranch above https://github.com/att-comdev/cicd/blob/master/vars/gerrit.groovy#L60 Can we squash it together?",
+      "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7164866_247d30ac",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-07-02T20:24:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9bc9d7a9_4d09d666",
       "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
