@@ -22,6 +22,30 @@
       "revId": "9bdc5b32f30cbb1c8aab0281fd34ce8ba1d896d7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc800014_dd707fee",
+        "filename": "cicd/NodeCleanup/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-02T14:25:14Z",
+      "side": 1,
+      "message": "Because in AF Jenkins slaves are operated from \u0027jenkins-node-launch\u0027 node, not from \u0027master\u0027.",
+      "parentUuid": "bf63e13e_92609142",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 44
+      },
+      "revId": "9bdc5b32f30cbb1c8aab0281fd34ce8ba1d896d7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
