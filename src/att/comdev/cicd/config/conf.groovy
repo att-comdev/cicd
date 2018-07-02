@@ -13,6 +13,6 @@ class conf {
     public static final String ARTF_SERVER_ID = "artifactory"
 
     // Other
-    public static final String EXCLUDE_NODES = "master jenkins-node-launch clcp-seaworthy-genesis 5ec-seaworthy-genesis"
+    public static final String EXCLUDE_NODES = "master jenkins-node-launch 10.24.20.18-slave 10.24.20.19-slave MyCodeReviewDev att-comdev-charts-dev cab24-r820-18 cab24-r820-19 openstack-helm-charts genesis clcp-seaworthy-genesis 5ec-seaworthy-genesis"
 
 }
