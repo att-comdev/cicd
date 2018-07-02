@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42c65e27_560bf56d",
+        "filename": "vars/artifactory.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-02T17:08:59Z",
+      "side": 1,
+      "message": "Would you quickly refactor code for your library?\n\nhttps://github.com/att-comdev/cicd/search?q\u003d%22Artifactory.server%22\u0026unscoped_q\u003d%22Artifactory.server%22",
+      "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81fabdd7_f927259a",
+        "filename": "vars/artifactory.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-02T17:08:59Z",
+      "side": 1,
+      "message": "upload/download?",
+      "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1fd07774_6ab698b0",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-02T17:08:59Z",
+      "side": 1,
+      "message": "Remove.",
+      "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dca830e6_bde97463",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-02T17:08:59Z",
+      "side": 1,
+      "message": "Looks similar to cloneToBranch above https://github.com/att-comdev/cicd/blob/master/vars/gerrit.groovy#L34 Can we squash it together?",
+      "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9bc9d7a9_4d09d666",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-02T17:08:59Z",
+      "side": 1,
+      "message": "Looks similar to cloneToBranch above https://github.com/att-comdev/cicd/blob/master/vars/gerrit.groovy#L60 Can we squash it together?",
+      "revId": "a21d5e93580fbdf05c04e4ab433f3d4cb24387cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
