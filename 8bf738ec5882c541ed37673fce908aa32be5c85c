@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2286671_2a185726",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-03T09:06:28Z",
+      "side": 1,
+      "message": "Why do you need this commented block?",
+      "revId": "8bf738ec5882c541ed37673fce908aa32be5c85c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc012d02_c39f90f5",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 11
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-03T09:06:28Z",
+      "side": 1,
+      "message": "Why do you need this commented block?",
+      "revId": "8bf738ec5882c541ed37673fce908aa32be5c85c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89cd08ff_46dd1204",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 11
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-03T09:06:28Z",
+      "side": 1,
+      "message": "What if this variables are empty?",
+      "revId": "8bf738ec5882c541ed37673fce908aa32be5c85c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44b2157a_0c7f6d5d",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-03T09:06:28Z",
+      "side": 1,
+      "message": "Why don\u0027t we use just ${GERRIT_HOST} variable and that\u0027s it? Exernaly it will point to review.gerritgub.io, and internally - to internal URL.\nSee lines 35 and 39 - can\u0027t we just use ${GERRIT_HOST} there and avoid this block on lines 14-23?",
+      "revId": "8bf738ec5882c541ed37673fce908aa32be5c85c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
