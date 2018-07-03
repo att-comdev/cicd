@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "611fc168_7ccf3ee1",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1014560
+      },
+      "writtenOn": "2018-07-03T09:20:03Z",
+      "side": 1,
+      "message": "Since in the Seed Job if you look there are the Forbidden File Paths which are required for both the repositories.\nBut I don\u0027t find the equivalent syntax in DSL.\nThis is what I came up with while browsing through Jenkins Code base but if you run this it messes up the gerrit triggers.\n\nJust so that whenever the job is updated we don\u0027t loose what the forbidden paths are; hence I have kept the same commented.\nIncase someone can help me with the actual syntax; I will update the same.",
+      "parentUuid": "e2286671_2a185726",
+      "revId": "8bf738ec5882c541ed37673fce908aa32be5c85c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc012d02_c39f90f5",
         "filename": "cicd/SuperSeed/seed.groovy",
         "patchSetId": 11
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "474f35e1_e72dcd87",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 11
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1014560
+      },
+      "writtenOn": "2018-07-03T09:20:03Z",
+      "side": 1,
+      "message": "I forgot this one...",
+      "parentUuid": "89cd08ff_46dd1204",
+      "revId": "8bf738ec5882c541ed37673fce908aa32be5c85c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "44b2157a_0c7f6d5d",
         "filename": "cicd/SuperSeed/superseed.sh",
         "patchSetId": 11
@@ -64,6 +100,24 @@
       "writtenOn": "2018-07-03T09:06:28Z",
       "side": 1,
       "message": "Why don\u0027t we use just ${GERRIT_HOST} variable and that\u0027s it? Exernaly it will point to review.gerritgub.io, and internally - to internal URL.\nSee lines 35 and 39 - can\u0027t we just use ${GERRIT_HOST} there and avoid this block on lines 14-23?",
+      "revId": "8bf738ec5882c541ed37673fce908aa32be5c85c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25c2a33a_ed616eb4",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1014560
+      },
+      "writtenOn": "2018-07-03T09:20:03Z",
+      "side": 1,
+      "message": "No we can\u0027t.\nExternal uses HTTPS protocol and internal uses SSH.\nLine #35 and #39 for internal would have a completely different URL than external.",
+      "parentUuid": "44b2157a_0c7f6d5d",
       "revId": "8bf738ec5882c541ed37673fce908aa32be5c85c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
