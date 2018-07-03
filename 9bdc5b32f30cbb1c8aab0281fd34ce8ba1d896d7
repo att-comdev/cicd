@@ -46,6 +46,30 @@
       "revId": "9bdc5b32f30cbb1c8aab0281fd34ce8ba1d896d7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d120814d_6170d53e",
+        "filename": "cicd/NodeCleanup/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-07-03T08:54:11Z",
+      "side": 1,
+      "message": "Ok. We probably need to sync up 13b1 with AF",
+      "parentUuid": "cc800014_dd707fee",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 44
+      },
+      "revId": "9bdc5b32f30cbb1c8aab0281fd34ce8ba1d896d7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
