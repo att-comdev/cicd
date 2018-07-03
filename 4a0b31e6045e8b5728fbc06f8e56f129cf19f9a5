@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0452f162_da5d445c",
+        "filename": "src/att/comdev/cicd/config/conf.groovy",
+        "patchSetId": 25
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1013696
+      },
+      "writtenOn": "2018-07-03T14:50:15Z",
+      "side": 1,
+      "message": "Are we hardcoding the pegleg and promenand images ? when new commits happen then everytime we have to change it manually ?",
+      "revId": "4a0b31e6045e8b5728fbc06f8e56f129cf19f9a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
