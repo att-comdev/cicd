@@ -1,0 +1,146 @@
+
+LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
+
+LOCAL_WEB_PORT = '8080'
+LOCAL_WEB_URL = "http://172.18.0.1:${LOCAL_WEB_PORT}"
+NO_PROXY = 'localhost,127.0.0.1,172.18.0.1'
+
+PROJECT = JOB_BASE_NAME
+SEMANTIC_RELEASE_VERSION = "0.9.0"
+
+ARTF_REPO = 'openstack'
+
+if (env.GERRIT_REFSPEC) {
+    PROJECT_REF = GERRIT_REFSPEC
+    PROJECT_VERSION = GERRIT_CHANGE_ID
+    PROJECT_BRANCH = GERRIT_BRANCH
+    DISPLAY_PREFIX = GERRIT_EVENT_TYPE
+    PROJECT_URL = GERRIT_CHANGE_URL
+} else {
+    PROJECT_VERSION = ""
+    // need to update url
+    PROJECT_URL = ""
+    PROJECT_BRANCH = PROJECT_REF
+    DISPLAY_PREFIX = "manual"
+}
+
+currentBuild.displayName = "#${BUILD_NUMBER} ${DISPLAY_PREFIX} ${PROJECT_BRANCH}"
+
+if (PROJECT_BRANCH == 'master') {
+    PROJECT_RELEASE = 'ocata'
+}
+
+PROJECT_PREFIX = "loci/mos"
+PROJECT_SUFFIX = PROJECT.split('-')[1]
+PROJECT_REPO = "${INTERNAL_GERRIT_SSH}/mos-${PROJECT_SUFFIX}"
+WHEELS_LATEST = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/loci/mos/mos-requirements:e45fe7addc36fb9b7395890d51bea28dff7d773d.2018-06-20_05-28-43"
+IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
+DEFAULT_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}\
+  --build-arg PROJECT=${PROJECT_SUFFIX}\
+  --build-arg PROJECT_REF=${PROJECT_REF}\
+  --build-arg NO_PROXY=${NO_PROXY}\
+  --build-arg http_proxy=${HTTP_PROXY}\
+  --build-arg https_proxy=${HTTPS_PROXY}\
+  --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}"
+
+// cmd for running Docker in Docker
+DIND_CONTAINER = "locibuildcont"
+DIND = "sudo docker exec ${DIND_CONTAINER}"
+
+// mirror the project locally to allow passing http git url as build arg for loci builds
+def repo_clone = {
+    sh 'mkdir -p web/repo'
+    sh "ssh-keyscan -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} | tee -a ~/.ssh/known_hosts"
+    dir ('web/repo') {
+        sh "git clone --mirror ${PROJECT_REPO} ${PROJECT}"
+        sh "cd ${PROJECT} && git update-server-info"
+    }
+}
+
+def repo_clone_ssh = {
+    withCredentials([sshUserPrivateKey(credentialsId: INTERNAL_GERRIT_KEY,
+                                       keyFileVariable: 'SSH_KEY')]) {
+        // wrapper for custom git ssh key
+        // ssh -i $SSH_KEY $@
+        withEnv(["GIT_SSH=/usr/bin/git-ssh-wrapper"]) {
+            repo_clone()
+        }
+    }
+}
+
+def repo_mirror = {
+    if (PROJECT_REPO.contains('ssh://')) {
+        repo_clone_ssh()
+    } else {
+        repo_clone()
+    }
+}
+
+def buildLociMos(projConfArgs = '', wheelArgs = '') {
+
+    sh "${DIND} docker pull ${LOCI_BASE_IMAGE}"
+    def cmd="${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${LOCI_BASE_IMAGE}"
+    def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+
+    def loci_version = gerrit.getVersion(LOCI_REPO, "master", "loci")
+
+    def labels = " --label org.label-schema.vcs-ref=${PROJECT_VERSION}\
+      --label org.label-schema.vcs-url=${PROJECT_URL}\
+      --label org.label-schema.loci-ref=${loci_version}\
+      --label org.label-schema.base-image=${base_sha256}\
+      --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
+
+    if (!PROJECT.contains('requirements')) {
+        sh "${DIND} docker pull ${WHEELS_LATEST}"
+        cmd="${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${WHEELS_LATEST}"
+        def requirements_sha256 = sh(returnStdout: true, script: cmd).trim()
+        labels += " --label org.label-schema.requirements-image=${requirements_sha256}"
+    }
+
+    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+       labels += " --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE}"
+    }
+
+    def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
+    ansiColor('xterm') {
+        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${DEFAULT_ARGS} ${projConfArgs} ${wheelArgs} ${labels} --tag ${image_tag}"
+    }
+    sh "${DIND} docker push ${image_tag}"
+
+    //publish latest (branch) tag on merge
+    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+        def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
+        sh "${DIND} docker tag ${image_tag} ${image_latest}"
+        sh "${DIND} docker push ${image_latest}"
+    }
+}
+
+vm2('loci-bootstrap.sh',
+         'cicd-ubuntu-16.04-server-cloudimg-amd64',
+         'm1.medium',
+         '',
+         'loci',
+         false){
+
+    stage('Docker Setup') {
+        loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory", DIND_CONTAINER)
+    }
+
+    stage('Local Repo Setup') {
+        loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT)
+        repo_mirror()
+        if (!env.GERRIT_REFSPEC) {
+            PROJECT_VERSION = gerrit.getVersion("../web/repo/${PROJECT}", PROJECT_REF, PROJECT)
+        }
+    }
+
+    stage ("Build ${PROJECT.capitalize()}") {
+        if (PROJECT.contains('requirements')) {
+            buildLociMos()
+        } else {
+            loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
+            WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
+            buildLociMos(loci.getDependencies(PROJECT_SUFFIX), WHEELS_ARG)
+        }
+    }
+}
