@@ -32,7 +32,7 @@ COMMUNITY_PROJECTS.each { project, ref ->
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                 durationName 'hour'
-                count '3'
+                count '10'
             }
         }
         parameters {
@@ -41,13 +41,13 @@ COMMUNITY_PROJECTS.each { project, ref ->
                 description('Default branch for manual build.\n\n' +
                             'Currently master, stable/<branch>, and newton-eol are supported')
                 name ('PROJECT_REF')
-                trim(true)
+                //trim(true)
             }
             stringParam {
                 defaultValue("${LOCI_BASE_IMAGE_XENIAL}")
                 description('Image needed for 16.04')
                 name ('LOCI_BASE_IMAGE')
-                trim(true)
+                //trim(true)
             }
         }
         triggers {
@@ -61,7 +61,11 @@ COMMUNITY_PROJECTS.each { project, ref ->
                         branches {
                             branch {
                                 compareType("ANT")
-                                pattern("(stable/.*|master)")
+                                pattern("stable/*")
+                            }
+                            branch {
+                                compareType("ANT")
+                                pattern("master")
                             }
                         }
                         disableStrictForbiddenFileVerification(false)
@@ -78,7 +82,7 @@ COMMUNITY_PROJECTS.each { project, ref ->
             }
             definition {
                 cps {
-                    script(readFileFromWorkspace("${JOB_BASE}/Jenkinsfile"))
+                    script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileCommunity"))
                     sandbox()
                 }
             }
@@ -103,21 +107,21 @@ MOS_PROJECTS.each { project, ref ->
                 description('Default branch for manual build.\n\n' +
                             'Currently master is supported.')
                 name ('PROJECT_REF')
-                trim(true)
+                //trim(true)
             }
           if (project == "mos-neutron-sriov" || project == "mos-nova-1804") {
             stringParam {
                 defaultValue("${LOCI_SRIOV_BASE_IMAGE}")
                 description('Image needed for SR-IOV')
                 name ('LOCI_BASE_IMAGE')
-                trim(true)
+                //trim(true)
             }
           } else {
             stringParam {
                 defaultValue("${LOCI_BASE_IMAGE}")
                 description('Image needed for 16.04')
                 name ('LOCI_BASE_IMAGE')
-                trim(true)
+                //trim(true)
             }
           }
         }
@@ -149,7 +153,7 @@ MOS_PROJECTS.each { project, ref ->
             }
             definition {
                 cps {
-                    script(readFileFromWorkspace("${JOB_BASE}/Jenkinsfile"))
+                    script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileMos"))
                     sandbox()
                 }
             }
