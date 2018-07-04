@@ -1,7 +1,4 @@
 
-NODE_NAME = "images-loci-${JOB_BASE_NAME}-${BUILD_NUMBER}"
-NODE_TMPL = "docker/loci.yaml"
-
 LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
 
 DIND_IMAGE = "${ARTF_DOCKER_URL}/docker:17.07.0-dind"
@@ -15,9 +12,6 @@ PROJECT = JOB_BASE_NAME
 SEMANTIC_RELEASE_VERSION = "0.9.0"
 
 ARTF_REPO = 'openstack'
-if (env.GERRIT_EVENT_TYPE == 'patchset-created') {
-    ARTF_REPO += '-patchset'
-}
 
 if (env.GERRIT_REFSPEC) {
     PROJECT_REF = GERRIT_REFSPEC
@@ -34,16 +28,6 @@ if (env.GERRIT_REFSPEC) {
 }
 
 PROJECT_CONFIG = [
-  'keystone': ['profiles': '"fluent apache ldap"', 'packages': '"pycrypto python-openstackclient"', 'distpackages': ' '],
-  'heat':     ['profiles': '"fluent apache"', 'packages': 'pycrypto', 'distpackages': 'curl'],
-  'glance':   ['profiles': '"fluent glance ceph"', 'packages': '"pycrypto python-swiftclient"', 'distpackages': ' '],
-  'horizon':  ['profiles': '"fluent horizon apache"', 'packages': 'pycrypto', 'distpackages': ' '],
-  'cinder':   ['profiles': '"fluent cinder lvm ceph qemu"', 'packages': '"pycrypto python-swiftclient"', 'distpackages': ' '],
-  'neutron':  ['profiles': '"fluent neutron linuxbridge openvswitch"', 'packages': 'pycrypto', 'distpackages': ' '],
-  'barbican': ['profiles': 'fluent', 'packages': 'pycrypto', 'distpackages': ' '],
-  'nova':     ['profiles': '"fluent nova ceph linuxbridge openvswitch configdrive qemu apache"',
-               'packages': 'pycrypto', 'distpackages': ' '],
-
   'mos-keystone': ['profiles': '"fluent apache ldap"', 'packages': '"pycrypto python-openstackclient"', 'distpackages': ' '],
   'mos-heat':     ['profiles': '"fluent apache"', 'packages': 'pycrypto', 'distpackages': 'curl'],
   'mos-glance':   ['profiles': '"fluent glance ceph"', 'packages': '"pycrypto python-swiftclient"', 'distpackages': ' '],
@@ -60,66 +44,28 @@ PROJECT_CONFIG = [
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${DISPLAY_PREFIX} ${PROJECT_BRANCH}"
 
-// handle diffs in stable/<rel>, and <rel>-eol
-if (PROJECT_BRANCH.contains('stable/')) {
-    PROJECT_RELEASE = PROJECT_BRANCH.replace('stable/', '')
-} else if (PROJECT_BRANCH.contains('-eol')) {
-    PROJECT_RELEASE = PROJECT_BRANCH.replace('-eol', '')
-} else if (PROJECT_BRANCH.contains('main/')) {
-    PROJECT_RELEASE = PROJECT_BRANCH.replace('main/', '')
-} else if (PROJECT_BRANCH.contains('master/ocata')) {
-    PROJECT_RELEASE = PROJECT_BRANCH.replace('master/', '')
-} else if (PROJECT_BRANCH == 'master') {
-    if (PROJECT.contains('mos')) {
-        PROJECT_RELEASE = 'ocata'
-    } else {
-        PROJECT_RELEASE = 'rocky'
-    }
-} else {
-    error("Unsupported branch/tag: ${PROJECT_BRANCH}")
+if (PROJECT_BRANCH == 'master') {
+    PROJECT_RELEASE = 'ocata'
 }
 
-if (PROJECT.contains('mos')) {
-    PROJECT_PREFIX = "loci/mos"
-    PROJECT_SUFFIX = PROJECT.split('-')[1]
-    PROJECT_REPO = "${INTERNAL_GERRIT_SSH}/mos-${PROJECT_SUFFIX}"
-    WHEELS_LATEST = "${ARTF_SECURE_DOCKER_URL}/openstack/${PROJECT_RELEASE}/loci/mos/mos-requirements:e45fe7addc36fb9b7395890d51bea28dff7d773d.2018-06-20_05-28-43"
-    IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/openstack/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
-    DEFAULT_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}\
-      --build-arg PROJECT=${PROJECT_SUFFIX}\
-      --build-arg PROJECT_REF=${PROJECT_REF}\
-      --build-arg NO_PROXY=${NO_PROXY}\
-      --build-arg http_proxy=${HTTP_PROXY}\
-      --build-arg https_proxy=${HTTP_PROXY}\
-      --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}"
-} else {
-    // openstack community repos by default
-    PROJECT_REPO = "https://git.openstack.org/openstack/${PROJECT}"
-    PROJECT_PREFIX = "loci/community"
-    // project builds assume branch-specific requirements:latest
-    // WHEELS_LATEST = "${ARTF_DOCKER_URL}/openstack/$PROJECT_RELEASE/loci/community/requirements:latest"
-    // use community release tag images for now
-    WHEELS_LATEST = "${ARTF_DOCKER_URL}/openstackhelm/requirements:$PROJECT_RELEASE"
-    IMAGE_BASE = "${ARTF_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
-    DEFAULT_ARGS = "--build-arg FROM=${LOCI_BASE_IMAGE}\
-      --build-arg PROJECT=${PROJECT}\
-      --build-arg PROJECT_REF=${PROJECT_REF}\
-      --build-arg NO_PROXY=${NO_PROXY}\
-      --build-arg http_proxy=${HTTP_PROXY}\
-      --build-arg https_proxy=${HTTP_PROXY}\
-      --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}"
-}
+PROJECT_PREFIX = "loci/mos"
+PROJECT_SUFFIX = PROJECT.split('-')[1]
+PROJECT_REPO = "${INTERNAL_GERRIT_SSH}/mos-${PROJECT_SUFFIX}"
+WHEELS_LATEST = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/loci/mos/mos-requirements:e45fe7addc36fb9b7395890d51bea28dff7d773d.2018-06-20_05-28-43"
+IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
+DEFAULT_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}\
+  --build-arg PROJECT=${PROJECT_SUFFIX}\
+  --build-arg PROJECT_REF=${PROJECT_REF}\
+  --build-arg NO_PROXY=${NO_PROXY}\
+  --build-arg http_proxy=${HTTP_PROXY}\
+  --build-arg https_proxy=${HTTPS_PROXY}\
+  --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}"
 
 if (!PROJECT.contains('requirements')) {
     PROJECT_CONFIG_ARGS = " --build-arg PROFILES=${PROJECT_CONFIG[PROJECT].profiles}\
       --build-arg PIP_PACKAGES=${PROJECT_CONFIG[PROJECT].packages}\
       --build-arg DIST_PACKAGES=${PROJECT_CONFIG[PROJECT].distpackages}"
     WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
-    if (PROJECT.contains('nova')) {
-        EXTRA_BUILD_ARGS = " --build-arg SPICE_REPO=https://gitlab.freedesktop.org/spice/spice-html5.git"
-    } else {
-        EXTRA_BUILD_ARGS = ""
-    }
 }
 
 // cmd for running Docker in Docker
@@ -128,7 +74,7 @@ DIND = 'sudo docker exec loci-build'
 // docker within docker (to get latest docker version on Ubuntu 16.04)
 // requires setting {"storage-driver": "overlay2"} option in docker.json
 def docker_setup = {
-    def opts = '--privileged --name loci-build -e HTTP_PROXY="${HTTP_PROXY}" -e HTTPS_PROXY="${HTTP_PROXY}" '
+    def opts = '--privileged --name loci-build -e HTTP_PROXY="${HTTP_PROXY}" -e HTTPS_PROXY="${HTTPS_PROXY}" '
     def mounts = '-v /var/lib/docker' +
         ' -v $(pwd):/opt/loci'
 
@@ -151,14 +97,12 @@ def docker_setup = {
 def version_resolve = {
     // use commit hash when triggered manually
     if (!env.GERRIT_REFSPEC) {
-
+        //gerrit.cloneProject("${LOCAL_WEB_URL}/repo/${PROJECT}", PROJECT_REF, "", PROJECT)
         sh "git clone web/repo/${PROJECT}"
 
         dir (PROJECT) {
             sh "git fetch ../web/repo/${PROJECT} ${PROJECT_REF}"
             sh "git checkout FETCH_HEAD"
-            //Can put back pretty formatting if the commit-id returned is increased to 12
-            //make sure that we have no conflicts
             def cmd = "git rev-parse HEAD"
             PROJECT_VERSION = sh(returnStdout: true, script: cmd).trim()
         }
@@ -215,22 +159,6 @@ def wheels_export = {
     sh "${DIND} chmod +r /opt/loci/web/images/wheels.tar"
 }
 
-def wheels_build = {
-
-    def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
-    ansiColor('xterm') {
-        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${DEFAULT_ARGS} --tag ${image_tag}"
-    }
-    sh "${DIND} docker push ${image_tag}"
-
-    //publish latest (branch) tag on merge
-    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
-        def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
-        sh "${DIND} docker tag ${image_tag} ${image_latest}"
-        sh "${DIND} docker push ${image_latest}"
-    }
-}
-
 def wheels_build_mos = {
 
     sh "${DIND} docker pull ${LOCI_BASE_IMAGE}"
@@ -253,22 +181,6 @@ def wheels_build_mos = {
     def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
     ansiColor('xterm') {
         sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${DEFAULT_ARGS} ${labels} --tag ${image_tag}"
-    }
-    sh "${DIND} docker push ${image_tag}"
-
-    //publish latest (branch) tag on merge
-    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
-        def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
-        sh "${DIND} docker tag ${image_tag} ${image_latest}"
-        sh "${DIND} docker push ${image_latest}"
-    }
-}
-
-def project_build = {
-
-    def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
-    ansiColor('xterm') {
-        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${DEFAULT_ARGS} ${EXTRA_BUILD_ARGS} ${PROJECT_CONFIG_ARGS} ${WHEELS_ARG} --tag ${image_tag}"
     }
     sh "${DIND} docker push ${image_tag}"
 
@@ -306,7 +218,7 @@ def project_build_mos = {
 
     def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
     ansiColor('xterm') {
-        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${DEFAULT_ARGS} ${EXTRA_BUILD_ARGS} ${PROJECT_CONFIG_ARGS} ${WHEELS_ARG} ${labels} --tag ${image_tag}"
+        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${DEFAULT_ARGS} ${PROJECT_CONFIG_ARGS} ${WHEELS_ARG} ${labels} --tag ${image_tag}"
     }
     sh "${DIND} docker push ${image_tag}"
 
@@ -337,22 +249,14 @@ vm2('loci-bootstrap.sh',
 
     if (PROJECT.contains('requirements')) {
         stage('Build Requirements') {
-            if (PROJECT.contains('mos')) {
-                wheels_build_mos()
-            } else {
-                wheels_build()
-            }
+            wheels_build_mos()
         }
     } else {
         stage('Wheels Export') {
             wheels_export()
         }
         stage ("Build ${PROJECT.capitalize()}") {
-           if (PROJECT.contains('mos')) {
-               project_build_mos()
-           } else {
-               project_build()
-           }
+            project_build_mos()
         }
     }
 }
