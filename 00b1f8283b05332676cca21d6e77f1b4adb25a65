@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c66f1f58_bfb95aaa",
+        "filename": "integration/airship/airship-in-a-bottle/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-04T16:39:47Z",
+      "side": 1,
+      "message": "FIXME: VM in airship/airship.yaml must have 20GB RAM and 4vCPU",
+      "revId": "00b1f8283b05332676cca21d6e77f1b4adb25a65",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
