@@ -32,7 +32,7 @@ COMMUNITY_PROJECTS.each { project, ref ->
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                 durationName 'hour'
-                count '3'
+                count '10'
             }
         }
         parameters {
@@ -61,7 +61,11 @@ COMMUNITY_PROJECTS.each { project, ref ->
                         branches {
                             branch {
                                 compareType("ANT")
-                                pattern("(stable/.*|master)")
+                                pattern("stable/*")
+                            }
+                            branch {
+                                compareType("ANT")
+                                pattern("master")
                             }
                         }
                         disableStrictForbiddenFileVerification(false)
@@ -78,7 +82,7 @@ COMMUNITY_PROJECTS.each { project, ref ->
             }
             definition {
                 cps {
-                    script(readFileFromWorkspace("${JOB_BASE}/Jenkinsfile"))
+                    script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileCommunity"))
                     sandbox()
                 }
             }
@@ -149,7 +153,7 @@ MOS_PROJECTS.each { project, ref ->
             }
             definition {
                 cps {
-                    script(readFileFromWorkspace("${JOB_BASE}/Jenkinsfile"))
+                    script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileMos"))
                     sandbox()
                 }
             }
