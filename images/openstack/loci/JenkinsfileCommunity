@@ -1,0 +1,111 @@
+import com.att.nccicd.config.conf
+
+LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
+
+LOCAL_WEB_PORT = '8080'
+LOCAL_WEB_URL = "http://172.18.0.1:${LOCAL_WEB_PORT}"
+NO_PROXY = 'localhost,127.0.0.1,172.18.0.1'
+
+PROJECT = JOB_BASE_NAME
+
+ARTF_REPO = 'openstack'
+if (env.GERRIT_EVENT_TYPE == 'patchset-created') {
+    ARTF_REPO += '-patchset'
+}
+
+LOCI_BASE_IMAGE = conf.LOCI_BASE_IMAGE_XENIAL
+
+if (env.GERRIT_REFSPEC) {
+    PROJECT_REF = GERRIT_REFSPEC
+    PROJECT_VERSION = GERRIT_PATCHSET_REVISION
+    PROJECT_BRANCH = GERRIT_BRANCH
+    DISPLAY_PREFIX = GERRIT_EVENT_TYPE
+} else {
+    PROJECT_VERSION = ""
+    PROJECT_BRANCH = PROJECT_REF
+    DISPLAY_PREFIX = "manual"
+}
+
+currentBuild.displayName = "#${BUILD_NUMBER} ${DISPLAY_PREFIX} ${PROJECT_BRANCH}"
+
+// handle diffs in stable/<rel>, and <rel>-eol
+if (PROJECT_BRANCH.contains('stable/')) {
+    PROJECT_RELEASE = PROJECT_BRANCH.replace('stable/', '')
+    // use community release tag images for now
+    // todo move to branch-specific requirements:latest
+    WHEELS_LATEST = "${ARTF_DOCKER_URL}/openstackhelm/requirements:$PROJECT_RELEASE"
+} else if (PROJECT_BRANCH.contains('-eol')) {
+    PROJECT_RELEASE = PROJECT_BRANCH.replace('-eol', '')
+    // use community release tag images for now
+    WHEELS_LATEST = "${ARTF_DOCKER_URL}/openstackhelm/requirements:$PROJECT_RELEASE"
+} else if (PROJECT_BRANCH == 'master') {
+    PROJECT_RELEASE = 'rocky'
+    // use requirements:latest for master as community release image is not yet available
+    WHEELS_LATEST = "${ARTF_DOCKER_URL}/openstack/rocky/loci/community/requirements:latest"
+} else {
+    error("Unsupported branch/tag: ${PROJECT_BRANCH}")
+}
+
+// openstack community repos by default
+PROJECT_REPO = "https://git.openstack.org/openstack/${PROJECT}"
+PROJECT_PREFIX = "loci/community"
+IMAGE_BASE = "${ARTF_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
+DEFAULT_ARGS = "--build-arg FROM=${LOCI_BASE_IMAGE}\
+  --build-arg PROJECT=${PROJECT}\
+  --build-arg PROJECT_REF=${PROJECT_REF}\
+  --build-arg NO_PROXY=${NO_PROXY}\
+  --build-arg http_proxy=${HTTP_PROXY}\
+  --build-arg https_proxy=${HTTPS_PROXY}\
+  --build-arg PROJECT_REPO=${PROJECT_REPO}"
+
+// cmd for running Docker in Docker
+DIND_CONTAINER = "locibuildcont"
+DIND = "sudo docker exec ${DIND_CONTAINER}"
+
+def buildLoci(projConfArgs = '', wheelArgs = '') {
+
+    def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
+    ansiColor('xterm') {
+        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${DEFAULT_ARGS} ${projConfArgs} ${wheelArgs} --tag ${image_tag}"
+    }
+    sh "${DIND} docker push ${image_tag}"
+
+    //publish latest (branch) tag on merge
+    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+        def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
+        sh "${DIND} docker tag ${image_tag} ${image_latest}"
+        sh "${DIND} docker push ${image_latest}"
+    }
+}
+
+vm2('loci-bootstrap.sh',
+         'cicd-ubuntu-16.04-server-cloudimg-amd64',
+         'm1.medium',
+         '',
+         'loci',
+         false){
+
+    stage('Docker Setup') {
+        loci.runDind(ARTF_DOCKER_URL, "jenkins-artifactory", DIND_CONTAINER)
+    }
+
+    stage('Get version') {
+        if (!env.GERRIT_REFSPEC) {
+            PROJECT_VERSION = gerrit.getVersion(PROJECT_REPO, PROJECT_REF)
+        } else {
+            print "Skipping for gerrit trigger"
+        }
+    }
+
+    stage ("Build Project") {
+        print "Building ${PROJECT.capitalize()}"
+        if (PROJECT.contains('requirements')) {
+            buildLoci()
+        } else {
+            loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT)
+            loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
+            WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
+            buildLoci(loci.getDependencies(PROJECT), WHEELS_ARG)
+        }
+    }
+}
