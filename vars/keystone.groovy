@@ -1,19 +1,16 @@
 import groovy.json.JsonOutput
 
 /**
- * Retrieve a token from a site's IAM (Keystone
- * in the UCP namespace) that can potentially be
- * used to talk to and perform actions with the
- * other UCP components.
+ * Retrieve a token from a site's Keystone that can potentially be used to talk to and perform actions with the
+ * other k8s cluster components.
  *
- * @param iamCredId The ID of the credential (user+pass) established within Jenkins to authenticate against a site's Keystone
- * @param iamUrl The IAM URL of the site you are authenticating against.
- * @return String The token supplied by IAM upon successful authentication
+ * @param keystoneCredId The ID of the credential (user+pass) established within Jenkins to authenticate against a site's Keystone
+ * @param keystoneUrl The IAM URL of the site you are authenticating against.
+ * @return res The response supplied by the Keystone upon successful authentication
  */
-def retrieveToken(iamCredId, iamUrl) {
-
+def retrieveToken(keystoneCredId, keystoneUrl) {
     withCredentials([[$class: "UsernamePasswordMultiBinding",
-                      credentialsId: iamCredId,
+                      credentialsId: keystoneCredId,
                       usernameVariable: "user",
                       passwordVariable: "pass"]]) {
 
@@ -27,12 +24,12 @@ def retrieveToken(iamCredId, iamUrl) {
 
         def jreq = new JsonOutput().toJson(req)
 
-        def res = httpRequest(url: iamUrl + "/v3/auth/tokens",
-                               contentType: "APPLICATION_JSON",
-                               httpMode: "POST",
-                               requestBody: jreq)
-        print res.content
+        def res = httpRequest(url: keystoneUrl + "/v3/auth/tokens",
+                              contentType: "APPLICATION_JSON",
+                              httpMode: "POST",
+                              quiet: true,
+                              requestBody: jreq)
 
-        return res.getHeaders()["X-Subject-Token"][0]
+        return res
     }
 }
