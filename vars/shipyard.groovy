@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 /**
  * Creation of "configdocs" against a site's Deckhand,
  * utilizing the Shipyard CLI, that will be used to deploy
@@ -34,16 +36,13 @@ def createConfigdocsWithinContainer(uuid, bucketName) {
  */
 def createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode) {
     def res = httpRequest(url: shipyardUrl + "/api/v1.0/configdocs/${bucketName}?buffermode=${bufferMode}",
-                            httpMode: "POST",
-                            customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
-                                            [name: "X-Auth-Token", value: token],
-                                            [name: "X-Context-Marker", value: uuid]],
-                            requestBody: filePath)
-    print res.content
-
-    if(res.status != 201) {
-        error("Failed to upload configdocs: ${res.status}")
-    }
+                          httpMode: "POST",
+                          customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
+                                          [name: "X-Auth-Token", value: token],
+                                          [name: "X-Context-Marker", value: uuid]],
+                          quiet: true,
+                          requestBody: filePath)
+    return res
 }
 
 /**
@@ -77,14 +76,11 @@ def commitConfigDocsWithinContainer(uuid) {
  */
 def commitConfigdocs(uuid, token, shipyardUrl) {
     def res = httpRequest(url: shipyardUrl + "/api/v1.0/commitconfigdocs",
-                            httpMode: "POST",
-                            customHeaders: [[name: "X-Auth-Token", value: token],
-                                            [name: "X-Context-Marker", value: uuid]])
-    print res.content
-
-    if (res.status != 200) {
-        error("Failed to commit configdocs: ${res.status}")
-    }
+                          httpMode: "POST",
+                          customHeaders: [[name: "X-Auth-Token", value: token],
+                                          [name: "X-Context-Marker", value: uuid]],
+                          quiet: true)
+    return res
 }
 
 /**
@@ -104,30 +100,23 @@ def createActionWithinContainer(uuid, action) {
  * against a site.
  *
  * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
- * @param authToken An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
- * @param shipyardFqdn The Shipyard FQDN of the site you are creating documents against.
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @param shipyardUrl The Shipyard FQDN of the site you are creating documents against.
  * @param action The action to perform - see: https://shipyard.readthedocs.io/en/latest/API_action_commands.html?highlight=action for further details.
  */
-def createAction(uuid, authToken, shipyardFqdn, action) {
-    def conn = new URL("${shipyardFqdn}/api/v1.0/actions").openConnection()
-    conn.setRequestMethod("POST")
-    conn.setRequestProperty("Content-Type", "application/json")
-    conn.setRequestProperty("X-Context-Marker", uuid)
-    conn.setRequestProperty("X-Auth-Token", authToken)
-    conn.doOutput = true
+def createAction(uuid, token, shipyardUrl, action) {
 
-    def requestJson = """ {
-        "name": "${action}"
-    } """
+    def req = ["name": action]
+    def jreq = new JsonOutput().toJson(req)
 
-    conn.getOutputStream().write(requestJson.getBytes("UTF-8"))
-
-    println "HTTP Response: " + conn.responseMessage
-    def code = conn.responseCode as Integer
-    println "HTTP Response Code: " + code
-    if(code.compareTo(201) == 1) {
-        error("Build failed. Bad HTTP Response Code.")
-    }
+    def res = httpRequest(url: shipyardUrl + "/api/v1.0/actions",
+                          httpMode: "POST",
+                          customHeaders: [[name: "Content-Type", value: "application/json"]
+                                          [name: "X-Auth-Token", value: token],
+                                          [name: "X-Context-Marker", value: uuid]],
+                          quiet: true,
+                          requestBody: jreq)
+    return res
 }
 
 /**
@@ -141,14 +130,4 @@ def createAction(uuid, authToken, shipyardFqdn, action) {
  */
 private def getShipyardErrorCount() {
     return sh(script: "tail -1 response | cut -d ':' -f2 | xargs | cut -d ',' -f1", returnStdout: true)
-}
-
-/**
- * Reads the response code written from the Shipyard
- * API call.
- *
- * return String the response code returned by the Shipyard API request
- */
-private def getResponseCode() {
-    return sh(script: "cat response | grep 'HTTP/1.1' | tail -1 | grep -o '[0-9]\\{3\\}'", returnStdout: true)
 }
