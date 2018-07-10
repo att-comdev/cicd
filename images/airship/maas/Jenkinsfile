@@ -29,14 +29,15 @@ vm(NODE_NAME, NODE_TMPL) {
     }
     stage('Docker Build and Run ') {
         timeout(20){
-            sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+            vm2.setproxy()
+            sh "sudo make images SSTREAM_IMAGE=https://{ARTF_WEB_URL}/simplestream USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.sstream-url=https://{ARTF_WEB_URL}/simplestream --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
         }
     }
     stage('Validate Container') {
         sh "sudo docker inspect ${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
     }
     stage('Image Publish'){
-        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
         if (GERRIT_EVENT_TYPE == 'change-merged') {
             publish.artifactory (IMAGE, IMAGE_LATEST)
             publish.quay (IMAGE, QUAY_IMAGE_LATEST)
