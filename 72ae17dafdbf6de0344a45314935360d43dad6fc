@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "965911e8_e0d8f77b",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-07-10T14:57:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6aa885dd_496930cd",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a97e10ed_594de599",
         "filename": "images/openstack/pip-pkg/Jenkinsfile",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2018-06-29T14:02:42Z",
       "side": 1,
       "message": "There is library method in vars/ to git clone over SSH with credentials.",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58361901_8a7bee4e",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-07-10T14:57:57Z",
+      "side": 1,
+      "message": "Added library method for git clone. However doing git fetch directly",
+      "parentUuid": "a97e10ed_594de599",
       "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "031b5b78_f59e2b97",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-07-10T14:57:57Z",
+      "side": 1,
+      "message": "We will discuss on versioning strategy.",
+      "parentUuid": "afe4e2ba_f3934707",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "09a48853_580e95ff",
         "filename": "images/openstack/pip-pkg/Jenkinsfile",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2018-06-29T14:02:42Z",
       "side": 1,
       "message": "You don\u0027t need #!/bin/bash I think. Those sh() are run with something like \u0027bash -c ...\u0027.",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67d2fb2f_8557ad86",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-07-10T14:57:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09a48853_580e95ff",
       "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "ac2105a3_5d9ad18c",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-07-10T14:57:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "782464bd_ecd08d21",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b5d1193_fe505562",
         "filename": "images/openstack/pip-pkg/Jenkinsfile",
         "patchSetId": 4
@@ -98,6 +188,24 @@
       "writtenOn": "2018-06-29T14:02:42Z",
       "side": 1,
       "message": "If you have standard params, then omit them. Just call vm2().",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d66f289_fe8f6361",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-07-10T14:57:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b5d1193_fe505562",
       "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "d8abf9a9_7612d402",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-07-10T14:57:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d0385b6_ac6b5f21",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9a36801_9989afe1",
         "filename": "images/openstack/pip-pkg/Jenkinsfile",
         "patchSetId": 4
@@ -132,6 +258,24 @@
       "writtenOn": "2018-06-29T14:09:18Z",
       "side": 1,
       "message": "Don\u0027t think you need to do this.\nI believe you can call both\n\nGERROT_PROJECT or env.GERRI_PROJECT.\nplease try - and I would remove all this.",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc052abd_087647d0",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-07-10T14:57:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9a36801_9989afe1",
       "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "132ca4bc_f8c70a85",
+        "filename": "images/openstack/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-07-10T14:57:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0bc64fd7_8b00692d",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b44ec40b_06fc8353",
         "filename": "images/openstack/pip-pkg/seed.groovy",
         "patchSetId": 4
@@ -166,6 +328,24 @@
       "writtenOn": "2018-06-29T14:02:42Z",
       "side": 1,
       "message": "If it\u0027s pip package, then why is it in images/ folder?",
+      "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34f647d5_ff4d1c23",
+        "filename": "images/openstack/pip-pkg/seed.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-07-10T14:57:57Z",
+      "side": 1,
+      "message": "Changed job_base. Will place jenkinsfile and seed.groovy accordingly.",
+      "parentUuid": "b44ec40b_06fc8353",
       "revId": "72ae17dafdbf6de0344a45314935360d43dad6fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
