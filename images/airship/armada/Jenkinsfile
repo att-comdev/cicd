@@ -6,6 +6,8 @@ IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
 DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
 IMAGE_PREFIX="att-comdev"
 
+BASE_IMAGE = "python:3.5"
+
 PROM_BUNDLE = "promenade-bundle.tgz"
 ARTF_PROM_BUNDLE = "ucp/armada-bundle/${IMAGE_TAG}/${PROM_BUNDLE}"
 ARTF_ARMADA_MANIFEST = "clcp-integration/region/atl-lab1/armada/openstack-helm.yaml"
@@ -99,7 +101,7 @@ vms {
             }
             sh "sudo docker pull ${PROMENADE_IMAGE}"
             dir(env.WORKSPACE+"/armada"){
-                sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+                sh "sudo make images IMAGE_PREFIX=att-comdev BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
                 sh 'sudo docker images | grep armada'
             }
             publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
@@ -209,4 +211,5 @@ vms {
             }
         }
     }
+
 }
