@@ -4,6 +4,7 @@ NODE_BASE = "armada-${BUILD_NUMBER}"
 NODE_TMPL = "promenade/promenade.yaml"
 IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
 DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_BASE = "python:3.5"
 IMAGE_PREFIX="att-comdev"
 
 PROM_BUNDLE = "promenade-bundle.tgz"
@@ -99,7 +100,7 @@ vms {
             }
             sh "sudo docker pull ${PROMENADE_IMAGE}"
             dir(env.WORKSPACE+"/armada"){
-                sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+                sh "sudo make images IMAGE_PREFIX=${IMAGE_PREFIX} IMAGE_BASE=${IMAGE_BASE} IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
                 sh 'sudo docker images | grep armada'
             }
             publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
@@ -209,4 +210,5 @@ vms {
             }
         }
     }
+
 }
