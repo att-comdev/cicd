@@ -12,6 +12,12 @@ class conf {
     // Artifactory
     public static final String ARTF_SERVER_ID = "artifactory"
 
+    //docker-in-docker image
+    public static final String DIND_IMAGE = "${ARTF_DOCKER_URL}/docker:17.07.0-dind"
+
+    //nginx image
+    public static final String NGINX_IMAGE = "${ARTF_DOCKER_URL}/nginx"
+
     // Other
     public static final String EXCLUDE_NODES = "master jenkins-node-launch clcp-seaworthy-genesis 5ec-seaworthy-genesis"
 
