@@ -163,3 +163,20 @@ def getTopicCommitId(repo, url, port) {
     }
     return "master"
 }
+
+/**
+ * Retrieve latest commitid for a specific branch
+ * Used for labelling images of Manual triggers when GERRIT_CHANGE_ID is empty
+ *
+ * @param url Git url
+ * @param branch branchname
+ * @param targetDirectory local directory where to clone repo
+ * @return commitHash
+ */
+def getVersion(String url, String branch, String targetDirectory) {
+    gerrit.cloneProject(url, branch, "", targetDirectory)
+    dir (targetDirectory) {
+        def cmd = "git rev-parse HEAD"
+        return sh(returnStdout: true, script: cmd).trim()
+    }
+}
