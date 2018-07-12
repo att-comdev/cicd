@@ -1,0 +1,16 @@
+def launch_node = 'jenkins-node-launch'
+
+def name = "${STACK_NAME}"
+
+def stack_template="heat/glance/ubuntu.image.template.yaml"
+
+
+stage ('Stack Create') {
+
+    node(launch_node) {
+        tmpl = libraryResource "${stack_template}"
+        writeFile file: 'template.yaml', text: tmpl
+        
+        heat.stack_create(name, "${WORKSPACE}/template.yaml", --parameter 'cloudImage=${CLOUD_IMAGE})
+    }
+}
