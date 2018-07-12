@@ -163,3 +163,46 @@ def getTopicCommitId(repo, url, port) {
     }
     return "master"
 }
+
+/**
+ * Retrieve commitid for a specific branch or refspec
+ * Useful for Manual triggers when GERRIT_PATCHSET_REVISION is not defined
+ *
+ * @param url Git url
+ * @param branch branchname or refspec
+ * @return commitHash
+ */
+def getVersion(String url, String branch) {
+        def cmd = "git ls-remote $url $branch | cut -f1"
+        return sh(returnStdout: true, script: cmd).trim()
+}
+
+/**
+ * Given Jenkins credentials, Retrieve commitid for a specific branch or refspec
+ * Useful for Manual triggers when GERRIT_PATCHSET_REVISION is not defined
+ *
+ * @param url Git url
+ * @param branch branchname or refspec
+ * @param creds jenkins SSH credentials ID
+ * @return commitHash
+ */
+def getVersion(String url, String branch, String cred) {
+    withCredentials([sshUserPrivateKey(credentialsId: cred,
+                                       keyFileVariable: 'SSH_KEY')]) {
+        // wrapper for custom git ssh key
+        // ssh -i $SSH_KEY $@
+        def filewrapper = "/usr/bin/git-ssh-wrapper"
+        if (!fileExists(filewrapper)) {
+            sh """cat << EOF | sudo tee -a $filewrapper
+#!/bin/bash
+ssh -i $SSH_KEY \\\$@
+EOF"""
+            sh "sudo chmod a+x $filewrapper"
+        }
+        withEnv(["GIT_SSH=$filewrapper"]) {
+            sh "ssh-keyscan -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} | tee -a ~/.ssh/known_hosts"
+            def cmd = "git ls-remote $url $branch | cut -f1"
+            return sh(returnStdout: true, script: cmd).trim()
+        }
+    }
+}
