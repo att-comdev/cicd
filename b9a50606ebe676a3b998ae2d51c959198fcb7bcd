@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6510ad6_b34685b7",
+        "filename": "images/airship/JenkinsfileMaster",
+        "patchSetId": 39
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1013696
+      },
+      "writtenOn": "2018-07-13T18:08:16Z",
+      "side": 1,
+      "message": "why we are using the 18-04 image to test the airship ? It this was intended for this release in upstream ?",
+      "revId": "b9a50606ebe676a3b998ae2d51c959198fcb7bcd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
