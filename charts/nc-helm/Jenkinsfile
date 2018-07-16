@@ -1,0 +1,58 @@
+currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
+GIT_COMMIT=""
+
+vm2("bootstrap.sh", "cicd-ubuntu-16.04-server-cloudimg-amd64", "m1.large", '', 'basic', true) {
+    sh 'sudo apt-get update'
+    sh 'sudo apt-get install -y make curl'
+    sh ('hostname')
+    stage('Setup environment'){
+        vm2.setproxy()
+        sh 'export NO_PROXY="${NO_PROXY}"
+    }
+    stage('Deploy Kubernetes'){
+        gerrit.cloneToBranch("https://github.com/openstack/openstack-helm-infra", "master","$openstack-helm-infra")
+        dir("${WORKSPACE}/openstack-helm-infra"){
+            HELM_TOOLKIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+            sh "sed -i 's/8.8.8.8/${ARTF_IP}/g' ./tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml"
+            def amap = ['kubernetes_network_default_device': 'docker0','proxy': [ 'http': "${HTTP_PROXY}", 'https': "${HTTP_PROXY}", 'noproxy': "${NO_PROXY}"] ]
+          
+            sh 'rm -rf ./tools/gate/devel/local-vars.yaml'
+            writeYaml file: './tools/gate/devel/local-vars.yaml', data: amap
+        }  
+        
+        gerrit.cloneToBranch("${GERRIT_SSH}/${REPO_NAME}", "${GERRIT_PATCHSET_REVISION}","${REPO_NAME}","${GERRIT_KEY}")
+        
+        dir("${WORKSPACE}/${REPO_NAME}"){
+           sh './tools/deployment/developer/common/000-install-packages.sh'
+           sh './tools/deployment/developer/common/010-deploy-k8s.sh'
+        }
+    }
+    stage('Build and Install Helm Charts'){
+        dir("${WORKSPACE}/${REPO_NAME}"){
+           sh './tools/deployment/developer/common/020-setup-client.sh'
+           sh './tools/deployment/developer/armada/010-armada-setup.sh'
+           sh './tools/deployment/developer/armada/020-armada-build.sh'
+           sh './tools/deployment/developer/armada/030-armada-render.sh'
+           sh './tools/deployment/developer/armada/040-armada-validate.sh'
+           sh './tools/deployment/developer/armada/050-armada-apply.sh'
+        }
+    }
+    dir("${WORKSPACE}/${REPO_NAME}"){
+        stage('Rename Packaged Helm Charts'){
+            GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+            def cmd = 'rename "s/0.1.0/'+GIT_COMMIT+'.'+HELM_TOOLKIT_COMMIT+ '/g" *'
+            echo (cmd)
+            sh(returnStatus:true, script: cmd)
+        }
+        stage('Publish'){
+            ARTF_REPO="helm-charts/${REPO_NAME}/"
+
+            def server = Artifactory.server 'artifactory'
+            def uploadSpec = """{"files": [{"pattern":"*.tgz","target":"${ARTF_REPO}"}]}"""
+            server.upload(uploadSpec)
+            notify.msg("Chart for ${GIT_COMMIT}.${HELM_TOOLKIT_COMMIT} pushed to ${ARTF_REPO}")
+
+            publish.setProperty ('jenkins-artifactory', '${ARTF_WEB_URL}/api/storage/helm-charts/${REPO_NAME}', "${GIT_COMMIT}.${HELM_TOOLKIT_COMMIT}=DEV")
+        }
+    }
+}
