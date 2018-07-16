@@ -1,0 +1,92 @@
+currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
+GIT_COMMIT=""
+
+vm2("bootstrap.sh", "cicd-ubuntu-16.04-server-cloudimg-amd64", "m1.large", 'openstack-helm', 'basic', false) {
+
+    sh ('hostname')
+    stage('Setup environment'){
+        vm2.setproxy()
+        sh 'sudo apt-get update'
+        sh 'sudo apt-get install -y make curl'
+    }
+    
+    stage('Install Helm'){
+        git 'https://github.com/openstack/openstack-helm-infra'
+         HELM_TOOLKIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+        sh "sed -i 's/8.8.8.8/132.201.46.25/g' ./tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml"
+        def amap = ['kubernetes_network_default_device': 'docker0','proxy': [ 'http': "${HTTP_PROXY}", 'https': "${HTTP_PROXY}", 'noproxy': "127.0.0.1,localhost,172.17.0.1,.svc.cluster.local"] ]
+
+        sh 'rm -rf ./tools/gate/devel/local-vars.yaml'
+        writeYaml file: './tools/gate/devel/local-vars.yaml', data: amap
+
+        sh 'make dev-deploy setup-host'
+        sh 'make dev-deploy k8s'
+    }
+
+    stage('Project Checkout'){
+        gerrit.cloneToBranch("${GERRIT_SSH}/nc-helm", "${GERRIT_PATCHSET_REVISION}","nc-helm","${GERRIT_KEY}")
+
+        dir("${WORKSPACE}/nc-helm"){
+            GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+        }
+    }
+    stage('Prepare Env'){
+            //This should be controlled by the gstools team
+            sh "sudo apt-get install ssmtp heirloom-mailx unzip ksh -y"
+            sh "sudo chmod 755 /etc/ssmtp"
+            hostname = sh(script: 'hostname', returnStdout: true).trim()
+            sh "sudo sed -i 's/mailhub=mail/mailhub=smtp.it.att.com/g' /etc/ssmtp/ssmtp.conf"
+            // TODO: using test server for mail this need to changed in future
+            sh "sudo sed -i 's/${hostname}/mtn15r07o001.mtn15.cci.att.com/g' /etc/ssmtp/ssmtp.conf"
+            sh '''
+            cat <<-EOF | sudo tee -a /etc/resolv.conf
+domain example.cci.att.com
+EOF
+'''
+    }
+    dir("${WORKSPACE}/nc-helm"){
+        stage('Build & Package'){
+            def status = sh(returnStatus: true, script: "make all")
+            if (status != 0) {
+                currentBuild.result = 'FAILED'
+                notify.msg("Charts build failed for ${GIT_COMMIT}!")
+            }else{
+                notify.msg("Charts were built for ${GIT_COMMIT}")
+            }
+        }
+        tools = ['attsudo',
+                 'attlogins',
+                 'attnologin',
+                 'attradius',
+                 'allmid',
+                 'bpa',
+                 'eksh',
+                 'mcafee',
+                 'sensage',
+                 'xpw',
+                 'uam']
+                // TODO: add sact & uamroles when DNS issue was fixed
+        stage('gstools deploy') {
+            tools.each {
+                sh(script: "./tools/deployment/developer/gstools-deploy-${it}.sh", returnStatus: false)
+            }
+        }
+        stage('Rename tarballs'){
+            def cmd = 'rename "s/0.1.0/'+GIT_COMMIT+'.'+HELM_TOOLKIT_COMMIT+ '/g" *'
+            echo (cmd)
+            def result = sh(returnStatus:true, script: cmd)
+        }
+        stage('Publish'){
+            ARTF_REPO="helm-charts/${REPO}/"
+
+            def server = Artifactory.server 'artifactory'
+            def uploadSpec = """{"files": [{"pattern":"*.tgz","target":"${ARTF_REPO}"}]}"""
+            server.upload(uploadSpec)
+            notify.msg("Chart for ${GIT_COMMIT}.${HELM_TOOLKIT_COMMIT} pushed to ${ARTF_REPO}")
+
+            publish.setProperty ('jenkins-artifactory', 
+                                 '${ARTF_WEB_URL}/api/storage/helm-charts/${REPO}', 
+                                 "${GIT_COMMIT}.${HELM_TOOLKIT_COMMIT}=DEV")
+        }
+    }
+}
