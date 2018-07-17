@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bd7a59c_a9beb444",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-17T21:14:31Z",
+      "side": 1,
+      "message": "vm2 provisions a new Virtual Machine with each run so you do not need to clean.",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "840b091d_3b71cf3c",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-17T21:14:31Z",
+      "side": 1,
+      "message": "Not sure what is happening here.  The above clone should checkout patchsets or merge to master on line 5",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b9fbbbc_4c0e7e67",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-17T21:14:31Z",
+      "side": 1,
+      "message": "Add to pip library",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e16edbf6_82de1815",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-17T21:14:31Z",
+      "side": 1,
+      "message": "Add to pip library",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27610d33_371222fa",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-17T21:14:31Z",
+      "side": 1,
+      "message": "Create a library for any defined methods.  Maybe pip.groovy in vars?",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ecc6a3d0_df714fd3",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-17T21:14:31Z",
+      "side": 1,
+      "message": "We already have gerrit library methods that will do this with credentials.  Can you look under the var directory gerrit.groovy?",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17e86c46_e6e6f2ba",
+        "filename": "packages/pip-pkg/seed.groovy",
+        "patchSetId": 14
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-17T21:14:31Z",
+      "side": 1,
+      "message": "Putting the Jenkinsfile at packages/pip-pkg, try to match that directory with the location of the job in Jenkins packages/mos/pip-pkg? or packages/pip-pkg",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff9494fe_9c4995c6",
+        "filename": "packages/pip-pkg/seed.groovy",
+        "patchSetId": 14
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-17T21:14:31Z",
+      "side": 1,
+      "message": "Am I missing where master is being used?",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77b7622e_62a693c5",
+        "filename": "packages/pip-pkg/seed.groovy",
+        "patchSetId": 14
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-17T21:14:31Z",
+      "side": 1,
+      "message": "Are these repositories in att-comdev?",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
