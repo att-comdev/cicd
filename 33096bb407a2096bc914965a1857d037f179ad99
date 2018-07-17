@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb13ef12_6ecc634b",
+        "filename": "images/airship/seed.groovy",
+        "patchSetId": 55
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-17T21:27:54Z",
+      "side": 1,
+      "message": "You will have to loop through each Jenkinsfile location specific to the component here",
+      "revId": "33096bb407a2096bc914965a1857d037f179ad99",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "90ad5052_8407387b",
+        "filename": "images/airship/seed.groovy",
+        "patchSetId": 55
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-17T21:27:54Z",
+      "side": 1,
+      "message": "Same comment as above",
+      "revId": "33096bb407a2096bc914965a1857d037f179ad99",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
