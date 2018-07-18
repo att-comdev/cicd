@@ -1,0 +1,211 @@
+//This Jenkins job is triggered via a change to Promenade code base.  it will provision
+//5 Virtual Machines that Promenade will create a kubernetes cluster.  If successful and if it is
+//on merge it will publish a new image for Artifactory.
+//TODO - This needs to be updated to use vm2
+JENKINS_VM_LAUNCH = 'local-vm-launch'
+
+PROM_NODE_BASE = "promenade-${BUILD_NUMBER}"
+PROM_NODE_TMPL = "promenade/promenade.yaml"
+
+PROM_BUILD_NODE_TMPL = "promenade/promenade-build-node.yaml"
+
+IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="test/airship"
+
+PROM_BUNDLE = "promenade-bundle.tgz"
+ARTF_PROM_BUNDLE = "ucp/promenade/${IMAGE_TAG}/${PROM_BUNDLE}"
+
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
+IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+
+// node info { node : [hostname, ip] }
+PROM_NODES = [genesis:[], master1:[], master2:[], worker:[]]
+PROM_BUILD_NODES = [build:[]]
+
+// wrapper for main flow
+def vms(body) {
+
+    try {
+        stage('Nodes Launch') {
+            node(JENKINS_VM_LAUNCH) {
+                PROM_NODES.each { key, value ->
+                    vm.jenkins_vm_launch("${PROM_NODE_BASE}-${key}",
+                                         "${env.HOME}/${PROM_NODE_TMPL}")
+                }
+                PROM_BUILD_NODES.each { key, value ->
+                    vm.jenkins_vm_launch("${PROM_NODE_BASE}-${key}",
+                                         "${env.HOME}/${PROM_BUILD_NODE_TMPL}")
+                }
+            }
+        }
+
+        body()
+
+    } catch (error) {
+        notify.msg("Pipeline failed: ${error}")
+        error(error)
+
+    } finally {
+        stage('Nodes Destroy') {
+            node(JENKINS_VM_LAUNCH) {
+                PROM_NODES.each { key, value ->
+                    vm.jenkins_vm_destroy("${PROM_NODE_BASE}-${key}")
+                }
+                PROM_BUILD_NODES.each { key, value ->
+                    vm.jenkins_vm_destroy("${PROM_NODE_BASE}-${key}")
+                }
+            }
+        }
+    }
+}
+
+
+//// main flow
+
+vms {
+    stage('Nodes Wait'){
+
+        def get_hname = {
+            sh(returnStdout: true, script: 'echo -n $(hostname)')
+        }
+
+        def get_ip = { iface ->
+            cmd = "ip a s ${iface} | awk '/ inet / {print \$2}' | awk -F '/' '{print \$1; exit}'"
+            sh(returnStdout: true, script: cmd).trim()
+        }
+
+        timeout (10) {
+            PROM_NODES.each { key, value ->
+                node ("${PROM_NODE_BASE}-${key}") {
+                    PROM_NODES."${key}" = [get_hname(), get_ip('ens3')]
+                }
+            }
+            PROM_BUILD_NODES.each { key, value ->
+                node ("${PROM_NODE_BASE}-${key}") {
+                    PROM_NODES."${key}" = [get_hname(), get_ip('ens3')]
+                }
+            }
+            print " *** Prom node info ***\n${PROM_NODES}"
+        }
+    }
+
+    stage('Promenade Build'){
+        node("${PROM_NODE_BASE}-build"){
+             if(env.GERRIT_NEWREV){
+                echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+                IMAGE_TAG=env.GERRIT_NEWREV
+                IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+            }
+            gerrit.cloneToBranch("https://git.openstack.org/openstack/airship-${JOB_BASE_NAME}","${IMAGE_TAG}","")
+         
+            if(GERRIT_EVENT_TYPE != 'change-merged') {
+                gerrit.rebase()
+            } 
+
+            currentBuild.displayName = "${GERRIT_EVENT_TYPE}-${env.BUILD_NUMBER}"
+
+            sh "sudo apt-get install -y curl"
+            sh "sudo make images IMAGE_PREFIX=att-comdev PYTHON_BASE_IMAGE=python:3.6 IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+            sh "sudo docker inspect ${IMAGE} | grep promenade"
+            publish.artifactory (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+        }
+    }
+
+    //// artf utils
+
+    artf = Artifactory.server 'artifactory'
+
+    def artf_spec = { pattern, target ->
+        return """
+            {"files": [{
+                "pattern": "${pattern}",
+                "target": "${target}",
+                "flat": "true"
+            }]}
+        """
+    }
+
+
+    stage('Promenade Config'){
+       node("${PROM_NODE_BASE}-build"){
+
+           def config = """
+              CALICO_IP_AUTODETECTION_METHOD='interface=ens3'
+              GENESIS_HOSTNAME=${PROM_NODES.genesis[0]}
+              GENESIS_IP=${PROM_NODES.genesis[1]}
+              MASTER1_HOSTNAME=${PROM_NODES.master1[0]}
+              MASTER1_IP=${PROM_NODES.master1[1]}
+              MASTER2_HOSTNAME=${PROM_NODES.master2[0]}
+              MASTER2_IP=${PROM_NODES.master2[1]}
+              WORKER_HOSTNAME=${PROM_NODES.worker[0]}
+              WORKER_IP=${PROM_NODES.worker[1]}
+           """
+
+           sh "echo '${config}' > tools/gate/config-env"
+           sh "sudo ./tools/gate/build.sh ${IMAGE}"
+
+           spec = artf_spec("tools/gate/${PROM_BUNDLE}", ARTF_PROM_BUNDLE)
+           artf.publishBuildInfo(artf.upload(spec))
+       }
+    }
+
+
+    def prom_up = { hname ->
+
+        spec = artf_spec(ARTF_PROM_BUNDLE, "")
+        artf.download(spec)
+
+        sh ("tar -xvf ${PROM_BUNDLE}")
+
+        jn = "join-${hname}.sh"
+        vn = "validate-${hname}.sh"
+
+        if (hname == "genesis") {
+            jn = "genesis.sh"
+        }
+
+        timeout (25) {
+            dir("${WORKSPACE}/promenade-bundle") {
+               sh ("sudo ./${jn}")
+               sh ("sudo ./${vn}")
+            }
+        }
+    }
+    stage('Genesis Up'){
+        node("${PROM_NODE_BASE}-genesis") {
+            prom_up("genesis")
+        }
+    }
+
+    stage('Master1 Join'){
+        node("${PROM_NODE_BASE}-master1") {
+            prom_up(PROM_NODES.master1[0])
+        }
+    }
+
+    stage('Master2 Join'){
+        node("${PROM_NODE_BASE}-master2") {
+            prom_up(PROM_NODES.master2[0])
+        }
+    }
+
+    stage('Worker Join'){
+        node("${PROM_NODE_BASE}-worker") {
+            prom_up(PROM_NODES.worker[0])
+        }
+    }
+
+    stage('Cluster Validate'){
+        node("${PROM_NODE_BASE}-genesis") {
+            timeout (30) {
+                dir("${WORKSPACE}/promenade-bundle") {
+                   sh ('sudo ./validate-cluster.sh')
+                   sh ('sudo ./final-validation.sh')
+                }
+            }
+            sh 'sudo kubectl get pods --all-namespaces -o wide'
+        }
+    }
+}
