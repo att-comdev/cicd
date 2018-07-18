@@ -1,0 +1,179 @@
+// import com.att.nccicd.config.conf
+IMAGE_PREFIX="att-comdev"
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+SEMANTIC_RELEASE_VERSION = "0.1.0"
+GIT_REPO="https://review.gerrithub.io/att-comdev/dockerfiles"
+
+vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64'){
+
+    def LABELS = ""
+
+    // If this is a merge, we want to use the NEWREV commit id for the tag
+    if (GERRIT_EVENT_TYPE == 'change-merged') {
+        echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_PATCHSET_REVISION}")
+        IMAGE_TAG="${GERRIT_NEWREV}"
+    }
+
+    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+        LABELS = "--label org.label-schema.vcs-ref=${IMAGE_TAG} \
+                  --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} \
+                  --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER} \
+                  --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE}'"
+    } else {
+        LABELS = "--label org.label-schema.vcs-ref=${IMAGE_TAG} \
+                  --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL}\
+                  --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}'"
+    }
+
+    stage('Checkout') {
+        vm2.setproxy()
+
+
+        gerrit.cloneToBranch("${GIT_REPO}", "${GERRIT_PATCHSET_REVISION}", "")
+        if (env.GERRIT_EVENT_TYPE != 'change-merged') {
+            gerrit.rebase()
+        }
+
+        // Note 1: docker-ce is supposed to be installed on the build machine.
+        // Note 2: all the airship components must support the make images target
+        sh "sudo apt-get update -y"
+        sh "sudo apt-get install -y make"
+
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                                      usernameVariable: 'ARTIFACTORY_USER',
+                                      passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+            sh "sudo docker login ${opts} ${ARTF_SECURE_DOCKER_URL}"
+        }
+    }
+
+    // dir("${WORKSPACE}/base-images") {
+    // Note 2: IMAGE_NAME is also a key parameter of the Makefile which prevent
+    //         all the images supported by the Makefile from being rebuild.
+    //         Hence we need on JenkinsJob per image
+
+    stage('Build ubuntu:xenial') {
+
+        def BASE_IMAGE = "scratch"
+        def base_sha256 = 'scratch'
+        def IMAGE_LABEL = "' org.label-schema.base-image=${base_sha256} " + "${LABELS}"
+        def TARGET_IMAGE="${IMAGE_PREFIX}/ubuntu:xenial"
+        def IMAGE_NAME="docker-brew-ubuntu-core-xenial"
+
+        echo ("Target image: ${TARGET_IMAGE}")
+        echo ("Base image: ${BASE_IMAGE}")
+
+        dir("${WORKSPACE}/base-images") {
+           sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE=${TARGET_IMAGE} UBUNTU_BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=${IMAGE_NAME} LABEL=${IMAGE_LABEL}"
+        }
+
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}.${BUILD_TIMESTAMP}")
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}")
+    }
+
+    stage('Build buildpack-deps:xenial-curl') {
+
+        def BASE_IMAGE="${IMAGE_PREFIX}/ubuntu:xenial"
+        def cmd="sudo docker inspect --format='{{index .RepoDigests 0}}' ${BASE_IMAGE}"
+        def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+        def IMAGE_LABEL = "' org.label-schema.base-image=${base_sha256}" + "${LABELS}"
+        def TARGET_IMAGE="${IMAGE_PREFIX}/buildpack-deps:xenial-curl"
+        def IMAGE_NAME="buildpack-deps-xenial-curl"
+
+        echo ("Target image: ${TARGET_IMAGE}")
+        echo ("Base image: ${BASE_IMAGE}")
+
+        dir("${WORKSPACE}/base-images") {
+           sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE=${TARGET_IMAGE} UBUNTU_BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=${IMAGE_NAME} LABEL=${IMAGE_LABEL}"
+        }
+
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}.${BUILD_TIMESTAMP}")
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}")
+
+    }
+
+    stage('Build buildpack-deps:xenial-scm') {
+
+        def BASE_IMAGE="${IMAGE_PREFIX}/buildpack-deps:xenial-curl"
+        def cmd="sudo docker inspect --format='{{index .RepoDigests 0}}' ${BASE_IMAGE}"
+        def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+        def IMAGE_LABEL = "' org.label-schema.base-image=${base_sha256}" + "${LABELS}"
+        def TARGET_IMAGE="${IMAGE_PREFIX}/buildpack-deps:xenial-scm"
+        def IMAGE_NAME="buildpack-deps-xenial-scm"
+
+        echo ("Target image: ${TARGET_IMAGE}")
+        echo ("Base image: ${BASE_IMAGE}")
+
+        dir("${WORKSPACE}/base-images") {
+           sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE=${TARGET_IMAGE} UBUNTU_BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=${IMAGE_NAME} LABEL=${IMAGE_LABEL}"
+        }
+
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}.${BUILD_TIMESTAMP}")
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}")
+
+    }
+
+    stage('Build buildpack-deps:xenial') {
+
+        def BASE_IMAGE="${IMAGE_PREFIX}/buildpack-deps:xenial-scm"
+        def cmd="sudo docker inspect --format='{{index .RepoDigests 0}}' ${BASE_IMAGE}"
+        def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+        def IMAGE_LABEL = "' org.label-schema.base-image=${base_sha256}" + "${LABELS}"
+        def TARGET_IMAGE="${IMAGE_PREFIX}/buildpack-deps:xenial"
+        def IMAGE_NAME="buildpack-deps-xenial"
+
+        echo ("Target image: ${TARGET_IMAGE}")
+        echo ("Base image: ${BASE_IMAGE}")
+
+        dir("${WORKSPACE}/base-images") {
+           sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE=${TARGET_IMAGE} UBUNTU_BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=${IMAGE_NAME} LABEL=${IMAGE_LABEL}"
+        }
+
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}.${BUILD_TIMESTAMP}")
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}")
+
+    }
+
+    stage('Build python:3.5') {
+
+        def BASE_IMAGE="${IMAGE_PREFIX}/buildpack-deps:xenial"
+        def cmd="sudo docker inspect --format='{{index .RepoDigests 0}}' ${BASE_IMAGE}"
+        def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+        def IMAGE_LABEL = "' org.label-schema.base-image=${base_sha256}" + "${LABELS}"
+        def TARGET_IMAGE="${IMAGE_PREFIX}/python:3.5"
+        def IMAGE_NAME="python-3.5-xenial"
+
+        echo ("Target image: ${TARGET_IMAGE}")
+        echo ("Base image: ${BASE_IMAGE}")
+
+        dir("${WORKSPACE}/base-images") {
+           sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE=${TARGET_IMAGE} UBUNTU_BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=${IMAGE_NAME} LABEL=${IMAGE_LABEL}"
+        }
+
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}.${BUILD_TIMESTAMP}")
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}")
+
+    }
+
+    stage('Build python:3.6') {
+
+        def BASE_IMAGE="${IMAGE_PREFIX}/buildpack-deps:xenial"
+        def cmd="sudo docker inspect --format='{{index .RepoDigests 0}}' ${BASE_IMAGE}"
+        def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+        def IMAGE_LABEL = "' org.label-schema.base-image=${base_sha256}" + "${LABELS}"
+        def TARGET_IMAGE="${IMAGE_PREFIX}/python:3.6"
+        def IMAGE_NAME="python:3.6-xenial"
+
+        echo ("Target image: ${TARGET_IMAGE}")
+        echo ("Base image: ${BASE_IMAGE}")
+
+        dir("${WORKSPACE}/base-images") {
+           sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE=${TARGET_IMAGE} UBUNTU_BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=${IMAGE_NAME} LABEL=${IMAGE_LABEL}"
+        }
+
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}.${BUILD_TIMESTAMP}")
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}")
+
+    }
+}
