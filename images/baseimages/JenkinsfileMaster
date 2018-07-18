@@ -1,0 +1,60 @@
+IMAGE_PREFIX="airshipit"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}"
+SEMANTIC_RELEASE_VERSION = "0.1.0"
+
+vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64'){
+    stage('Build & Checkout'){
+        vm2.setproxy()
+
+        UBUNTU_BASE_IMAGE = UBUNTU_BASE_IMAGES."${JOB_BASE_NAME}"
+        echo ("Base images: UBUNTU ${UBUNTU_BASE_IMAGE}")
+
+        // Let's try to add meta data in the image for future tracing
+        def base_sha256 = null
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                                          usernameVariable: 'ARTIFACTORY_USER',
+                                          passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+            sh "docker login ${opts} ${ARTF_SECURE_DOCKER_URL}"
+        }
+
+        sh "docker pull ${UBUNTU_BASE_IMAGE}"
+        def cmd="docker inspect --format='{{index .RepoDigests 0}}' ${UBUNTU_BASE_IMAGE}"
+        base_sha256 = sh(returnStdout: true, script: cmd).trim()
+
+        // Note 1: code is kind of flaky here. The Makefile invokes docker
+        // with --label $(LABEL) hence we ommit here the --label at the beginning of the
+        // string.
+        def LABELS = "'org.label-schema.vcs-ref=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}\
+          --label org.label-schema.vcs-url=NA\
+          --label org.label-schema.base-image=${base_sha256}\
+          --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
+
+        if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+           LABELS += " --label org.label-schema.vcs-event=NA'"
+        } else {
+           LABELS += "'"
+        }
+
+        // Note 1: docker-ce is supposed to be installed on the build machine.
+        // Note 2: all the airship components must support the make images target
+        sh "sudo apt-get update -y"
+        sh "sudo apt-get install -y make"
+
+        // Note 1: Either PYTHON_BASE_IMAGE or UBUNTU_BASE_IMAGE is null
+        // Note 2: IMAGE_NAME is also a key parameter of the Makefile which prevent
+        //         all the images supported by the Makefile from being rebuild.
+        //         Hence we need on JenkinsJob per image 
+        sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE} UBUNTU_BASE_IMAGE=${UBUNTU_BASE_IMAGE} IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL=${LABELS} IMAGE_TAG=${IMAGE_TAG}"
+
+    }
+    stage('Publish'){
+        publish.artifactory("${IMAGE}:${IMAGE_TAG}","attcomdev/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory ("${IMAGE}:${IMAGE_TAG}", IMAGE_LATEST)
+        }
+    }
+}
