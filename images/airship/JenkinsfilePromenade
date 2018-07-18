@@ -1,6 +1,7 @@
 //This Jenkins job is triggered via a change to Promenade code base.  it will provision
 //5 Virtual Machines that Promenade will create a kubernetes cluster.  If successful and if it is
 //on merge it will publish a new image for Artifactory.
+//TODO - This needs to be updated to use vm2
 JENKINS_VM_LAUNCH = 'local-vm-launch'
 
 PROM_NODE_BASE = "promenade-${BUILD_NUMBER}"
@@ -10,7 +11,7 @@ PROM_BUILD_NODE_TMPL = "promenade/promenade-build-node.yaml"
 
 IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
 DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
-IMAGE_PREFIX="att-comdev"
+IMAGE_PREFIX="test/airship"
 
 PROM_BUNDLE = "promenade-bundle.tgz"
 ARTF_PROM_BUNDLE = "ucp/promenade/${IMAGE_TAG}/${PROM_BUNDLE}"
@@ -206,12 +207,5 @@ vms {
             }
             sh 'sudo kubectl get pods --all-namespaces -o wide'
         }
-    }
-    stage('Publish Image'){
-       node("${PROM_NODE_BASE}-build"){
-           if(GERRIT_EVENT_TYPE == 'change-merged') {
-               publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
-           }
-       }
     }
 }
