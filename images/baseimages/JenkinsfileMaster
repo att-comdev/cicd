@@ -1,0 +1,90 @@
+IMAGE_PREFIX="att-comdev"
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+SEMANTIC_RELEASE_VERSION = "0.1.0"
+IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}"
+GIT_REPO="https://review.gerrithub.io/att-comdev/dockerfiles"
+BASE_IMAGE='${BASE_UBUNTU_IMAGE}'
+BASE_IMAGE_1=''
+BASE_IMAGE_2=''
+BASE_IMAGE_3=''
+BASE_IMAGE_4=''
+def all_images="docker-brew-ubuntu-core-xenial buildpack-deps-xenial-curl buildpack-deps-xenial-scm buildpack-deps-xenial python-3.5-xenial python-3.6-xenial"
+
+vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64'){
+    stage('Build & Checkout'){
+        vm2.setproxy()
+        
+        //If this is a merge, we want to use the NEWREV commit id for the tag
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_PATCHSET_REVISION}")
+            IMAGE_TAG="${GERRIT_NEWREV}"
+        }
+        
+        gerrit.cloneToBranch("${GIT_REPO}", "${GERRIT_PATCHSET_REVISION}", "")
+        if (env.GERRIT_EVENT_TYPE != 'change-merged') {
+            gerrit.rebase()
+        }
+        echo ("Target image: ${TARGET_IMAGE}")
+        echo ("Base image: ${BASE_IMAGE}")
+        
+        // Let's try to add meta data in the image for future tracing
+        def base_sha256 = null
+
+
+        base_sha256 = 'scratch'
+        if ("${BASE_IMAGE}" != 'scratch') {
+            withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                                          usernameVariable: 'ARTIFACTORY_USER',
+                                          passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+                opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+                sh "sudo docker login ${opts} ${ARTF_SECURE_DOCKER_URL}"
+        
+                sh "sudo docker pull ${BASE_UBUNTU_IMAGE}"
+                def cmd="sudo docker inspect --format='{{index .RepoDigests 0}}' ${BASE_UBUNTU_IMAGE}"
+                base_sha256 = sh(returnStdout: true, script: cmd).trim()
+            }
+        }
+
+        // Note 1: code is kind of flaky here. The Makefile invokes docker
+        // with --label $(LABEL) hence we ommit here the --label at the beginning of the
+        // string.
+        def LABELS = "'org.label-schema.vcs-ref=${IMAGE_TAG}\
+          --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL}\
+          --label org.label-schema.base-image=${base_sha256}\
+          --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
+
+        if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+           LABELS += " --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE}'"
+        } else {
+           LABELS += "'"
+        }
+
+        // Note 1: docker-ce is supposed to be installed on the build machine.
+        // Note 2: all the airship components must support the make images target
+        sh "sudo apt-get update -y"
+        sh "sudo apt-get install -y make"
+
+        // Note 1: Either PYTHON_BASE_IMAGE or BASE_IMAGE is null
+        // Note 2: IMAGE_NAME is also a key parameter of the Makefile which prevent
+        //         all the images supported by the Makefile from being rebuild.
+        //         Hence we need on JenkinsJob per image 
+        //docker-brew-ubuntu-core-xenial buildpack-deps-xenial-curl buildpack-deps-xenial-scm buildpack-deps-xenial python-3.5-xenial python-3.6-xenial
+        
+        dir("${WORKSPACE}/dockerfiles/base-images"){
+            stage('Build Images'){
+                sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE=${IMAGE_PREFIX}/${image_name}:${IMAGE_TAG} BASE_IMAGE=${BASE_UBUNTU_IMAGE} IMAGE_NAME='docker-brew-ubuntu-core-xenial' LABEL=${LABELS}"
+                BASE_IMAGE=${IMAGE_PREFIX}/${image_name}:${IMAGE_TAG}
+                
+                sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE=${IMAGE_PREFIX}/${image_name}:${IMAGE_TAG} BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=buildpack-deps-xenial-curl LABEL=${LABELS}"
+                BASE_IMAGE=${IMAGE_PREFIX}/${image_name}:${IMAGE_TAG}
+            }
+        }
+
+    }
+    stage('Publish'){
+         publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}.${BUILD_TIMESTAMP}")
+         //Not sure of why the duplicate publish
+         publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}")
+    }
+}
