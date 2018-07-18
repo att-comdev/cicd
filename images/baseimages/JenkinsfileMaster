@@ -1,0 +1,62 @@
+IMAGE_PREFIX="ncbaseimages"
+IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}"
+SEMANTIC_RELEASE_VERSION = "0.1.0"
+
+vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64'){
+    stage('Build & Checkout'){
+        vm2.setproxy()
+
+        // Real dirty. Dockerfile and Jenkins probably need to be in different repos
+        gerrit.cloneToBranch("https://review.gerrithub.io/att-comdev/cicd", "0ea84e01f1d43e8e176e7955632cf25c1d843b09","")
+
+        echo ("Target image: ${TARGET_IMAGE}")
+        echo ("Base image: ${BASE_IMAGE}")
+
+        // Let's try to add meta data in the image for future tracing
+        def base_sha256 = null
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                                          usernameVariable: 'ARTIFACTORY_USER',
+                                          passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+            sh "docker login ${opts} ${ARTF_SECURE_DOCKER_URL}"
+        }
+
+        base_sha256 = 'scratch'
+        if ("${BASE_IMAGE}" != 'scratch') {
+            sh "docker pull ${BASE_IMAGE}"
+            def cmd="docker inspect --format='{{index .RepoDigests 0}}' ${BASE_IMAGE}"
+            base_sha256 = sh(returnStdout: true, script: cmd).trim()
+        }
+
+        // Note 1: code is kind of flaky here. The Makefile invokes docker
+        // with --label $(LABEL) hence we ommit here the --label at the beginning of the
+        // string.
+        def LABELS = "'org.label-schema.vcs-ref=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}\
+          --label org.label-schema.vcs-url=NA\
+          --label org.label-schema.base-image=${base_sha256}\
+          --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
+
+        if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+           LABELS += " --label org.label-schema.vcs-event=NA'"
+        } else {
+           LABELS += "'"
+        }
+
+        // Note 1: docker-ce is supposed to be installed on the build machine.
+        // Note 2: all the airship components must support the make images target
+        sh "sudo apt-get update -y"
+        sh "sudo apt-get install -y make"
+
+        // Note 1: Either PYTHON_BASE_IMAGE or BASE_IMAGE is null
+        // Note 2: IMAGE_NAME is also a key parameter of the Makefile which prevent
+        //         all the images supported by the Makefile from being rebuild.
+        //         Hence we need on JenkinsJob per image 
+        sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL=${LABELS}"
+
+    }
+    stage('Publish'){
+         publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}.${BUILD_TIMESTAMP}")
+         publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}")
+    }
+}
