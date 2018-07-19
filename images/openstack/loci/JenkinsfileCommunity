@@ -4,7 +4,6 @@ LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
 
 LOCAL_WEB_PORT = '8080'
 LOCAL_WEB_URL = "http://172.18.0.1:${LOCAL_WEB_PORT}"
-NO_PROXY = 'localhost,127.0.0.1,172.18.0.1'
 
 PROJECT = JOB_BASE_NAME
 
@@ -70,12 +69,14 @@ def buildLoci(projConfArgs = '', wheelArgs = '') {
     }
     sh "${DIND} docker push ${image_tag}"
 
-    //publish latest (branch) tag on merge
-    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+    //publish latest (branch) tag on merge for requirements
+    if (PROJECT.contains('requirements') && env.GERRIT_EVENT_TYPE == 'change-merged') {
         def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
         sh "${DIND} docker tag ${image_tag} ${image_latest}"
         sh "${DIND} docker push ${image_latest}"
     }
+
+    return image_tag
 }
 
 vm2('loci-bootstrap.sh',
@@ -100,12 +101,90 @@ vm2('loci-bootstrap.sh',
     stage ("Build Project") {
         print "Building ${PROJECT.capitalize()}"
         if (PROJECT.contains('requirements')) {
-            buildLoci()
+            REQUIREMENTS_LOCI = buildLoci()
         } else {
             loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT)
             loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
             WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
-            buildLoci(loci.getDependencies(PROJECT), WHEELS_ARG)
+            IMAGE_LOCI = buildLoci(loci.getDependencies(PROJECT), WHEELS_ARG)
+        }
+    }
+}
+
+// deploy OSH only on merged events for ocata release
+if (!PROJECT.contains('requirements') &&
+    env.GERRIT_EVENT_TYPE == 'change-merged' &&
+    PROJECT_RELEASE == 'ocata')) {
+
+    // pass ps image as env variable
+    LOCI_IMAGE_VAR="${PROJECT.toUpperCase()}_LOCI"
+    print "Overriding default for $LOCI_IMAGE_VAR with $IMAGE_LOCI..."
+
+    // OSH AIO requires min 8 cpus cores and 16 GB ram
+    vm2('bootstrap.sh',
+        'cicd-ubuntu-16.04-server-cloudimg-amd64',
+        'm1.xlarge',
+        'deploy-osh-aio',
+        'basic',
+        false) {
+
+        stage('Setup proxy') {
+            vm2.setproxy()
+        }
+        stage('Install docker-ce') {
+            osh.installDockerCE()
+        }
+        stage('Authenticate docker repo') {
+            osh.dockerAuth()
+        }
+        stage('Clone OpenstackHelm') {
+            osh.cloneOSH()
+        }
+        stage('Update OSH proxy') {
+            osh.updateProxy()
+        }
+        stage('Override images') {
+            osh.imageOverrides(["$LOCI_IMAGE_VAR": "$IMAGE_LOCI"])
+        }
+        stage('Install OSH AIO') {
+            try {
+                withEnv(['OS_REGION_NAME=',
+                  'OS_USERNAME=',
+                  'OS_PASSWORD=',
+                  'OS_PROJECT_NAME=',
+                  'OS_PROJECT_DOMAIN_NAME=',
+                  'OS_USER_DOMAIN_NAME=',
+                  'OS_AUTH_URL=',
+                  "OSH_EXTRA_HELM_ARGS=--values=./tools/overrides/releases/ocata/loci.yaml"]) {
+                    osh.installOSHAIO()
+                }
+            } catch (Exception exception) {
+                osh.artifactLogs()
+                error "OSH AIO deployment failed with exception $exception"
+            }
+        }
+        stage('Get openstack versions') {
+            osh.serviceVersions(["$LOCI_IMAGE_VAR": "$IMAGE_LOCI"])
+        }
+        stage('Run Helm tests') {
+            osh.runHelmTests()
+        }
+        stage('Parse test logs for failures') {
+            status = osh.parseTestLogs()
+            if (status != 0) {
+                osh.artifactLogs()
+                error "Helm tests failed... see log $WORKSPACE/artifacts/helm_tests.log"
+            } else {
+                print "Helm tests passed"
+
+                //publish latest (branch) tag on merge
+                if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+                    print "Promoting $IMAGE_LOCI to latest..."
+                    def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
+                    sh "sudo docker tag $IMAGE_LOCI ${image_latest}"
+                    sh "sudo docker push ${image_latest}"
+                }
+            }
         }
     }
 }
