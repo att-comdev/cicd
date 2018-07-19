@@ -38,6 +38,7 @@ COMMUNITY_PROJECTS.each { project, ref ->
                 description('Default branch for manual build.\n\n' +
                             'Currently master, stable/<branch>, and newton-eol are supported')
                 name ('PROJECT_REF')
+                trim(true)
             }
         }
         triggers {
@@ -99,6 +100,7 @@ MOS_PROJECTS.each { project, ref ->
                 description('Default branch for manual build.\n\n' +
                             'Currently master is supported.')
                 name ('PROJECT_REF')
+                trim(true)
             }
         }
         triggers {
