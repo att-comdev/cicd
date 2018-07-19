@@ -1,4 +1,3 @@
-
 LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
 
 DIND_IMAGE = "${ARTF_DOCKER_URL}/docker:17.07.0-dind"
@@ -116,38 +115,292 @@ def buildLociMos(projConfArgs = '', wheelArgs = '') {
         sh "${DIND} docker tag ${image_tag} ${image_latest}"
         sh "${DIND} docker push ${image_latest}"
     }
+
+    return image_tag
 }
 
-vm2('loci-bootstrap.sh',
-         'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         'm1.medium',
-         '',
-         'loci',
-         false){
 
-    stage('Docker Setup') {
-        locilib.setupDocker(DIND_IMAGE, ARTF_SECURE_DOCKER_URL, "jenkins-artifactory", DIND_CONTAINER)
+       
+KUBERNETES_API_SERVER = '172.17.0.1'
+
+def setup_proxy() {
+    vm2.setproxy()
+   // add no_proxy to environment
+    sh """cat <<-EOF | sudo tee -a /etc/environment
+        no_proxy=localhost,127.0.0.1,${KUBERNETES_API_SERVER},.svc.cluster.local
+        EOF"""
+    sh "export no_proxy=localhost,127.0.0.1,${KUBERNETES_API_SERVER},.svc.cluster.local"
+}
+
+def install_docker_ce() {
+    sh '''sudo apt-get update && sudo apt-get install -y \\
+          apt-transport-https \\
+          ca-certificates \\
+          curl \\
+          software-properties-common'''
+
+    sh 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -'
+    sh '''sudo add-apt-repository \\
+        "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"'''
+    sh '''sudo apt-get update && \\
+    sudo apt-get install -y docker-ce'''
+}
+
+def clone_OSH() {
+    sh 'sudo apt-get update && sudo apt-get install -y git'
+    sh "mkdir $WORKSPACE/artifacts"
+    for (proj in ['openstack-helm', 'openstack-helm-infra']) {
+        version = getVersion("https://git.openstack.org/openstack/${proj}.git", "master", "${WORKSPACE}/${proj}")
+        sh "echo ${proj} head is at ${version} >> ${WORKSPACE}/artifacts/OSH_version.txt"
     }
+}
 
-    stage('Local Repo Setup') {
-        locilib.setupNginx(DIND_CONTAINER, NGINX_IMAGE, LOCAL_WEB_PORT)
-        repo_mirror()
-        if (!env.GERRIT_REFSPEC) {
-            PROJECT_VERSION = locilib.getVersion("../web/repo/${PROJECT}", PROJECT_REF, PROJECT)
+def update_proxy() {
+    sh "sed -i 's/8.8.8.8/${ARTF_IP}/g' ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml"
+    def amap = ['kubernetes_network_default_device': 'docker0',
+                 'gate_fqdn_test': 'true',
+                'proxy': [ 'http': "${HTTP_PROXY}", 'https': "${HTTP_PROXY}", 'noproxy': "${NO_PROXY}"] ]
+    sh 'rm -rf ./openstack-helm-infra/tools/gate/devel/local-vars.yaml'
+    writeYaml file: './openstack-helm-infra/tools/gate/devel/local-vars.yaml', data: amap
+}
+
+def image_overrides() {
+
+// image name parameters
+// todo use release specific latest images Ex: ${ARTF_SECURE_DOCKER_URL}/${IMAGE_PATH}/mos-keystone:latest
+KEYSTONE_LOCI=(env.KEYSTONE_LOCI != null) ? env.KEYSTONE_LOCI : "${IMAGE_BASE}/mos-keystone@sha256:3ffa48bcc703c00aef085e1e2c1a681efeabdedf274c83f2ad835261425b2083"
+HEAT_LOCI=(env.HEAT_LOCI != null) ? env.HEAT_LOCI : "${IMAGE_BASE}/mos-heat@sha256:88fde07287e55ba2594d3a955674dfb98a1c22debf5afe2401953742b46d85c0"
+HORIZON_LOCI=(env.HORIZON_LOCI != null) ? env.HORIZON_LOCI : "${IMAGE_BASE}/mos-horizon@sha256:6ca69d546d7d2ccafe334616153ca4399e96b6af292b40014bdf4a09fe2e8976"
+GLANCE_LOCI=(env.GLANCE_LOCI != null) ? env.GLANCE_LOCI : "${IMAGE_BASE}/mos-glance@sha256:ddbb29091e5df37e0a5b6802eb9de612a62ea6c3bdb6426217dad8acce2cbd54"
+CINDER_LOCI=(env.CINDER_LOCI != null) ? env.CINDER_LOCI : "${IMAGE_BASE}/mos-cinder@sha256:a49e823c9dc97a73d09bdd0ca3ec8299a7c3410a7376cc56b91ab921c0d4d4c7"
+NOVA_LOCI=(env.NOVA_LOCI != null) ? env.NOVA_LOCI : "${IMAGE_BASE}/mos-nova@sha256:dd17c2bfa75b1f2bf57ec9dab091828e6701332ede103b1ff475c27829572f86"
+NOVA_1804_LOCI=(env.NOVA_1804_LOCI != null) ? env.NOVA_1804_LOCI : "${IMAGE_BASE}/mos-nova-1804@sha256:70c31590b2ca6350e46d171abe7258a6ce8167154f0b008c1d91e4827527bc69"
+NEUTRON_LOCI=(env.NEUTRON_LOCI != null) ? env.NEUTRON_LOCI : "${IMAGE_BASE}/mos-neutron@sha256:f827f4a50f4eedbb48af68069f961d40ad49e011da32eb357018c5164e197750"
+NEUTRON_SRIOV_LOCI=(env.NEUTRON_SRIOV_LOCI != null) ? env.NEUTRON_SRIOV_LOCI : "${IMAGE_BASE}/mos-neutron-sriov@sha256:7265ec5d4b1f213e407770ce592652787003764da6c335058354700f6bd72e72"
+
+def loci_yaml="${WORKSPACE}/openstack-helm/tools/overrides/releases/${PROJECT_RELEASE}/loci.yaml"
+
+// update keystone image
+sh """sed -i -e "s|\\(keystone_api:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_credential_rotate:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_credential_setup:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_db_sync:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_fernet_rotate:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_domain_manage:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_fernet_setup:\\).*|\\1 \'$KEYSTONE_LOCI\'|"   $loci_yaml"""
+
+// update heat image
+sh """sed -i -e "s|\\( bootstrap:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(db_drop:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(db_init:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(glance_bootstrap:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_api:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_cfn:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_cloudwatch:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_db_sync:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_engine:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_engine_cleaner:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(keystone_bootstrap:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(ks_endpoints:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(ks_service:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(ks_user:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\( scripted_test:\\).*|\\1 \'$HEAT_LOCI\'|"   $loci_yaml"""
+
+// update heat image
+sh """sed -i -e "s|\\(horizon:\\).*|\\1 \'$HORIZON_LOCI\'|" \
+        -e "s|\\(horizon_db_sync:\\).*|\\1 \'$HORIZON_LOCI\'|"   $loci_yaml"""
+
+// update glance image
+sh """sed -i -e "s|\\(glance_api:\\).*|\\1 \'$GLANCE_LOCI\'|" \
+        -e "s|\\(glance_db_sync:\\).*|\\1 \'$GLANCE_LOCI\'|" \
+        -e "s|\\(glance_registry:\\).*|\\1 \'$GLANCE_LOCI\'|"   $loci_yaml"""
+
+// update cinder image
+sh """sed -i -e "s|\\(cinder_api:\\).*|\\1 \'$CINDER_LOCI\'|" \
+        -e "s|\\(cinder_backup:\\).*|\\1 \'$CINDER_LOCI\'|" \
+        -e "s|\\(cinder_db_sync:\\).*|\\1 \'$CINDER_LOCI\'|" \
+        -e "s|\\(cinder_scheduler:\\).*|\\1 \'$CINDER_LOCI\'|" \
+        -e "s|\\(cinder_volume:\\).*|\\1 \'$CINDER_LOCI\'|" \
+        -e "s|\\(cinder_volume_usage_audit:\\).*|\\1 \'$CINDER_LOCI\'|"   $loci_yaml"""
+
+// update nova images
+sh """sed -i -e "s|\\(nova_api:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_cell_setup:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_compute:\\).*|\\1 \'$NOVA_1804_LOCI\'|" \
+        -e "s|\\(nova_compute_ironic:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_compute_ssh:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_conductor:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_consoleauth:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_db_sync:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_novncproxy:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_placement:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_scheduler:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_spiceproxy:\\).*|\\1 \'$NOVA_LOCI\'|"   $loci_yaml"""
+
+// update neutron images
+sh """sed -i -e "s|\\(neutron_db_sync:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_dhcp:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_l3:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_linuxbridge_agent:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_metadata:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_openvswitch_agent:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_server:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_sriov_agent:\\).*|\\1 \'$NEUTRON_SRIOV_LOCI\'|" \
+        -e "s|\\(neutron_sriov_agent_init:\\).*|\\1 \'$NEUTRON_SRIOV_LOCI\'|"   $loci_yaml"""
+}
+
+def run_install_scripts() {
+    dir ('openstack-helm') {
+
+        // see https://docs.openstack.org/openstack-helm/latest/install/developer/index.html
+        def extra_args = """export OSH_EXTRA_HELM_ARGS="--values=./tools/overrides/releases/${PROJECT_RELEASE}/loci.yaml" &&
+              export OSH_EXTRA_HELM_ARGS_GLANCE='--set conf.rally_tests.tests.GlanceImages.create_and_delete_image[0].args.image_location=http://mirrors-aic.it.att.com/other_images/ops_simple_images/cirros-0.3.5-x86_64-disk.img,conf.rally_tests.tests.GlanceImages.create_and_list_image[0].args.image_location=http://mirrors-aic.it.att.com/other_images/ops_simple_images/cirros-0.3.5-x86_64-disk.img,bootstrap.structured.images.cirros.source_url=http://mirrors-aic.it.att.com/other_images/ops_simple_images/'"""
+
+        // unset the OS_* vars of underlying jenkins openstack infra passed during VM creation
+        def unset_vars = 'OS_REGION_NAME OS_USERNAME OS_PASSWORD OS_PROJECT_NAME OS_PROJECT_DOMAIN_NAME OS_USER_DOMAIN_NAME OS_AUTH_URL'
+
+        print 'Install packages...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/common/000-install-packages.sh"
+
+        print 'Deploy kubernetes...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/common/010-deploy-k8s.sh"
+
+        // Allow kubectl to pull images, requires auth config to be on / directory
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'ARTIFACTORY_USER',
+                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+            sh "sudo docker login -u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD $ARTF_SECURE_DOCKER_URL"
+            sh 'sudo cp -R ~/.docker /'
         }
+
+        print 'Setup client...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/common/020-setup-client.sh"
+
+        print 'Install Ingress...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/common/030-ingress.sh"
+
+        print 'Install  Ceph...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/040-ceph.sh"
+
+        print 'Activate the OpenStack namespace to be able to use Ceph...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/045-ceph-ns-activate.sh"
+
+        print 'Install Mariadb...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/050-mariadb.sh"
+
+        print 'Install Rabbitmq...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/060-rabbitmq.sh"
+
+        print 'Install Memcached...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/070-memcached.sh"
+
+        print 'Install Keystone...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/080-keystone.sh"
+
+        print 'Install Heat...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/090-heat.sh"
+
+        print 'Install Horizon...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/100-horizon.sh"
+
+        print 'Create Ceph endpoints and service account for use with keystone...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/110-ceph-radosgateway.sh"
+
+
+        print 'Install Glance...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/120-glance.sh"
+
+        print 'Install Cinder...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/130-cinder.sh"
+
+        print 'Install Openvswitch...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/140-openvswitch.sh"
+
+        print 'Install Libvirt...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/150-libvirt.sh"
+
+        print 'Install Compute kit...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/160-compute-kit.sh"
+
+        print 'Setup gateway...'
+        sh "unset ${unset_vars} && ${extra_args} && ./tools/deployment/developer/ceph/170-setup-gateway.sh"
     }
+}
 
-    if (PROJECT.contains('requirements')) {
-        stage('Build Requirements') {
-            buildLociMos()
-        }
-    } else {
-        stage('Wheels Export') {
-            locilib.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
-            WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
-        }
-        stage ("Build ${PROJECT.capitalize()}") {
-            buildLociMos(locilib.getProjConfs(PROJECT_SUFFIX), WHEELS_ARG)
+def run_tests() {
+    for (service in ['keystone', 'heat', 'horizon', 'glance', 'cinder', 'nova', 'neutron']) {
+        sh """helm test --debug ${service} >> $WORKSPACE/artifacts/helm_tests.log || \\
+            kubectl logs ${service}-test --namespace openstack >> $WORKSPACE/artifacts/helm_tests.log"""
+    }
+}
+
+def parse_logs() {
+    def testlog = readFile "$WORKSPACE/artifacts/helm_tests.log"
+    if (testlog.find("FAILED:")) {
+        print "Helm tests failed.. see log $WORKSPACE/artifacts/helm_tests.log"
+        return 0
+    }
+    return 1
+}
+
+def artifact_logs() {
+    sh """cd /var/log && \\
+    sudo tar --warning=no-file-changed -czf $WORKSPACE/artifacts/$BUILD_TAG.tar.gz . || \\
+    cd $WORKSPACE"""
+}
+
+// deploy OSH only on merged events for ocata release
+if (env.GERRIT_EVENT_TYPE == 'change-merged' && PROJECT_RELEASE == 'ocata') {
+
+    // OSH AIO requires min 8 cpus cores and 16 GB ram
+    vm2( 'bootstrap.sh',
+            'cicd-ubuntu-16.04-server-cloudimg-amd64',
+            'm1.xlarge',
+            'deploy-osh-aio',
+            'basic',
+            true ) {
+        stage('deploy OSH AIO with loci images'){
+            stage('Setup proxy'){
+                setup_proxy()
+            }
+            stage('Install docker-ce'){
+                install_docker_ce()
+            }
+            stage('Clone OpenstackHelm'){
+                clone_OSH()
+            }
+            stage('Update OSH proxy'){
+                update_proxy()
+            }
+            LOCI_IMAGE_VAR="${PROJECT_SUFFIX.toUpperCase()}_LOCI"
+            echo "$LOCI_IMAGE_VAR"
+
+            withEnv(["${LOCI_IMAGE_VAR}=$IMAGE_LOCI",
+                     "IMAGE_BASE=$IMAGE_BASE",
+                     "PROJECT_RELEASE=$PROJECT_RELEASE"]) {
+                image_overrides()
+            }
+
+            stage('Install OSH'){
+                try {
+                    run_install_scripts()
+                } catch (error) {
+                    artifact_logs()
+                    archiveArtifacts 'artifacts/*'
+                    sh 'exit 1'
+                }
+            }
+            stage('Run Helm tests'){
+                run_tests()
+            }
+            stage('Parse test logs for failures'){
+                status = parse_logs()
+                if (status != 0) {
+                    artifact_logs()
+                    archiveArtifacts 'artifacts/*'
+                    sh 'exit 1'
+                }
+            }
         }
     }
 }
