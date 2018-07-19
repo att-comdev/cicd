@@ -41,13 +41,13 @@ COMMUNITY_PROJECTS.each { project, ref ->
                 description('Default branch for manual build.\n\n' +
                             'Currently master, stable/<branch>, and newton-eol are supported')
                 name ('PROJECT_REF')
-                //trim(true)
+                trim(true)
             }
             stringParam {
                 defaultValue("${LOCI_BASE_IMAGE_XENIAL}")
                 description('Image needed for 16.04')
                 name ('LOCI_BASE_IMAGE')
-                //trim(true)
+                trim(true)
             }
         }
         triggers {
