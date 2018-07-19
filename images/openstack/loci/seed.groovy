@@ -2,9 +2,6 @@
 JOB_BASE='images/openstack/loci'
 folder("${JOB_BASE}/community")
 folder("${JOB_BASE}/mos")
-LOCI_BASE_IMAGE = "${ARTF_SECURE_DOCKER_URL}/ubuntu/16.04/nc-ubuntu-16.04:2018-05-01_12-21-32"
-LOCI_BASE_IMAGE_XENIAL = "${ARTF_DOCKER_URL}/ubuntu:xenial"
-LOCI_SRIOV_BASE_IMAGE = "${ARTF_SECURE_DOCKER_URL}/ubuntu/18.04/nc-ubuntu-18.04:2018-05-01_05-48-21"
 // { project: 'ref' }
 COMMUNITY_PROJECTS = ['requirements': 'stable/*',
                       'keystone': 'stable/*',
@@ -41,13 +38,7 @@ COMMUNITY_PROJECTS.each { project, ref ->
                 description('Default branch for manual build.\n\n' +
                             'Currently master, stable/<branch>, and newton-eol are supported')
                 name ('PROJECT_REF')
-                //trim(true)
-            }
-            stringParam {
-                defaultValue(LOCI_BASE_IMAGE_XENIAL)
-                description('Image needed for 16.04')
-                name ('LOCI_BASE_IMAGE')
-                //trim(true)
+                trim(true)
             }
         }
         triggers {
@@ -111,21 +102,6 @@ MOS_PROJECTS.each { project, ref ->
                 name ('PROJECT_REF')
                 //trim(true)
             }
-          if (project == "mos-neutron-sriov" || project == "mos-nova-1804") {
-            stringParam {
-                defaultValue(LOCI_SRIOV_BASE_IMAGE)
-                description('Image needed for SR-IOV')
-                name ('LOCI_BASE_IMAGE')
-                //trim(true)
-            }
-          } else {
-            stringParam {
-                defaultValue(LOCI_BASE_IMAGE)
-                description('Image needed for 16.04')
-                name ('LOCI_BASE_IMAGE')
-                //trim(true)
-            }
-          }
         }
         triggers {
             gerritTrigger {
