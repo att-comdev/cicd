@@ -76,6 +76,7 @@ def buildLoci(projConfArgs = '', wheelArgs = '') {
         sh "${DIND} docker tag ${image_tag} ${image_latest}"
         sh "${DIND} docker push ${image_latest}"
     }
+    return image_tag
 }
 
 vm2('loci-bootstrap.sh',
@@ -97,7 +98,7 @@ vm2('loci-bootstrap.sh',
 
     if (PROJECT.contains('requirements')) {
         stage('Build Requirements') {
-            buildLoci()
+            REQUIREMENTS_LOCI = buildLoci()
         }
     } else {
         stage('Wheels Export') {
@@ -106,7 +107,279 @@ vm2('loci-bootstrap.sh',
             WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
         }
         stage ("Build ${PROJECT.capitalize()}") {
-            buildLoci(locilib.getProjConfs(PROJECT), WHEELS_ARG)
+            IMAGE_LOCI = buildLoci(locilib.getProjConfs(PROJECT), WHEELS_ARG)
+        }
+    }
+}
+
+KUBERNETES_API_SERVER = '172.17.0.1'
+
+// image defaults to be used for deployment
+// ps image built from review job to override default
+
+KEYSTONE_LOCI=(env.KEYSTONE_LOCI != null) ? env.KEYSTONE_LOCI : "${IMAGE_BASE}/keystone:latest"
+HEAT_LOCI=(env.HEAT_LOCI != null) ? env.HEAT_LOCI : "${IMAGE_BASE}/heat:latest"
+HORIZON_LOCI=(env.HORIZON_LOCI != null) ? env.HORIZON_LOCI : "${IMAGE_BASE}/horizon:latest"
+GLANCE_LOCI=(env.GLANCE_LOCI != null) ? env.GLANCE_LOCI : "${IMAGE_BASE}/glance:latest"
+CINDER_LOCI=(env.CINDER_LOCI != null) ? env.CINDER_LOCI : "${IMAGE_BASE}/cinder:latest"
+NOVA_LOCI=(env.NOVA_LOCI != null) ? env.NOVA_LOCI : "${IMAGE_BASE}/nova:latest"
+//temp using 1604 image
+NOVA_1804_LOCI=(env.NOVA_1804_LOCI != null) ? env.NOVA_1804_LOCI : "${IMAGE_BASE}/nova:latest}"
+NEUTRON_LOCI=(env.NEUTRON_LOCI != null) ? env.NEUTRON_LOCI : "${IMAGE_BASE}/neutron:latest}"
+// temp using 1604 image
+NEUTRON_SRIOV_LOCI=(env.NEUTRON_SRIOV_LOCI != null) ? env.NEUTRON_SRIOV_LOCI : "${IMAGE_BASE}/neutron:latest"
+
+def setup_proxy() {
+    vm2.setproxy()
+   // add no_proxy to environment
+    sh """cat << EOF | sudo tee -a /etc/environment
+no_proxy=localhost,127.0.0.1,${KUBERNETES_API_SERVER},.svc.cluster.local
+EOF"""
+    sh "export no_proxy=localhost,127.0.0.1,${KUBERNETES_API_SERVER},.svc.cluster.local"
+}
+
+def install_docker_ce() {
+    sh '''sudo apt-get update && sudo apt-get install -y \\
+          apt-transport-https \\
+          ca-certificates \\
+          curl \\
+          software-properties-common'''
+
+    sh 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -'
+    sh '''sudo add-apt-repository \\
+        "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"'''
+    sh '''sudo apt-get update && \\
+    sudo apt-get install -y docker-ce'''
+    // Allow kubectl to pull images, requires auth config to be on / directory
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                    usernameVariable: 'ARTIFACTORY_USER',
+                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+            sh "sudo docker login -u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD $ARTF_SECURE_DOCKER_URL"
+            sh 'sudo cp -R ~/.docker /'
+        }
+}
+
+def clone_OSH() {
+    sh 'sudo apt-get update && sudo apt-get install -y git'
+    sh "mkdir $WORKSPACE/artifacts"
+    for (proj in ['openstack-helm', 'openstack-helm-infra']) {
+        version = getVersion("https://git.openstack.org/openstack/${proj}.git", "master", "${WORKSPACE}/${proj}")
+        sh "echo ${proj} head is at ${version} >> ${WORKSPACE}/artifacts/OSH_version.txt"
+    }
+}
+
+def update_proxy() {
+    sh "sed -i 's/8.8.8.8/${ARTF_IP}/g' ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml"
+    def amap = ['kubernetes_network_default_device': 'docker0',
+                 'gate_fqdn_test': 'true',
+                'proxy': [ 'http': "${HTTP_PROXY}", 'https': "${HTTP_PROXY}", 'noproxy': "${NO_PROXY}"] ]
+    sh 'rm -rf ./openstack-helm-infra/tools/gate/devel/local-vars.yaml'
+    writeYaml file: './openstack-helm-infra/tools/gate/devel/local-vars.yaml', data: amap
+}
+
+def image_overrides() {
+
+def loci_yaml="${WORKSPACE}/openstack-helm/tools/overrides/releases/${PROJECT_RELEASE}/loci.yaml"
+
+// update keystone image
+sh """sed -i -e "s|\\(keystone_api:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_credential_rotate:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_credential_setup:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_db_sync:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_fernet_rotate:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_domain_manage:\\).*|\\1 \'$KEYSTONE_LOCI\'|" \
+        -e "s|\\(keystone_fernet_setup:\\).*|\\1 \'$KEYSTONE_LOCI\'|"   $loci_yaml"""
+
+// update heat image
+sh """sed -i -e "s|\\( bootstrap:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(db_drop:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(db_init:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(glance_bootstrap:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_api:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_cfn:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_cloudwatch:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_db_sync:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_engine:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(heat_engine_cleaner:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(keystone_bootstrap:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(ks_endpoints:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(ks_service:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\(ks_user:\\).*|\\1 \'$HEAT_LOCI\'|" \
+        -e "s|\\( scripted_test:\\).*|\\1 \'$HEAT_LOCI\'|"   $loci_yaml"""
+
+// update heat image
+sh """sed -i -e "s|\\(horizon:\\).*|\\1 \'$HORIZON_LOCI\'|" \
+        -e "s|\\(horizon_db_sync:\\).*|\\1 \'$HORIZON_LOCI\'|"   $loci_yaml"""
+
+// update glance image
+sh """sed -i -e "s|\\(glance_api:\\).*|\\1 \'$GLANCE_LOCI\'|" \
+        -e "s|\\(glance_db_sync:\\).*|\\1 \'$GLANCE_LOCI\'|" \
+        -e "s|\\(glance_registry:\\).*|\\1 \'$GLANCE_LOCI\'|"   $loci_yaml"""
+
+// update cinder image
+sh """sed -i -e "s|\\(cinder_api:\\).*|\\1 \'$CINDER_LOCI\'|" \
+        -e "s|\\(cinder_backup:\\).*|\\1 \'$CINDER_LOCI\'|" \
+        -e "s|\\(cinder_db_sync:\\).*|\\1 \'$CINDER_LOCI\'|" \
+        -e "s|\\(cinder_scheduler:\\).*|\\1 \'$CINDER_LOCI\'|" \
+        -e "s|\\(cinder_volume:\\).*|\\1 \'$CINDER_LOCI\'|" \
+        -e "s|\\(cinder_volume_usage_audit:\\).*|\\1 \'$CINDER_LOCI\'|"   $loci_yaml"""
+
+// update nova images
+sh """sed -i -e "s|\\(nova_api:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_cell_setup:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_compute:\\).*|\\1 \'$NOVA_1804_LOCI\'|" \
+        -e "s|\\(nova_compute_ironic:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_compute_ssh:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_conductor:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_consoleauth:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_db_sync:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_novncproxy:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_placement:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_scheduler:\\).*|\\1 \'$NOVA_LOCI\'|" \
+        -e "s|\\(nova_spiceproxy:\\).*|\\1 \'$NOVA_LOCI\'|"   $loci_yaml"""
+
+// update neutron images
+sh """sed -i -e "s|\\(neutron_db_sync:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_dhcp:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_l3:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_linuxbridge_agent:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_metadata:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_openvswitch_agent:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_server:\\).*|\\1 \'$NEUTRON_LOCI\'|" \
+        -e "s|\\(neutron_sriov_agent:\\).*|\\1 \'$NEUTRON_SRIOV_LOCI\'|" \
+        -e "s|\\(neutron_sriov_agent_init:\\).*|\\1 \'$NEUTRON_SRIOV_LOCI\'|"   $loci_yaml"""
+}
+
+def run_install_scripts() {
+    dir ('openstack-helm') {
+
+        // see https://docs.openstack.org/openstack-helm/latest/install/developer/index.html
+        def deploy_steps = ['Packages':    './tools/deployment/developer/common/000-install-packages.sh',
+                            'Kubernetes':  './tools/deployment/developer/common/010-deploy-k8s.sh',
+                            'Clients':     './tools/deployment/developer/common/020-setup-client.sh',
+                            'Ingress':     './tools/deployment/developer/common/030-ingress.sh',
+                            'Ceph':        './tools/deployment/developer/ceph/040-ceph.sh',
+                            'Ceph NS':     './tools/deployment/developer/ceph/045-ceph-ns-activate.sh',
+                            'MariaDB':     './tools/deployment/developer/ceph/050-mariadb.sh',
+                            'RabbitMQ':    './tools/deployment/developer/ceph/060-rabbitmq.sh',
+                            'Memcached':   './tools/deployment/developer/ceph/070-memcached.sh',
+                            'Keystone':    './tools/deployment/developer/ceph/080-keystone.sh',
+                            'Heat':        './tools/deployment/developer/ceph/090-heat.sh',
+                            'Horizon':     './tools/deployment/developer/ceph/100-horizon.sh',
+                            'Rados GW':    './tools/deployment/developer/ceph/110-ceph-radosgateway.sh',
+                            'Glance':      './tools/deployment/developer/ceph/120-glance.sh',
+                            'Cinder':      './tools/deployment/developer/ceph/130-cinder.sh',
+                            'Openvswitch': './tools/deployment/developer/ceph/140-openvswitch.sh',
+                            'LibVirt':     './tools/deployment/developer/ceph/150-libvirt.sh',
+                            'Compute Kit': './tools/deployment/developer/ceph/160-compute-kit.sh',
+                            'Gateway':     './tools/deployment/developer/ceph/170-setup-gateway.sh']
+
+        deploy_steps.each { key, value ->
+            print "Installing $key..."
+            sh "${value}"
+        }
+    }
+}
+
+def run_tests() {
+    // omitting horizon as helm tests and cli do not exist
+    def projmap = ['keystone' : ['image' : "$KEYSTONE_LOCI", 'cli' : 'keystone-manage'],
+                   'heat'     : ['image' : "$HEAT_LOCI", 'cli' : 'heat-manage'],
+                   'glance'   : ['image' : "$GLANCE_LOCI", 'cli' : 'glance-manage'],
+                   'cinder'   : ['image' : "$CINDER_LOCI", 'cli' : 'cinder-manage'],
+                   'nova'     : ['image' : "$NOVA_LOCI", 'cli' : 'nova-manage'],
+                   'neutron'  : ['image' : "$NEUTRON_LOCI", 'cli' : 'neutron-debug']]
+    projmap.each { proj, value ->
+        cmd = "sudo docker run --rm --name tempcont${proj} -t ${value.image} ${value.cli} --version"
+        openstack_version = sh(returnStdout: true, script: cmd).trim()
+        sh """echo "${proj} version is \\
+              $openstack_version" >> $WORKSPACE/artifacts/openstack_versions.txt"""
+
+        sh """helm test --debug ${proj} >> $WORKSPACE/artifacts/helm_tests.log || \\
+              kubectl logs ${proj}-test --namespace openstack >> $WORKSPACE/artifacts/helm_tests.log"""
+    }
+}
+
+def parse_logs() {
+    def testlog = readFile "$WORKSPACE/artifacts/helm_tests.log"
+    if (testlog.find("FAILED:")) {
+        print "Helm tests failed.. see log $WORKSPACE/artifacts/helm_tests.log"
+        return 1
+    }
+    return 0
+}
+
+def artifact_logs() {
+    sh """cd /var/log && \\
+    sudo tar --warning=no-file-changed -czf ${WORKSPACE}/artifacts/${BUILD_TAG}.tar.gz . || \\
+    cd ${WORKSPACE}"""
+}
+
+// deploy OSH only on merged events for ocata or pike release
+if (env.GERRIT_EVENT_TYPE == 'change-merged' && (PROJECT_RELEASE == 'ocata' || PROJECT_RELEASE == 'pike')) {
+
+    // OSH AIO requires min 8 cpus cores and 16 GB ram
+    vm2( 'bootstrap.sh',
+            'cicd-ubuntu-16.04-server-cloudimg-amd64',
+            'm1.xlarge',
+            'deploy-osh-aio',
+            'basic',
+            false ) {
+        stage('deploy OSH AIO with loci images'){
+            stage('Setup proxy'){
+                setup_proxy()
+            }
+            stage('Install docker-ce'){
+                install_docker_ce()
+            }
+            stage('Clone OpenstackHelm'){
+                clone_OSH()
+            }
+            stage('Update OSH proxy'){
+                update_proxy()
+            }
+            stage('Override images'){
+                // pass ps image as env variable
+                LOCI_IMAGE_VAR="${PROJECT_SUFFIX.toUpperCase()}_LOCI"
+                echo "$LOCI_IMAGE_VAR"
+
+                withEnv(["${LOCI_IMAGE_VAR}=$IMAGE_LOCI",
+                         "IMAGE_BASE=$IMAGE_BASE",
+                         "PROJECT_RELEASE=$PROJECT_RELEASE"]) {
+                    image_overrides()
+                }
+            }
+            stage('Install OSH'){
+                try {
+                    // todo - check if there is a better way to override multiple values with --set
+                    withEnv(['OS_REGION_NAME=',
+                     'OS_USERNAME=',
+                     'OS_PASSWORD=',
+                     'OS_PROJECT_NAME=',
+                     'OS_PROJECT_DOMAIN_NAME=',
+                     'OS_USER_DOMAIN_NAME=',
+                     'OS_AUTH_URL=',
+                     "OSH_EXTRA_HELM_ARGS=--values=./tools/overrides/releases/${PROJECT_RELEASE}/loci.yaml",
+                     'OSH_EXTRA_HELM_ARGS_GLANCE=--set conf.rally_tests.tests.GlanceImages.create_and_delete_image[0].args.container_format=bare,conf.rally_tests.tests.GlanceImages.create_and_delete_image[0].args.disk_format=qcow2,conf.rally_tests.tests.GlanceImages.create_and_delete_image[0].args.image_location=http://mirrors-aic.it.att.com/other_images/ops_simple_images/cirros-0.3.5-x86_64-disk.img,conf.rally_tests.tests.GlanceImages.create_and_list_image[0].args.container_format=bare,conf.rally_tests.tests.GlanceImages.create_and_list_image[0].args.disk_format=qcow2,conf.rally_tests.tests.GlanceImages.create_and_list_image[0].args.image_location=http://mirrors-aic.it.att.com/other_images/ops_simple_images/cirros-0.3.5-x86_64-disk.img,bootstrap.structured.images.cirros.source_url=http://mirrors-aic.it.att.com/other_images/ops_simple_images/']) {
+                    run_install_scripts()
+                    }
+                } catch (Exception e) {
+                    artifact_logs()
+                    archiveArtifacts 'artifacts/*'
+                    sh 'exit 1'
+                }
+            }
+            stage('Run Helm tests'){
+                run_tests()
+            }
+            stage('Parse test logs for failures'){
+                status = parse_logs()
+                if (status != 0) {
+                    artifact_logs()
+                    archiveArtifacts 'artifacts/*'
+                    sh 'exit 1'
+                }
+            }
         }
     }
 }
