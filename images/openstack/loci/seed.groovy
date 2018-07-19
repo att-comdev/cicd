@@ -103,7 +103,6 @@ MOS_PROJECTS.each { project, ref ->
         }
         triggers {
             gerritTrigger {
-                silentMode(true)
                 serverName('mtn5-gerrit')
                 gerritProjects {
                     gerritProject {
