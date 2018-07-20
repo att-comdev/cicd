@@ -81,8 +81,20 @@ find_seed(){
     fi
 }
 
+lint_jenkins_files(){
+    #Looking for added or modified seed.groovy files or Jenkinsfiles
+    LAST_2COMMITS=$(git log -2 --reverse --pretty=format:%H)
+    MODIFIED_FILES=$(git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | egrep "seed.groovy|Jenkinsfile" | cut -f2)
+
+    for file in ${MODIFIED_FILES}; do
+        echo "INFO: linting jenkins file ""${file}""..."
+        cat "${file}" | java -jar /var/jenkins_home/war/WEB-INF/jenkins-cli.jar declarative-linter
+    done
+}
+
 ######MAIN#####
 git_clone ${GERRIT_PROJECT} ${WORKSPACE} ${GERRIT_REFSPEC}
+lint_jenkins_files
 find_seed
 set +x
 
