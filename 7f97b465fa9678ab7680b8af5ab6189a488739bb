@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "206f82cf_27560fe1",
+        "filename": "vars/build.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-20T14:27:05Z",
+      "side": 1,
+      "message": "Groovy docs",
+      "revId": "7f97b465fa9678ab7680b8af5ab6189a488739bb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea710d03_54fbaf6a",
+        "filename": "vars/build.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-20T14:27:05Z",
+      "side": 1,
+      "message": "Groovy docs",
+      "revId": "7f97b465fa9678ab7680b8af5ab6189a488739bb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dde5e934_f8c2bdd8",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-20T14:27:05Z",
+      "side": 1,
+      "message": "Groovy docs",
+      "revId": "7f97b465fa9678ab7680b8af5ab6189a488739bb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b568fbe_39e69764",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-20T14:27:05Z",
+      "side": 1,
+      "message": "Would you also add proxy configuration to apt?",
+      "revId": "7f97b465fa9678ab7680b8af5ab6189a488739bb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
