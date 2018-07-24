@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd8d396d_d601df16",
+        "filename": "cicd/NodeCleanup/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-07-24T13:19:08Z",
+      "side": 1,
+      "message": "Can this be replaced with a simple:\n\nif(EXCLUDE_NODE_LIST.contains(DELETE_NODENAME)) { ... } ?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 61
+      },
+      "revId": "a7885878de52442d5e22b4e633c6cee85c2e3de5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d3b4b2a_d86afbeb",
+        "filename": "cicd/NodeCleanup/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-07-24T13:19:08Z",
+      "side": 1,
+      "message": "indent?",
+      "revId": "a7885878de52442d5e22b4e633c6cee85c2e3de5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
