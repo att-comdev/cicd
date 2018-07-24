@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3372f85_14c76aa6",
+        "filename": "integration/airship/airship-in-a-bottle/Jenkinsfile",
+        "patchSetId": 12
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-24T13:25:28Z",
+      "side": 1,
+      "message": "https://github.com/att-comdev/cicd/blob/c92d9fab1b8b4114f92733761828fecabacd4127/vars/gerrit.groovy#L77",
+      "revId": "483b675a97126a7ce3cb1bacd9d414225375b273",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
