@@ -30,14 +30,12 @@ vm(NODE_NAME, NODE_TMPL) {
                             submoduleCfg: [],
                             userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
                                                  url: "https://review.gerrithub.io/att-comdev/${JOB_BASE_NAME}"]]]
-              sh '''git config user.email "attcomdev.jenkins@gmail.com"
-                    git config user.name "Jenkins"
-                    git pull --rebase origin master'''
+            gerrit.rebase()
             //gerrithub.cloneToBranch("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG,"")
         } else {
             gerrithub.clone("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG)
         }
-        
+
         currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
     }
     stage('Docker Build') {
