@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08eb9092_ea5fa930",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-24T20:09:48Z",
+      "side": 1,
+      "message": "vm2.setproxy()",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7d10d00_78f12c36",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-24T20:09:48Z",
+      "side": 1,
+      "message": "Reduce to 1 sed and modify the yaml file\n            sh \"sed -i \u0027s/8.8.8.8/${ARTF_IP}/g\u0027 ./tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml\"\n            def amap \u003d [\u0027kubernetes_network_default_device\u0027: \u0027docker0\u0027,\u0027proxy\u0027: [ \u0027http\u0027: \"${HTTP_PROXY}\", \u0027https\u0027: \"${HTTP_PROXY}\", \u0027noproxy\u0027: \"${NO_PROXY}\"] ]\n\n            sh \u0027rm -rf ./tools/gate/devel/local-vars.yaml\u0027\n            writeYaml file: \u0027./tools/gate/devel/local-vars.yaml\u0027, data: amap",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c513d273_fa051baf",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-24T20:09:48Z",
+      "side": 1,
+      "message": "Same image used throughout, can we not use a yaml that has references to 1 image location?",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bba6b29c_4e7df060",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-24T20:09:48Z",
+      "side": 1,
+      "message": "What if these default values change?  Can we ask Tin Lam if there is a better way to load these?",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bc4c81ae_3f9de8cc",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-24T20:09:48Z",
+      "side": 1,
+      "message": "Are we using armada at this point?  Why aren\u0027t we passing --set to override this value?",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b8e1d28_c39ab8c8",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-24T20:09:48Z",
+      "side": 1,
+      "message": "Do we have a use-it script to call?",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "95b126e2_3b6672df",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-24T20:09:48Z",
+      "side": 1,
+      "message": "We shouldn\u0027t be harding coding a docker version anywhere, we would have to maintain this",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e71ce56b_503e2824",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-07-24T20:09:48Z",
+      "side": 1,
+      "message": "This should be multiple stages, not all defined prior in one stage.",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
