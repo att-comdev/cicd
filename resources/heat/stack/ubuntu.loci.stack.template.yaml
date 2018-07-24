@@ -1,4 +1,4 @@
-heat_template_version: ocata
+heat_template_version: newton
 
 description: This template brings up a stack, setting flavor, size of VM, port & floating IP
 
