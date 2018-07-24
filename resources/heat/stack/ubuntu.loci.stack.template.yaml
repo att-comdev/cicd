@@ -1,4 +1,4 @@
-heat_template_version: ocata
+heat_template_version: newton
 
 description: This template brings up a stack, setting flavor, size of VM, port & floating IP
 
@@ -42,3 +42,4 @@ outputs:
   floating_ip:
     description: The external IP associated to the server
     value: { get_attr: [server_floating_ip, floating_ip_address] }
+
