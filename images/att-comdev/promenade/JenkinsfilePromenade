@@ -94,9 +94,7 @@ vms {
                             submoduleCfg: [],
                             userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
                                                  url: "https://review.gerrithub.io/att-comdev/${JOB_BASE_NAME}"]]]
-                sh '''git config user.email "attcomdev.jenkins@gmail.com"
-                    git config user.name "Jenkins"
-                    git pull --rebase origin master'''
+                gerrit.rebase()
             } else {
                 checkout poll: false,
                 scm: [$class: 'GitSCM',

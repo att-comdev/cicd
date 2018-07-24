@@ -29,9 +29,7 @@ vm(NODE_NAME, NODE_TMPL) {
                             submoduleCfg: [],
                             userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
                                                  url: "https://review.gerrithub.io/att-comdev/shipyard"]]]
-              sh '''git config user.email "attcomdev.jenkins@gmail.com"
-                    git config user.name "Jenkins"
-                    git pull --rebase origin master'''
+            gerrit.rebase()
             //gerrithub.cloneToBranch("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG,"")
 
         } else {

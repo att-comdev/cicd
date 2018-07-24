@@ -74,8 +74,10 @@ def cloneToBranch(String url, String refspec, String targetDirectory, String cre
                                                  credentialsId: creds ]]]
 }
 
+/**
+ * This method will rebase the local checkout with master
+*/
 def rebase(){
-//This method will rebase the local checkout with master and then continue build, tests, etc
     sh '''git config user.email "airship.jenkins@gmail.com"
           git config user.name "Jenkins"
           git pull --rebase origin master'''

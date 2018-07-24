@@ -93,9 +93,7 @@ vms {
             }
             gerrit.cloneToBranch("https://git.openstack.org/openstack/airship-${JOB_BASE_NAME}", IMAGE_TAG,"${JOB_BASE_NAME}")
             if(GERRIT_EVENT_TYPE != 'change-merged') {
-                sh '''git config user.email "attcomdev.jenkins@gmail.com"
-                    git config user.name "Jenkins"
-                    git pull --rebase origin master'''
+                gerrit.rebase()
             }
             sh "sudo docker pull ${PROMENADE_IMAGE}"
             dir(env.WORKSPACE+"/armada"){

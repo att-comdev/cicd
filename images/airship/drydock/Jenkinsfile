@@ -20,9 +20,7 @@ vm(NODE_NAME, NODE_TMPL) {
         }
         gerrit.cloneToBranch("https://git.openstack.org/openstack/airship-drydock", IMAGE_TAG,"")
         if(GERRIT_EVENT_TYPE != 'change-merged') {
-            sh '''git config user.email "airship.jenkins@gmail.com"
-                  git config user.name "Jenkins"
-                  git pull --rebase origin master'''
+            gerrit.rebase()
         }
         currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
     }
