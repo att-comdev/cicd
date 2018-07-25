@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c931cd0_dddad0ce",
+        "filename": "src/att/comdev/cicd/config/conf.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-07-25T13:12:37Z",
+      "side": 1,
+      "message": "Listing these things sound like more of a internal configuration. Perhaps something we want to consider storing in Jenkins environment?",
+      "revId": "054d1e5b702231da5aaa011513de31b53cac1bba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
