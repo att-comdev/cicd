@@ -1,0 +1,16 @@
+
+vm2('bootstrap.sh', 
+    'cicd-ubuntu-16.04-server-cloudimg-amd64', 
+    'm1.medium', 
+    '', 
+    'armada.cluster') {
+
+    stage('Run Deploy') {
+        dir('/opt/openstack-helm-infra'){
+            timeout(24){
+                sh 'make dev-deploy setup-host multinode'
+            }
+        }
+    }
+}
+
