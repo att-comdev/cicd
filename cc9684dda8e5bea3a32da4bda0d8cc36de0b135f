@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d878e2de_5b0edd05",
+        "filename": "vars/heat.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-25T10:18:35Z",
+      "side": 1,
+      "message": "Looks like you `exit 1` all the time at the end of this method. Is that really what you want to do?",
+      "revId": "cc9684dda8e5bea3a32da4bda0d8cc36de0b135f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
