@@ -41,13 +41,13 @@ COMMUNITY_PROJECTS.each { project, ref ->
                 description('Default branch for manual build.\n\n' +
                             'Currently master, stable/<branch>, and newton-eol are supported')
                 name ('PROJECT_REF')
-                trim(true)
+                //trim(true)
             }
             stringParam {
                 defaultValue("${LOCI_BASE_IMAGE_XENIAL}")
                 description('Image needed for 16.04')
                 name ('LOCI_BASE_IMAGE')
-                trim(true)
+                //trim(true)
             }
         }
         triggers {
@@ -103,21 +103,21 @@ MOS_PROJECTS.each { project, ref ->
                 description('Default branch for manual build.\n\n' +
                             'Currently master is supported.')
                 name ('PROJECT_REF')
-                trim(true)
+                //trim(true)
             }
           if (project == "mos-neutron-sriov" || project == "mos-nova-1804") {
             stringParam {
                 defaultValue("${LOCI_SRIOV_BASE_IMAGE}")
                 description('Image needed for SR-IOV')
                 name ('LOCI_BASE_IMAGE')
-                trim(true)
+                //trim(true)
             }
           } else {
             stringParam {
                 defaultValue("${LOCI_BASE_IMAGE}")
                 description('Image needed for 16.04')
                 name ('LOCI_BASE_IMAGE')
-                trim(true)
+                //trim(true)
             }
           }
         }
