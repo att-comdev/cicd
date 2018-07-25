@@ -16,6 +16,24 @@
       "revId": "cc9684dda8e5bea3a32da4bda0d8cc36de0b135f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b99627d_2baec61c",
+        "filename": "vars/heat.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-07-25T13:16:00Z",
+      "side": 1,
+      "message": "Yes, this exit will be hit only on failure.",
+      "parentUuid": "d878e2de_5b0edd05",
+      "revId": "cc9684dda8e5bea3a32da4bda0d8cc36de0b135f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
