@@ -81,6 +81,19 @@ def repo_mirror = {
 
 def buildLociMos(projConfArgs = '', wheelArgs = '') {
 
+    // Clone loci repo to apply cicd patch
+    sh "${DIND} git clone ${LOCI_REPO} /tmp/loci"
+
+    // Copy script for tests cleanup to docker
+    data = libraryResource "cicd/remove_tests.sh"
+    writeFile file: '${WORKSPACE}/remove_tests.sh', text: data
+
+    sh "sudo docker cp ${WORKSPACE}/remove_tests.sh ${DIND_CONTAINER}:/tmp/loci/scripts/"
+    sh "${DIND} chmod +x /tmp/loci/scripts/remove_tests.sh"
+
+    // Add tests cleanup to install scenario for loci
+    sh "${DIND} sed  -i '/clone_project.sh/a $(dirname $0)\/remove_tests.sh' scripts/install.sh"
+
     sh "${DIND} docker pull ${LOCI_BASE_IMAGE}"
     def cmd="${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${LOCI_BASE_IMAGE}"
     def base_sha256 = sh(returnStdout: true, script: cmd).trim()
@@ -106,7 +119,7 @@ def buildLociMos(projConfArgs = '', wheelArgs = '') {
 
     def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
     ansiColor('xterm') {
-        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${DEFAULT_ARGS} ${projConfArgs} ${wheelArgs} ${labels} --tag ${image_tag}"
+        sh "${DIND} docker build --force-rm --no-cache ${DEFAULT_ARGS} ${projConfArgs} ${wheelArgs} ${labels} --tag ${image_tag}"
     }
     sh "${DIND} docker push ${image_tag}"
 
