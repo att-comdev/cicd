@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "dd3c3c72_1ccd9121",
+        "filename": "vars/heat.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-07-25T13:35:17Z",
+      "side": 1,
+      "message": "Perhaps now would be a good time to parameterize the credId, maybe in the conf file?",
+      "revId": "cc9684dda8e5bea3a32da4bda0d8cc36de0b135f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29bb1554_a22586dc",
+        "filename": "vars/heat.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-07-25T13:35:17Z",
+      "side": 1,
+      "message": "I\u0027d consider a shorter sleep here.",
+      "revId": "cc9684dda8e5bea3a32da4bda0d8cc36de0b135f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d878e2de_5b0edd05",
         "filename": "vars/heat.groovy",
         "patchSetId": 3
