@@ -1,0 +1,67 @@
+
+// initial setup for 5 node cluster is already in the heat template, see
+// resources/heat/stack/ubuntu.armada.cluster.stack.template.yaml
+
+
+vm2('bootstrap.sh',
+    'cicd-ubuntu-16.04-server-cloudimg-amd64',
+    'm1.medium',
+    '',
+    'armada.cluster') {
+
+
+    // deploy k8s, see more at
+    // https://docs.openstack.org/openstack-helm/latest/install/kubernetes-gate.html
+
+    stage('Setup Hosts') {
+        dir('/opt/openstack-helm-infra'){
+            timeout(17){
+                sh 'make dev-deploy setup-host multinode'
+            }
+        }
+    }
+
+    stage('Deploy k8s') {
+        dir('/opt/openstack-helm-infra'){
+            timeout(37){
+                sh 'make dev-deploy k8s multinode'
+            }
+        }
+    }
+
+
+    // deploy openstack-helm, see more at
+    // https://docs.openstack.org/openstack-helm/latest/install/multinode.html
+
+    sh 'cd /opt && git clone https://git.openstack.org/openstack/openstack-helm'
+
+    def deploy_stages = ['Clients':     '010-setup-client.sh',
+                         'Ingress':     '020-ingress.sh',
+                         'Ceph':        '030-ceph.sh',
+                         'Ceph NS':     '040-ceph-ns-activate.sh',
+                         'MariaDB':     '050-mariadb.sh',
+                         'RabbitMQ':    '060-rabbitmq.sh',
+                         'Memcached':   '070-memcached.sh',
+                         'Keystone':    '080-keystone.sh',
+                         'Rados GW':    '090-ceph-radosgateway.sh',
+                         'Glance':      '100-glance.sh',
+                         'Cinder':      '110-cinder.sh',
+                         'Openvswitch': '120-openvswitch.sh',
+                         'LibVirt':     '130-libvirt.sh',
+                         'Compute Kit': '140-compute-kit.sh',
+                         'Heat':        '150-heat.sh',
+                         'Barbican':    '160-barbican.sh']
+
+    deploy_stages.each { key, value ->
+        stage (key) {
+            dir('/opt/openstack-helm'){
+                timeout (27) {
+                    sh "tools/deployment/multinode/${value}"
+                }
+            }
+        }
+    }
+
+}
+
+
