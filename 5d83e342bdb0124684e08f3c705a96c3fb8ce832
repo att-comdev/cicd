@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba2835e0_7c3d95dd",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-07-26T13:45:32Z",
+      "side": 1,
+      "message": "change dir to /tmp/loci prior to build as \nsh \"${DIND} cd /tmp/loci \u0026\u0026 docker build --force-rm --no-cache ${DEFAULT_ARGS} ${projConfArgs} ${wheelArgs} ${labels} --tag ${image_tag} .\"",
+      "range": {
+        "startLine": 122,
+        "startChar": 7,
+        "endLine": 122,
+        "endChar": 129
+      },
+      "revId": "5d83e342bdb0124684e08f3c705a96c3fb8ce832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
