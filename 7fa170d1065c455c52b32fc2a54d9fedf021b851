@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e256ecb_55feaf67",
+        "filename": "images/baseimages/JenkinsfileMaster",
+        "patchSetId": 49
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-26T14:22:15Z",
+      "side": 1,
+      "message": "Why gerrithub repo?",
+      "revId": "7fa170d1065c455c52b32fc2a54d9fedf021b851",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2fb337fc_b1d5c19d",
+        "filename": "images/baseimages/JenkinsfileMaster",
+        "patchSetId": 49
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-26T14:22:15Z",
+      "side": 1,
+      "message": "This is non-standard image, we should be using 16.04 only (from what I have been enforced to do previously).",
+      "revId": "7fa170d1065c455c52b32fc2a54d9fedf021b851",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
