@@ -23,7 +23,7 @@ parameters:
     default: public
   image:
     type: string
-    default: cicd-upstream-Ubuntu-16.04-image
+    default: cicd-ubuntu-16.04-server-cloudimg-amd64
   ssh_key:
     type: string
     default: jenkins-slave-keypair
@@ -274,6 +274,7 @@ resources:
 
             chown -R ubuntu: /opt
             sudo -H su -c 'git clone $osh_infra_repo_location /opt/openstack-helm-infra; cd /opt/openstack-helm-infra; git pull $osh_infra_repo_location $osh_infra_repo_ref' ubuntu
+            sed -i -e 's|https://storage.googleapis.com|https://artifacts-aic.atlantafoundry.com/artifactory|g' /opt/openstack-helm-infra/tools/images/kubeadm-aio/Dockerfile
 
             tee > /opt/openstack-helm-infra/tools/gate/devel/multinode-inventory.yaml << EOF
             all:
@@ -329,11 +330,9 @@ resources:
 
             chown -R ubuntu: /opt
 
-            sudo -H su -c 'cd /opt/openstack-helm-infra; make dev-deploy setup-host multinode' ubuntu
-            sudo -H su -c 'git clone $promenade_repo_location /opt/promenade; cd /opt/promenade; git pull $promenade_repo_location $osh_repo_ref ' ubuntu
-            sudo -H su -c 'git clone $osh_repo_location /opt/openstack-helm; cd /opt/openstack-helm; git pull $osh_repo_location $osh_repo_ref ' ubuntu
-            sudo -H su -c 'cd /opt/openstack-helm-infra; make all' ubuntu
-            /opt/promenade/tools/gate/build.sh https://artifacts-aic.atlantafoundry.com/artifactory/artifacts-aic/att-comdev/promenade/0b0e0ee164cd5e101c122d240b6c44fec059a8fe
+            # add Java to launch Jenkins node
+            apt-get install -y default-jre-headless
+
           params:
             "$osh_repo_location":
               get_param: osh_repo_location
@@ -418,6 +417,7 @@ resources:
 
             sudo -H chown -R ubuntu: /opt
             sudo -H su -c 'git clone $osh_infra_repo_location /opt/openstack-helm-infra; cd /opt/openstack-helm-infra; git pull $osh_infra_repo_location $osh_infra_repo_ref ' ubuntu
+            sed -i -e 's|https://storage.googleapis.com|https://artifacts-aic.atlantafoundry.com/artifactory|g' /opt/openstack-helm-infra/tools/images/kubeadm-aio/Dockerfile
           params:
             "$osh_infra_repo_location":
               get_param: osh_infra_repo_location
@@ -462,6 +462,7 @@ resources:
 
             sudo -H chown -R ubuntu: /opt
             sudo -H su -c 'git clone $osh_infra_repo_location /opt/openstack-helm-infra; cd /opt/openstack-helm-infra; git pull $osh_infra_repo_location $osh_infra_repo_ref ' ubuntu
+            sed -i -e 's|https://storage.googleapis.com|https://artifacts-aic.atlantafoundry.com/artifactory|g' /opt/openstack-helm-infra/tools/images/kubeadm-aio/Dockerfile
           params:
             "$osh_infra_repo_location":
               get_param: osh_infra_repo_location
@@ -506,6 +507,7 @@ resources:
 
             sudo -H chown -R ubuntu: /opt
             sudo -H su -c 'git clone $osh_infra_repo_location /opt/openstack-helm-infra; cd /opt/openstack-helm-infra; git pull $osh_infra_repo_location $osh_infra_repo_ref ' ubuntu
+            sed -i -e 's|https://storage.googleapis.com|https://artifacts-aic.atlantafoundry.com/artifactory|g' /opt/openstack-helm-infra/tools/images/kubeadm-aio/Dockerfile
           params:
             "$osh_infra_repo_location":
               get_param: osh_infra_repo_location
@@ -550,6 +552,7 @@ resources:
 
             sudo -H chown -R ubuntu: /opt
             sudo -H su -c 'git clone $osh_infra_repo_location /opt/openstack-helm-infra; cd /opt/openstack-helm-infra; git pull $osh_infra_repo_location $osh_infra_repo_ref ' ubuntu
+            sed -i -e 's|https://storage.googleapis.com|https://artifacts-aic.atlantafoundry.com/artifactory|g' /opt/openstack-helm-infra/tools/images/kubeadm-aio/Dockerfile
           params:
             "$osh_infra_repo_location":
               get_param: osh_infra_repo_location
