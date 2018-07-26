@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43184e68_447a27cb",
+        "filename": "cicd/NodeCleanup/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-07-26T12:06:20Z",
+      "side": 1,
+      "message": "This wouldnt match the 1st and the last nodes in the exclude list.\nEx: master which is the 1st node in the list could be deleted.",
+      "range": {
+        "startLine": 11,
+        "startChar": 35,
+        "endLine": 11,
+        "endChar": 59
+      },
+      "revId": "8805c099dbcf680d2c4fdd8fe1ebda51715703d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
