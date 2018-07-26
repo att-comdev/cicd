@@ -4,6 +4,8 @@ JENKINS_VM_LAUNCH = 'local-vm-launch'
 PROM_NODE_BASE = "promenade-${BUILD_NUMBER}"
 PROM_NODE_TMPL = "promenade/promenade.yaml"
 
+PROM_BUILD_NODE_TMPL = "promenade/promenade-build-node.yaml"
+
 IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
 DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
 IMAGE_PREFIX="att-comdev"
@@ -16,7 +18,8 @@ QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
 IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
 // node info { node : [hostname, ip] }
-PROM_NODES = [build:[], genesis:[], master1:[], master2:[], worker:[]]
+PROM_NODES = [genesis:[], master1:[], master2:[], worker:[]]
+PROM_BUILD_NODES = [build:[]]
 
 // wrapper for main flow
 def vms(body) {
@@ -27,6 +30,10 @@ def vms(body) {
                 PROM_NODES.each { key, value ->
                     vm.jenkins_vm_launch("${PROM_NODE_BASE}-${key}",
                                          "${env.HOME}/${PROM_NODE_TMPL}")
+                }
+                PROM_BUILD_NODES.each { key, value ->
+                    vm.jenkins_vm_launch("${PROM_NODE_BASE}-${key}",
+                                         "${env.HOME}/${PROM_BUILD_NODE_TMPL}")
                 }
             }
         }
@@ -41,6 +48,9 @@ def vms(body) {
         stage('Nodes Destroy') {
             node(JENKINS_VM_LAUNCH) {
                 PROM_NODES.each { key, value ->
+                    vm.jenkins_vm_destroy("${PROM_NODE_BASE}-${key}")
+                }
+                PROM_BUILD_NODES.each { key, value ->
                     vm.jenkins_vm_destroy("${PROM_NODE_BASE}-${key}")
                 }
             }
@@ -60,12 +70,17 @@ vms {
         }
 
         def get_ip = { iface ->
-            cmd = "ifconfig ${iface} | grep 'inet addr:' | cut -d: -f2 | awk '{ print \$1}'"
+            cmd = "ip a s ${iface} | awk '/ inet / {print $2}' | awk -F '/' '{print $1; exit}'"
             sh(returnStdout: true, script: cmd).trim()
         }
 
         timeout (10) {
             PROM_NODES.each { key, value ->
+                node ("${PROM_NODE_BASE}-${key}") {
+                    PROM_NODES."${key}" = [get_hname(), get_ip('ens3')]
+                }
+            }
+            PROM_BUILD_NODES.each { key, value ->
                 node ("${PROM_NODE_BASE}-${key}") {
                     PROM_NODES."${key}" = [get_hname(), get_ip('ens3')]
                 }
