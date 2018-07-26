@@ -1,0 +1,29 @@
+
+// initial setup for 5 node cluster is already of the heat template, see
+// resources/heat/stack/ubuntu.armada.cluster.stack.template.yaml
+
+
+vm2('bootstrap.sh',
+    'cicd-ubuntu-16.04-server-cloudimg-amd64',
+    'm1.medium',
+    '',
+    'armada.cluster') {
+
+    stage('Setup Hosts') {
+        dir('/opt/openstack-helm-infra'){
+            timeout(17){
+                sh 'make dev-deploy setup-host multinode'
+            }
+        }
+    }
+
+    stage('Deploy k8s') {
+        dir('/opt/openstack-helm-infra'){
+            timeout(37){
+                sh 'make dev-deploy k8s multinode'
+            }
+        }
+    }
+
+}
+
