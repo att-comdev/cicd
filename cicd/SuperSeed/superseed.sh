@@ -93,8 +93,20 @@ lint_jenkins_files(){
     done
 }
 
+lint_whitespaces(){
+    #find whitespaces at the end of lines in all files (except hidden, e.g. .git/)
+    WHITESPACEDFILES=$(find . -not -path "*/\.*" -type f -exec egrep -l " +$" {} \;)
+    if [[ -z "${WHITESPACEDFILES}" ]]; then
+        echo "No whitespaces at the end of lines."
+    else
+        echo -e "Remove whitespaces at the end of lines in the following files:\n${WHITESPACEDFILES}" >&2
+        exit 1
+    fi
+}
+
 ######MAIN#####
 git_clone ${GERRIT_PROJECT} ${WORKSPACE} ${GERRIT_REFSPEC}
+lint_whitespaces
 lint_jenkins_files
 find_seed
 set +x

@@ -97,7 +97,7 @@ vms {
                 sh '''git config user.email "attcomdev.jenkins@gmail.com"
                     git config user.name "Jenkins"
                     git pull --rebase origin master'''
-            } 
+            }
 
             currentBuild.displayName = "${GERRIT_EVENT_TYPE}-${env.BUILD_NUMBER}"
 

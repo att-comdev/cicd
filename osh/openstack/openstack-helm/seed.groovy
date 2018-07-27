@@ -1,5 +1,5 @@
 pipelineJob("charts/openstack/openstack-helm/basic") {
-    configure { 
+    configure {
         node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
             durationName 'hour'
             count '10'

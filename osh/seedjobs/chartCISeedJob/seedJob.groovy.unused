@@ -5,7 +5,7 @@ def contentsAPI = new URL("https://api.github.com/repos/${GIT_REPO}/${GIT_PROJEC
 
 def defaultGitURL = new URL("https://github.com/${GIT_REPO}/${GIT_PROJECT}")
 
-listView("${project}".replaceAll('/','-')) {    
+listView("${project}".replaceAll('/','-')) {
      description('OpenStack-Helm CI')
      columns {
      status()
@@ -48,7 +48,7 @@ repositoryContents.each {
     def dirName = it.name
     if (it.type == "dir" && !helmExclusions.contains(dirName)){
       lint = lint +" LINT_RESULT= sh(returnStatus: true, script:'make lint-"+dirName+"') \n"
-      lint = lint +" if(LINT_RESULT != 0){ RESULTS.add('"+dirName+" Linting failed.')} \n" 
+      lint = lint +" if(LINT_RESULT != 0){ RESULTS.add('"+dirName+" Linting failed.')} \n"
     }
 }
 
@@ -57,7 +57,7 @@ repositoryContents.each {
     def dirName = it.name
     if (it.type == "dir" && !helmExclusions.contains(dirName)){
       packaging = packaging +" PACKAGE_RESULT= sh(returnStatus: true, script:'make build-"+dirName+"') \n"
-      packaging = packaging +" if(PACKAGE_RESULT != 0){ RESULTS.add('"+dirName+" Package build failed.')} \n" 
+      packaging = packaging +" if(PACKAGE_RESULT != 0){ RESULTS.add('"+dirName+" Package build failed.')} \n"
     }
 }
 
@@ -71,7 +71,7 @@ def publish='def server = Artifactory.server "ArtifactoryEnterprise" \n'
 repositoryContents.each {
     def dirName = it.name
     if (it.type == "dir" && !helmExclusions.contains(dirName)){
-      
+
       def uploadSpec = """{
   			"files": [{
                  "pattern": \""""+dirName+"""*.tar.gz",
@@ -81,7 +81,7 @@ repositoryContents.each {
 
       publish = publish + "server.upload(\"\"\""+uploadSpec+"\"\"\")\n"
      // publish = publish +" PUBLISH_RESULTS= sh(returnStatus: true, script:'curl -uadmin:APB5yYBaRxXBPKsF -T " + dirName+"-0.1.0.tgz \"http://12.37.173.196:8081/artifactory/generic-local/openstack-helm/\${MAJOR_VERSION}.\${MINOR_VERSION}.\${PATCH_VERSION}/"+dirName+"-\${MAJOR_VERSION}.\${MINOR_VERSION}.\${PATCH_VERSION}.tgz\"') \n"
-     // publish = publish +" if(PUBLISH_RESULTS != 0){ RESULTS.add('"+dirName+" Publish to Artifactory failed.')} \n" 
+     // publish = publish +" if(PUBLISH_RESULTS != 0){ RESULTS.add('"+dirName+" Publish to Artifactory failed.')} \n"
     }
 }
 
@@ -97,13 +97,13 @@ def slack = """
 def jobName = project+"-"+"Pipeline"
 
 pipelineJob(folderProject+"/"+project.replaceAll('/','-')) {
-  
+
   scm{
     git('${GIT_URL}', '${GIT_BRANCH}', null)
   }
   definition {
-      cps {     
-          script(properties + 
+      cps {
+          script(properties +
 """
    stage('Checkout'){""" + checkout +"""
    }
