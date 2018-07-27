@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5fe9e1e3_ce43feb6",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-07-27T14:45:45Z",
+      "side": 1,
+      "message": "sure, Noproxy setting would still be needed",
+      "parentUuid": "08eb9092_ea5fa930",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f7d10d00_78f12c36",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2018-07-24T20:09:48Z",
       "side": 1,
       "message": "Reduce to 1 sed and modify the yaml file\n            sh \"sed -i \u0027s/8.8.8.8/${ARTF_IP}/g\u0027 ./tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml\"\n            def amap \u003d [\u0027kubernetes_network_default_device\u0027: \u0027docker0\u0027,\u0027proxy\u0027: [ \u0027http\u0027: \"${HTTP_PROXY}\", \u0027https\u0027: \"${HTTP_PROXY}\", \u0027noproxy\u0027: \"${NO_PROXY}\"] ]\n\n            sh \u0027rm -rf ./tools/gate/devel/local-vars.yaml\u0027\n            writeYaml file: \u0027./tools/gate/devel/local-vars.yaml\u0027, data: amap",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "630b1d68_289adfd6",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-07-27T14:45:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7d10d00_78f12c36",
       "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "96b76148_0a4c2319",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-07-27T14:45:45Z",
+      "side": 1,
+      "message": "there are multiple images being replaced for all openstack component services.\nCould you elaborate?",
+      "parentUuid": "c513d273_fa051baf",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bba6b29c_4e7df060",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2018-07-24T20:09:48Z",
       "side": 1,
       "message": "What if these default values change?  Can we ask Tin Lam if there is a better way to load these?",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5829e1_47b1acea",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-07-27T14:45:45Z",
+      "side": 1,
+      "message": "it loads from /etc/openstack/clouds.yaml unless overridden by OS_* vars. The issue was the docker where the VM runs has OS_* vars set. Making change to unset the OS_* vars",
+      "parentUuid": "bba6b29c_4e7df060",
       "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "cf9d2bf0_c3e08619",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-07-27T14:45:45Z",
+      "side": 1,
+      "message": "No we donot use armada. Sure will override using --set",
+      "parentUuid": "bc4c81ae_3f9de8cc",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b8e1d28_c39ab8c8",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 3
@@ -98,6 +188,24 @@
       "writtenOn": "2018-07-24T20:09:48Z",
       "side": 1,
       "message": "Do we have a use-it script to call?",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61d62ee6_2c52d4fe",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-07-27T14:45:45Z",
+      "side": 1,
+      "message": "there was one earlier but its been deprecated and no longer available.",
+      "parentUuid": "7b8e1d28_c39ab8c8",
       "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "15e3aaab_b6810bc5",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-07-27T14:45:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95b126e2_3b6672df",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e71ce56b_503e2824",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 3
@@ -132,6 +258,24 @@
       "writtenOn": "2018-07-24T20:09:48Z",
       "side": 1,
       "message": "This should be multiple stages, not all defined prior in one stage.",
+      "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4dac8c4_2c783140",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 3
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-07-27T14:45:45Z",
+      "side": 1,
+      "message": "sure will break up into multiple stages",
+      "parentUuid": "e71ce56b_503e2824",
       "revId": "13fd77f06f067f0c7c35d201502c77d84be61d9e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
