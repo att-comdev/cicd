@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "bdcf721a_b6ac552a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 49
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-27T18:43:55Z",
+      "side": 1,
+      "message": "It does not exist. Add Depends-On:.",
+      "revId": "7fa170d1065c455c52b32fc2a54d9fedf021b851",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e256ecb_55feaf67",
         "filename": "images/baseimages/JenkinsfileMaster",
         "patchSetId": 49
@@ -37,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "eac0a57b_d3e291cf",
+        "filename": "images/baseimages/JenkinsfileMaster",
+        "patchSetId": 49
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-27T18:43:55Z",
+      "side": 1,
+      "message": "My mistake, sorry. It\u0027s fine.",
+      "parentUuid": "00c2a14d_88908c82",
+      "revId": "7fa170d1065c455c52b32fc2a54d9fedf021b851",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2fb337fc_b1d5c19d",
         "filename": "images/baseimages/JenkinsfileMaster",
         "patchSetId": 49
@@ -66,6 +101,109 @@
       "side": 1,
       "message": "We are using Ubuntu 18.04 as our base so that we can easily use docker 18.04.  When building images we are still using Ubuntu 16.04 as our Base image.",
       "parentUuid": "2fb337fc_b1d5c19d",
+      "revId": "7fa170d1065c455c52b32fc2a54d9fedf021b851",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49b340f4_a9d72d83",
+        "filename": "images/baseimages/JenkinsfileMaster",
+        "patchSetId": 49
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-27T18:43:55Z",
+      "side": 1,
+      "message": "Why there is a need to use docker from 18.04?\n\nI have had same problem - I needed to use more modern software to build cloud images because of bugs in version shipped with 16.04, and still I\u0027ve been denied to use anything else than 16.04.",
+      "parentUuid": "b31342a3_8293195d",
+      "revId": "7fa170d1065c455c52b32fc2a54d9fedf021b851",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26d7f43f_f6114513",
+        "filename": "images/baseimages/JenkinsfileMaster",
+        "patchSetId": 49
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-27T18:43:55Z",
+      "side": 1,
+      "message": "Can content of this stages be wrapped into a library method?",
+      "revId": "7fa170d1065c455c52b32fc2a54d9fedf021b851",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1d96e6b0_f8a4aa5f",
+        "filename": "images/baseimages/JenkinsfileMaster",
+        "patchSetId": 49
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-27T18:43:55Z",
+      "side": 1,
+      "message": "There is a library method for this, but I think some patch is pending merge to fix it.",
+      "revId": "7fa170d1065c455c52b32fc2a54d9fedf021b851",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa81e1fb_bc58564e",
+        "filename": "images/baseimages/seed.groovy",
+        "patchSetId": 49
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-27T18:43:55Z",
+      "side": 1,
+      "message": "Why this is needed if this gets overridden in Jenkinsfile?",
+      "revId": "7fa170d1065c455c52b32fc2a54d9fedf021b851",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca280ced_f514502f",
+        "filename": "images/baseimages/seed.groovy",
+        "patchSetId": 49
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-27T18:43:55Z",
+      "side": 1,
+      "message": "Why this is needed if this gets overridden in Jenkinsfile?",
+      "revId": "7fa170d1065c455c52b32fc2a54d9fedf021b851",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "188fb36d_3001ed6f",
+        "filename": "images/baseimages/seed.groovy",
+        "patchSetId": 49
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-07-27T18:43:55Z",
+      "side": 1,
+      "message": "Why not just Jenkinsfile?",
       "revId": "7fa170d1065c455c52b32fc2a54d9fedf021b851",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
