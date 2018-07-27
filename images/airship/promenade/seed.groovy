@@ -21,7 +21,7 @@ for (entry in object.images) {
                     count '3'
                 }
             }
-            
+
             triggers {
                 gerritTrigger {
                     serverName('ATT-airship-CI')

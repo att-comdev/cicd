@@ -11,7 +11,7 @@ QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
 IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 
 vm(NODE_NAME, NODE_TMPL) {
-    
+
     stage('Checkout'){
         if(env.GERRIT_NEWREV){
             echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
@@ -34,7 +34,7 @@ vm(NODE_NAME, NODE_TMPL) {
                     git config user.name "Jenkins"
                     git pull --rebase origin master'''
             //gerrithub.cloneToBranch("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG,"")
-            
+
         } else {
             gerrithub.clone("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG)
         }

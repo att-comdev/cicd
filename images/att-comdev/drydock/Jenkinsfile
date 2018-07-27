@@ -37,7 +37,7 @@ vm(NODE_NAME, NODE_TMPL) {
         } else {
             gerrithub.clone("${IMAGE_PREFIX}/${JOB_BASE_NAME}", IMAGE_TAG)
         }
-        
+
         currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
     }
     stage('Docker Build') {
