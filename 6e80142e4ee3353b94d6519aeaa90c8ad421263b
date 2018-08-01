@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5690c28_3cfc288f",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "Number and names of jenkins stages should always be identical between builds regardless of parameters and conditions. Otherwise jenkins GUI looks not very nice (some build lines would be shown and some would not be shown). We want jenkins builds dashboard to look consistent and nice, as it helps to analyse logs, trends, etc.\n\nSo please move if(){} into inside of the stage, and print something like \"Skipping xxx because GERRIT_REFSPEC is undefined\" if you are not going to run locilib.getVersion().",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4cd04b28_07769ad7",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "Move all variables definition to the top of the file. Should be possible.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0502088d_b8017d86",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "opts \u003d \u0027-u $REPO_USER -p $REPO_PASSWORD\u0027\nsh \"sudo docker login ${opts} ${url}\"",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "005aecbc_d43ecac6",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "Try to keep all apt-get install\u0027s in one jenkins step.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "afbdec1c_41258e12",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "Spacing is incorrect in this block from here and down below.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b272791_10e454f4",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "May be it\u0027s better to use \u0027yq\u0027 for this (pip install yq), or temporarily convert to json \n\u003e python -c \u0027import json, sys, yaml ; y\u003dyaml.safe_load(sys.stdin.read()) ; print(json.dumps(y))\u0027\nand use standard `jq` utility to modify it?\nOr you can write sed commands into a file and use it as a a source of commands.\nIt\u0027s just a few other options.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7f96909_ab1f4806",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "Prefer to use \u0027| tee -a filename.txt\u0027 instead of \u0027 \u003e\u003e \u0027 operator, because it allows to understand to which file your output goes.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a8761cc_b9b124f6",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "Why do you cd to /var/log and then return back? Just use appropriate parameter to tar command.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b94b0d35_71ac1c5c",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "If you are using default parameters from the library, then use empty values vm2(\u0027\u0027,\u0027\u0027,...)",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ecdff9ca_691a97d3",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "Use `error \"Message\"` instead of `sh \u0027exit 1\u0027`.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a5a7c9ef_5258105b",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "And what if status \u003d 0? Print something nice.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4efbadee_9321e05b",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:17:43Z",
+      "side": 1,
+      "message": "Use `error \"Message\"` instead of `sh \u0027exit 1\u0027`.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
