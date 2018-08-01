@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "59475533_65711570",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:22:45Z",
+      "side": 1,
+      "message": "Add Depends-On: I6b874dfa0b91bc9937eb837b203f3b99a73573cd line to other gerrit changes dependent on this library.",
+      "revId": "72e128b8139540a28f52002d21b9c7239257049c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03f2a62c_5ddd22f2",
         "filename": "vars/locilib.groovy",
         "patchSetId": 10
