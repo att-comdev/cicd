@@ -68,6 +68,30 @@
       "revId": "95f185ae299f81866360f816a54f1168e8051175",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "895359e3_fa9ea7ea",
+        "filename": "resources/cicd/remove_tests.sh",
+        "patchSetId": 28
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-01T06:52:39Z",
+      "side": 1,
+      "message": "Ignore this comment pls.\nThe project name would indeed be name stripped of \"mos-\" prefix that gets passed as build arg while building image",
+      "parentUuid": "6f6ea52d_6cd68924",
+      "range": {
+        "startLine": 19,
+        "startChar": 9,
+        "endLine": 19,
+        "endChar": 29
+      },
+      "revId": "95f185ae299f81866360f816a54f1168e8051175",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
