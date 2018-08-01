@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7e78507_ed057c36",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 28
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-01T06:40:28Z",
+      "side": 1,
+      "message": "i think this is already defined in seed.groovy",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 32
+      },
+      "revId": "95f185ae299f81866360f816a54f1168e8051175",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70123b93_5ded0154",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 28
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-01T06:40:28Z",
+      "side": 1,
+      "message": "could you use docker cp?",
+      "range": {
+        "startLine": 305,
+        "startChar": 4,
+        "endLine": 305,
+        "endChar": 196
+      },
+      "revId": "95f185ae299f81866360f816a54f1168e8051175",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f6ea52d_6cd68924",
+        "filename": "resources/cicd/remove_tests.sh",
+        "patchSetId": 28
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-01T06:40:28Z",
+      "side": 1,
+      "message": "\"$PROJECT\" !\u003d \"mos-horizon\"",
+      "range": {
+        "startLine": 19,
+        "startChar": 9,
+        "endLine": 19,
+        "endChar": 29
+      },
+      "revId": "95f185ae299f81866360f816a54f1168e8051175",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
