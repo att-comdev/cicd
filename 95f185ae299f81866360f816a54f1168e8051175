@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "02990b69_750466c9",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 28
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-08-01T14:44:34Z",
+      "side": 1,
+      "message": "docker cp command fails with `no such directory`.",
+      "parentUuid": "70123b93_5ded0154",
+      "range": {
+        "startLine": 305,
+        "startChar": 4,
+        "endLine": 305,
+        "endChar": 196
+      },
+      "revId": "95f185ae299f81866360f816a54f1168e8051175",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6f6ea52d_6cd68924",
         "filename": "resources/cicd/remove_tests.sh",
         "patchSetId": 28
