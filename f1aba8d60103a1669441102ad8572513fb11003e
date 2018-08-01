@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0708a2c3_1a99a5f7",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-01T14:42:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bd7a59c_a9beb444",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "840b091d_3b71cf3c",
         "filename": "packages/pip-pkg/Jenkinsfile",
         "patchSetId": 14
@@ -30,6 +48,24 @@
       "writtenOn": "2018-07-17T21:14:31Z",
       "side": 1,
       "message": "Not sure what is happening here.  The above clone should checkout patchsets or merge to master on line 5",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72ffb3d3_d7d7f8df",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-01T14:42:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "840b091d_3b71cf3c",
       "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ef470ad1_97a0851d",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-01T14:42:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b9fbbbc_4c0e7e67",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e16edbf6_82de1815",
         "filename": "packages/pip-pkg/Jenkinsfile",
         "patchSetId": 14
@@ -64,6 +118,24 @@
       "writtenOn": "2018-07-17T21:14:31Z",
       "side": 1,
       "message": "Add to pip library",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aac6513_72cab1e3",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-01T14:42:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e16edbf6_82de1815",
       "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "5d1ea4ba_37e83dcd",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-01T14:42:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27610d33_371222fa",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ecc6a3d0_df714fd3",
         "filename": "packages/pip-pkg/Jenkinsfile",
         "patchSetId": 14
@@ -98,6 +188,24 @@
       "writtenOn": "2018-07-17T21:14:31Z",
       "side": 1,
       "message": "We already have gerrit library methods that will do this with credentials.  Can you look under the var directory gerrit.groovy?",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3a4a2c2_e0f42895",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-01T14:42:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ecc6a3d0_df714fd3",
       "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "10060729_a651b6dc",
+        "filename": "packages/pip-pkg/seed.groovy",
+        "patchSetId": 14
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-01T14:42:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17e86c46_e6e6f2ba",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff9494fe_9c4995c6",
         "filename": "packages/pip-pkg/seed.groovy",
         "patchSetId": 14
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "1ab6fb17_f4ccc373",
+        "filename": "packages/pip-pkg/seed.groovy",
+        "patchSetId": 14
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-01T14:42:47Z",
+      "side": 1,
+      "message": "Just a default branch for mos-clients projects.",
+      "parentUuid": "ff9494fe_9c4995c6",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "77b7622e_62a693c5",
         "filename": "packages/pip-pkg/seed.groovy",
         "patchSetId": 14
@@ -149,6 +293,24 @@
       "writtenOn": "2018-07-17T21:14:31Z",
       "side": 1,
       "message": "Are these repositories in att-comdev?",
+      "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "08d909d0_49316a6f",
+        "filename": "packages/pip-pkg/seed.groovy",
+        "patchSetId": 14
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-01T14:42:47Z",
+      "side": 1,
+      "message": "Nope. Removed it.",
+      "parentUuid": "77b7622e_62a693c5",
       "revId": "f1aba8d60103a1669441102ad8572513fb11003e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
