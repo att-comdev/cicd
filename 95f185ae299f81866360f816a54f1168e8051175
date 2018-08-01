@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "12e377b6_ca7dcf90",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 28
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-08-01T15:34:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7e78507_ed057c36",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 32
+      },
+      "revId": "95f185ae299f81866360f816a54f1168e8051175",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70123b93_5ded0154",
         "filename": "images/openstack/loci/Jenkinsfile",
         "patchSetId": 28
