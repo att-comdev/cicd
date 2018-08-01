@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03f2a62c_5ddd22f2",
+        "filename": "vars/locilib.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-08-01T15:01:45Z",
+      "side": 1,
+      "message": "Rename loci.groovy and define dockerImage in config under src\n\nPossibly rename setupDocker to run_dind, run_nginx",
+      "revId": "72e128b8139540a28f52002d21b9c7239257049c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92b6c510_272433cc",
+        "filename": "vars/locilib.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-08-01T15:01:45Z",
+      "side": 1,
+      "message": "place this in gerrit.groovy",
+      "revId": "72e128b8139540a28f52002d21b9c7239257049c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6bee6e4_9d39008d",
+        "filename": "vars/locilib.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-08-01T15:01:45Z",
+      "side": 1,
+      "message": "getDependencies",
+      "revId": "72e128b8139540a28f52002d21b9c7239257049c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
