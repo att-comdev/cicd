@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3063a84_e6c469ca",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 23
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:45:20Z",
+      "side": 1,
+      "message": "Move if(){} into the stages to make jenkins dashboard view stable.",
+      "revId": "74a1c8f5d96dbc5c4fc333d10936c7eb1f35dbd5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7e86e54_1c1d5ba7",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 23
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:45:20Z",
+      "side": 1,
+      "message": "| tee -a",
+      "revId": "74a1c8f5d96dbc5c4fc333d10936c7eb1f35dbd5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53834e45_483c01ba",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 23
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:45:20Z",
+      "side": 1,
+      "message": "I think we have methods for this in vars/, don\u0027t we?",
+      "revId": "74a1c8f5d96dbc5c4fc333d10936c7eb1f35dbd5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c137675_88c99947",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 23
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:45:20Z",
+      "side": 1,
+      "message": "Add Depends-On: xxxxxx to commit message referring to the change id of library modification.",
+      "revId": "74a1c8f5d96dbc5c4fc333d10936c7eb1f35dbd5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036dcf33_24abe08e",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 23
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-01T15:45:20Z",
+      "side": 1,
+      "message": "Why it\u0027s temporary?",
+      "revId": "74a1c8f5d96dbc5c4fc333d10936c7eb1f35dbd5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
