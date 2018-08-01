@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f51d4dff_77257e5b",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 28
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-08-01T15:32:52Z",
+      "side": 1,
+      "message": "sudo docker cp /home/ubuntu/jenkins/workspace/images/openstack/loci/mos/mos-keystone/remove_tests.sh loci-build:/tmp/loci/scripts/remove_tests.sh Error response from daemon: lstat /var/lib/docker/aufs/mnt/b415ea8c78401f8e144ec9bfc7b74d10db7dd6598e66b22cdcf9ccb00eaa3d3e/tmp/loci/scripts: no such file or directory",
+      "parentUuid": "02990b69_750466c9",
+      "range": {
+        "startLine": 305,
+        "startChar": 4,
+        "endLine": 305,
+        "endChar": 196
+      },
+      "revId": "95f185ae299f81866360f816a54f1168e8051175",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6f6ea52d_6cd68924",
         "filename": "resources/cicd/remove_tests.sh",
         "patchSetId": 28
