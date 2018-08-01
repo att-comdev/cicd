@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce270f38_78ac626c",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 11
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-01T16:45:21Z",
+      "side": 1,
+      "message": "the \"\u003c\u003c-\" doesnot seem to work as in bash. It retains whitespaces/tabs and inserts EOF into the file.\nHere is sample ouptut of /etc/environment\n\ncat /etc/environment\n\nPATH\u003d\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games\"\n             http_proxy\u003dhttp://maskedproxy\n             https_proxy\u003dhttp://maskedproxy\n             EOF",
+      "range": {
+        "startLine": 120,
+        "startChar": 19,
+        "endLine": 124,
+        "endChar": 19
+      },
+      "revId": "568d9f7fbc5bf50280900be562afec9a364804d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
