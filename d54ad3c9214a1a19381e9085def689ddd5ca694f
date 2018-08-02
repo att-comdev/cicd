@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60387772_37463e4a",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 19
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-02T16:28:54Z",
+      "side": 1,
+      "message": "1. This will not work with git accessible via SSH with auth, so you probably need to add another version of the method (there are 2 cloneProject() methods in code above).\n\n2. I don\u0027t think you need to clone complete remote repo just to get know what is the latest commit ID. Check if something like \"git ls-remote $url HEAD | cut -f1\" would give you same result.",
+      "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49be321f_8b647b45",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 19
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-02T16:28:54Z",
+      "side": 1,
+      "message": "1. Line length.\n2. HTTPS_PROXY\u003d${HTTP_PROXY} without S. I don\u0027t think anyone has separate proxy for HTTPS, neither we do.",
+      "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77472687_682cab70",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 19
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-02T16:28:54Z",
+      "side": 1,
+      "message": "If you have split it to two lines, then adjust lines so that \u0027-v\u0027 starts on the same column.",
+      "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "663c85e3_6364be0f",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 19
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-02T16:28:54Z",
+      "side": 1,
+      "message": "Line lengths. Adjust lines so that it\u0027s a relief for eyes to read and follow.",
+      "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3289bac8_3cc0d247",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 19
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-02T16:28:54Z",
+      "side": 1,
+      "message": "Adjust lines so that it\u0027s a relief for eyes to read and follow.",
+      "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
