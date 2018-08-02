@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5a16dab_3478ee37",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-08-02T12:54:05Z",
+      "side": 1,
+      "message": "Why cant we remove tests here?",
+      "revId": "d953f43b83fa08d856649ea7ea23ee30072faee1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
