@@ -16,6 +16,24 @@
       "revId": "d953f43b83fa08d856649ea7ea23ee30072faee1",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce19319d_ff0beea6",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-08-02T14:50:59Z",
+      "side": 1,
+      "message": "Because this command just create init repo without source code itself. The source code will be taken from this repo (from $PROJECT_REPO) in loci repo during execution of scripts/clone_project.sh (this script is a part of https://github.com/openstack/loci/blob/master/scripts/install.sh#L68)\n\nIn our job we do not have the point where we can modify the source code. It is only in loci logic. We have to patch loci code itself.",
+      "parentUuid": "b5a16dab_3478ee37",
+      "revId": "d953f43b83fa08d856649ea7ea23ee30072faee1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
