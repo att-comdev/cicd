@@ -123,7 +123,8 @@ if (!PROJECT.contains('requirements')) {
 }
 
 // cmd for running Docker in Docker
-DIND = 'sudo docker exec loci-build'
+DIND_CONTAINER = "loci-build"
+DIND = "sudo docker exec ${DIND_CONTAINER}"
 
 // docker within docker (to get latest docker version on Ubuntu 16.04)
 // requires setting {"storage-driver": "overlay2"} option in docker.json
@@ -293,6 +294,20 @@ def project_build_mos = {
     cmd = "git clone ${LOCI_REPO} && cd loci && git rev-parse HEAD"
     def loci_version = sh(returnStdout: true, script: cmd).trim()
 
+    LOCI_REPO_PATH = "/tmp/loci"
+    // Clone loci repo to apply cicd patch for tests deletion
+    sh "${DIND} git clone ${LOCI_REPO} ${LOCI_REPO_PATH}"
+
+    // Copy script for tests cleanup to docker
+    data = libraryResource "cicd/remove_tests.sh"
+    writeFile file: 'remove_tests.sh', text: data
+
+    sh "sudo docker exec -e REMOVE_TESTS_FILE_DATA=\"\$(cat ${WORKSPACE}/remove_tests.sh)\" ${DIND_CONTAINER} sh -c 'echo \"\$REMOVE_TESTS_FILE_DATA\" > ${LOCI_REPO_PATH}/scripts/remove_tests.sh'"
+    sh "${DIND} chmod +x ${LOCI_REPO_PATH}/scripts/remove_tests.sh"
+
+    // Add tests deletion step into install scenario for loci
+    sh "${DIND} sed  -i '/clone_project.sh/a \$(dirname \$0)/remove_tests.sh' ${LOCI_REPO_PATH}/scripts/install.sh"
+
     def labels = " --label org.label-schema.vcs-ref=${PROJECT_VERSION}\
       --label org.label-schema.vcs-url=${PROJECT_URL}\
       --label org.label-schema.loci-ref=${loci_version}\
@@ -306,7 +321,7 @@ def project_build_mos = {
 
     def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
     ansiColor('xterm') {
-        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${DEFAULT_ARGS} ${EXTRA_BUILD_ARGS} ${PROJECT_CONFIG_ARGS} ${WHEELS_ARG} ${labels} --tag ${image_tag}"
+        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO_PATH} ${DEFAULT_ARGS} ${EXTRA_BUILD_ARGS} ${PROJECT_CONFIG_ARGS} ${WHEELS_ARG} ${labels} --tag ${image_tag}"
     }
     sh "${DIND} docker push ${image_tag}"
 
