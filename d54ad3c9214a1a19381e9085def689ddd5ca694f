@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7109e473_258e3122",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 19
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-05T19:16:31Z",
+      "side": 1,
+      "message": "Thanks for the useful comments, the git ls-remote saves from cloning the repo.\nI have also added a SSH version on the method.",
+      "parentUuid": "60387772_37463e4a",
+      "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49be321f_8b647b45",
         "filename": "vars/loci.groovy",
         "patchSetId": 19
@@ -30,6 +48,24 @@
       "writtenOn": "2018-08-02T16:28:54Z",
       "side": 1,
       "message": "1. Line length.\n2. HTTPS_PROXY\u003d${HTTP_PROXY} without S. I don\u0027t think anyone has separate proxy for HTTPS, neither we do.",
+      "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51e70296_9a4f7159",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 19
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-05T19:16:31Z",
+      "side": 1,
+      "message": "We have HTTPS_PROXY defined albeit with the same as HTTP_PROXY, so yes making the change",
+      "parentUuid": "49be321f_8b647b45",
       "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "44078e47_ad1481ea",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 19
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-05T19:16:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77472687_682cab70",
+      "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "663c85e3_6364be0f",
         "filename": "vars/loci.groovy",
         "patchSetId": 19
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "9947577e_2ec54854",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 19
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-05T19:16:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "663c85e3_6364be0f",
+      "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3289bac8_3cc0d247",
         "filename": "vars/loci.groovy",
         "patchSetId": 19
@@ -81,6 +153,24 @@
       "writtenOn": "2018-08-02T16:28:54Z",
       "side": 1,
       "message": "Adjust lines so that it\u0027s a relief for eyes to read and follow.",
+      "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "54254772_345eb655",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 19
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-05T19:16:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3289bac8_3cc0d247",
       "revId": "d54ad3c9214a1a19381e9085def689ddd5ca694f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
