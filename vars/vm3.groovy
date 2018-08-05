@@ -9,17 +9,45 @@
 //  - JENKINS_URL
 //  - JENKINS_CLI
 
-
 /**
  * Create single node using a heat template
+ * Usage:
+ *       vm3([:]) - All defaults
+ *       vm3(doNotDeleteNode:true)
+ *       vm3(initScript:'loci-bootstrap.sh', buildType:'loci')
+ *       vm3(flavor:'m1.xlarge',
+ *           image:'cicd-ubuntu-18.04-server-cloudimg-amd64',
+ *           initScript:'loci-bootstrap.sh')
+ *
 **/
-def call(udata = 'bootstrap.sh',
-         image = 'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         flavor = 'm1.medium',
-         postfix = '',
-         buildtype = 'basic',
-         leak = false,
+def call(Map map,
          Closure body) {
+
+    // Startup script to run after VM instance creation
+    //  bootstrap.sh - default
+    //  loci-bootstrap.sh - for loci builds
+    def initScript = map.initScript ?: 'bootstrap.sh'
+
+    // image used for creating instance
+    def image = map.image ?: 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+
+    // flavor type used for creating instance
+    def flavor = map.flavor ?: 'm1.medium'
+
+    // postfix string for instance nodename
+    def nodePostfix = map.nodePostfix ?: ''
+
+    // build template used for heat stack creation
+    //  basic - default
+    //  loci - for loci builds
+    def buildType = map.buildType ?: 'basic'
+
+    // Flag to control node cleanup after job execution
+    // Useful for retaining env for debugging failures
+    // NodeCleanup job be used to destroy the node later
+    //  false - default, deletes node after job
+    //  true - do not delete node
+    def doNotDeleteNode = map.doNotDeleteNode ?: false
 
     // resolve args to heat parameters
     def parameters = " --parameter image=${image}" +
@@ -30,12 +58,12 @@ def call(udata = 'bootstrap.sh',
 
     def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
 
-    def stack_template="heat/stack/ubuntu.${buildtype}.stack.template.yaml"
+    def stack_template="heat/stack/ubuntu.${buildType}.stack.template.yaml"
 
     // optionally uer may supply additional identified for the VM
     // this makes it easier to find it in OpenStack
-    if (postfix) {
-      name += "-${postfix}"
+    if (nodePostfix) {
+      name += "-${nodePostfix}"
     }
 
     def ip = ""
@@ -46,8 +74,8 @@ def call(udata = 'bootstrap.sh',
                 tmpl = libraryResource "${stack_template}"
                 writeFile file: 'template.yaml', text: tmpl
 
-                data = libraryResource "heat/stack/${udata}"
-                writeFile file: udata, text: data
+                data = libraryResource "heat/stack/${initScript}"
+                writeFile file: initScript, text: data
 
                 heat.stack_create(name, "${WORKSPACE}/template.yaml", parameters)
                 ip = heat.stack_output(name, 'floating_ip')
@@ -87,7 +115,7 @@ def call(udata = 'bootstrap.sh',
             //     }
             // }
         } finally {
-            if (!leak) {
+            if (!doNotDeleteNode) {
                 stage ('Node Destroy') {
                     node('master') {
                         jenkins.node_delete(name)
@@ -102,22 +130,42 @@ def call(udata = 'bootstrap.sh',
   return ip
 }
 
+/**
+ *  This method allow for conventional usage as vm3()
+ *       vm3() - All defaults
+ *
+**/
+def call(Closure body) {
+   map = [:]
+    call(map, body)
+}
+
+/**
+ * This method is used for any Jenkins pipelines that are behind the proxy.  They are currently
+ * set to global variables in Jenkins, if you have no firewall you can define these parameters as
+ * empty string in globals.
+ *
+ */
 def setproxy(){
     if (HTTP_PROXY){
+
+        // redirection with "<<-" doesnot work well to remove whitespaces/tabs
         sh'''sudo mkdir -p /etc/systemd/system/docker.service.d
-             cat <<-EOF | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
-             [Service]
-             Environment="HTTP_PROXY=${HTTP_PROXY}"
-             Environment="HTTPS_PROXY=${HTTP_PROXY}"
-             Environment="NO_PROXY=127.0.0.1,localhost"
-             EOF'''
-        sh'''cat <<-EOF | sudo tee -a /etc/environment
-             http_proxy=${HTTP_PROXY}
-             https_proxy=${HTTP_PROXY}
-             EOF'''
+             cat << EOF | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
+[Service]
+Environment="HTTP_PROXY=${HTTP_PROXY}"
+Environment="HTTPS_PROXY=${HTTP_PROXY}"
+Environment="NO_PROXY=${NO_PROXY}"
+EOF'''
+        sh'''cat << EOF | sudo tee -a /etc/environment
+http_proxy=${HTTP_PROXY}
+https_proxy=${HTTP_PROXY}
+no_proxy=${NO_PROXY}
+EOF'''
         sh "sudo systemctl daemon-reload"
         sh "sudo systemctl restart docker"
         sh 'export http_proxy=${HTTP_PROXY}'
         sh 'export https_proxy=${HTTP_PROXY}'
+        sh 'export no_proxy=${NO_PROXY}'
     }
 }
