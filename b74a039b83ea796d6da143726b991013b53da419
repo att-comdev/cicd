@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "61f527b7_bbfe39cb",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 37
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-05T20:04:18Z",
+      "side": 1,
+      "message": "There is limitations on using selective optional named parameters in method call. It allows allows all or none parameters to be passed.\nThere may be a solution to workaround this requiring changes in method definition.\nWould take this up as a separate ps.",
+      "parentUuid": "34c8df66_0f2c84ca",
+      "revId": "b74a039b83ea796d6da143726b991013b53da419",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "00f20b17_c7f5db05",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 37
@@ -30,6 +48,24 @@
       "writtenOn": "2018-08-02T16:00:51Z",
       "side": 1,
       "message": "Once you change stage name - Jenkins dashboard breaks. Just call it \"Build Project\", and add print (\"Build ${PROJECT.capitalize()}\") as a fist step.",
+      "revId": "b74a039b83ea796d6da143726b991013b53da419",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea480734_671f441c",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 37
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-05T20:04:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00f20b17_c7f5db05",
       "revId": "b74a039b83ea796d6da143726b991013b53da419",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
