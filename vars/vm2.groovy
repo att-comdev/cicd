@@ -9,17 +9,23 @@
 //  - JENKINS_URL
 //  - JENKINS_CLI
 
-
 /**
  * Create single node using a heat template
+ * Usage:
+ *       vm2([:]) - All defaults
+ *       vm2(leak:true)
+ *       vm2(udata:'loci-bootstrap.sh', buildtype:'loci')
+ *       vm2(flavor:'m1.xlarge', image:'cicd-ubuntu-18.04-server-cloudimg-amd64', udata:'loci-bootstrap.sh')
+ *
 **/
-def call(udata = 'bootstrap.sh',
-         image = 'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         flavor = 'm1.medium',
-         postfix = '',
-         buildtype = 'basic',
-         leak = false,
+def call(Map map,
          Closure body) {
+    def udata = map.udata ?: 'bootstrap.sh'
+    def image = map.image ?: 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+    def flavor = map.flavor ?: 'm1.medium'
+    def postfix = map.postfix ?: ''
+    def buildtype = map.buildtype ?: 'basic'
+    def leak = map.leak ?: false
 
     // resolve args to heat parameters
     def parameters = " --parameter image=${image}" +
@@ -100,6 +106,16 @@ def call(udata = 'bootstrap.sh',
         }
     }
   return ip
+}
+
+/**
+ *  This method allow for conventional usage as vm2()
+ *       vm2() - All defaults
+ *
+**/
+def call(Closure body) {
+   map = [:]
+    call(map, body)
 }
 
 def setproxy(){
