@@ -41,7 +41,8 @@ COMMUNITY_PROJECTS.each { project, ref ->
                 description('Default branch for manual build.\n\n' +
                             'Currently master, stable/<branch>, and newton-eol are supported')
                 name ('PROJECT_REF')
-                trim(true)
+                //remove before merge
+                //trim(true)
             }
             stringParam {
                 defaultValue("${LOCI_BASE_IMAGE_XENIAL}")
