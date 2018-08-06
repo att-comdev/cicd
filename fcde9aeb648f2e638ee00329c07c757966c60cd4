@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a985131_9f2ea312",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-08-06T05:11:57Z",
+      "side": 1,
+      "message": "I\u0027m curious - if you want all defaults, do you have to call it like so: \"vm2([:])\"? If so, could you instead set this to a default empty map so that you could instead simply do \"vm2()\" to get all the defaults?",
+      "range": {
+        "startLine": 22,
+        "startChar": 9,
+        "endLine": 22,
+        "endChar": 16
+      },
+      "revId": "fcde9aeb648f2e638ee00329c07c757966c60cd4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
