@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53806521_1d1185e0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 39
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-06T14:08:51Z",
+      "side": 1,
+      "message": "This number is not meaningful for community.",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b86b48ab_337b44ba",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 39
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-06T14:08:51Z",
+      "side": 1,
+      "message": "If all values are default, please just use -\u003e\n\nvm2() {\n\n}",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44d1eba3_63290cb0",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 39
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-06T14:08:51Z",
+      "side": 1,
+      "message": "vm2() {\n\n}",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bcdf93bc_e8326937",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 39
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-06T14:08:51Z",
+      "side": 1,
+      "message": "Should we make this variable to default on something that is available in upstrea, (quay.io/docker.io?).\n\nSuch that if people use this to build upstream images it\u0027s possible to get running in easy way.",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "118e05e9_bb9fad98",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 39
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-06T14:08:51Z",
+      "side": 1,
+      "message": "Remove if not needed.",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55820a9d_7885a634",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 39
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-06T14:08:51Z",
+      "side": 1,
+      "message": "(\"${ref}\") is sane as (ref).\n\nI\u0027m seeing this over and over.. please fix across patchsets, etc.",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
