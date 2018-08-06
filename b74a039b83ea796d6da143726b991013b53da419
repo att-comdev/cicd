@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "01e6d1d0_5f8c9610",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 37
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-06T10:31:53Z",
+      "side": 1,
+      "message": "I have created ps here https://review.gerrithub.io/c/att-comdev/cicd/+/421311 but yet to test it",
+      "parentUuid": "61f527b7_bbfe39cb",
+      "revId": "b74a039b83ea796d6da143726b991013b53da419",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "00f20b17_c7f5db05",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 37
