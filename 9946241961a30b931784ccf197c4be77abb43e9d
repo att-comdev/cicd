@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fd1f45a3_8826b2b8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 39
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-06T15:11:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53806521_1d1185e0",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b86b48ab_337b44ba",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 39
@@ -30,6 +48,24 @@
       "writtenOn": "2018-08-06T14:08:51Z",
       "side": 1,
       "message": "If all values are default, please just use -\u003e\n\nvm2() {\n\n}",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "64c91c5e_cc0f3ab7",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 39
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-06T15:11:55Z",
+      "side": 1,
+      "message": "\u0027loci-bootstrap.sh\u0027 and \u0027loci\u0027 aren\u0027t defaults.\nI have this ps in works to allow more flexibility in how we could pass non-defaults. Currently it is all or none or sequential params only.\nhttps://review.gerrithub.io/c/att-comdev/cicd/+/421311 -- testing in progress",
+      "parentUuid": "b86b48ab_337b44ba",
       "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ad9d8285_a7ab34a2",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 39
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-06T15:11:55Z",
+      "side": 1,
+      "message": "\u0027loci-bootstrap.sh\u0027 and \u0027loci\u0027 aren\u0027t defaults.\nI have this ps in works to allow more flexibility in how we could pass non-defaults. Currently it is all or none or sequential params only.\nhttps://review.gerrithub.io/c/att-comdev/cicd/+/421311 -- testing in progress",
+      "parentUuid": "44d1eba3_63290cb0",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bcdf93bc_e8326937",
         "filename": "images/openstack/loci/seed.groovy",
         "patchSetId": 39
@@ -64,6 +118,24 @@
       "writtenOn": "2018-08-06T14:08:51Z",
       "side": 1,
       "message": "Should we make this variable to default on something that is available in upstrea, (quay.io/docker.io?).\n\nSuch that if people use this to build upstream images it\u0027s possible to get running in easy way.",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "811661ef_4e0e13bf",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 39
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-06T15:11:55Z",
+      "side": 1,
+      "message": "Are you referring to LOCI_BASE_IMAGE_XENIAL, this is the image that is used for Community builds I would like to think that defining ARTF_DOCKER_URL to quay.io/docker.io should be needed to get started to build community images",
+      "parentUuid": "bcdf93bc_e8326937",
       "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "bcf8a3fc_7ab33509",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 39
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-06T15:11:55Z",
+      "side": 1,
+      "message": "trim(true) is currently commented out to allow Superseed to update on 13b1.\nBut the final patch would uncomment it.",
+      "parentUuid": "118e05e9_bb9fad98",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "55820a9d_7885a634",
         "filename": "images/openstack/loci/seed.groovy",
         "patchSetId": 39
@@ -98,6 +188,24 @@
       "writtenOn": "2018-08-06T14:08:51Z",
       "side": 1,
       "message": "(\"${ref}\") is sane as (ref).\n\nI\u0027m seeing this over and over.. please fix across patchsets, etc.",
+      "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd6c8185_b64aed8b",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 39
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-06T15:11:55Z",
+      "side": 1,
+      "message": "thanks, I did a quick search and updated in other places as well.",
+      "parentUuid": "55820a9d_7885a634",
       "revId": "9946241961a30b931784ccf197c4be77abb43e9d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
