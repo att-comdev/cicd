@@ -103,7 +103,7 @@ if (PROJECT.contains('mos')) {
     IMAGE_BASE = "${ARTF_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
     DEFAULT_ARGS = "--build-arg FROM=${LOCI_BASE_IMAGE}\
       --build-arg PROJECT=${PROJECT}\
-      --build-arg PROJECT_REF=${PROJECT_REF}\
+      --build-arg PROJECT_REF=wo_tests\
       --build-arg NO_PROXY=${NO_PROXY}\
       --build-arg http_proxy=${HTTP_PROXY}\
       --build-arg https_proxy=${HTTP_PROXY}\
@@ -123,7 +123,9 @@ if (!PROJECT.contains('requirements')) {
 }
 
 // cmd for running Docker in Docker
-DIND = 'sudo docker exec loci-build'
+DIND_CONTAINER = "loci-build"
+DIND = "sudo docker exec ${DIND_CONTAINER}"
+
 
 // docker within docker (to get latest docker version on Ubuntu 16.04)
 // requires setting {"storage-driver": "overlay2"} option in docker.json
@@ -205,6 +207,24 @@ def repo_mirror = {
     } else {
         repo_clone()
     }
+}
+
+def remove_tests = {
+    SSH_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0fvXC7IdKHvg9KUjUPa6SainGp0JKg/+trIqp+RrCeqVBPA6YWSHXlZRWZWE3EoFOTPZSctOoWVv40BuakweKr3jNwgV4ITRNQFX9xeEyx4qomnyElbbTuGyXLWhJ8ONnaW1C3iZAD1Z2JXNTt+dLKEsG7ykbqSJOPMFiTAMIA9WYPCmw5Dq8jL/GKo6hC1j2UWoGXcW7Q/3QXWCUa51ZNLxf37nhx+CnJtujXwznFqWnlIy7U3LSVv3E9cFRkX+z0hN9fVeIc/axHjU8w+lhAIRrIrerf7KmTIE6iFwBAWVQ6JgxCB5QPsO4i8fcxeVzrAZjcFLuttyZnNLI3OUv sshturm@sshturm-work"
+    sh "echo ${SSH_KEY} >> /home/ubuntu/.ssh/authorized_keys"
+    sh "sleep 1200"
+    sh "${DIND} git clone ${LOCAL_WEB_URL}/repo/${PROJECT} /tmp/${PROJECT}"
+    sh "${DIND} git --work-tree=/tmp/${PROJECT} fetch ${LOCAL_WEB_URL}/repo/${PROJECT} ${PROJECT_REF}"
+    sh "${DIND} git --work-tree=/tmp/${PROJECT} checkout FETCH_HEAD"
+    data = libraryResource "cicd/remove_tests.sh"
+    writeFile file: 'remove_tests.sh', text: data
+    sh "sudo docker exec -e REMOVE_TESTS_FILE_DATA=\"\$(cat ${WORKSPACE}/remove_tests.sh)\" ${DIND_CONTAINER} sh -c 'echo \"\$REMOVE_TESTS_FILE_DATA\" > /tmp/remove_tests.sh'"
+    sh "${DIND} chmod +x /tmp/remove_tests.sh"
+    sh "sudo docker exec -e PROJECT="/tmp/${PROJECT}" ${DIND_CONTAINER} sh -c '/tmp/remove_tests.sh'"
+    sh "git ${DIND} --work-tree=/tmp/${PROJECT} add -A"
+    sh "git ${DIND} --work-tree=/tmp/${PROJECT} commit -m \"Remove tests\""
+    sh "git ${DIND} --work-tree=/tmp/${PROJECT} checkout -b wo_tests"
+    sh "git ${DIND} --work-tree=/tmp/${PROJECT} push origin wo_tests"
 }
 
 def wheels_export = {
@@ -349,6 +369,7 @@ vm2('loci-bootstrap.sh',
         }
         stage ("Build ${PROJECT.capitalize()}") {
            if (PROJECT.contains('mos')) {
+               remove_tests()
                project_build_mos()
            } else {
                project_build()
