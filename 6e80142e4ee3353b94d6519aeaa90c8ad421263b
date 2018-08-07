@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f93c42d1_aba520d2",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-07T18:05:08Z",
+      "side": 1,
+      "message": "Sure, already made the changes in ps https://review.gerrithub.io/c/att-comdev/cicd/+/417936",
+      "parentUuid": "c5690c28_3cfc288f",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4cd04b28_07769ad7",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2018-08-01T15:17:43Z",
       "side": 1,
       "message": "Move all variables definition to the top of the file. Should be possible.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69d8df36_d45fa5e1",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-07T18:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4cd04b28_07769ad7",
       "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "2de83326_e2cd9a70",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-07T18:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0502088d_b8017d86",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "005aecbc_d43ecac6",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 8
@@ -64,6 +118,24 @@
       "writtenOn": "2018-08-01T15:17:43Z",
       "side": 1,
       "message": "Try to keep all apt-get install\u0027s in one jenkins step.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "829f2275_e8a5ee9a",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-07T18:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "005aecbc_d43ecac6",
       "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "361b5072_35e35518",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-07T18:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "afbdec1c_41258e12",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b272791_10e454f4",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 8
@@ -98,6 +188,24 @@
       "writtenOn": "2018-08-01T15:17:43Z",
       "side": 1,
       "message": "May be it\u0027s better to use \u0027yq\u0027 for this (pip install yq), or temporarily convert to json \n\u003e python -c \u0027import json, sys, yaml ; y\u003dyaml.safe_load(sys.stdin.read()) ; print(json.dumps(y))\u0027\nand use standard `jq` utility to modify it?\nOr you can write sed commands into a file and use it as a a source of commands.\nIt\u0027s just a few other options.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da8d330b_be2bae7a",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-07T18:05:08Z",
+      "side": 1,
+      "message": "I would revisit this in next revision of ps",
+      "parentUuid": "3b272791_10e454f4",
       "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "785345e4_830a41b6",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-07T18:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7f96909_ab1f4806",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a8761cc_b9b124f6",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 8
@@ -132,6 +258,24 @@
       "writtenOn": "2018-08-01T15:17:43Z",
       "side": 1,
       "message": "Why do you cd to /var/log and then return back? Just use appropriate parameter to tar command.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9620ede3_8f14fe96",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-07T18:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a8761cc_b9b124f6",
       "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "be4443ff_73c2fe3d",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-07T18:05:08Z",
+      "side": 1,
+      "message": "There are non-default parameters being used.\nI have this ps in works to allow more flexibility in how we could pass non-defaults. Currently it is all or none or sequential params only.\nhttps://review.gerrithub.io/c/att-comdev/cicd/+/421311 -- testing in progress",
+      "parentUuid": "b94b0d35_71ac1c5c",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ecdff9ca_691a97d3",
         "filename": "images/openstack/loci/JenkinsfileCommunity",
         "patchSetId": 8
@@ -166,6 +328,24 @@
       "writtenOn": "2018-08-01T15:17:43Z",
       "side": 1,
       "message": "Use `error \"Message\"` instead of `sh \u0027exit 1\u0027`.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6f9a111e_8d350891",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-07T18:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ecdff9ca_691a97d3",
       "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -200,6 +380,24 @@
       "writtenOn": "2018-08-01T15:17:43Z",
       "side": 1,
       "message": "Use `error \"Message\"` instead of `sh \u0027exit 1\u0027`.",
+      "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "369d2242_1d6329da",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 8
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-07T18:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4efbadee_9321e05b",
       "revId": "6e80142e4ee3353b94d6519aeaa90c8ad421263b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
