@@ -87,7 +87,7 @@ if (PROJECT.contains('mos')) {
     IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/openstack/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
     DEFAULT_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}\
       --build-arg PROJECT=${PROJECT_SUFFIX}\
-      --build-arg PROJECT_REF=${PROJECT_REF}\
+      --build-arg PROJECT_REF=wo_tests\
       --build-arg NO_PROXY=${NO_PROXY}\
       --build-arg http_proxy=${HTTP_PROXY}\
       --build-arg https_proxy=${HTTP_PROXY}\
@@ -205,6 +205,18 @@ def repo_mirror = {
     } else {
         repo_clone()
     }
+}
+
+def remove_tests = {
+    sh "git clone ${LOCAL_WEB_URL}/repo/${PROJECT} /tmp/${PROJECT}"
+    sh "git --work-tree=/tmp/${PROJECT} fetch ${LOCAL_WEB_URL}/repo/${PROJECT} ${PROJECT_REF}"
+    sh "git --work-tree=/tmp/${PROJECT} checkout FETCH_HEAD"
+    data = libraryResource "cicd/remove_tests.sh"
+    writeFile file: 'remove_tests.sh', text: data
+    sh "${WORKSPACE}/remove_tests.sh)"
+    sh "git --work-tree=/tmp/${PROJECT} add -A"
+    sh "git --work-tree=/tmp/${PROJECT} checkout -b wo_tests"
+    sh "git --work-tree=/tmp/${PROJECT} push origin wo_tests"
 }
 
 def wheels_export = {
@@ -333,6 +345,7 @@ vm2('loci-bootstrap.sh',
         nginx_setup()
         repo_mirror()
         version_resolve()
+        remove_tests()
     }
 
     if (PROJECT.contains('requirements')) {
