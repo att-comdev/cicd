@@ -142,6 +142,40 @@
     },
     {
       "key": {
+        "uuid": "4f7092f3_b83dcbac",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 23
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-08-08T14:16:32Z",
+      "side": 1,
+      "message": "Can we define these both in configs nc-cicd under src directory",
+      "revId": "74a1c8f5d96dbc5c4fc333d10936c7eb1f35dbd5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ed93425_95d623e0",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 23
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-08-08T14:16:32Z",
+      "side": 1,
+      "message": "Same as above",
+      "revId": "74a1c8f5d96dbc5c4fc333d10936c7eb1f35dbd5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "036dcf33_24abe08e",
         "filename": "images/openstack/loci/seed.groovy",
         "patchSetId": 23

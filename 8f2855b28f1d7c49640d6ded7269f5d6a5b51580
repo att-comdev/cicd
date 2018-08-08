@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "997ac1a8_f990eb50",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 42
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-08-08T14:16:32Z",
+      "side": 1,
+      "message": "Can we add a similar if statement here that you have in community so we can delete patchset images easier? \nif (env.GERRIT_EVENT_TYPE \u003d\u003d \u0027patchset-created\u0027) {\n    ARTF_REPO +\u003d \u0027-patchset\u0027\n}",
+      "revId": "8f2855b28f1d7c49640d6ded7269f5d6a5b51580",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
