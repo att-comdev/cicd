@@ -22,6 +22,30 @@
       "revId": "fcde9aeb648f2e638ee00329c07c757966c60cd4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43a73f8f_a208aea2",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-09T09:10:14Z",
+      "side": 1,
+      "message": "Sure. I overloaded call() to allow for conventional use as vm2()",
+      "parentUuid": "6a985131_9f2ea312",
+      "range": {
+        "startLine": 22,
+        "startChar": 9,
+        "endLine": 22,
+        "endChar": 16
+      },
+      "revId": "fcde9aeb648f2e638ee00329c07c757966c60cd4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
