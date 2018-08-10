@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eba787d2_4ffcb5a4",
+        "filename": "resources/cicd/remove_tests.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-10T15:33:07Z",
+      "side": 1,
+      "message": "$(...)",
+      "revId": "7497c3f9e714f190e7e3b98574323dc3199cd940",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "430f2513_b3d9d5d8",
+        "filename": "resources/cicd/remove_tests.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-10T15:33:07Z",
+      "side": 1,
+      "message": "would MANIFEST.in be created in a correct directory?",
+      "revId": "7497c3f9e714f190e7e3b98574323dc3199cd940",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
