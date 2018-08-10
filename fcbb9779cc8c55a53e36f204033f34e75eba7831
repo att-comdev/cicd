@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c21b4cdd_a1954393",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-10T16:01:12Z",
+      "side": 1,
+      "message": "It does not work well with our jenkins version. \nThe following snippet works on https://groovyconsole.appspot.com but not with our jenkins\n\ndef myMethod(Map map) {\n    map \u003d map ?: [:]\n    def var1 \u003d map.var1 ?: \u0027one\u0027\n    def var2 \u003d map.var2 ?: \u0027two\u0027\n    println \"${var1}--${var2}\"\n}\n\n\nmyMethod()​",
+      "parentUuid": "863d4c68_79053437",
+      "revId": "fcbb9779cc8c55a53e36f204033f34e75eba7831",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "62881368_91da98a5",
         "filename": "vars/vm2.groovy",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2018-08-10T15:33:06Z",
       "side": 1,
       "message": "Should we come up with a better name? :)\n\nMaybe just think for a few sec if we can generally improve naming on these variables.",
+      "revId": "fcbb9779cc8c55a53e36f204033f34e75eba7831",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f05f13c_8265ea3b",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-10T16:01:12Z",
+      "side": 1,
+      "message": "sure.",
+      "parentUuid": "62881368_91da98a5",
       "revId": "fcbb9779cc8c55a53e36f204033f34e75eba7831",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
