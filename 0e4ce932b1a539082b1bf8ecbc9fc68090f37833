@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7629016d_022b0ef4",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 36
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-10T16:24:23Z",
+      "side": 1,
+      "message": "\"git ls-remote ${LOCI_REPO} | cut -f1\" should provide same result without cloning whole repo.",
+      "revId": "0e4ce932b1a539082b1bf8ecbc9fc68090f37833",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fef8b526_d36e147f",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 36
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-10T16:24:23Z",
+      "side": 1,
+      "message": "\"git ls-remote ${LOCI_REPO} | cut -f1\" should provide same result without cloning whole repo.",
+      "revId": "0e4ce932b1a539082b1bf8ecbc9fc68090f37833",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "386c1e02_cc2fe929",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 36
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-08-10T16:24:23Z",
+      "side": 1,
+      "message": "301-309 - looks like a hack. I would think of using multi-stage docker builds here, instead of this.\nhttps://docs.docker.com/develop/develop-images/multistage-build/",
+      "revId": "0e4ce932b1a539082b1bf8ecbc9fc68090f37833",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
