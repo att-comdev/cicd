@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "863d4c68_79053437",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-10T15:33:06Z",
+      "side": 1,
+      "message": "Would it not work just as vm2()?",
+      "revId": "fcbb9779cc8c55a53e36f204033f34e75eba7831",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62881368_91da98a5",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-10T15:33:06Z",
+      "side": 1,
+      "message": "Should we come up with a better name? :)\n\nMaybe just think for a few sec if we can generally improve naming on these variables.",
+      "revId": "fcbb9779cc8c55a53e36f204033f34e75eba7831",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
