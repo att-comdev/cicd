@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0b2566dc_042983c9",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 36
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-08-10T16:36:01Z",
+      "side": 1,
+      "message": "It would be better to fix as a part of Bala\u0027s change with refactoring",
+      "parentUuid": "7629016d_022b0ef4",
+      "revId": "0e4ce932b1a539082b1bf8ecbc9fc68090f37833",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fef8b526_d36e147f",
         "filename": "images/openstack/loci/Jenkinsfile",
         "patchSetId": 36
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "888979ac_8ee2beba",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 36
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-08-10T16:36:01Z",
+      "side": 1,
+      "message": "May be also fixed in Bala\u0027s change with refactoring",
+      "parentUuid": "fef8b526_d36e147f",
+      "revId": "0e4ce932b1a539082b1bf8ecbc9fc68090f37833",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "386c1e02_cc2fe929",
         "filename": "images/openstack/loci/Jenkinsfile",
         "patchSetId": 36
@@ -47,6 +83,24 @@
       "writtenOn": "2018-08-10T16:24:23Z",
       "side": 1,
       "message": "301-309 - looks like a hack. I would think of using multi-stage docker builds here, instead of this.\nhttps://docs.docker.com/develop/develop-images/multistage-build/",
+      "revId": "0e4ce932b1a539082b1bf8ecbc9fc68090f37833",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6757a76_8d0e7f85",
+        "filename": "images/openstack/loci/Jenkinsfile",
+        "patchSetId": 36
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-08-10T16:36:01Z",
+      "side": 1,
+      "message": "I will check this approach and test it. New code will be done as part of Bala\u0027s refactoring change",
+      "parentUuid": "386c1e02_cc2fe929",
       "revId": "0e4ce932b1a539082b1bf8ecbc9fc68090f37833",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
