@@ -78,12 +78,8 @@ def buildLoci(projConfArgs = '', wheelArgs = '') {
     }
 }
 
-vm2('loci-bootstrap.sh',
-         'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         'm1.medium',
-         '',
-         'loci',
-         false){
+vm2(initScript: 'loci-bootstrap.sh',
+    buildType: 'loci') {
 
     stage('Docker Setup') {
         loci.runDind(ARTF_DOCKER_URL, "jenkins-artifactory", DIND_CONTAINER)
