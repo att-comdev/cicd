@@ -5,7 +5,7 @@ REPO_URL = 'https://git.openstack.org/openstack/airship-in-a-bottle'
 REPO_HOME = '/root/deploy/airship-in-a-bottle'
 
 
-vm2('bootstrap.sh', 'cicd-ubuntu-16.04-server-cloudimg-amd64', 'm1.xxlarge') {
+vm2(flavor: 'm1.xxlarge') {
 
     stage('Checkout'){
 
