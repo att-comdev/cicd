@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "52d8c2aa_db7085de",
+        "filename": "vars/pip.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-14T18:37:21Z",
+      "side": 1,
+      "message": "As this is only 1 line and seem to be repo (not general pip) specific.\n\nShould we just remove this lib and call it in pipeline?",
+      "revId": "e9a87deda88907907dac2cbf734b4a42ae432774",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a9ce220_42a18100",
         "filename": "vars/pip.groovy",
         "patchSetId": 3
