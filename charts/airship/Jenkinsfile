@@ -1,0 +1,71 @@
+GIT_COMMIT=""
+
+vm2("bootstrap.sh", "cicd-ubuntu-16.04-server-cloudimg-amd64", "m1.large", '${JOB_BASE_NAME}', 'basic', false) {
+    sh ('hostname')
+    stage('Setup environment'){
+        if(!"${IS_MANUAL}" && ("${PROJECT_NAME}" == "openstack/openstack-helm-infra") && ("${GERRIT_EVENT_TYPE}" !="change-merged")){
+	    currentBuild.result = 'SUCCESS'
+            return
+	}
+        vm2.setproxy()
+    }
+    stage('Install Helm'){
+        git 'https://github.com/openstack/openstack-helm-infra'
+        sh 'sudo apt-get update'
+        sh 'sudo apt-get install -y make curl'
+        HELM_TOOLKIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+        sh "sed -i 's/8.8.8.8/${ARTF_IP}/g' ./tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml"
+        def amap = ['kubernetes_network_default_device': 'docker0','proxy': [ 'http': "${HTTP_PROXY}", 'https': "${HTTP_PROXY}", 'noproxy': "127.0.0.1,localhost,172.17.0.1,.svc.cluster.local"] ]
+
+        sh 'rm -rf ./tools/gate/devel/local-vars.yaml'
+        writeYaml file: './tools/gate/devel/local-vars.yaml', data: amap
+
+        sh 'make dev-deploy setup-host'
+        sh 'make dev-deploy k8s'
+    }
+
+    stage('Project Checkout'){
+        if(!"${IS_MANUAL}"){
+            currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
+            gerrit.cloneToBranch("https://git.openstack.org/${PROJECT}", "${GERRIT_PATCHSET_REVISION}","${JOB_BASE_NAME}")
+        } else {
+            sh 'mkdir -p ${JOB_BASE_NAME}'
+            dir("${WORKSPACE}/${JOB_BASE_NAME}"){
+                git "https://git.openstack.org/${PROJECT}"
+            }
+            currentBuild.displayName = "#${BUILD_NUMBER}-master"
+        }
+        dir("${WORKSPACE}/${JOB_BASE_NAME}"){
+            GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+            def chartVersion = readYaml file: "charts/drydock/Chart.yaml"
+            def chartOverride = readYaml file: "charts/drydock/Chart.yaml", text: "version: ${GIT_COMMIT}.${HELM_TOOLKIT_COMMIT}"
+            sh 'sudo rm -rf charts/drydock/Chart.yaml'
+            writeYaml file: "charts/drydock/Chart.yaml", data: chartOverride
+            sh "cat charts/drydock/Chart.yaml"
+        }
+    }
+    dir("${WORKSPACE}/${JOB_BASE_NAME}"){
+        stage('Build & Package'){
+            def status = sh(returnStatus: true, script: "sudo make charts")
+            if (status != 0) {
+                currentBuild.result = 'FAILED'
+                notify.msg("Charts build failed for ${GIT_COMMIT}!")
+            }else{
+                notify.msg("Charts were built for ${GIT_COMMIT}")
+            }
+        }
+        stage('Publish'){
+            ARTF_REPO="airship-helm-local"
+            if(!"${IS_MANUAL}"){
+                if("${GERRIT_EVENT_TYPE}" != "change-merged"){
+                    ARTF_REPO="${ARTF_REPO}/test"
+                }
+            }
+
+            def server = Artifactory.server 'artifactory'
+            def uploadSpec = """{"files": [{"pattern":"drydock*.tgz","target":"${ARTF_REPO}/drydock/"}]}"""
+            server.upload(uploadSpec)
+            notify.msg("Chart for ${GIT_COMMIT}.${HELM_TOOLKIT_COMMIT} pushed to ${ARTF_REPO}/drydock")
+        }
+    }
+}
