@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a9ce220_42a18100",
+        "filename": "vars/pip.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-14T18:35:16Z",
+      "side": 1,
+      "message": "(\"${gerritProject}\") \u003d\u003d (gerritProject)",
+      "revId": "e9a87deda88907907dac2cbf734b4a42ae432774",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "972ad197_f8843405",
+        "filename": "vars/pip.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-14T18:35:16Z",
+      "side": 1,
+      "message": "As pip could come from anywhere.\nPlease call it in more generic name maybe PIP_REPO_USER or smth like that. It doesn\u0027t have to be Artifactory.",
+      "revId": "e9a87deda88907907dac2cbf734b4a42ae432774",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
