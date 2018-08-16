@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1eb8f1b9_d63b1589",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 20
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-08-16T16:04:26Z",
+      "side": 1,
+      "message": "This doesn\u0027t need a method, can be called as is below",
+      "revId": "ade6425f84f78064231978ac0e1a8106f9a5c7d7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
