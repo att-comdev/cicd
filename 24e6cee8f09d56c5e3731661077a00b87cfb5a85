@@ -16,6 +16,24 @@
       "revId": "24e6cee8f09d56c5e3731661077a00b87cfb5a85",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "042d6bd2_db692b40",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 22
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-16T16:36:03Z",
+      "side": 1,
+      "message": "Could you please elaborate more on this ?",
+      "parentUuid": "b9305bc1_a37ea644",
+      "revId": "24e6cee8f09d56c5e3731661077a00b87cfb5a85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
