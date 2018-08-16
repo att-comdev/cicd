@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "4e13c3b7_e501b096",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 22
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-08-16T16:40:31Z",
+      "side": 1,
+      "message": "Same here, this function is simply\n\ngerrit.cloneToBranch(\"${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}\", GERRIT_PATCHSET_REVISION,                          GERRIT_PROJECT,                            INTERNAL_GERRIT_KEY)\n\nNo need to convert variables to string and resolve again.",
+      "revId": "24e6cee8f09d56c5e3731661077a00b87cfb5a85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9305bc1_a37ea644",
         "filename": "packages/pip-pkg/Jenkinsfile",
         "patchSetId": 22
