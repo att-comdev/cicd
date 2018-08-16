@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3b04b59c_264f82fd",
+        "filename": "vars/pip.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-16T15:50:52Z",
+      "side": 1,
+      "message": "Earlier it was in pipeline only but was asked to put it in a library, hence.",
+      "parentUuid": "52d8c2aa_db7085de",
+      "revId": "e9a87deda88907907dac2cbf734b4a42ae432774",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a9ce220_42a18100",
         "filename": "vars/pip.groovy",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ce264840_6f1be748",
+        "filename": "vars/pip.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-16T15:50:52Z",
+      "side": 1,
+      "message": "I will change it in a follow up patch.",
+      "parentUuid": "5a9ce220_42a18100",
+      "revId": "e9a87deda88907907dac2cbf734b4a42ae432774",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "972ad197_f8843405",
         "filename": "vars/pip.groovy",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2018-08-14T18:35:16Z",
       "side": 1,
       "message": "As pip could come from anywhere.\nPlease call it in more generic name maybe PIP_REPO_USER or smth like that. It doesn\u0027t have to be Artifactory.",
+      "revId": "e9a87deda88907907dac2cbf734b4a42ae432774",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0039b3d_dc5be622",
+        "filename": "vars/pip.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1014340
+      },
+      "writtenOn": "2018-08-16T15:50:52Z",
+      "side": 1,
+      "message": "As of now, it is going to read from Artifactory only, by default. We will change it if requirement comes.",
+      "parentUuid": "972ad197_f8843405",
       "revId": "e9a87deda88907907dac2cbf734b4a42ae432774",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
