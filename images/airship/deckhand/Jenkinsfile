@@ -34,7 +34,7 @@ vm(NODE_NAME, NODE_TMPL) {
         sh 'sudo apt-get -y install tox ara'
         timeout(10){
             withEnv(["DECKHAND_IMAGE=${IMAGE}",
-                     "DECKHAND_TEST_DIR"="deckhand/tests/functional/gabbits",
+                     "DECKHAND_TEST_DIR=deckhand/tests/functional/gabbits",
                      "DECKHAND_API_THREADS=4"]) {
                 sh 'tox -e functional'
             }
