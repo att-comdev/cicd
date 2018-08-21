@@ -20,7 +20,7 @@ vm2{
               libssl-dev'''
         vm2.setproxy()
         if(env.GERRIT_NEWREV){
-            if(JENKINS_ENV == "JENKINS_C"){
+            if(!GERRIT_HOST.contains('review')){
                 gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
                                      GERRIT_NEWREV,
                                      "jenkins",
@@ -29,7 +29,7 @@ vm2{
                 gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_NEWREV, "jenkins")
             }
         } else {
-            if(JENKINS_ENV == "JENKINS_C"){
+            if(!GERRIT_HOST.contains('review')){
                 gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
                                      GERRIT_PATCHSET_REVISION,
                                      "jenkins",
@@ -44,7 +44,11 @@ vm2{
     }
     dir("${WORKSPACE}/jenkins"){
         stage('Code-Review'){
-            def status = sh(returnStatus: true, script: "sudo -H make tests")
+            if (!fileExists('Makefile')) {
+               def status = sh(returnStatus: true, script: "sudo -H tox")
+            } else {
+                def status = sh(returnStatus: true, script: "sudo -H make tests")
+            }
             if (status != 0) {
                 currentBuild.result = 'FAILED'
                 notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
