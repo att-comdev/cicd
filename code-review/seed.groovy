@@ -2,10 +2,11 @@ pipelineJob("code-review") {
     description("This job is for python applications to run pep8, bandit, unit tests, and code coverage")
     triggers {
         gerritTrigger {
+            silentMode(true)
             gerritProjects {
                 gerritProject {
                     compareType('REG_EXP')
-                    pattern("^att-comdev/(?!(cicd|docker|maas|treasuremap|ucp-integration)).*")
+                    pattern("^aic-aqa-.*")
                     branches {
                         branch {
                             compareType("ANT")
@@ -16,11 +17,11 @@ pipelineJob("code-review") {
                 }
                 gerritProject {
                     compareType('REG_EXP')
-                    pattern("^aic-aqa-.*")
+                    pattern("^mos-(?!(build|tempest|etc)).*")
                     branches {
                         branch {
                             compareType("ANT")
-                            pattern("**")
+                            pattern("master")
                         }
                     }
                     disableStrictForbiddenFileVerification(false)
