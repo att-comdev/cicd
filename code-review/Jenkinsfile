@@ -1,6 +1,12 @@
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
 
-vm2{
+//large VM for running tests Ex: Nova, Neutron
+vm2('bootstrap.sh',
+         'cicd-ubuntu-16.04-server-cloudimg-amd64',
+         'm1.xlarge',
+         '',
+         'basic',
+         false){
     stage('Project Checkout'){
         cleanWs()
         //To be removed once all projects are controlling their own dependencies
@@ -8,7 +14,7 @@ vm2{
         //removing docker.io from the list of installed packages since it is
         //causing the VM to stall and jobs stay at that stage for >15hrs
         sh '''sudo apt-get install -y \
-              git make gcc python tox \
+              git make gcc python \
               build-essential \
               python3-minimal \
               python3-setuptools \
@@ -17,8 +23,17 @@ vm2{
               python-flake8 \
               python3-pip \
               libffi-dev \
+              gettext \
+              bandit \
+              mongodb \
+              libpq-dev \
+              libldap2-dev \
+              libsasl2-dev \
               libssl-dev'''
+
         vm2.setproxy()
+        //tox > 2.3.1 for running tests Ex: Horizon, Neutron
+        sh 'sudo pip install --no-cache-dir tox'
         if(env.GERRIT_NEWREV){
             if(!GERRIT_HOST.contains('review')){
                 gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
@@ -44,15 +59,30 @@ vm2{
                 }
             }
         }
+        // set UPPER_CONSTRAINTS_FILE from mos-requirements
+        if(GERRIT_PROJECT.contains('mos-')){
+            requirements = 'mos-requirements'
+            gerrit.cloneProject("${INTERNAL_GERRIT_SSH}/${requirements}",
+                                 GERRIT_BRANCH,
+                                 "refs/heads/${GERRIT_BRANCH}",
+                                 requirements,
+                                 INTERNAL_GERRIT_KEY)
+            sh "cp ${WORKSPACE}/${requirements}/upper-constraints.txt ${WORKSPACE}/jenkins/upper-constraints.txt"
+            sh "rm -rf ${WORKSPACE}/${requirements}"
+            //sh "export UPPER_CONSTRAINTS_FILE=${WORKSPACE}/jenkins/upper-constraints.txt"
+        }
     }
     dir("${WORKSPACE}/jenkins"){
         stage('Code-Review'){
-            def status = sh(returnStatus: true, script: "sudo -H make tests")
-            if (status != 0) {
-                currentBuild.result = 'FAILED'
-                notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
-            }else{
-                notify.msg("Code Review successful for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}")
+            withEnv(["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/jenkins/upper-constraints.txt"]) {
+                cmd = (!fileExists('Makefile')) ? "sudo tox -e pep8,py27" : "sudo -H make tests"
+                def status = sh(returnStatus: true, script: cmd)
+                if (status != 0) {
+                    currentBuild.result = 'FAILED'
+                    notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
+                }else{
+                    notify.msg("Code Review successful for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}")
+                }
             }
         }
     }
