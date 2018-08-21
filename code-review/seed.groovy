@@ -5,7 +5,7 @@ pipelineJob("code-review") {
             gerritProjects {
                 gerritProject {
                     compareType('REG_EXP')
-                    pattern("^att-comdev/(?!(cicd|docker|maas|treasuremap|ucp-integration)).*")
+                    pattern("^openstack/airship-.*")
                     branches {
                         branch {
                             compareType("ANT")
@@ -21,6 +21,18 @@ pipelineJob("code-review") {
                         branch {
                             compareType("ANT")
                             pattern("**")
+                        }
+                    }
+                    disableStrictForbiddenFileVerification(false)
+                }
+            }
+                gerritProject {
+                    compareType('REG_EXP')
+                    pattern("^mos-(?!(build|tempest|etc)).*")
+                    branches {
+                        branch {
+                            compareType("ANT")
+                            pattern("master")
                         }
                     }
                     disableStrictForbiddenFileVerification(false)
