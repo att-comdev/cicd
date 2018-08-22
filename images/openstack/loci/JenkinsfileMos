@@ -86,6 +86,7 @@ def buildLociMos(projConfArgs = '', wheelArgs = '') {
       --label org.label-schema.vcs-url=${PROJECT_URL}\
       --label org.label-schema.loci-ref=${loci_version}\
       --label org.label-schema.base-image=${base_sha256}\
+      --label org.label-schema.vendor=${conf.CUSTOM_LABEL}\
       --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
 
     if (!PROJECT.contains('requirements')) {
