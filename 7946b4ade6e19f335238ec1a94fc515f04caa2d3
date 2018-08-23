@@ -16,6 +16,24 @@
       "revId": "7946b4ade6e19f335238ec1a94fc515f04caa2d3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebda44de_8c40b4aa",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-23T21:07:08Z",
+      "side": 1,
+      "message": "gerrit.rebase() is not supported for internal gerrit as of now.\nWe could look at improving rebase() in a separate ps.\nShould we be adding a conditional to upstream projects only?",
+      "parentUuid": "5a9927a3_df459b16",
+      "revId": "7946b4ade6e19f335238ec1a94fc515f04caa2d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
