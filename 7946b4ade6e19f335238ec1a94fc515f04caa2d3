@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a9927a3_df459b16",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-08-23T21:04:07Z",
+      "side": 1,
+      "message": "gerrit.rebase()  after the clone",
+      "revId": "7946b4ade6e19f335238ec1a94fc515f04caa2d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
