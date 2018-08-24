@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5504f83c_079a1333",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-24T16:14:22Z",
+      "side": 1,
+      "message": "Any requests would be cached through our artifactory repos. We dont need them.",
+      "parentUuid": "aa6714ed_70be345f",
+      "revId": "fecc99aaae0e237160e3df8937a93613817f2596",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d69cd955_fca207b7",
         "filename": "vars/vm2.groovy",
         "patchSetId": 20
@@ -30,6 +48,24 @@
       "writtenOn": "2018-08-23T15:50:07Z",
       "side": 1,
       "message": "If I\u0027m not mistaken, some software uses uppercase NO_PROXY, HTTP_PROXY and HTTPS_PROXY variables. Add them, please.",
+      "revId": "fecc99aaae0e237160e3df8937a93613817f2596",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d4982dc_65a3dbd3",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-08-24T16:14:22Z",
+      "side": 1,
+      "message": "Done. I would be separating the setproxy() changes into a new ps and adding these.",
+      "parentUuid": "d69cd955_fca207b7",
       "revId": "fecc99aaae0e237160e3df8937a93613817f2596",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
