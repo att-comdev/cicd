@@ -102,22 +102,46 @@ def call(udata = 'bootstrap.sh',
   return ip
 }
 
+/**
+ * This method is used for any Jenkins pipelines that are behind the proxy.  They are currently
+ * set to global variables in Jenkins, if you have no firewall you can define these parameters as
+ * empty string in globals.
+ *
+ */
 def setproxy(){
     if (HTTP_PROXY){
+
+        // redirection with "<<-" doesnot work well to remove whitespaces/tabs
         sh'''sudo mkdir -p /etc/systemd/system/docker.service.d
-             cat <<-EOF | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
-             [Service]
-             Environment="HTTP_PROXY=${HTTP_PROXY}"
-             Environment="HTTPS_PROXY=${HTTP_PROXY}"
-             Environment="NO_PROXY=127.0.0.1,localhost"
-             EOF'''
-        sh'''cat <<-EOF | sudo tee -a /etc/environment
-             http_proxy=${HTTP_PROXY}
-             https_proxy=${HTTP_PROXY}
-             EOF'''
+             cat << EOF | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
+[Service]
+Environment="HTTP_PROXY=${HTTP_PROXY}"
+Environment="HTTPS_PROXY=${HTTP_PROXY}"
+Environment="NO_PROXY=${NO_PROXY}"
+EOF'''
+
+        sh'''cat << EOF | sudo tee -a /etc/apt/apt.conf
+Acquire::http::proxy ${HTTP_PROXY}
+Acquire::https::proxy ${HTTP_PROXY}
+Acquire::ftp::proxy ${FTP_PROXY}
+EOF'''
+
+        sh'''cat << EOF | sudo tee -a /etc/environment
+http_proxy=${HTTP_PROXY}
+https_proxy=${HTTP_PROXY}
+no_proxy=${NO_PROXY}
+HTTP_PROXY=${HTTP_PROXY}
+HTTPS_PROXY=${HTTP_PROXY}
+NO_PROXY=${NO_PROXY}
+EOF'''
+
         sh "sudo systemctl daemon-reload"
         sh "sudo systemctl restart docker"
         sh 'export http_proxy=${HTTP_PROXY}'
         sh 'export https_proxy=${HTTP_PROXY}'
+        sh 'export no_proxy=${NO_PROXY}'
+        sh 'export HTTP_PROXY=${HTTP_PROXY}'
+        sh 'export HTTPS_PROXY=${HTTP_PROXY}'
+        sh 'export NO_PROXY=${NO_PROXY}'
     }
 }
