@@ -1,3 +1,24 @@
+GERRIT_URL = "${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}"
+DISPLAY_PREFIX = (env.GERRIT_EVENT_TYPE) ? GERRIT_EVENT_TYPE : "manual"
+currentBuild.displayName = "#${BUILD_NUMBER} ${DISPLAY_PREFIX} ${GERRIT_BRANCH}"
+
+/**
+ * Override default package versioning to remove "dev" and add commit hash
+
+ * @param gerritProject gerrit project for OpenStack client
+ * @param commitID commit hash of the patchset
+ */
+def set_version(String gerritProject, String commitID ){
+    dir (gerritProject){
+        prefix = (env.GERRIT_EVENT_TYPE == 'patchset-created') ? 'ps.' : ''
+        devversion = sh (returnStdout: true,
+                         script: 'python setup.py --version').trim()
+        return devversion.tokenize('dev')[0] +
+               devversion.tokenize('dev')[1] +
+               '+' + prefix + commitID
+    }
+}
+
 vm2('loci-bootstrap.sh',
     'cicd-ubuntu-16.04-server-cloudimg-amd64',
     'm1.medium',
@@ -6,10 +27,22 @@ vm2('loci-bootstrap.sh',
     false){
 
     stage('Clone OpenStack client'){
-        gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
-                             GERRIT_PATCHSET_REVISION,
-                             GERRIT_PROJECT,
-                             INTERNAL_GERRIT_KEY)
+        if (env.GERRIT_PATCHSET_REVISION){
+            COMMIT_ID = GERRIT_PATCHSET_REVISION
+            gerrit.cloneToBranch(GERRIT_URL,
+                                 COMMIT_ID,
+                                 GERRIT_PROJECT,
+                                 INTERNAL_GERRIT_KEY)
+        } else{
+            COMMIT_ID =  gerrit.getVersion(GERRIT_URL,
+                                                  GERRIT_BRANCH,
+                                                  INTERNAL_GERRIT_KEY)
+            gerrit.cloneProject(GERRIT_URL,
+                                GERRIT_BRANCH,
+                                COMMIT_ID,
+                                GERRIT_PROJECT,
+                                INTERNAL_GERRIT_KEY)
+        }
     }
 
     stage('Updating host'){
@@ -21,7 +54,10 @@ vm2('loci-bootstrap.sh',
     }
 
     stage('Build pip package and upload'){
-        pip.buildPackageAndUpload(GERRIT_PROJECT)
+        version = set_version(GERRIT_PROJECT, COMMIT_ID)
+        withEnv(["PBR_VERSION=$version"]){
+            pip.buildPackageAndUpload(GERRIT_PROJECT)
+        }
     }
 
 }
