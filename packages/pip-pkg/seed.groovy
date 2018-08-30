@@ -2,15 +2,15 @@ JOB_BASE='packages'
 
 folder("${JOB_BASE}/pip-pkg")
 
-SEMANTIC_RELEASE_VERSION="0.8"
-
 MOS_PROJECTS = ['mos-keystoneclient',
                 'mos-heatclient',
                 'mos-glanceclient',
                 'mos-cinderclient',
                 'mos-neutronclient',
                 'mos-novaclient',
-                'mos-horizonclient']
+                'mos-ceilometerclient',
+                'mos-swiftclient',
+                'mos-openstackclient']
 
 MOS_PROJECTS.each { project ->
     pipelineJob("${JOB_BASE}/pip-pkg/${project}") {
@@ -24,24 +24,19 @@ MOS_PROJECTS.each { project ->
 
         parameters {
             stringParam {
-                defaultValue('master')
-                description('Default branch for manual build.\n\n')
-                name ('PROJECT_REF')
-            }
-            stringParam {
                 name ('GERRIT_PROJECT')
                 defaultValue("${project}")
                 description('Gerrit project')
             }
             stringParam {
                 name ('GERRIT_REFSPEC')
-                defaultValue('')
+                defaultValue('refs/heads/master')
                 description('Gerrit refspec')
             }
             stringParam {
-                name ('GERRIT_CHANGE_NUMBER')
-                defaultValue('0')
-                description('patchset number')
+                name ('GERRIT_PATCHSET_REVISION')
+                defaultValue('')
+                description('Patchset revision')
             }
             stringParam {
                 name ('GERRIT_EVENT_TYPE')
@@ -57,7 +52,6 @@ MOS_PROJECTS.each { project ->
 
         triggers {
             gerritTrigger {
-                silentMode(true)
                 serverName('mtn5-gerrit')
                 gerritProjects {
                     gerritProject {

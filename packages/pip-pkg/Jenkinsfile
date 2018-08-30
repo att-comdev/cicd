@@ -1,3 +1,17 @@
+/**
+ * Override default package versioning to remove "dev" and add commit hash
+
+ * @param gerritProject gerrit project for OpenStack client
+ */
+def set_version(String gerritProject){
+    dir (gerritProject){
+        devversion = sh (returnStdout: true, script: 'python setup.py --version').trim()
+        return devversion.tokenize('dev')[0] +
+               devversion.tokenize('dev')[1] +
+               '+' + GERRIT_PATCHSET_REVISION
+    }
+}
+
 vm2('loci-bootstrap.sh',
     'cicd-ubuntu-16.04-server-cloudimg-amd64',
     'm1.medium',
@@ -21,7 +35,10 @@ vm2('loci-bootstrap.sh',
     }
 
     stage('Build pip package and upload'){
-        pip.buildPackageAndUpload(GERRIT_PROJECT)
+        version = set_version(GERRIT_PROJECT)
+        withEnv(["PBR_VERSION=$version"]){
+            pip.buildPackageAndUpload(GERRIT_PROJECT)
+        }
     }
 
 }
