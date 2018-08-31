@@ -19,6 +19,7 @@ def call(udata = 'bootstrap.sh',
          postfix = '',
          buildtype = 'basic',
          leak = false,
+         numOfExecutors = 2,
          Closure body) {
 
     // resolve args to heat parameters
@@ -54,7 +55,7 @@ def call(udata = 'bootstrap.sh',
             }
 
             node('master') {
-                jenkins.node_create (name, ip)
+                jenkins.node_create (name, ip, 'jenkins-slave-ssh', numOfExecutors)
             }
 
             node(launch_node) {
