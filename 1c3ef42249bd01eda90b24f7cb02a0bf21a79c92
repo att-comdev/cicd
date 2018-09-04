@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52bd09ba_43042d4f",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 14
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-09-04T14:44:35Z",
+      "side": 1,
+      "message": "Are we unable to add this to the NO_PROXY site variable?",
+      "revId": "1c3ef42249bd01eda90b24f7cb02a0bf21a79c92",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
