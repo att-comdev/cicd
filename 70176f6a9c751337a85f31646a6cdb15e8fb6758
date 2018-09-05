@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5e0b159_4ebc2c57",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-05T16:39:44Z",
+      "side": 1,
+      "message": "I suggest to disconnect \u0027docker login\u0027 from installing latest docker version on Ubuntu 16.04 as those are 2 different functions.",
+      "revId": "70176f6a9c751337a85f31646a6cdb15e8fb6758",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e8bb1de_f6657d43",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-05T16:39:44Z",
+      "side": 1,
+      "message": "I don\u0027t see this being a common function. It\u0027s just a single line that can be part of a pipeline.\n\nsh \u0027mkdir -p $WORKSPACE/artifacts\u0027",
+      "revId": "70176f6a9c751337a85f31646a6cdb15e8fb6758",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "190d986c_0db3863d",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-05T16:39:44Z",
+      "side": 1,
+      "message": "Why replacing default Google DNS with Artifactory IP?",
+      "revId": "70176f6a9c751337a85f31646a6cdb15e8fb6758",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3c70100_b6eccc54",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-05T16:39:44Z",
+      "side": 1,
+      "message": "\"${HTTP_PROXY}\" \u003d\u003d HTTP_PROXY",
+      "revId": "70176f6a9c751337a85f31646a6cdb15e8fb6758",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8fc217_7b80ac4e",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-05T16:39:44Z",
+      "side": 1,
+      "message": "This\n\"${ncconf.MOS_KEYSTONE_LOCI}\"\n\nis the same as\nncconf.MOS_KEYSTONE_LOCI.",
+      "revId": "70176f6a9c751337a85f31646a6cdb15e8fb6758",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf5b2279_3b024609",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-05T16:39:44Z",
+      "side": 1,
+      "message": "if (!GLANCE_LOCI) ? ...",
+      "revId": "70176f6a9c751337a85f31646a6cdb15e8fb6758",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6f3294a7_51549f30",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-05T16:39:44Z",
+      "side": 1,
+      "message": "Why don\u0027t we build all possible LOCI images?",
+      "revId": "70176f6a9c751337a85f31646a6cdb15e8fb6758",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f105b39_9ff2667f",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-05T16:39:44Z",
+      "side": 1,
+      "message": "stdout not used",
+      "revId": "70176f6a9c751337a85f31646a6cdb15e8fb6758",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
