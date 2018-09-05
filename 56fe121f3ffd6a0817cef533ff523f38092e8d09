@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa238392_904b7cf2",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 15
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-05T16:55:11Z",
+      "side": 1,
+      "message": "Use explicit map instead of passing around variables for pipelines.",
+      "revId": "56fe121f3ffd6a0817cef533ff523f38092e8d09",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d56b42fd_7a43f776",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 15
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-05T16:55:11Z",
+      "side": 1,
+      "message": "Suggest using map instead of passing around environment variables between functions.",
+      "revId": "56fe121f3ffd6a0817cef533ff523f38092e8d09",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
