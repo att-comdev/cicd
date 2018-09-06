@@ -109,7 +109,7 @@ def createAction(uuid, token, shipyardUrl, action) {
     def req = ["name": action]
     def jreq = new JsonOutput().toJson(req)
 
-    def res = httpRequest(url: shipyardUrl + "/api/v1.0/actions",
+    def res = httpRequest(url: shipyardUrl + "/api/v1.0/actions?allow-intermediate-commits=true",
                           httpMode: "POST",
                           customHeaders: [[name: "Content-Type", value: "application/json"],
                                           [name: "X-Auth-Token", value: token],
