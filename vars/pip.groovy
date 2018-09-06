@@ -3,17 +3,19 @@
  */
 def updateHost() {
     sh "sudo apt-get update"
-    sh "sudo apt install python-minimal -y"
-    sh "sudo apt install python-pip -y"
+    sh '''sudo apt install -y \
+          python-minimal \
+          python-pip \
+          python-setuptools'''
 }
 
 /**
- * Build pip packages for corresponding OpenStack client and upload to Artifactory repo
+ * Build pip packages and upload to Artifactory repo
 
- * @param gerritProject gerrit project for OpenStack client
+ * @param project project dir to build
  */
-def buildPackageAndUpload(String gerritProject) {
-    dir (gerritProject) {
+def buildPackageAndUpload(String project) {
+    dir (project) {
         sh "python setup.py sdist bdist_wheel upload -r local"
     }
 
@@ -40,4 +42,12 @@ password: ${ARTIFACTORY_PASSWORD}
 EOF
 '''
     }
+}
+
+/**
+ * Install pip packages
+ * @param packages list of packages to install
+ */
+def pipInstallPackages(List packages) {
+    sh "pip install ${packages.join(' ')}"
 }
