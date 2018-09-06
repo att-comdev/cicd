@@ -16,6 +16,24 @@
       "revId": "773d95d7955d7c1327d38b54bd8578ae85c7523e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cdfaa33c_09d8d132",
+        "filename": "packages/pip-pkg/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-09-06T14:42:12Z",
+      "side": 1,
+      "message": "sure. added a method for the same",
+      "parentUuid": "63eb57b3_195ca6f9",
+      "revId": "773d95d7955d7c1327d38b54bd8578ae85c7523e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
