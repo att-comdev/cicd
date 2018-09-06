@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa007988_4dad8832",
+        "filename": "images/airship/JenkinsfilePromenade",
+        "patchSetId": 72
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-09-06T19:08:25Z",
+      "side": 1,
+      "message": "whitespaces",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 9
+      },
+      "revId": "7441ab0adf74049edea51ba5b6d7a0402125d047",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
