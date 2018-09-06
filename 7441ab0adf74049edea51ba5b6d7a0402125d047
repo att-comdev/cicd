@@ -22,6 +22,46 @@
       "revId": "7441ab0adf74049edea51ba5b6d7a0402125d047",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1788d22b_43c33b64",
+        "filename": "images/airship/JenkinsfilePromenade",
+        "patchSetId": 72
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1013696
+      },
+      "writtenOn": "2018-09-06T21:31:47Z",
+      "side": 1,
+      "message": "why we are doing the rebase of gerrit on patchset create event ?",
+      "revId": "7441ab0adf74049edea51ba5b6d7a0402125d047",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c3ebe44_66cfc065",
+        "filename": "images/airship/JenkinsfilePromenade",
+        "patchSetId": 72
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1013696
+      },
+      "writtenOn": "2018-09-06T21:31:47Z",
+      "side": 1,
+      "message": "here also whitspace",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 2
+      },
+      "revId": "7441ab0adf74049edea51ba5b6d7a0402125d047",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
