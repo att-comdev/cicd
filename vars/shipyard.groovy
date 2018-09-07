@@ -92,7 +92,7 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
  * @param action The action to perform - see: https://shipyard.readthedocs.io/en/latest/API_action_commands.html?highlight=action for further details.
  */
 def createActionWithinContainer(uuid, action) {
-    return sh(script: "shipyard --context-marker=${uuid} create action ${action}", returnStdout: true).trim()
+    return sh(script: "shipyard --context-marker=${uuid} create action ${action} --allow-intermediate-commits", returnStdout: true).trim()
 }
 
 /**
@@ -109,7 +109,7 @@ def createAction(uuid, token, shipyardUrl, action) {
     def req = ["name": action]
     def jreq = new JsonOutput().toJson(req)
 
-    def res = httpRequest(url: shipyardUrl + "/api/v1.0/actions",
+    def res = httpRequest(url: shipyardUrl + "/api/v1.0/actions?allow-intermediate-commits=true",
                           httpMode: "POST",
                           customHeaders: [[name: "Content-Type", value: "application/json"],
                                           [name: "X-Auth-Token", value: token],
