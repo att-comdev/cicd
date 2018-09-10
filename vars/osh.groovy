@@ -2,8 +2,6 @@ import com.att.nccicd.config.conf as ncconf
 
 /**
  * Install Docker ce
- * Authenticate Artifactory docker repo
- * Copy docker config to root directory
  */
 def installDockerCE() {
     sh '''sudo apt-get update && sudo apt-get install -y \\
@@ -17,24 +15,23 @@ def installDockerCE() {
         "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"'''
     sh '''sudo apt-get update && \\
     sudo apt-get install -y docker-ce'''
-
-    // Allow kubectl to pull images, requires auth config to be on / directory
-        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
-                    usernameVariable: 'ARTIFACTORY_USER',
-                    passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
-            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
-            sh "sudo docker login ${opts} $ARTF_SECURE_DOCKER_URL"
-            sh 'sudo cp -R ~/.docker /'
-        }
 }
 
 /**
- * Create artifacts directory in $WORKSPACE
+ * Authenticate Artifactory docker repo
+ * Copy docker config to root directory
+ *
+ * @param creds Artifactory credentials ID
  */
-def createArtifactsDir() {
-        def artifact_dir = "$WORKSPACE/artifacts"
-    if (!fileExists(artifact_dir)) {
-        sh "mkdir $artifact_dir"
+def dockerAuth(String creds = 'jenkins-artifactory') {
+    withCredentials([usernamePassword(credentialsId: creds,
+                     usernameVariable: 'ARTIFACTORY_USER',
+                     passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+        opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+        sh "sudo docker login ${opts} $ARTF_SECURE_DOCKER_URL"
+
+        // Allow kubectl to pull images, requires auth config to be on / directory
+        sh 'sudo cp -R ~/.docker /'
     }
 }
 
@@ -43,7 +40,8 @@ def createArtifactsDir() {
  * Logs commmithash of latest revision into 'artifacts/OSH_version.txt'
  */
 def cloneOSH() {
-    createArtifactsDir()
+    sh 'mkdir -p $WORKSPACE/artifacts'
+
     for (proj in ['openstack-helm', 'openstack-helm-infra']) {
         git_url = "https://git.openstack.org/openstack/${proj}.git"
         branch = "master"
@@ -57,10 +55,11 @@ def cloneOSH() {
  * Update proxy and dns for OpenstackHelm deployment
  */
 def updateProxy() {
-    sh "sed -i 's/8.8.8.8/${ARTF_IP}/g' ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml"
+    sh '''sed -i "/external_dns_nameservers:/a\\      - ${DNS_SERVER_1}\\n      - ${DNS_SERVER_2}" \
+          ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml'''
     def amap = ['kubernetes_network_default_device': 'docker0',
                  'gate_fqdn_test': 'true',
-                'proxy': [ 'http': "${HTTP_PROXY}", 'https': "${HTTP_PROXY}", 'noproxy': "${NO_PROXY}"] ]
+                'proxy': [ 'http': HTTP_PROXY, 'https': HTTP_PROXY, 'noproxy': NO_PROXY] ]
     sh 'rm -rf ./openstack-helm-infra/tools/gate/devel/local-vars.yaml'
     writeYaml file: './openstack-helm-infra/tools/gate/devel/local-vars.yaml', data: amap
 }
@@ -69,84 +68,87 @@ def updateProxy() {
  * release specific image Overrides
  * <Openstackservice>_LOCI default is overridden by ps image built
  *
+ * @param images Openstack component images map
  * @param mos false - default - get community image versions
               true - get mos image versions
  */
-def imageOverrides(Boolean mos = false) {
+def imageOverrides(Map images, Boolean mos = false) {
 
-    KEYSTONE_LOCI=(env.KEYSTONE_LOCI != null) ? env.KEYSTONE_LOCI : (mos ? "${ncconf.MOS_KEYSTONE_LOCI}" : "${ncconf.KEYSTONE_LOCI}")
-    HEAT_LOCI=(env.HEAT_LOCI != null) ? env.HEAT_LOCI : (mos ? "${ncconf.MOS_HEAT_LOCI}" : "${ncconf.HEAT_LOCI}")
-    HORIZON_LOCI=(env.HORIZON_LOCI != null) ? env.HORIZON_LOCI : (mos ? "${ncconf.MOS_HORIZON_LOCI}" : "${ncconf.HORIZON_LOCI}")
-    GLANCE_LOCI=(env.GLANCE_LOCI != null) ? env.GLANCE_LOCI : (mos ? "${ncconf.MOS_GLANCE_LOCI}" : "${ncconf.GLANCE_LOCI}")
-    CINDER_LOCI=(env.CINDER_LOCI != null) ? env.CINDER_LOCI : (mos ? "${ncconf.MOS_CINDER_LOCI}" : "${ncconf.CINDER_LOCI}")
-    NOVA_LOCI=(env.NOVA_LOCI != null) ? env.NOVA_LOCI : (mos ? "${ncconf.MOS_NOVA_LOCI}" : "${ncconf.NOVA_LOCI}")
-    NOVA_1804_LOCI=(env.NOVA_1804_LOCI != null) ? env.NOVA_1804_LOCI : (mos ? "${ncconf.MOS_NOVA_1804_LOCI}" : "${ncconf.NOVA_1804_LOCI}")
-    NEUTRON_LOCI=(env.NEUTRON_LOCI != null) ? env.NEUTRON_LOCI : (mos ? "${ncconf.MOS_NEUTRON_LOCI}" : "${ncconf.NEUTRON_LOCI}")
-    NEUTRON_SRIOV_LOCI=(env.NEUTRON_SRIOV_LOCI != null) ? env.NEUTRON_SRIOV_LOCI : (mos ? "${ncconf.MOS_NEUTRON_SRIOV_LOCI}" : "${ncconf.NEUTRON_SRIOV_LOCI}")
+    // safe way to check for ps image, or set to default
+    KEYSTONE_LOCI = images.find{ it.key == "KEYSTONE_LOCI" }?.value ?: (mos ? ncconf.MOS_KEYSTONE_LOCI : ncconf.KEYSTONE_LOCI)
+    HEAT_LOCI = images.find{ it.key == "HEAT_LOCI" }?.value ?: (mos ? ncconf.MOS_HEAT_LOCI : ncconf.HEAT_LOCI)
+    HORIZON_LOCI = images.find{ it.key == "HORIZON_LOCI" }?.value ?: (mos ? ncconf.MOS_HORIZON_LOCI : ncconf.HORIZON_LOCI)
+    GLANCE_LOCI = images.find{ it.key == "GLANCE_LOCI" }?.value ?: (mos ? ncconf.MOS_GLANCE_LOCI : ncconf.GLANCE_LOCI)
+    CINDER_LOCI = images.find{ it.key == "CINDER_LOCI" }?.value ?: (mos ? ncconf.MOS_CINDER_LOCI : ncconf.CINDER_LOCI)
+    NOVA_LOCI = images.find{ it.key == "NOVA_LOCI" }?.value ?: (mos ? ncconf.MOS_NOVA_LOCI : ncconf.NOVA_LOCI)
+    NOVA_1804_LOCI = images.find{ it.key == "NOVA_1804_LOCI" }?.value ?: (mos ? ncconf.MOS_NOVA_1804_LOCI : ncconf.NOVA_1804_LOCI)
+    NEUTRON_LOCI = images.find{ it.key == "NEUTRON_LOCI" }?.value ?: (mos ? ncconf.MOS_NEUTRON_LOCI : ncconf.NEUTRON_LOCI)
+    NEUTRON_SRIOV_LOCI = images.find{ it.key == "NEUTRON_SRIOV_LOCI" }?.value ?: (mos ? ncconf.MOS_NEUTRON_SRIOV_LOCI : ncconf.NEUTRON_SRIOV_LOCI)
 
     // supporting only ocata deployments for now
     def loci_yaml="${WORKSPACE}/openstack-helm/tools/overrides/releases/ocata/loci.yaml"
 
+    // Override the images we build currently
     def imagemap = [
       'images': [
         'tags': [
-          'bootstrap': "$HEAT_LOCI",
-          'cinder_api': "$CINDER_LOCI",
-          'cinder_backup': "$CINDER_LOCI",
-          'cinder_db_sync': "$CINDER_LOCI",
-          'cinder_scheduler': "$CINDER_LOCI",
-          'cinder_volume': "$CINDER_LOCI",
-          'cinder_volume_usage_audit': "$CINDER_LOCI",
-          'db_drop': "$HEAT_LOCI",
-          'db_init': "$HEAT_LOCI",
-          'glance_api': "$GLANCE_LOCI",
-          'glance_bootstrap': "$HEAT_LOCI",
-          'glance_db_sync': "$GLANCE_LOCI",
-          'glance_registry': "$GLANCE_LOCI",
-          'heat_api': "$HEAT_LOCI",
-          'heat_cfn': "$HEAT_LOCI",
-          'heat_cloudwatch': "$HEAT_LOCI",
-          'heat_db_sync': "$HEAT_LOCI",
-          'heat_engine': "$HEAT_LOCI",
-          'heat_engine_cleaner': "$HEAT_LOCI",
-          'horizon': "$HORIZON_LOCI",
-          'horizon_db_sync': "$HORIZON_LOCI",
-          'keystone_api': "$KEYSTONE_LOCI",
-          'keystone_bootstrap': "$HEAT_LOCI",
-          'keystone_credential_rotate': "$KEYSTONE_LOCI",
-          'keystone_credential_setup': "$KEYSTONE_LOCI",
-          'keystone_db_sync': "$KEYSTONE_LOCI",
-          'keystone_domain_manage': "$KEYSTONE_LOCI",
-          'keystone_fernet_rotate': "$KEYSTONE_LOCI",
-          'keystone_fernet_setup': "$KEYSTONE_LOCI",
-          'ks_endpoints': "$HEAT_LOCI",
-          'ks_service': "$HEAT_LOCI",
-          'ks_user': "$HEAT_LOCI",
-          'neutron_db_sync': "$NEUTRON_LOCI",
-          'neutron_dhcp': "$NEUTRON_LOCI",
-          'neutron_l3': "$NEUTRON_LOCI",
-          'neutron_linuxbridge_agent': "$NEUTRON_LOCI",
-          'neutron_metadata': "$NEUTRON_LOCI",
-          'neutron_openvswitch_agent': "$NEUTRON_LOCI",
-          'neutron_server': "$NEUTRON_LOCI",
-          'neutron_sriov_agent': "$NEUTRON_SRIOV_LOCI",
-          'neutron_sriov_agent_init': "$NEUTRON_SRIOV_LOCI",
-          'nova_api': "$NOVA_LOCI",
-          'nova_cell_setup': "$NOVA_LOCI",
-          'nova_cell_setup_init': "$HEAT_LOCI",
-          'nova_compute': "$NOVA_1804_LOCI",
-          'nova_compute_ironic': "$NOVA_LOCI",
-          'nova_compute_ssh': "$NOVA_LOCI",
-          'nova_conductor': "$NOVA_LOCI",
-          'nova_consoleauth': "$NOVA_LOCI",
-          'nova_db_sync': "$NOVA_LOCI",
-          'nova_novncproxy': "$NOVA_LOCI",
-          'nova_novncproxy_assets': "$NOVA_LOCI",
-          'nova_placement': "$NOVA_LOCI",
-          'nova_scheduler': "$NOVA_LOCI",
-          'nova_spiceproxy': "$NOVA_LOCI",
-          'nova_spiceproxy_assets': "$NOVA_LOCI",
-          'scripted_test': "$HEAT_LOCI",
+          'bootstrap': HEAT_LOCI,
+          'cinder_api': CINDER_LOCI,
+          'cinder_backup': CINDER_LOCI,
+          'cinder_db_sync': CINDER_LOCI,
+          'cinder_scheduler': CINDER_LOCI,
+          'cinder_volume': CINDER_LOCI,
+          'cinder_volume_usage_audit': CINDER_LOCI,
+          'db_drop': HEAT_LOCI,
+          'db_init': HEAT_LOCI,
+          'glance_api': GLANCE_LOCI,
+          'glance_bootstrap': HEAT_LOCI,
+          'glance_db_sync': GLANCE_LOCI,
+          'glance_registry': GLANCE_LOCI,
+          'heat_api': HEAT_LOCI,
+          'heat_cfn': HEAT_LOCI,
+          'heat_cloudwatch': HEAT_LOCI,
+          'heat_db_sync': HEAT_LOCI,
+          'heat_engine': HEAT_LOCI,
+          'heat_engine_cleaner': HEAT_LOCI,
+          'horizon': HORIZON_LOCI,
+          'horizon_db_sync': HORIZON_LOCI,
+          'keystone_api': KEYSTONE_LOCI,
+          'keystone_bootstrap': HEAT_LOCI,
+          'keystone_credential_rotate': KEYSTONE_LOCI,
+          'keystone_credential_setup': KEYSTONE_LOCI,
+          'keystone_db_sync': KEYSTONE_LOCI,
+          'keystone_domain_manage': KEYSTONE_LOCI,
+          'keystone_fernet_rotate': KEYSTONE_LOCI,
+          'keystone_fernet_setup': KEYSTONE_LOCI,
+          'ks_endpoints': HEAT_LOCI,
+          'ks_service': HEAT_LOCI,
+          'ks_user': HEAT_LOCI,
+          'neutron_db_sync': NEUTRON_LOCI,
+          'neutron_dhcp': NEUTRON_LOCI,
+          'neutron_l3': NEUTRON_LOCI,
+          'neutron_linuxbridge_agent': NEUTRON_LOCI,
+          'neutron_metadata': NEUTRON_LOCI,
+          'neutron_openvswitch_agent': NEUTRON_LOCI,
+          'neutron_server': NEUTRON_LOCI,
+          'neutron_sriov_agent': NEUTRON_SRIOV_LOCI,
+          'neutron_sriov_agent_init': NEUTRON_SRIOV_LOCI,
+          'nova_api': NOVA_LOCI,
+          'nova_cell_setup': NOVA_LOCI,
+          'nova_cell_setup_init': HEAT_LOCI,
+          'nova_compute': NOVA_1804_LOCI,
+          'nova_compute_ironic': NOVA_LOCI,
+          'nova_compute_ssh': NOVA_LOCI,
+          'nova_conductor': NOVA_LOCI,
+          'nova_consoleauth': NOVA_LOCI,
+          'nova_db_sync': NOVA_LOCI,
+          'nova_novncproxy': NOVA_LOCI,
+          'nova_novncproxy_assets': NOVA_LOCI,
+          'nova_placement': NOVA_LOCI,
+          'nova_scheduler': NOVA_LOCI,
+          'nova_spiceproxy': NOVA_LOCI,
+          'nova_spiceproxy_assets': NOVA_LOCI,
+          'scripted_test': HEAT_LOCI,
           'barbican_api': 'docker.io/openstackhelm/barbican:ocata',
           'barbican_db_sync': 'docker.io/openstackhelm/barbican:ocata',
           'congress_api': 'docker.io/openstackhelm/congress:ocata',
@@ -213,34 +215,36 @@ def installOSHAIO() {
 
         deploy_steps.each { key, value ->
             print "Installing $key..."
-            sh "${value}"
+            sh value
         }
     }
 }
 
 /**
  * Log openstack service versions into artifacts/openstack_versions.txt
+ *
+ * @param images Openstack component images map
  * @param mos false - default - get community image versions
               true - get mos image versions
  */
-def serviceVersions(Boolean mos = false) {
+def serviceVersions(Map images, Boolean mos = false) {
+    sh 'mkdir -p $WORKSPACE/artifacts'
 
-    createArtifactsDir()
-
-    KEYSTONE_LOCI=(env.KEYSTONE_LOCI != null) ? env.KEYSTONE_LOCI : (mos ? "${ncconf.MOS_KEYSTONE_LOCI}" : "${ncconf.KEYSTONE_LOCI}")
-    HEAT_LOCI=(env.HEAT_LOCI != null) ? env.HEAT_LOCI : (mos ? "${ncconf.MOS_HEAT_LOCI}" : "${ncconf.HEAT_LOCI}")
-    GLANCE_LOCI=(env.GLANCE_LOCI != null) ? env.GLANCE_LOCI : (mos ? "${ncconf.MOS_GLANCE_LOCI}" : "${ncconf.GLANCE_LOCI}")
-    CINDER_LOCI=(env.CINDER_LOCI != null) ? env.CINDER_LOCI : (mos ? "${ncconf.MOS_CINDER_LOCI}" : "${ncconf.CINDER_LOCI}")
-    NOVA_1804_LOCI=(env.NOVA_1804_LOCI != null) ? env.NOVA_1804_LOCI : (mos ? "${ncconf.MOS_NOVA_1804_LOCI}" : "${ncconf.NOVA_1804_LOCI}")
-    NEUTRON_LOCI=(env.NEUTRON_LOCI != null) ? env.NEUTRON_LOCI : (mos ? "${ncconf.MOS_NEUTRON_LOCI}" : "${ncconf.NEUTRON_LOCI}")
+    // safe way to check for ps image, or set to default
+    KEYSTONE_LOCI = images.find{ it.key == "KEYSTONE_LOCI" }?.value ?: (mos ? ncconf.MOS_KEYSTONE_LOCI : ncconf.KEYSTONE_LOCI)
+    HEAT_LOCI = images.find{ it.key == "HEAT_LOCI" }?.value ?: (mos ? ncconf.MOS_HEAT_LOCI : ncconf.HEAT_LOCI)
+    GLANCE_LOCI = images.find{ it.key == "GLANCE_LOCI" }?.value ?: (mos ? ncconf.MOS_GLANCE_LOCI : ncconf.GLANCE_LOCI)
+    CINDER_LOCI = images.find{ it.key == "CINDER_LOCI" }?.value ?: (mos ? ncconf.MOS_CINDER_LOCI : ncconf.CINDER_LOCI)
+    NOVA_1804_LOCI = images.find{ it.key == "NOVA_1804_LOCI" }?.value ?: (mos ? ncconf.MOS_NOVA_1804_LOCI : ncconf.NOVA_1804_LOCI)
+    NEUTRON_LOCI = images.find{ it.key == "NEUTRON_LOCI" }?.value ?: (mos ? ncconf.MOS_NEUTRON_LOCI : ncconf.NEUTRON_LOCI)
 
     // omitting horizon as helm tests and cli do not exist
-    def projmap = ['keystone' : ['image' : "$KEYSTONE_LOCI", 'cli' : 'keystone-manage'],
-                   'heat'     : ['image' : "$HEAT_LOCI", 'cli' : 'heat-manage'],
-                   'glance'   : ['image' : "$GLANCE_LOCI", 'cli' : 'glance-manage'],
-                   'cinder'   : ['image' : "$CINDER_LOCI", 'cli' : 'cinder-manage'],
-                   'nova'     : ['image' : "$NOVA_1804_LOCI", 'cli' : 'nova-manage'],
-                   'neutron'  : ['image' : "$NEUTRON_LOCI", 'cli' : 'neutron-debug']]
+    def projmap = ['keystone' : ['image' : KEYSTONE_LOCI, 'cli' : 'keystone-manage'],
+                   'heat'     : ['image' : HEAT_LOCI, 'cli' : 'heat-manage'],
+                   'glance'   : ['image' : GLANCE_LOCI, 'cli' : 'glance-manage'],
+                   'cinder'   : ['image' : CINDER_LOCI, 'cli' : 'cinder-manage'],
+                   'nova'     : ['image' : NOVA_1804_LOCI, 'cli' : 'nova-manage'],
+                   'neutron'  : ['image' : NEUTRON_LOCI, 'cli' : 'neutron-debug']]
     projmap.each { proj, value ->
         cmd = "sudo docker run --rm --name tempcont${proj} -t ${value.image} ${value.cli} --version"
         openstack_version = sh(returnStdout: true, script: cmd).trim()
@@ -253,7 +257,7 @@ def serviceVersions(Boolean mos = false) {
  * Run Helm tests on all Openstack services and log the results into artifacts/helm_tests.log
   */
 def runHelmTests() {
-    createArtifactsDir()
+    sh 'mkdir -p $WORKSPACE/artifacts'
 
     for (proj in ['keystone', 'heat', 'glance', 'cinder', 'nova', 'neutron']) {
         sh """helm test --debug ${proj} >> $WORKSPACE/artifacts/helm_tests.log || \\
@@ -268,7 +272,7 @@ def runHelmTests() {
  */
 def parseTestLogs() {
     def testlog = readFile "$WORKSPACE/artifacts/helm_tests.log"
-    if (testlog.find("FAILED:")) {
+    if (testlog.find("FAILED:|Error:|test\\(s\\) failed")) {
         return 1
     }
     return 0
@@ -282,6 +286,6 @@ def parseTestLogs() {
  */
 def artifactLogs() {
     cmd = "sudo tar --warning=no-file-changed -czf ${WORKSPACE}/artifacts/${BUILD_TAG}.tar.gz /var/log"
-    sh(returnStdout: true, script: cmd)
+    sh(script: cmd)
     archiveArtifacts 'artifacts/*'
 }
