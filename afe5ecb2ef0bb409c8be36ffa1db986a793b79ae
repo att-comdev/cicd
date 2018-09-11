@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2362552_63321491",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 18
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-11T16:30:50Z",
+      "side": 1,
+      "message": "simply:\nosh.serviceVersions([LOCI_IMAGE_VAR: IMAGE_LOCI])",
+      "revId": "afe5ecb2ef0bb409c8be36ffa1db986a793b79ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
