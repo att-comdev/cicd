@@ -16,6 +16,24 @@
       "revId": "afe5ecb2ef0bb409c8be36ffa1db986a793b79ae",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd4526a5_7fc392e5",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 18
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-09-11T17:42:52Z",
+      "side": 1,
+      "message": "this did not work as expected. the key is LOCI_IMAGE_VAR and not value of LOCI_IMAGE_VAR",
+      "parentUuid": "f2362552_63321491",
+      "revId": "afe5ecb2ef0bb409c8be36ffa1db986a793b79ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }

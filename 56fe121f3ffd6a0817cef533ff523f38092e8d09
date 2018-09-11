@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "20300922_55262b70",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 15
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-09-11T17:42:52Z",
+      "side": 1,
+      "message": "the latest ps revision adds deployment on ps",
+      "parentUuid": "b43d4987_857fc435",
+      "revId": "56fe121f3ffd6a0817cef533ff523f38092e8d09",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d56b42fd_7a43f776",
         "filename": "images/openstack/loci/JenkinsfileMos",
         "patchSetId": 15
