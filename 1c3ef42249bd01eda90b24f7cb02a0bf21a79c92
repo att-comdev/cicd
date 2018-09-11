@@ -16,6 +16,24 @@
       "revId": "1c3ef42249bd01eda90b24f7cb02a0bf21a79c92",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e949cdf_aa1c9442",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 14
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-09-11T14:38:48Z",
+      "side": 1,
+      "message": "Added to NO_PROXY",
+      "parentUuid": "52bd09ba_43042d4f",
+      "revId": "1c3ef42249bd01eda90b24f7cb02a0bf21a79c92",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }

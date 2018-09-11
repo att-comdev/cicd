@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e701a4a1_38f76e98",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 15
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-09-11T14:38:48Z",
+      "side": 1,
+      "message": "sure. Changed the lib function to use map",
+      "parentUuid": "fa238392_904b7cf2",
+      "revId": "56fe121f3ffd6a0817cef533ff523f38092e8d09",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d56b42fd_7a43f776",
         "filename": "images/openstack/loci/JenkinsfileMos",
         "patchSetId": 15
@@ -30,6 +48,24 @@
       "writtenOn": "2018-09-05T16:55:11Z",
       "side": 1,
       "message": "Suggest using map instead of passing around environment variables between functions.",
+      "revId": "56fe121f3ffd6a0817cef533ff523f38092e8d09",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c035739e_b139781f",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 15
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-09-11T14:38:48Z",
+      "side": 1,
+      "message": "sure. Changed the lib function to use map",
+      "parentUuid": "d56b42fd_7a43f776",
       "revId": "56fe121f3ffd6a0817cef533ff523f38092e8d09",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
