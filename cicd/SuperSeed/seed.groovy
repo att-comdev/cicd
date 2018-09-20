@@ -9,19 +9,16 @@ freeStyleJob("${job_path}") {
             name ('SEED_PATH')
             defaultValue('')
             description('Seed path. Example: cicd/SuperSeed/seed.groovy')
-            trim(true)
         }
         stringParam {
             name ('GERRIT_REFSPEC')
             defaultValue('origin/master')
             description('Gerrit refspec')
-            trim(true)
         }
         stringParam {
             name ('GERRIT_PROJECT')
             defaultValue('att-comdev/cicd')
             description('Project on Gerrithub')
-            trim(true)
         }
     }
 
@@ -61,7 +58,7 @@ freeStyleJob("${job_path}") {
         }
         shell(readFileFromWorkspace("${job_path}/superseed.sh"))
         dsl {
-            external('${BUILD_NUMBER}/seed.groovy')
+            external('${BUILD_NUMBER}/*seed.groovy')
             //ignoreExisting(true)
             //removeAction('DISABLE')
         }
