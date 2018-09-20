@@ -8,26 +8,28 @@ freeStyleJob("${job_path}") {
         stringParam {
             name ('SEED_PATH')
             defaultValue('')
-            description('Seed path. Example: cicd/SuperSeed/seed.groovy')
-            trim(true)
+            description('Comma delimted Seed path \n' +
+                        'Example: cicd/SuperSeed/seed.groovy,cicd/NodeCleanup/seed.groovy')
         }
         stringParam {
             name ('GERRIT_REFSPEC')
             defaultValue('origin/master')
             description('Gerrit refspec')
-            trim(true)
+        }
+        stringParam {
+            name ('GERRIT_HOST')
+            defaultValue('review.gerrithub.io')
+            description('Gerrit host')
         }
         stringParam {
             name ('GERRIT_PROJECT')
             defaultValue('att-comdev/cicd')
-            description('Project on Gerrithub')
-            trim(true)
+            description('Project on Gerrit')
         }
     }
 
     triggers {
         gerritTrigger {
-            serverName('Gerrithub-jenkins')
             gerritProjects {
                 gerritProject {
                     compareType('PLAIN')
@@ -40,17 +42,27 @@ freeStyleJob("${job_path}") {
                     }
                     disableStrictForbiddenFileVerification(false)
                 }
+                gerritProject {
+                    compareType('REG_EXP')
+                    pattern("^nc-cicd\$")
+                    branches {
+                        branch {
+                            compareType('ANT')
+                            pattern("**/master")
+                        }
+                    }
+                    disableStrictForbiddenFileVerification(false)
+                }
             }
             triggerOnEvents {
-/// PatchsetCreated trigger should be manually enabled on staging:
-//                patchsetCreated {
-//                   excludeDrafts(true)
-//                   excludeTrivialRebase(false)
-//                   excludeNoCodeChange(false)
-//                }
+                patchsetCreated {
+                   excludeDrafts(true)
+                   excludeTrivialRebase(false)
+                   excludeNoCodeChange(false)
+                }
 
 /// changeMerged trigger for production:
-            changeMerged()
+                changeMerged()
             }
         }
     }
@@ -58,10 +70,13 @@ freeStyleJob("${job_path}") {
     //Wipe the workspace:
         wrappers {
             preBuildCleanup()
+            credentialsBinding {
+                usernamePassword('JENKINS_USER', 'JENKINS_TOKEN', 'jenkins-token')
+            }
         }
         shell(readFileFromWorkspace("${job_path}/superseed.sh"))
         dsl {
-            external('${BUILD_NUMBER}/seed.groovy')
+            external('${BUILD_NUMBER}/**/*seed.groovy')
             //ignoreExisting(true)
             //removeAction('DISABLE')
         }
