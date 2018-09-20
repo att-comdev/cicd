@@ -61,7 +61,7 @@ freeStyleJob("${job_path}") {
         }
         shell(readFileFromWorkspace("${job_path}/superseed.sh"))
         dsl {
-            external('${BUILD_NUMBER}/seed.groovy')
+            external('${BUILD_NUMBER}/*seed.groovy')
             //ignoreExisting(true)
             //removeAction('DISABLE')
         }

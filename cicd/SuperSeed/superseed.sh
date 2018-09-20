@@ -8,7 +8,6 @@ git_clone(){
     local local_path=$2
     local refspec=$3
     local gerrit_url='http://gerrithub.io'
-    #local gerrit_url='ssh://jenkins@gerrithub.io:29418'
 
     if [[ "${local_path}" =~ ^[\/\.]*$ ]]; then
         echo "ERROR: Bad local path '${local_path}'"
@@ -32,20 +31,52 @@ git_clone(){
     popd
 }
 
-copy_seed(){
+get_seed(){
+    # recursive search of seed.groovy for a Jenkinsfile
+    # Lookup in same or higher level directories
 
-    if [ -f "${WORKSPACE}/$1" ]; then
-        echo "INFO: Seed file found! $1 "
-        mkdir -p ${WORKSPACE}/${BUILD_NUMBER}
-        # "${BUILD_NUMBER}/seed.groovy" is a hardcoded path
-        # for 'Process Job DSLs' part of the job.
-        # See cicd/SuperSeed/seed.groovy file.
-        cp -a ${WORKSPACE}/$1 ${WORKSPACE}/${BUILD_NUMBER}/seed.groovy
-    else
-        #Fail the build if file doesn't exists:
-        echo "ERROR: No seed files found"
+    SEED=''
+    dir_path=$(dirname $1)
+    if [ -f "${WORKSPACE}/${dir_path}/seed.groovy" ]; then
+        # found seed for the Jenkinsfile
+        SEED="${dir_path}/seed.groovy"
+        return
+    fi
+
+    up_dir=$(dirname ${dir_path})
+    if [ ${up_dir} == "." ]; then
+        # reached top level dir
+        echo "ERROR: seed file not found in ${dir_path}/..."
         exit 1
     fi
+
+    # check seed in one level higher directory
+    get_seed "${up_dir}/seed.groovy"
+}
+
+copy_seed(){
+    # Split comma separated seed list
+    # copy all seed.groovy files with prefixed dir name
+    # param - comma separated relative paths of seed.groovy
+
+    # "${BUILD_NUMBER}/<seeddirname>-seed.groovy" is a hardcoded path
+    # for 'Process Job DSLs' part of the job.
+    # See cicd/SuperSeed/seed.groovy file.
+
+    mkdir -p ${WORKSPACE}/${BUILD_NUMBER}
+    seed_list=$(echo $1 | tr "," "\n")
+
+    for seed in $seed_list; do
+        seed_file="${WORKSPACE}/${seed}"
+        if [ -f ${seed_file} ]; then
+            seed_dir=$(dirname ${seed} | awk -F '/' '{print $NF}')
+            cp -a ${seed_file} ${WORKSPACE}/${BUILD_NUMBER}/${seed_dir}-seed.groovy
+        else
+            # Fail the build if file doesn't exists:
+            echo "ERROR: ${seed_file} not found"
+            exit 1
+        fi
+    done
 }
 
 find_seed(){
@@ -56,33 +87,48 @@ find_seed(){
             exit 1
         fi
 
-        echo "INFO: Looking for seed.groovy file in refspec changes..."
+        echo "INFO: Looking for seed.groovy file(s) in refspec changes..."
         LAST_2COMMITS=`git log -2 --reverse --pretty=format:%H`
 
-        #Looking for added or modified seed.groovy files or Jenkinsfiles:
+        # Looking for added or modified seed.groovy files or Jenkinsfiles:
         MODIFIED_FILES=`git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | grep 'seed.groovy' | cut -f2`
-        echo "INFO: changed seed file: $MODIFIED_FILES"
+        echo "INFO: changed seed file(s): $MODIFIED_FILES"
+
         if [ -z "${MODIFIED_FILES}" ]; then
-            #No seeds?, looking for modified Jenkinsfile files:
+            # No seeds?, looking for modified Jenkinsfile files:
             MODIFIED_FILES=`git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | grep Jenkinsfile| cut -f2`
-        echo "INFO: changed Jenkinsfile: $MODIFIED_FILES"
+            echo "INFO: changed Jenkinsfile(s): $MODIFIED_FILES"
         fi
 
+        echo "INFO: Building the SEED_PATH for all seed.groovy files..."
         if [ ! -z "${MODIFIED_FILES}" ]; then
             for file in ${MODIFIED_FILES}; do
-                SEED_PATH=$(dirname ${file})/seed.groovy
-                export SEED_PATH=${SEED_PATH}
-            done
-        fi
 
-    else
-        #if SEED_PATH param is not empty, we don't need to do anything:
-        echo ${SEED_PATH}
+                # lookup seed.groovy for Jenkinsfile
+                get_seed "$(dirname ${file})/seed.groovy"
+
+                if [[ -z "${SEED_PATH}" ]]; then
+                    # set first time
+                    SEED_PATH=${SEED}
+                elif [[ ! ${SEED_PATH} =~ ${SEED} ]]; then
+                    # if seed not already present, append to it
+                    SEED_PATH=${SEED_PATH},${SEED}
+                fi
+            done
+        else
+            # Fail the build as no seed or jenkinsfile found
+            echo "ERROR: No seed files found"
+            exit 1
+        fi
     fi
+
+    export SEED_PATH=$SEED_PATH
+    echo "INFO: SEED_PATH is [${SEED_PATH}]"
 }
 
+
 lint_jenkins_files(){
-    #Looking for added or modified seed.groovy files or Jenkinsfiles
+    # Looking for added or modified seed.groovy files or Jenkinsfiles
     LAST_2COMMITS=$(git log -2 --reverse --pretty=format:%H)
     MODIFIED_FILES=$(git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | egrep "seed.groovy|Jenkinsfile" | cut -f2)
 
@@ -94,7 +140,7 @@ lint_jenkins_files(){
 }
 
 lint_whitespaces(){
-    #find whitespaces at the end of lines in all files (except hidden, e.g. .git/)
+    # find whitespaces at the end of lines in all files (except hidden, e.g. .git/)
     WHITESPACEDFILES=$(find . -not -path "*/\.*" -type f -exec egrep -l " +$" {} \;)
     if [[ -z "${WHITESPACEDFILES}" ]]; then
         echo "No whitespaces at the end of lines."
@@ -114,8 +160,8 @@ set +x
 if [[ ! ${SEED_PATH} =~ ^tests/ ]]; then
     copy_seed ${SEED_PATH}
 else
-    echo "Not copying seed, because it's tests seed."
+    echo "Not copying seed(s), because it has tests seed."
 fi
 
-#Empty space for DSL script debug information:
+# Empty space for DSL script debug information:
 echo -e "=================================================\n"
