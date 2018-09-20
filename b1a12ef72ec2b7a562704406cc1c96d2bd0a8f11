@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e2a513e_f8c8105b",
+        "filename": "vars/logs.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-20T21:17:53Z",
+      "side": 1,
+      "message": "is this just if(logFile.empty()) ?",
+      "revId": "b1a12ef72ec2b7a562704406cc1c96d2bd0a8f11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a69280f1_a17969bd",
+        "filename": "vars/logs.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-20T21:17:53Z",
+      "side": 1,
+      "message": "This will hide failure.\n\nif resturnStatus: true - then need to check the exit code.\n\nSimply using sh (cmd) - would throw exception in case of failure.",
+      "revId": "b1a12ef72ec2b7a562704406cc1c96d2bd0a8f11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c083b20_9d63ad5b",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-09-20T21:17:53Z",
+      "side": 1,
+      "message": "I think this is already part of artifactory.groovy\nhttps://github.com/att-comdev/cicd/blob/master/vars/artifactory.groovy",
+      "revId": "b1a12ef72ec2b7a562704406cc1c96d2bd0a8f11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
