@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddecb4e4_a9a81147",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-09-24T20:03:48Z",
+      "side": 1,
+      "message": "I need to add additional branching for patchset-created and patchset-merged gerrit events.\npatchset-created events should not overwrite patchset-merged docs.",
+      "revId": "99e12416c7dd4cf22a4852c315714f15a0fb91a0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}

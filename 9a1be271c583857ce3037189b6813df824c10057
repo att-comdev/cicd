@@ -72,6 +72,54 @@
     },
     {
       "key": {
+        "uuid": "1a1528f9_51f2c2d1",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-09-24T20:03:48Z",
+      "side": 1,
+      "message": "https://review.gerrithub.io/c/att-comdev/cicd/+/426590/5/code-review/seed.groovy@8 does this satisfy your comment or is something else needed?",
+      "parentUuid": "5d93590e_8d294c98",
+      "range": {
+        "startLine": 86,
+        "startChar": 39,
+        "endLine": 86,
+        "endChar": 48
+      },
+      "revId": "9a1be271c583857ce3037189b6813df824c10057",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3e1d7ef_a8641e8a",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-09-24T20:03:48Z",
+      "side": 1,
+      "message": "https://review.gerrithub.io/c/att-comdev/cicd/+/426590/5//COMMIT_MSG#13 does this help clear up the uncertainty of what I want the folder name to be?\n\nI essentially want to strip the beginning of the string \"aic-aqa-\" so that all that remains is everything BUT \"aic-aqa-\", so for aic-aqa-api, all I want to remain from it is \"api\" so that I can append it to the /aqua-docs/ path.\n\nHere is the suggested substitution in use:\n\n# suggested to use ${GERRIT_PROJECT - \u0027aic-aqa-\u0027}\n\n$ cat test.sh\nGERRIT_PROJECT\u003daic-aqa-api\necho ${GERRIT_PROJECT - \"aic-aqa-\"}\nubuntu@ubuntu:~$ ./test.sh\n./test.sh: line 2: ${GERRIT_PROJECT - \"aic-aqa-\"}: bad substitution\n\n# currently proposed substitution\n\n$ cat test.sh\nGERRIT_PROJECT\u003daic-aqa-api\necho ${GERRIT_PROJECT#aic-aqa-}\nubuntu@ubuntu:~$ ./test.sh\napi\n\nhere is a link to a webpage that helped me determine which operator to use for the parameter expansion. http://wiki.bash-hackers.org/syntax/pe",
+      "parentUuid": "e685b156_8f711020",
+      "range": {
+        "startLine": 86,
+        "startChar": 49,
+        "endLine": 86,
+        "endChar": 75
+      },
+      "revId": "9a1be271c583857ce3037189b6813df824c10057",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "114f53a2_aa160287",
         "filename": "code-review/Jenkinsfile",
         "patchSetId": 5
