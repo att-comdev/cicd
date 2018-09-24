@@ -81,6 +81,12 @@ vm2('bootstrap.sh',
                     notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
                 }else{
                     notify.msg("Code Review successful for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}")
+
+                    if (fileExists('doc/build/html')) {
+                        sh "HTTP_PATH=/aqua-docs/${GERRIT_PROJECT#aic-aqa-}/"
+                        putArtifacts('doc/build/html', "${HTTP_PATH}")
+                        notify.msg("Documentation published at ${HTTP_PATH}")
+                    }
                 }
             }
         }
