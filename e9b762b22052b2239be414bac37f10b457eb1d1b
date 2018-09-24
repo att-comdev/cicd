@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2126e271_abdc9780",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-09-24T16:40:16Z",
+      "side": 1,
+      "message": "Done, I think?",
+      "parentUuid": "f4fa63e3_3dc22e4e",
+      "revId": "e9b762b22052b2239be414bac37f10b457eb1d1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7d5f1c06_cba099a4",
         "filename": "code-review/Jenkinsfile",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2018-09-24T16:26:48Z",
       "side": 1,
       "message": "Is the if() block you adding missing a closing bracket?",
+      "revId": "e9b762b22052b2239be414bac37f10b457eb1d1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f9bb890_841a253b",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-09-24T16:40:16Z",
+      "side": 1,
+      "message": "yeah it is, D\u0027oh! :(",
+      "parentUuid": "7d5f1c06_cba099a4",
       "revId": "e9b762b22052b2239be414bac37f10b457eb1d1b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
