@@ -124,6 +124,9 @@ MOS_PROJECTS.each { project, ref ->
                         excludeNoCodeChange(false)
                     }
                     changeMerged()
+                    commentAddedContains {
+                        commentAddedCommentContains('^recheck')
+                    }
                 }
             }
             definition {
