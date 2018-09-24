@@ -81,6 +81,20 @@ vm2('bootstrap.sh',
                     notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
                 }else{
                     notify.msg("Code Review successful for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}")
+
+                    if (fileExists('doc/build/html') && GERRIT_PROJECT.contains('aic-aqa-')) {
+                        def project_path = GERRIT_PROJECT.split('aic-aqa-')[1]
+                        if (GERRIT_EVENT_TYPE == "patchset-created") {
+                            def doc_path = "/aqua-docs/patched/" + project_path + "/" + GERRIT_CHANGE_NUMBER
+                            publish.putArtifacts('doc/build/html', doc_path)
+                            notify.msg("Documentation located in artifactory at " + doc_path)
+                        }
+                        if (GERRIT_EVENT_TYPE == "patchset-merged") {
+                            def doc_path = "/aqua-docs/" + project_path
+                            publish.putArtifacts('doc/build/html', doc_path)
+                            notify.msg("Documentation located in artifactory at " + doc_path)
+                        }
+                    }
                 }
             }
         }
