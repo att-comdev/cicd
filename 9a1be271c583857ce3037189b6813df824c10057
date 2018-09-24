@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "114f53a2_aa160287",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-09-24T16:52:33Z",
+      "side": 1,
+      "message": "do I need to add a glob here? \u0027doc/build/html/*\u0027\n\nany tips/tools for testing this would be good to know.",
+      "range": {
+        "startLine": 87,
+        "startChar": 51,
+        "endLine": 87,
+        "endChar": 53
+      },
+      "revId": "9a1be271c583857ce3037189b6813df824c10057",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
