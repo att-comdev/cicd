@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "4702c97a_406493eb",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-09-24T18:29:53Z",
+      "side": 1,
+      "message": "Not sure what is the intended folder name but this should be ${GERRIT_PROJECT}#aic-aqa- instead of ${GERRIT_PROJECT#aic-aqa-}",
+      "range": {
+        "startLine": 86,
+        "startChar": 49,
+        "endLine": 86,
+        "endChar": 75
+      },
+      "revId": "9a1be271c583857ce3037189b6813df824c10057",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d93590e_8d294c98",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-09-24T18:29:53Z",
+      "side": 1,
+      "message": "if its intended only for aqua suggest to add a check for specific aqua projects",
+      "range": {
+        "startLine": 86,
+        "startChar": 39,
+        "endLine": 86,
+        "endChar": 48
+      },
+      "revId": "9a1be271c583857ce3037189b6813df824c10057",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "114f53a2_aa160287",
         "filename": "code-review/Jenkinsfile",
         "patchSetId": 5
