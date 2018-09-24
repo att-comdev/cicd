@@ -34,7 +34,7 @@ pipelineJob("${JOB_BASE}/airship-in-a-bottle") {
                 }
                 changeMerged()
                 commentAddedContains {
-                   commentAddedCommentContains('recheck')
+                   commentAddedCommentContains('^recheck\$')
                 }
             }
         }
