@@ -15,6 +15,9 @@ def object = jsonSlurper.parseText(imagesJson)
 for (entry in object.airship) {
     for (image in entry.images) {
       pipelineJob("images/${entry.repo}/${image}/${image}") {
+            logRotator{
+               daysToKeep(180)
+            }
             configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'

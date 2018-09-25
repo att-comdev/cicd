@@ -3,6 +3,9 @@ JOB_NAME="${JOB_FOLDER}/helm-toolkit-compatibility"
 
 folder(JOB_FOLDER)
 pipelineJob(JOB_NAME) {
+    logRotator{
+         daysToKeep(180)
+    }
     parameters {
         stringParam {
             name ('PROJECT_LIST')

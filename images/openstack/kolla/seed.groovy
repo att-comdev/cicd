@@ -30,6 +30,9 @@ MOS_PROJECTS = ['keystone': 'main/newton',
 COMMUNITY_PROJECTS.each { project, ref ->
 
     pipelineJob("${JOB_BASE}/community/${project}") {
+        logRotator{
+            daysToKeep(180)
+        }
 
         parameters {
             stringParam {
@@ -82,6 +85,9 @@ COMMUNITY_PROJECTS.each { project, ref ->
 MOS_PROJECTS.each { project, ref ->
 
     pipelineJob("${JOB_BASE}/mos/${project}") {
+        logRotator{
+             daysToKeep(180)
+        }
 
         parameters {
             stringParam {
