@@ -14,6 +14,9 @@ MOS_PROJECTS = ['mos-keystoneclient',
 
 MOS_PROJECTS.each { project ->
     pipelineJob("${JOB_BASE}/pip-pkg/${project}") {
+        logRotator{
+            daysToKeep(180)
+        }
         // limit surge of patchsets
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{

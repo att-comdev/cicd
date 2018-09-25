@@ -16,6 +16,9 @@ JOB_FOLDER="images/airship/drydock"
 folder(JOB_FOLDER)
 for (project in Json.projects) {
     pipelineJob("${JOB_FOLDER}/${project.name}") {
+        logRotator{
+           daysToKeep(180)
+        }
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                 durationName 'hour'
