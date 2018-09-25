@@ -15,6 +15,9 @@ def projects = ['armada':'charts/.*',
 projects.each { project_name, file_path ->
     JOB_NAME=project_name
     pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
+        logRotator{
+             daysToKeep(180)
+        }
         parameters {
             stringParam {
                 name ('GERRIT_PROJECT')
@@ -98,6 +101,9 @@ projects = ['apiserver':'charts/apiserver/.*',
 projects.each { project_name, file_path ->
     JOB_NAME=project_name
     pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
+        logRotator{
+             daysToKeep(180)
+        }
         parameters {
             stringParam {
                 name ('GERRIT_PROJECT')
@@ -174,6 +180,9 @@ projects = ['tiller':'charts/tiller/.*']
 projects.each { project_name, file_path ->
     JOB_NAME=project_name
     pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
+        logRotator{
+             daysToKeep(180)
+        }
         parameters {
             stringParam {
                 name ('GERRIT_PROJECT')
