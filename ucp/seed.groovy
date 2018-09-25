@@ -12,6 +12,9 @@ def object = jsonSlurper.parseText(imagesJson)
 for (entry in object.UCP) {
     for (image in entry.images) {
         pipelineJob("UCP/${image}/${image}") {
+            options {
+                buildDiscarder(logRotator(daysToKeepStr: '180'))
+            }
             parameters {
                 stringParam {
                     defaultValue(GERRIT_REFSPEC)
