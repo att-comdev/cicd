@@ -16,6 +16,9 @@ def Json = jsonSlurper.parseText(UCP_deps)
 JOB_FOLDER="images/att-comdev/shipyard/airflow"
 folder(JOB_FOLDER)
 pipelineJob("${JOB_FOLDER}/airflow") {
+    logRotator{
+        daysToKeep(180)
+    }
     configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'
@@ -68,6 +71,9 @@ pipelineJob("${JOB_FOLDER}/airflow") {
 }
 
 pipelineJob("${JOB_FOLDER}/airflow-integration") {
+    options {
+        buildDiscarder(logRotator(daysToKeepStr: '180'))
+    }
     configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'
