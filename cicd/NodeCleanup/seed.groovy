@@ -3,6 +3,10 @@ job_path = "${base_path}/NodeCleanup"
 folder("${base_path}")
 
 pipelineJob(job_path) {
+    logRotator{
+        daysToKeep(180)
+    }
+
     description("This job deletes the jenkins node and its underlying stack")
     parameters {
         stringParam {
