@@ -1,6 +1,9 @@
 JOB_FOLDER="images/airship/shipyard"
 folder(JOB_FOLDER)
 pipelineJob("${JOB_FOLDER}/shipyard") {
+    options {
+        buildDiscarder(logRotator(daysToKeepStr: '180'))
+    }
     configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'
