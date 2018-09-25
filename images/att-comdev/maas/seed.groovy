@@ -26,6 +26,9 @@ JOB_FOLDER="images/att-comdev/maas"
 folder(JOB_FOLDER)
 for (project in Json.projects) {
     pipelineJob("${JOB_FOLDER}/${project.name}/${project.name}") {
+        options {
+            buildDiscarder(logRotator(daysToKeepStr: '180'))
+        }
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                 durationName 'hour'
