@@ -12,9 +12,8 @@ pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
     displayName('Testing library in vars/')
     description('This job is supposed to call methods from libraries located in vars/ to test if they work properly')
 
-    logRotator {
-        numToKeep(5)
-        artifactNumToKeep(5)
+    options {
+        buildDiscarder(logRotator(daysToKeepStr: '180'))
     }
 
     parameters {
