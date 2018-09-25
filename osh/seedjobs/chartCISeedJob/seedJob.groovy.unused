@@ -97,6 +97,9 @@ def slack = """
 def jobName = project+"-"+"Pipeline"
 
 pipelineJob(folderProject+"/"+project.replaceAll('/','-')) {
+  options {
+      buildDiscarder(logRotator(daysToKeepStr: '180'))
+  }
 
   scm{
     git('${GIT_URL}', '${GIT_BRANCH}', null)
