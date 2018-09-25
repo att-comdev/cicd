@@ -32,6 +32,10 @@ vm(NODE_NAME, NODE_TMPL) {
             sh "sudo make images IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
         }
     }
+    stage('Docker bench')
+    {
+        sh  'docker run  --net host --pid host --userns host --cap-add audit_control -e DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST -v /var/lib:/var/lib -v /var/run/docker.sock:/var/run/docker.sock -v /usr/lib/systemd:/usr/lib/systemd -v /etc:/etc --label docker_bench_security docker/docker-bench-security'
+    }
     stage('Test Coverage') {
         sh 'sudo apt-get install make'
         sh "sudo make coverage_test DOCKER_REGISTRY=${ARTF_DOCKER_URL} IMAGE_PREFIX=att-comdev IMAGE_NAME=${JOB_BASE_NAME} IMAGE_TAG=${IMAGE_TAG}"
