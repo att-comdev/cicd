@@ -1,6 +1,6 @@
 //This groovy file is used for Jenkins node methods.
 
-def node_create(String name, String host, String key = 'jenkins-slave-ssh', String numOfExecutors) {
+def node_create(String name, String host, String key = 'jenkins-slave-ssh', Number numOfExecutors) {
     config = node_config(name, host, key, numOfExecutors)
     withCredentials([usernamePassword(credentialsId: 'jenkins-token',
                                       usernameVariable: 'JENKINS_USER',
@@ -26,7 +26,7 @@ def node_delete(String name) {
 }
 
 //jenkins-slave-ssh is already in use for the foundry.  We need to standardize to something not in use.
-def node_config(String name, String host, String key, String numOfExecutors) {
+def node_config(String name, String host, String key, Number numOfExecutors) {
     config = """<slave>
         <name>${name}</name>
         <description></description>
