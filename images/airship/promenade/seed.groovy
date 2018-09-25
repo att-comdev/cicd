@@ -15,6 +15,9 @@ folder('images/airship/promenade')
 for (entry in object.images) {
     for (pipelineName in entry.pipelineNames) {
         pipelineJob("images/airship/promenade/${pipelineName}") {
+            options {
+                buildDiscarder(logRotator(daysToKeepStr: '180'))
+            }
             configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'
