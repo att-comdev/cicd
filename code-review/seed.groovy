@@ -1,5 +1,5 @@
 pipelineJob("code-review") {
-    description("This job is for python applications to run pep8, bandit, unit tests, and code coverage")
+    description("This job is for python applications to run pep8, bandit, unit tests, docs, and code coverage")
     triggers {
         gerritTrigger {
             gerritProjects {
