@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb74afaa_84e4ff00",
+        "filename": "images/airship/drydock/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-09-26T11:35:40Z",
+      "side": 1,
+      "message": "this may require sudo I think, please test it out",
+      "range": {
+        "startLine": 37,
+        "startChar": 13,
+        "endLine": 37,
+        "endChar": 20
+      },
+      "revId": "e20b4537a69b6b0b58733f1d8efe453d243b4854",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
