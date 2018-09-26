@@ -1,5 +1,5 @@
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
-
+ARTF_URL = env.ARTF_WEB_URL
 //large VM for running tests Ex: Nova, Neutron
 vm2('bootstrap.sh',
          'cicd-ubuntu-16.04-server-cloudimg-amd64',
@@ -81,6 +81,28 @@ vm2('bootstrap.sh',
                     notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
                 }else{
                     notify.msg("Code Review successful for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}")
+                    cmd = "cd doc/build/html"
+                    status = sh(returnStatus: true, script: cmd)
+                    if (status == 0 && GERRIT_PROJECT.contains('aic-aqa-')) {
+                        def project_path = GERRIT_PROJECT.split('aic-aqa-')[0]
+                        if (GERRIT_EVENT_TYPE == "patchset-created" || GERRIT_EVENT_TYPE == "comment-added") {
+                            def doc_path = project_path + "/patched/" + GERRIT_CHANGE_NUMBER
+                            publish.deleteArtifacts('aqua-user',
+                                                    "${ARTF_URL}/artifactory",
+                                                    "aqua-docs",
+                                                    doc_path)
+                            publish.putArtifacts('*', "aqua-docs/" + doc_path, false)
+                        }
+                        if (GERRIT_EVENT_TYPE == "patchset-merged") {
+                            def doc_path = project_path
+                            publish.deleteArtifacts('aqua-user',
+                                                    "${ARTF_URL}/artifactory",
+                                                    "aqua-docs",
+                                                    doc_path)
+                            publish.putArtifacts('*', "aqua-docs/" + doc_path, false)
+                        }
+                        print "Documentation located in artifactory at ${ARTF_URL}/artifactory/" + "aqua-docs/" + doc_path
+                    }
                 }
             }
         }
