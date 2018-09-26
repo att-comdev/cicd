@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1a35af3_6544b350",
+        "filename": "packages/ubuntu/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-09-26T11:17:34Z",
+      "side": 1,
+      "message": "remove the whitespaces to avoid jenkins failure",
+      "range": {
+        "startLine": 6,
+        "startChar": 42,
+        "endLine": 6,
+        "endChar": 44
+      },
+      "revId": "c4f1432b5765787eb5f6a159242f27b102a8cc61",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
