@@ -90,14 +90,15 @@ def setProperty (String creds, String url, Map properties) {
  *
  * @param file File to upload to Artifactory
  * @param repo Repository to upload artifact to
+ * @param flat Flag to set flat value
 **/
-def putArtifacts (String file, String repo) {
+def putArtifacts (String file, String repo, Boolean flat) {
      artf = Artifactory.server 'artifactory'
 
      spec = """{"files": [{
                 "pattern": "${file}",
                 "target": "${repo}",
-                "flat": "true"
+                "flat": "${flat}"
             }]}"""
 
      artf.publishBuildInfo(artf.upload(spec))
