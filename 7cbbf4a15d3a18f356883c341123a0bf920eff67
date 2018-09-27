@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5209466_7adca0bf",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 15
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-27T15:10:43Z",
+      "side": 1,
+      "message": "I would want to know a history why is this disabled in code, and why you enable it.",
+      "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af2f4586_dc3ea6ea",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-27T15:10:43Z",
+      "side": 1,
+      "message": "Why not just `find . -name seed.groovy` and add results to the array?",
+      "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c45be15_5685020d",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-27T15:10:43Z",
+      "side": 1,
+      "message": "You don\u0027t need to supply seed.groovy here, you drop it in get_seed() anyway.",
+      "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff9eae65_0ae8d72c",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-27T15:10:43Z",
+      "side": 1,
+      "message": "I don\u0027t understand. Does it work? If not, then why doesn\u0027t it work?\nWe successfully clone att-comdev/cicd repo. What is the problem to run linting on them?\nMake linting work, please.",
+      "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5732810c_f9ac8313",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-27T15:10:43Z",
+      "side": 1,
+      "message": "Because it is in tests/ directory.",
+      "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
