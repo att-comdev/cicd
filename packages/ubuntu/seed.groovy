@@ -9,7 +9,6 @@ pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
     description('\nThis job is supposed to build (backport/re-build) custom '+
                 'Ubuntu packages and upload them to Artifactory.\nList of '+
                 'packages is in Jenkinsfile, submit a change to amend it.')
-                
     parameters {
         choiceParam('UPLOAD_PACKAGES', ['false', 'true'], 'Upload packages to repository')
         choiceParam('FAKE_GPG_KEY', ['false', 'true'], 'Use fake GPG key')
