@@ -111,7 +111,7 @@ repositoryContents.each {
     */
     options {
         buildDiscarder(logRotator(daysToKeepStr: '180'))
-      }
+    }
     scm{
       git('${GIT_URL}', '${GIT_BRANCH}', null)
     }

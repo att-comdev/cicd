@@ -72,6 +72,7 @@ def object = jsonSlurper.parseText(chartsJson)
 for (entry in object.osh) {
     for (chart in entry.charts) {
         pipelineJob("charts/${entry.repo}/${chart}") {
+            
             options {
                 buildDiscarder(logRotator(daysToKeepStr: '180'))
             }
