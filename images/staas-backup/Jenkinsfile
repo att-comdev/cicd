@@ -1,0 +1,64 @@
+IMAGE_PREFIX="staas-backup"
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+SEMANTIC_RELEASE_VERSION = "0.1.0"
+IMAGE_NAME="staas-backup-xenial"
+
+
+def BASE_IMAGE="${IMAGE_PREFIX}/buildpack-deps:xenial"
+
+vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64'){
+
+    stage('Checkout') {
+        vm2.setproxy()
+
+        gerrit.cloneToBranch("https://review.gerrithub.io/att-comdev/dockerfiles", "${IMAGE_TAG}", "")
+        if (env.GERRIT_EVENT_TYPE != 'change-merged') {
+            gerrit.rebase()
+        }
+
+        // Note 1: docker-ce is supposed to be installed on the build machine.
+        // Note 2: all the airship components must support the make images target
+        sh "sudo apt-get update -y"
+        sh "sudo apt-get install -y make"
+    }
+
+    // dir("${WORKSPACE}/staas-backup") {
+    // Note 2: IMAGE_NAME is also a key parameter of the Makefile which prevent
+    //         all the images supported by the Makefile from being rebuild.
+    //         Hence we need on JenkinsJob per image
+
+    stage('Build staas-backup') {
+
+
+        // If this is a merge, we want to use the NEWREV commit id for the tag
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_PATCHSET_REVISION}")
+            IMAGE_TAG="${GERRIT_NEWREV}"
+       }
+
+       def LABELS = ""
+       LABELS = "--label org.label-schema.vcs-ref=${IMAGE_TAG} \
+              --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL}\
+              --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}'"
+
+
+        def cmd="sudo docker inspect --format='{{index .RepoDigests 0}}' ${BASE_IMAGE}"
+        def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+        def IMAGE_LABEL = "' org.label-schema.base-image=${base_sha256} " + "${LABELS}"
+        def TARGET_IMAGE="${IMAGE_PREFIX}/staas-backup:${IMAGE_TAG}"
+
+        echo ("Target image: ${TARGET_IMAGE}")
+        echo ("Base image: ${BASE_IMAGE}")
+
+        dir("${WORKSPACE}/base-images") {
+           sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE=${TARGET_IMAGE} UBUNTU_BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=${IMAGE_NAME} LABEL=${IMAGE_LABEL}"
+        }
+    }
+
+    stage('Publish staas-backup'){
+
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}.${BUILD_TIMESTAMP}")
+        publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}")
+    }
+}
+
