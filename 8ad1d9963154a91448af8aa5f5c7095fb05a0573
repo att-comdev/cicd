@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62f88caf_52f78ade",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-27T15:13:58Z",
+      "side": 1,
+      "message": "This is improper commit title and text.\nhttps://chris.beams.io/posts/git-commit/\nhttps://wiki.openstack.org/wiki/GitCommitMessages#Information_in_commit_messages",
+      "revId": "8ad1d9963154a91448af8aa5f5c7095fb05a0573",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
