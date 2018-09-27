@@ -2,6 +2,103 @@
   "comments": [
     {
       "key": {
+        "uuid": "4e19afa3_a59df98f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-27T14:51:30Z",
+      "side": 1,
+      "message": "Jagan Kavva",
+      "range": {
+        "startLine": 2,
+        "startChar": 12,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "c4f1432b5765787eb5f6a159242f27b102a8cc61",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "712c7be5_e0968fb3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-27T14:51:30Z",
+      "side": 1,
+      "message": "Jagan Kavva",
+      "range": {
+        "startLine": 4,
+        "startChar": 12,
+        "endLine": 4,
+        "endChar": 17
+      },
+      "revId": "c4f1432b5765787eb5f6a159242f27b102a8cc61",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c06ea636_d1a681ef",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-27T14:51:30Z",
+      "side": 1,
+      "message": "Commit messages usually start with a verb.\n\nCommit description is missing.\nCheck https://chris.beams.io/posts/git-commit/ and may be https://wiki.openstack.org/wiki/GitCommitMessages#Information_in_commit_messages",
+      "revId": "c4f1432b5765787eb5f6a159242f27b102a8cc61",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f158a57_13c7be0a",
+        "filename": "charts/openstack/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-27T14:51:30Z",
+      "side": 1,
+      "message": "add space here, please",
+      "revId": "c4f1432b5765787eb5f6a159242f27b102a8cc61",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d1fe750b_bb474a95",
+        "filename": "osh/seedjobs/chartUpdateSeedJob/seedJob.groovy.unused",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-27T14:51:30Z",
+      "side": 1,
+      "message": "alignment is wrong",
+      "revId": "c4f1432b5765787eb5f6a159242f27b102a8cc61",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1a35af3_6544b350",
         "filename": "packages/ubuntu/seed.groovy",
         "patchSetId": 1
