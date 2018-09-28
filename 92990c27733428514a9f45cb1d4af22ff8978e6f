@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46524cab_9d08ce65",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-28T14:12:21Z",
+      "side": 1,
+      "message": "Jagan Kavva",
+      "revId": "92990c27733428514a9f45cb1d4af22ff8978e6f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92d8e8b4_dd98ad0c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-28T14:12:21Z",
+      "side": 1,
+      "message": "Commit messages usually start with a verb.\n\nCommit description is missing.\nCheck https://chris.beams.io/posts/git-commit/ and may be https://wiki.openstack.org/wiki/GitCommitMessages#Information_in_commit_messages",
+      "revId": "92990c27733428514a9f45cb1d4af22ff8978e6f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}

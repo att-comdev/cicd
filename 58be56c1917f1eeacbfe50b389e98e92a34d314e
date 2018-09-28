@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12d9ce62_fbb84555",
+        "filename": "charts/openstack/seed.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-28T14:12:21Z",
+      "side": 1,
+      "message": "Two spaces are missing here.",
+      "revId": "58be56c1917f1eeacbfe50b389e98e92a34d314e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30252acc_5336a80e",
+        "filename": "charts/openstack/seed.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-28T14:12:21Z",
+      "side": 1,
+      "message": "One space is missing here.",
+      "revId": "58be56c1917f1eeacbfe50b389e98e92a34d314e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "482663c3_2fd1b86d",
+        "filename": "cicd/NodeCleanup/seed.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-09-28T14:12:21Z",
+      "side": 1,
+      "message": "Why don\u0027t you use buildDiscarder() here?",
+      "revId": "58be56c1917f1eeacbfe50b389e98e92a34d314e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
