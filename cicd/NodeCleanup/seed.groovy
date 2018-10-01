@@ -12,6 +12,9 @@ pipelineJob(job_path) {
             trim(true)
         }
     }
+    libraries {
+    lib('att.comdev.cicd.config.conf')
+    }
     definition {
         cps {
             script(readFileFromWorkspace("${job_path}/Jenkinsfile"))
