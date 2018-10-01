@@ -1,7 +1,9 @@
-import att.comdev.cicd.config.conf
+def conf = library('cicd-libs-remote').att.comdev.cicd.config
 
 // node used for launching VMs in AF
 def launch_node = 'jenkins-node-launch'
+
+def EXCLUDE_NODE_LIST = conf.EXCLUDE_NODES.split()
 
 stage ('Release Jenkins slave') {
 
