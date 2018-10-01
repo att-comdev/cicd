@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "304a4d42_3814361f",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 15
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-01T11:03:34Z",
+      "side": 1,
+      "message": "this has been disabled from initial commit to restrict loading it 1st time.\nHowever currently we update superseed and other pipeline jobs through ps create.\nHence uncommenting here to avoid manually changing the config in UI.",
+      "parentUuid": "d5209466_7adca0bf",
+      "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "af2f4586_dc3ea6ea",
         "filename": "cicd/SuperSeed/superseed.sh",
         "patchSetId": 15
@@ -30,6 +48,24 @@
       "writtenOn": "2018-09-27T15:10:43Z",
       "side": 1,
       "message": "Why not just `find . -name seed.groovy` and add results to the array?",
+      "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41aa914b_f5ecbf30",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-01T11:03:34Z",
+      "side": 1,
+      "message": "Added this to support the lookup of seed.groovy for a Jenkinsfile\nEx: dir1/dir2/dir3/Jenkinsfile\n    dir1/dir2/dir4/Jenkinsfile\n    dir1/seed.groovy",
+      "parentUuid": "af2f4586_dc3ea6ea",
       "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "4a160bc7_0f18a7c8",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-01T11:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c45be15_5685020d",
+      "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff9eae65_0ae8d72c",
         "filename": "cicd/SuperSeed/superseed.sh",
         "patchSetId": 15
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "02d55a6e_12d56a4b",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-01T11:03:34Z",
+      "side": 1,
+      "message": "This wouldnt work without access. As suggested by you changed it to use auth with user:pass",
+      "parentUuid": "ff9eae65_0ae8d72c",
+      "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5732810c_f9ac8313",
         "filename": "cicd/SuperSeed/superseed.sh",
         "patchSetId": 15
@@ -81,6 +153,24 @@
       "writtenOn": "2018-09-27T15:10:43Z",
       "side": 1,
       "message": "Because it is in tests/ directory.",
+      "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61103135_2df930de",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-01T11:03:34Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "5732810c_f9ac8313",
       "revId": "7cbbf4a15d3a18f356883c341123a0bf920eff67",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
