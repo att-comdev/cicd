@@ -9,7 +9,6 @@ pipelineJob(job_path) {
             name ('DELETE_NODENAME')
             defaultValue('')
             description('Node to be deleted')
-            trim(true)
         }
     }
     definition {
