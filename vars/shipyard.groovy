@@ -131,3 +131,52 @@ def createAction(uuid, token, shipyardUrl, action) {
 private def getShipyardErrorCount() {
     return sh(script: "tail -1 response | cut -d ':' -f2 | xargs | cut -d ',' -f1", returnStdout: true)
 }
+
+/**
+ * The creation of a Shipyard config
+ *
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @param artfPath Artifactory path for executed pipeline.
+ * @siteName Site name for executed pipeline.
+ * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ */
+def configCreate(token, artfPath, siteName, uuid, shipyardUrl) {
+    artifactory.download("${artfPath}/manifests.tar.gz", "")
+    sh "sudo rm -rf ${siteName}"
+    sh "tar xzf manifests.tar.gz"
+
+    def manifests = readFile "${siteName}/aic-clcp-manifests.yaml"
+    manifests += readFile "${siteName}/aic-clcp-site-manifests.yaml"
+    manifests += readFile "${siteName}/aic-clcp-security-manifests.yaml"
+
+    def retryCap = 5
+    def attempts = 1
+    def success = false
+
+    while(!success && attempts <= retryCap) {
+        if(attempts > 1) {
+            print "Retrying after a short break..."
+            sleep 30
+        }
+
+        try {
+            def res = createConfigdocs(uuid, token, manifests, shipyardUrl, siteName, "replace")
+            if(res) {
+                print "Status: " + res.status
+                print "Content: " + res.content
+                if(res.status == 201) {
+                    print "Document(s) created."
+                    success = true
+                }
+            }
+        } catch (error) {
+            print "Caught unexpected error:"
+            print error
+        }
+        attempts++
+    }
+    if(!success) {
+        error("Retries failed. Error(s) during Shipyard create configdocs.")
+    }
+}
