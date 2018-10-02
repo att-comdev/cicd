@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7600665_78a40f43",
+        "filename": "images/openstack/ranger-agent/Jenkinsfile",
+        "patchSetId": 23
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-02T23:25:49Z",
+      "side": 1,
+      "message": "Few whitespaces throughout the files.",
+      "revId": "44737de1999eaa650989bc14b163350e3cdf1163",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
