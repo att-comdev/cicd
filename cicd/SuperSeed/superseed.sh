@@ -131,6 +131,26 @@ find_seed(){
 }
 
 
+check_sandbox_parameter(){
+
+    #checks if the Sandbox value is either true or an empty  value and fails the job
+    # Looking for added or modified seed.groovy files or Jenkinsfiles
+    LAST_2COMMITS=$(git log -2 --reverse --pretty=format:%H)
+    MODIFIED_FILES_SEEDGROOVY=$(git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | egrep "seed.groovy" | cut -f2)
+    for file in ${MODIFIED_FILES_SEEDGROOVY[@]}; do
+        SANDBOX_TRUE_COUNT=$(grep -ic 'sandbox *(true)' $file)
+        SANDBOX_NULL_COUNT=$(grep -c 'sandbox *()' $file )
+        echo " the count of value which are set to sandbox(true)  is $SANDBOX_TRUE_COUNT"
+        echo " the count of value which are set to sandbox()  is $SANDBOX_NULL_COUNT"
+        if [ $SANDBOX_TRUE_COUNT -ge 1 ] || [ $SANDBOX_NULL_COUNT -ge 1 ] ; then
+            echo "Set sandbox(false) in the following file: $file"
+            exit 1
+
+        fi 
+    done
+
+}
+
 lint_jenkins_files(){
     # Looking for added or modified seed.groovy files or Jenkinsfiles
     LAST_2COMMITS=$(git log -2 --reverse --pretty=format:%H)
@@ -166,6 +186,7 @@ git_clone ${GERRIT_PROJECT} ${WORKSPACE} ${GERRIT_REFSPEC}
 lint_whitespaces
 lint_jenkins_files
 find_seed
+check_sandbox_parameter
 set +x
 
 if [[ ! ${SEED_PATH} =~ ^tests/ ]]; then
