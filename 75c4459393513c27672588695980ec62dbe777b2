@@ -34,6 +34,24 @@
       "revId": "75c4459393513c27672588695980ec62dbe777b2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "528361ae_b01b3419",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 17
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-02T23:24:29Z",
+      "side": 1,
+      "message": "Check with Narendra. We should only update on merge.",
+      "parentUuid": "d5bae8d0_2af7489a",
+      "revId": "75c4459393513c27672588695980ec62dbe777b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
