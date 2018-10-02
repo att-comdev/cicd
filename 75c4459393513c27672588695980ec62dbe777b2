@@ -16,6 +16,24 @@
       "revId": "75c4459393513c27672588695980ec62dbe777b2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5bae8d0_2af7489a",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 17
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-02T15:05:35Z",
+      "side": 1,
+      "message": "We currently trigger for ps created events right now on our jenkins. So found it appropriate to make changes here to avoid manual changes to config in UI but I am open to either way.\nDo we want to only trigger for merge event and enforce manual trigger of superseed job for testing ps for pipelines?",
+      "parentUuid": "122bb71c_8cf2050d",
+      "revId": "75c4459393513c27672588695980ec62dbe777b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
