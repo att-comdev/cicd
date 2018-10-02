@@ -109,6 +109,9 @@ repositoryContents.each {
         }
     }
     */
+    logRotator{
+         daysToKeep(180)
+    }
     scm{
       git('${GIT_URL}', '${GIT_BRANCH}', null)
     }

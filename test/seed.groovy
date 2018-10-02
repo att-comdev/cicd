@@ -12,6 +12,10 @@ pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
     displayName('Testing library in vars/')
     description('This job is supposed to call methods from libraries located in vars/ to test if they work properly')
 
+    logRotator{
+         daysToKeep(180)
+    }
+
     parameters {
         credentials {
             name ('creds')
