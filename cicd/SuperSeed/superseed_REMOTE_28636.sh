@@ -130,23 +130,6 @@ find_seed(){
     echo "INFO: SEED_PATH is [${SEED_PATH}]"
 }
 
-<<<<<<< HEAD
-check_sandbox_parameter(){
-
-    String=$(grep -C 0 'sandbox' ${WORKSPACE}/${BUILD_NUMBER}/seed.groovy)
-    echo "value is :$String"
-
-    SandboxValue= $(echo $String | cut -d "(" -f2 | cut -d ")" -f1)
-    echo "value is :$SandboxValue"
-    if [ -z "$SandboxValue" ]; then
-        echo " Please set the sandbox(false) in the seed.groovy and try running the pipeline again"
-        exit 1
-
-    fi
-
-}
-=======
->>>>>>> a1ec6919cff49bfe5347de306da72dba1ff91b60
 
 lint_jenkins_files(){
     # Looking for added or modified seed.groovy files or Jenkinsfiles
@@ -177,7 +160,6 @@ git_clone ${GERRIT_PROJECT} ${WORKSPACE} ${GERRIT_REFSPEC}
 lint_whitespaces
 lint_jenkins_files
 find_seed
-check_sandbox_parameter
 set +x
 
 if [[ ! ${SEED_PATH} =~ ^tests/ ]]; then
