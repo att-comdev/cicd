@@ -50,7 +50,16 @@ def stack_create(String name, String tmpl, String parameters) {
                     print "Stack ${name} created!"
                     return
                 } else if (ret != "CREATE_IN_PROGRESS") {
+                    // since the stack failed let show the stack
+                    cmd = openstack_cmd("openstack stack show -f value -c stack_status ${name}")
+                    code = sh (script: cmd, returnStatus: true)
+                    // Let really let people know that something went wrong
+                    print "======================================================="
+                    print "IMPORTANT:"
                     print "Failed to create stack ${name}"
+                    print "Since the stack that is creating your Jenkins Executor"
+                    print "Failed the pipeline will stop"
+                    print "======================================================="
                     sh "exit 1"
                 }
             }
