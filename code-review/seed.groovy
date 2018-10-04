@@ -37,7 +37,7 @@ pipelineJob("code-review") {
                 }
                 changeMerged()
                 commentAddedContains {
-                    commentAddedCommentContains('recheck')
+                    commentAddedCommentContains('^recheck\$')
                 }
              }
          }

@@ -9,7 +9,8 @@ PROJECT = JOB_BASE_NAME
 SEMANTIC_RELEASE_VERSION = "0.9.0"
 
 ARTF_REPO = 'openstack'
-if (env.GERRIT_EVENT_TYPE == 'patchset-created') {
+if (env.GERRIT_EVENT_TYPE == 'patchset-created' ||
+    env.GERRIT_EVENT_TYPE == 'comment-added') {
     ARTF_REPO += '-patchset'
 }
 
@@ -151,21 +152,23 @@ vm2('loci-bootstrap.sh',
     stage ("Build Project") {
         print "Building ${PROJECT.capitalize()}"
         if (PROJECT.contains('requirements')) {
-            REQUIREMENTS_LOCI = buildLociMos()
+            IMAGE_LOCI = buildLociMos()
         } else {
             loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
             WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
             IMAGE_LOCI = buildLociMos(loci.getDependencies(PROJECT_SUFFIX), WHEELS_ARG)
         }
+        LOCI_IMAGE_VAR = "${PROJECT_SUFFIX.toUpperCase()}_LOCI"
+        cmd = "${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE_LOCI}"
+        IMAGE_SHA = sh(returnStdout: true, script: cmd).trim()
+        sh "mkdir -p ${WORKSPACE}/artifacts"
+        sh "echo $IMAGE_SHA | tee -a ${WORKSPACE}/artifacts/loci_image.txt"
+        archiveArtifacts 'artifacts/*'
     }
 }
 
 // deploy OSH only for ocata release
 if (!PROJECT.contains('requirements') && PROJECT_RELEASE == 'ocata') {
-
-    // pass ps image as env variable
-    LOCI_IMAGE_VAR="${PROJECT_SUFFIX.toUpperCase()}_LOCI"
-    print "Overriding default for $LOCI_IMAGE_VAR with $IMAGE_LOCI..."
 
     // OSH AIO requires min 8 cpus cores and 16 GB ram
     vm2('bootstrap.sh',
@@ -191,6 +194,8 @@ if (!PROJECT.contains('requirements') && PROJECT_RELEASE == 'ocata') {
             osh.updateProxy()
         }
         stage('Override images') {
+            // pass ps image as a map
+            print "Overriding default for $LOCI_IMAGE_VAR with $IMAGE_LOCI..."
             osh.imageOverrides(["$LOCI_IMAGE_VAR": "$IMAGE_LOCI"], true)
         }
         stage('Install OSH AIO') {
@@ -211,6 +216,7 @@ if (!PROJECT.contains('requirements') && PROJECT_RELEASE == 'ocata') {
             }
         }
         stage('Get openstack versions') {
+            // pass ps image as a map
             osh.serviceVersions(["$LOCI_IMAGE_VAR": "$IMAGE_LOCI"], true)
         }
         stage('Run Helm tests') {

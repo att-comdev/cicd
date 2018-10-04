@@ -37,8 +37,8 @@ vm2('loci-bootstrap.sh',
                                  INTERNAL_GERRIT_KEY)
         } else{
             COMMIT_ID =  gerrit.getVersion(GERRIT_URL,
-                                                  GERRIT_BRANCH,
-                                                  INTERNAL_GERRIT_KEY)
+                                           GERRIT_BRANCH,
+                                           INTERNAL_GERRIT_KEY)
             gerrit.cloneProject(GERRIT_URL,
                                 GERRIT_BRANCH,
                                 COMMIT_ID,
