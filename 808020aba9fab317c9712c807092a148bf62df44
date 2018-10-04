@@ -16,6 +16,75 @@
       "revId": "808020aba9fab317c9712c807092a148bf62df44",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe061568_e76c7224",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-04T15:59:27Z",
+      "side": 1,
+      "message": "not sure if the file would be available here until copy_seed()\ncould you check the for ps seed.groovy files like in lint_jenkins_files",
+      "range": {
+        "startLine": 136,
+        "startChar": 33,
+        "endLine": 136,
+        "endChar": 73
+      },
+      "revId": "808020aba9fab317c9712c807092a148bf62df44",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "396a550f_4f7b76bd",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-04T15:59:27Z",
+      "side": 1,
+      "message": "this wouldnt work for sandbox(true) \ncould you something like grep \"sandbox(true)\\|sandbox()\"",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 67
+      },
+      "revId": "808020aba9fab317c9712c807092a148bf62df44",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5229141c_c37fa807",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-04T15:59:27Z",
+      "side": 1,
+      "message": "Set sandbox(false) in the following files: $SandboxValue",
+      "range": {
+        "startLine": 142,
+        "startChar": 14,
+        "endLine": 142,
+        "endChar": 98
+      },
+      "revId": "808020aba9fab317c9712c807092a148bf62df44",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
