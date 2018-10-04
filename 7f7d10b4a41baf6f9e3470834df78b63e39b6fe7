@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3839a9d4_24d84181",
+        "filename": "vars/shipyard.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1011831
+      },
+      "writtenOn": "2018-10-04T04:40:02Z",
+      "side": 1,
+      "message": "Do you mind putting these in the libraries config file?  There may be multiple places we are referencing these repositories and when we rename them, it would be nice to update them in one place and reuse the config?",
+      "revId": "7f7d10b4a41baf6f9e3470834df78b63e39b6fe7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
