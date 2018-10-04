@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "646a17b4_53afa3f4",
+        "filename": "vars/shipyard.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-04T20:35:21Z",
+      "side": 1,
+      "message": "have a look at Jenkins inbuild function retry().\nThis would take away all this code of attempts.",
+      "revId": "bd2474b5c3ebdfc777348a30345b5d90a458080b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d94ddc73_87391f09",
+        "filename": "vars/shipyard.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-04T20:35:21Z",
+      "side": 1,
+      "message": "No hardcoding of names as it will differ.\nSearch on files and loop oever them\n\n        def manifests \u003d \u0027\u0027\n        files \u003d findFiles(glob: \u0027airship-seaworthy_yaml/\u0027)\n\n        files.each {\n            print \"Reading file -\u003e ${it}\"\n            manifests +\u003d readFile it.path\n}",
+      "revId": "bd2474b5c3ebdfc777348a30345b5d90a458080b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "714e328e_cefd19dc",
+        "filename": "vars/shipyard.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-04T20:35:21Z",
+      "side": 1,
+      "message": "16b2?",
+      "revId": "bd2474b5c3ebdfc777348a30345b5d90a458080b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7eb5d79c_750eac12",
+        "filename": "vars/shipyard.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-04T20:35:21Z",
+      "side": 1,
+      "message": "to follow pattern. probably have token as parameter.",
+      "revId": "bd2474b5c3ebdfc777348a30345b5d90a458080b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
