@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a462f56c_5c19c022",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 19
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-10-04T18:24:01Z",
+      "side": 1,
+      "message": "spelling delimited",
+      "revId": "a1ec6919cff49bfe5347de306da72dba1ff91b60",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
