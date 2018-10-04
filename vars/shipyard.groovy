@@ -1,4 +1,5 @@
 import groovy.json.JsonOutput
+import groovy.json.JsonSlurperClassic
 
 /**
  * Creation of "configdocs" against a site's Deckhand,
@@ -34,7 +35,7 @@ def createConfigdocsWithinContainer(uuid, bucketName) {
  * @param bucketName The name given to the collection of documents you're creating - typically matches the site name.
  * @param bufferMode Indicates how the existing Shipyard Buffer should be handled - see: https://shipyard.readthedocs.io/en/latest/API.html?highlight=bufferMode for further details.
  */
-def createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode) {
+def createConfigdocs = { uuid, token, filePath, shipyardUrl, bucketName, bufferMode ->
     def res = httpRequest (url: shipyardUrl + "/api/v1.0/configdocs/${bucketName}?buffermode=${bufferMode}",
                           httpMode: "POST",
                           customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
@@ -74,7 +75,7 @@ def commitConfigDocsWithinContainer(uuid) {
  * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
  * @param shipyarUrl The Shipyard URL of the site you are creating documents against.
  */
-def commitConfigdocs(uuid, token, shipyardUrl) {
+def commitConfigdocs = {uuid, token, shipyardUrl ->
     def res = httpRequest(url: shipyardUrl + "/api/v1.0/commitconfigdocs",
                           httpMode: "POST",
                           customHeaders: [[name: "X-Auth-Token", value: token],
@@ -104,7 +105,7 @@ def createActionWithinContainer(uuid, action) {
  * @param shipyardUrl The Shipyard FQDN of the site you are creating documents against.
  * @param action The action to perform - see: https://shipyard.readthedocs.io/en/latest/API_action_commands.html?highlight=action for further details.
  */
-def createAction(uuid, token, shipyardUrl, action) {
+def createAction = {uuid, token, shipyardUrl, action ->
 
     def req = ["name": action]
     def jreq = new JsonOutput().toJson(req)
@@ -130,4 +131,179 @@ def createAction(uuid, token, shipyardUrl, action) {
  */
 private def getShipyardErrorCount() {
     return sh(script: "tail -1 response | cut -d ':' -f2 | xargs | cut -d ',' -f1", returnStdout: true)
+}
+
+/**
+ * Helper method to make a retry for shipyard calls.
+ *
+ * @param func shipyard call for execution.
+ * @param status Expected return code.
+ * @param success_msg Message for print in case of success shipyard command execution.
+ * @param action Name of shipard call that is used in error massage in case of failure.
+ * @param args Arguments for shipyard call execution (arguments for function that is declared as first argument in this function).
+ * @return Responce from shipyard call.
+ */
+def retry_call = { func, status, success_msg, action, args ->
+
+    def retryCap = 5
+    def attempts = 1
+    def success = false
+    def res = null
+
+    while(!success && attempts <= retryCap) {
+        if(attempts > 1) {
+            print "Retrying after a short break..."
+            sleep 30
+        }
+
+        try {
+            res = func(*args)
+            if(res) {
+                print "Status: " + res.status
+                print "Content: " + res.content
+                if(res.status == status) {
+                    print "${success_msg}."
+                    success = true
+                }
+            }
+        } catch (error) {
+            print "Caught unexpected error:"
+            print error
+        }
+        attempts++
+    }
+
+    if(!success) {
+        error("Retries failed. Error(s) during ${action}.")
+    }
+    return res
+}
+
+/**
+ * The creation of a Shipyard config
+ *
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @param artfPath Artifactory path for executed pipeline.
+ * @param tarName The name of tar in artifactory with manifests.
+ * @param siteName Site name for executed pipeline.
+ * @param bucketName Bucket name for created config.
+ * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ */
+def configCreate = { token, artfPath, tarName, siteName, bucketName, uuid, shipyardUrl ->
+    print "CP1"
+    //artifactory.download("${artfPath}/manifests.tar.gz", "")
+    artifactory.download("${artfPath}/${tarName}", "")
+    sh "sudo rm -rf ${siteName}"
+    sh "tar xzf ${tarName}"
+    print "CP2"
+
+    def manifests = readFile "${siteName}/aic-clcp-manifests.yaml"
+    manifests += readFile "${siteName}/aic-clcp-site-manifests.yaml"
+    manifests += readFile "${siteName}/aic-clcp-security-manifests.yaml"
+    // check it for 16b.2
+    manifests += readFile "${SITE}/certificates.yaml"
+
+    print "CP3"
+    retry_call(createConfigdocs, 201, "Document(s) created.", "Shipyard create configdocs",
+               // arguments for createConfigdocs
+               [uuid, token, manifests, shipyardUrl, bucketName, "replace"])
+}
+
+/**
+ * Getter of steps for given shipyard action.
+ *
+ * @param action Shipyard action.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ * @return List of steps for given shipyard action.
+ */
+def stepsGet = { action, shipyardUrl ->
+
+    def res = httpRequest (url: "${shipyardUrl}/actions/${action}",
+                           contentType: "APPLICATION_JSON",
+                           httpMode: "GET",
+                           quiet: true,
+                           customHeaders: [[name: "X-Auth-Token", value: keystone_token()]])
+
+    if (res.status != 200) {
+        error("Failed to get Shypyard action steps: ${res.status}")
+    }
+
+    def cont = new JsonSlurperClassic().parseText(res.content)
+    print cont
+
+    return cont.steps
+}
+
+/**
+ * Gets state for given step.
+ *
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @param systep Step from shipyard action.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ * @return state State of the step (such as null, "success", "skipped", "running", "queued", "scheduled")
+ */
+def getState = { token, systep, shipyardUrl ->
+
+    res = httpRequest (url: "${shipyardUrl}${systep.url}",
+                           contentType: "APPLICATION_JSON",
+                           httpMode: "GET",
+                           quiet: true,
+                           customHeaders: [[name: "X-Auth-Token", value: token]])
+
+    if (!res) {
+        print "httpRequest returned null - likely library issue"
+        return null
+    }
+
+    if (res.status != 200) {
+        print "Failed to get Shipyard step info: ${res.status}"
+        return null
+    }
+
+    if (!res.content) {
+        print "Shypyard returned null content"
+        return null
+    }
+
+    def cont = new JsonSlurperClassic().parseText(res.content)
+    print cont
+    state = cont.state
+
+    return state
+}
+
+/**
+ * Helper method for waiting of step became in 'success' or 'skipped' state.
+ *
+ * @param systep Step from shipyard action.
+ * @param interval Interval in second for sleep between attepmts.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ */
+def stepWait = { systep, interval, shipyardUrl, token ->
+
+    print ">> Waiting on Shipyard step: ${systep}"
+
+    def String state = systep.state
+    def errcount = 0
+    def res
+
+    while (state == null || state == "running" || state == "queued" || state == "scheduled") {
+        sleep interval
+
+        if (errcount > 3) {
+            print "Multiple re-tries done already - giving up!"
+            break
+        }
+
+        state = getState(token, systep, shipyardUrl)
+        if (state == null) {
+            errcount += 1
+        }
+    }
+
+    if (state != "success" && state != "skipped") {
+        error("Failed Shipyard task ${systep.id}: ${res.status}, ${res.content}")
+    }
 }
