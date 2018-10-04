@@ -1,4 +1,5 @@
 import groovy.json.JsonOutput
+import groovy.json.JsonSlurperClassic
 
 /**
  * Creation of "configdocs" against a site's Deckhand,
@@ -35,13 +36,16 @@ def createConfigdocsWithinContainer(uuid, bucketName) {
  * @param bufferMode Indicates how the existing Shipyard Buffer should be handled - see: https://shipyard.readthedocs.io/en/latest/API.html?highlight=bufferMode for further details.
  */
 def createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode) {
-    def res = httpRequest (url: shipyardUrl + "/api/v1.0/configdocs/${bucketName}?buffermode=${bufferMode}",
-                          httpMode: "POST",
-                          customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
-                                          [name: "X-Auth-Token", value: token],
-                                          [name: "X-Context-Marker", value: uuid]],
-                          quiet: true,
-                          requestBody: filePath)
+    def res = null
+    retry(3) {
+        res = httpRequest (url: shipyardUrl + "/api/v1.0/configdocs/${bucketName}?buffermode=${bufferMode}",
+                              httpMode: "POST",
+                              customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
+                                              [name: "X-Auth-Token", value: token],
+                                              [name: "X-Context-Marker", value: uuid]],
+                              quiet: true,
+                              requestBody: filePath)
+    }
     return res
 }
 
@@ -75,11 +79,14 @@ def commitConfigDocsWithinContainer(uuid) {
  * @param shipyarUrl The Shipyard URL of the site you are creating documents against.
  */
 def commitConfigdocs(uuid, token, shipyardUrl) {
-    def res = httpRequest(url: shipyardUrl + "/api/v1.0/commitconfigdocs",
+    def res = null
+    retry(3) {
+        res = httpRequest(url: shipyardUrl + "/api/v1.0/commitconfigdocs",
                           httpMode: "POST",
                           customHeaders: [[name: "X-Auth-Token", value: token],
                                           [name: "X-Context-Marker", value: uuid]],
                           quiet: true)
+    }
     return res
 }
 
@@ -108,14 +115,17 @@ def createAction(uuid, token, shipyardUrl, action) {
 
     def req = ["name": action]
     def jreq = new JsonOutput().toJson(req)
+    def res = null
 
-    def res = httpRequest(url: shipyardUrl + "/api/v1.0/actions?allow-intermediate-commits=true",
+    retry(3) {
+        res = httpRequest(url: shipyardUrl + "/api/v1.0/actions?allow-intermediate-commits=true",
                           httpMode: "POST",
                           customHeaders: [[name: "Content-Type", value: "application/json"],
                                           [name: "X-Auth-Token", value: token],
                                           [name: "X-Context-Marker", value: uuid]],
                           quiet: true,
                           requestBody: jreq)
+    }
     return res
 }
 
@@ -130,4 +140,153 @@ def createAction(uuid, token, shipyardUrl, action) {
  */
 private def getShipyardErrorCount() {
     return sh(script: "tail -1 response | cut -d ':' -f2 | xargs | cut -d ',' -f1", returnStdout: true)
+}
+
+/**
+ * Getter of steps for given shipyard action.
+ *
+ * @param action Shipyard action.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @return List of steps for given shipyard action.
+ */
+def getSteps(action, shipyardUrl, token) {
+    def res = null
+    retry(3) {
+        res = httpRequest (url: shipyardUrl + "/api/v1.0/actions/${action}",
+                           contentType: "APPLICATION_JSON",
+                           httpMode: "GET",
+                           quiet: true,
+                           customHeaders: [[name: "X-Auth-Token", value: token]])
+    }
+
+    if (res.status != 200) {
+        error("Failed to get Shypyard action steps: ${res.status}")
+    }
+
+    def cont = new JsonSlurperClassic().parseText(res.content)
+    print cont
+
+    return cont.steps
+}
+
+/**
+ * Gets state for given step.
+ *
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @param systep Step from shipyard action.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ * @return state State of the step (such as null, "success", "skipped", "running", "queued", "scheduled")
+ */
+def getState(token, systep, shipyardUrl) {
+    def res = null
+    retry(3) {
+
+        res = httpRequest (url: shipyardUrl + "/api/v1.0${systep.url}",
+                               contentType: "APPLICATION_JSON",
+                               httpMode: "GET",
+                               quiet: true,
+                               customHeaders: [[name: "X-Auth-Token", value: token]])
+    }
+
+    if (!res) {
+        print "httpRequest returned null - likely library issue"
+        return null
+    }
+
+    if (res.status != 200) {
+        print "Failed to get Shipyard step info: ${res.status}"
+        return null
+    }
+
+    if (!res.content) {
+        print "Shypyard returned null content"
+        return null
+    }
+
+    def cont = new JsonSlurperClassic().parseText(res.content)
+    print cont
+    print res.status
+    print res.content
+    state = cont.state
+
+    return state
+}
+
+/**
+ * The creation of a Shipyard config
+ *
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @param artfPath Artifactory path for executed pipeline.
+ * @param tarName The name of tar in artifactory with manifests.
+ * @param siteName Site name for executed pipeline.
+ * @param bucketName Bucket name for created config.
+ * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ */
+def configCreate(token, artfPath, tarName, siteName, bucketName, uuid, shipyardUrl) {
+    artifactory.download("${artfPath}/${tarName}", "")
+    sh "sudo rm -rf ${siteName}"
+    sh "tar xzf ${tarName}"
+
+    //def manifests = readFile "${siteName}/aic-clcp-manifests.yaml"
+    //manifests += readFile "${siteName}/aic-clcp-site-manifests.yaml"
+    //manifests += readFile "${siteName}/aic-clcp-security-manifests.yaml"
+    //manifests += readFile "${siteName}/certificates.yaml"
+
+    def manifests = ""
+    files = findFiles(glob: "${siteName}/*.yaml")
+    files.each {
+            print "Reading file -> ${it}"
+            manifests += readFile it.path
+    }
+
+    createConfigdocs(uuid, token, manifests, shipyardUrl, bucketName, "replace")
+}
+
+/**
+ * Helper method for waiting of step became in 'success' or 'skipped' state.
+ *
+ * @param systep Step from shipyard action.
+ * @param interval Interval in second for sleep between attepmts.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ */
+def stepWait(systep, interval, shipyardUrl, token) {
+
+    print ">> Waiting on Shipyard step: ${systep}"
+
+    def String state = systep.state
+    def errcount = 0
+
+    while (state == null || state == "running" || state == "queued" || state == "scheduled") {
+        sleep interval
+
+        if (errcount > 3) {
+            print "Multiple re-tries done already - giving up!"
+            break
+        }
+
+        state = getState(token, systep, shipyardUrl)
+        if (state == null) {
+            errcount += 1
+        }
+    }
+
+    if (state != "success" && state != "skipped") {
+        error("Failed Shipyard task ${systep.id}")
+    }
+}
+
+def stepsWait(action, shipyardUrl, token) {
+
+    def systeps = getSteps(action, shipyardUrl, token)
+
+    systeps.each() {
+        if (it.id == "drydock_build" || it.id == "armada_build") {
+           stepWait(it, 240, shipyardUrl, token)
+        } else {
+            stepWait(it, 4, shipyardUrl, token)
+        }
+    }
 }
