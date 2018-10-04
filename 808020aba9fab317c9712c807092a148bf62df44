@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8c524bdd_2d2f1728",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1014994
+      },
+      "writtenOn": "2018-10-04T17:23:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e183b870_b4e87d2a",
+      "revId": "808020aba9fab317c9712c807092a148bf62df44",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe061568_e76c7224",
         "filename": "cicd/SuperSeed/superseed.sh",
         "patchSetId": 5
