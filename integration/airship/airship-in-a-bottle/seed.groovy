@@ -2,6 +2,9 @@ JOB_BASE = 'integration/airship'
 folder('integration/airship')
 
 pipelineJob("${JOB_BASE}/airship-in-a-bottle") {
+    logRotator{
+        daysToKeep(conf.LOGROTATE_DAYS)
+    }
 
     configure {
         node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{

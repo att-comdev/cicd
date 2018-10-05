@@ -12,6 +12,9 @@ def object = jsonSlurper.parseText(imagesJson)
 
 for (entry in object.genesis) {
     pipelineJob("${base_path}/${entry}") {
+        logRotator{
+            daysToKeep(conf.LOGROTATE_DAYS)
+        }
         parameters {
             booleanParam {
                 defaultValue(false)

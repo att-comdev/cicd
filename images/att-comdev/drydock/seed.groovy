@@ -16,6 +16,9 @@ JOB_FOLDER="images/att-comdev/drydock"
 folder(JOB_FOLDER)
 for (project in Json.projects) {
     pipelineJob("${JOB_FOLDER}/${project.name}") {
+        logRotator{
+            daysToKeep(conf.LOGROTATE_DAYS)
+        }
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                 durationName 'hour'
