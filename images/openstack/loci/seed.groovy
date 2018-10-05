@@ -26,6 +26,9 @@ MOS_PROJECTS = ['mos-requirements': 'master',
 COMMUNITY_PROJECTS.each { project, ref ->
     pipelineJob("${JOB_BASE}/community/${project}") {
         // limit surge of patchsets
+        logRotator{
+            daysToKeep(conf.LOGROTATE_DAYS)
+        }
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                 durationName 'hour'
@@ -87,6 +90,9 @@ MOS_PROJECTS.each { project, ref ->
         def propsPrefix = "${project}".split('-')[0]
         def propsSuffix = "${project}".split('-')[1]
         // limit surge of patchsets
+        logRotator{
+            daysToKeep(conf.LOGROTATE_DAYS)
+        }
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                 durationName 'hour'

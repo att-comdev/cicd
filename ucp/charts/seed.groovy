@@ -1,5 +1,8 @@
 folder("UCP/charts")
 pipelineJob("UCP/charts/helm-toolkit-compatibility") {
+    logRotator{
+        daysToKeep(conf.LOGROTATE_DAYS)
+    }
     parameters {
         stringParam {
             name ('PROJECT_LIST')
