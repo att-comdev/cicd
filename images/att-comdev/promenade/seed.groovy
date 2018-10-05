@@ -16,6 +16,7 @@ folder('images/att-comdev/promenade')
 for (entry in object.images) {
     for (pipelineName in entry.pipelineNames) {
         pipelineJob("images/${entry.repo}/${pipelineName}") {
+            logs.RotateJenkinsLogs()
             configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'

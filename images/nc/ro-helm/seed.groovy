@@ -13,6 +13,7 @@ folder("images/nc/ro-helm")
 for (entry in object.nc) {
     for (image in entry.images) {
       pipelineJob("images/${entry.repo}/${image}/${image}") {
+            logs.RotateJenkinsLogs()
             configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'

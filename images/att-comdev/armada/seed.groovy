@@ -12,6 +12,7 @@ def object = jsonSlurper.parseText(imagesJson)
 for (entry in object.UCP) {
     for (image in entry.images) {
       pipelineJob("images/${entry.repo}/${image}/${image}") {
+            logs.RotateJenkinsLogs()
             configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'

@@ -72,6 +72,7 @@ def object = jsonSlurper.parseText(chartsJson)
 for (entry in object.osh) {
     for (chart in entry.charts) {
         pipelineJob("charts/${entry.repo}/${chart}") {
+            logs.RotateJenkinsLogs()
            // disabled(SILENT_MODE.toBoolean())
             disabled(false)
             parameters {

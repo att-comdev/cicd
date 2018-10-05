@@ -1,5 +1,6 @@
 folder("UCP/charts")
 pipelineJob("UCP/charts/helm-toolkit-compatibility") {
+    logs.RotateJenkinsLogs()
     parameters {
         stringParam {
             name ('PROJECT_LIST')

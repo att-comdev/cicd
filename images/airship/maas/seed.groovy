@@ -30,6 +30,7 @@ folder("${JOB_FOLDER}/maas-region-controller")
 folder("${JOB_FOLDER}/sstream-cache")
 for (project in Json.projects) {
     pipelineJob("${JOB_FOLDER}/${project.name}/${project.name}") {
+        logs.RotateJenkinsLogs()
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                 durationName 'hour'

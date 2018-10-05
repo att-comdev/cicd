@@ -23,3 +23,9 @@ def getJenkinsConsoleOutput() {
         return ""
     }
 }
+
+def RotateJenkinsLogs() {
+    logRotator{
+      daysToKeep(180)
+    }
+}

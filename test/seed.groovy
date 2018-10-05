@@ -8,14 +8,10 @@ JOB_NAME='LibraryTest'
 folder(JOB_FOLDER)
 
 pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
+    logs.RotateJenkinsLogs()
 
     displayName('Testing library in vars/')
     description('This job is supposed to call methods from libraries located in vars/ to test if they work properly')
-
-    logRotator {
-        numToKeep(5)
-        artifactNumToKeep(5)
-    }
 
     parameters {
         credentials {

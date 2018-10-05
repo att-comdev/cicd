@@ -30,6 +30,7 @@ MOS_PROJECTS = ['keystone': 'main/newton',
 COMMUNITY_PROJECTS.each { project, ref ->
 
     pipelineJob("${JOB_BASE}/community/${project}") {
+        logs.RotateJenkinsLogs()
 
         parameters {
             stringParam {
@@ -82,6 +83,7 @@ COMMUNITY_PROJECTS.each { project, ref ->
 MOS_PROJECTS.each { project, ref ->
 
     pipelineJob("${JOB_BASE}/mos/${project}") {
+        logs.RotateJenkinsLogs()
 
         parameters {
             stringParam {

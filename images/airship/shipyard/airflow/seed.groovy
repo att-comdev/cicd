@@ -1,6 +1,7 @@
 JOB_FOLDER="images/airship/shipyard/airflow"
 folder(JOB_FOLDER)
 pipelineJob("${JOB_FOLDER}/airflow") {
+    logs.RotateJenkinsLogs()
     configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'

@@ -1,4 +1,5 @@
 pipelineJob("charts/openstack/openstack-helm/basic") {
+    logs.RotateJenkinsLogs()
     configure {
         node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
             durationName 'hour'
