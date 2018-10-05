@@ -12,6 +12,7 @@ def object = jsonSlurper.parseText(imagesJson)
 
 for (entry in object.genesis) {
     pipelineJob("${base_path}/${entry}") {
+        logs.RotateJenkinsLogs()
         parameters {
             booleanParam {
                 defaultValue(false)

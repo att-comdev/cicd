@@ -3,6 +3,7 @@ JOB_NAME="${JOB_FOLDER}/helm-toolkit-compatibility"
 
 folder(JOB_FOLDER)
 pipelineJob(JOB_NAME) {
+    logs.RotateJenkinsLogs()
     parameters {
         stringParam {
             name ('PROJECT_LIST')

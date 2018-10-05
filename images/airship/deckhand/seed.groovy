@@ -3,6 +3,7 @@ JOB_BASE = 'images/airship/deckhand'
 folder(JOB_BASE)
 
 pipelineJob("${JOB_BASE}/deckhand") {
+    logs.RotateJenkinsLogs()
 
     configure {
         node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{

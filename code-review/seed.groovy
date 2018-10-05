@@ -1,4 +1,5 @@
 pipelineJob("code-review") {
+    logs.RotateJenkinsLogs()
     description("This job is for python applications to run pep8, bandit, unit tests, and code coverage")
     triggers {
         gerritTrigger {

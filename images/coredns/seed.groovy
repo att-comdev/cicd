@@ -3,6 +3,7 @@ JOB_NAME='coredns'
 
 folder(JOB_FOLDER)
 pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
+    logs.RotateJenkinsLogs()
     parameters {
         stringParam {
             name ('GO_VERSION')

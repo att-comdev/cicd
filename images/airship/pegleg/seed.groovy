@@ -15,6 +15,7 @@ folder('images/airship/pegleg')
 for (entry in object.images) {
     for (pipelineName in entry.pipelineNames) {
         pipelineJob("images/airship/pegleg/${pipelineName}") {
+            logs.RotateJenkinsLogs()
             configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'
