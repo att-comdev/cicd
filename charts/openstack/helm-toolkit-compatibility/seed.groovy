@@ -1,8 +1,13 @@
+import att.comdev.cicd.config.conf
+
 JOB_FOLDER="charts/openstack"
 JOB_NAME="${JOB_FOLDER}/helm-toolkit-compatibility"
 
 folder(JOB_FOLDER)
 pipelineJob(JOB_NAME) {
+    logRotator{
+        daysToKeep(conf.LOGROTATE_DAYS)
+    }
     parameters {
         stringParam {
             name ('PROJECT_LIST')
