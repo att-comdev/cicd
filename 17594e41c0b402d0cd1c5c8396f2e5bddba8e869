@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91b2200d_e8b98273",
+        "filename": "images/airship/armada/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-08T21:22:46Z",
+      "side": 1,
+      "message": "How does this add logs?!",
+      "revId": "17594e41c0b402d0cd1c5c8396f2e5bddba8e869",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
