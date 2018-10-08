@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8270744a_fd0449a3",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1015234
+      },
+      "writtenOn": "2018-10-08T18:29:24Z",
+      "side": 1,
+      "message": "how does this script supposed to work if PROJECT_BRANCH !\u003d \"master\"? since PROJECT_RELEASE is not set otherwise.  I am curious....",
+      "range": {
+        "startLine": 39,
+        "startChar": 3,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "7793eca5ff1f0d3a20afee12592313b3155bed72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d848daa9_a24d10c6",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1015234
+      },
+      "writtenOn": "2018-10-08T18:29:24Z",
+      "side": 1,
+      "message": "So do we need to add the 3 python clients similiar to heat for keystone?",
+      "range": {
+        "startLine": 8,
+        "startChar": 39,
+        "endLine": 8,
+        "endChar": 56
+      },
+      "revId": "7793eca5ff1f0d3a20afee12592313b3155bed72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
