@@ -1,5 +1,5 @@
 import groovy.json.JsonSlurper
-import att.comdev.cicd.config.conf
+import att.comdev.cicd.config.conf as cicdconf
 
 def imagesJson = '''{ "airship":[{
                         "repo":"airship",
@@ -17,7 +17,7 @@ for (entry in object.airship) {
     for (image in entry.images) {
       pipelineJob("images/${entry.repo}/${image}/${image}") {
             logRotator{
-                daysToKeep(conf.LOGROTATE_DAYS)
+                daysToKeep(cicdconf.LOGROTATE_DAYS)
             }
             configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
