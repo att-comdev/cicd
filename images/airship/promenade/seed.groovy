@@ -1,4 +1,5 @@
 import groovy.json.JsonSlurper
+import att.comdev.cicd.config.conf as cicdconf
 
 def imagesJson = '''{ "images":[{
                         "repo":"airship-promenade",
@@ -15,6 +16,9 @@ folder('images/airship/promenade')
 for (entry in object.images) {
     for (pipelineName in entry.pipelineNames) {
         pipelineJob("images/airship/promenade/${pipelineName}") {
+            logRotator{
+                daysToKeep(cicdconf.LOGROTATE_DAYS)
+            }
             configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'

@@ -1,6 +1,11 @@
+import att.comdev.cicd.config.conf as cicdconf
+
 JOB_FOLDER="images/airship/shipyard"
 folder(JOB_FOLDER)
 pipelineJob("${JOB_FOLDER}/shipyard") {
+    logRotator{
+        daysToKeep(cicdconf.LOGROTATE_DAYS)
+    }
     configure {
                 node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
                     durationName 'hour'
