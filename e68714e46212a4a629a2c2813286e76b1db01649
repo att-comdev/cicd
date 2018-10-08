@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52f18a9a_8923b9fb",
+        "filename": "images/airship/armada/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-10-08T20:12:32Z",
+      "side": 1,
+      "message": "No need to load with different name",
+      "range": {
+        "startLine": 2,
+        "startChar": 35,
+        "endLine": 2,
+        "endChar": 46
+      },
+      "revId": "e68714e46212a4a629a2c2813286e76b1db01649",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "679da00d_371db442",
+        "filename": "images/airship/armada/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-10-08T20:12:32Z",
+      "side": 1,
+      "message": "Can call as conf.LOGROTATE_DAYS",
+      "range": {
+        "startLine": 20,
+        "startChar": 27,
+        "endLine": 20,
+        "endChar": 35
+      },
+      "revId": "e68714e46212a4a629a2c2813286e76b1db01649",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
