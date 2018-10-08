@@ -11,7 +11,9 @@ COMMUNITY_PROJECTS = ['requirements': 'stable/*',
                       'cinder': 'stable/*',
                       'neutron': 'stable/*',
                       'nova': 'stable/*',
-                      'horizon': 'stable/*']
+                      'horizon': 'stable/*',
+                      'tap-as-a-service': 'stable/*',
+                      'python-neutronclient': 'stable/*']
 // master is ocata branch for mos
 MOS_PROJECTS = ['mos-requirements': 'master',
                 'mos-keystone': 'master',
@@ -22,7 +24,9 @@ MOS_PROJECTS = ['mos-requirements': 'master',
                 'mos-nova': 'master',
                 'mos-horizon': 'master',
                 'mos-neutron-sriov': 'master',
-                'mos-nova-1804': 'master']
+                'mos-nova-1804': 'master',
+                'mos-tap-as-a-service': 'master',
+                'mos-neutronclient': 'master']
 COMMUNITY_PROJECTS.each { project, ref ->
     pipelineJob("${JOB_BASE}/community/${project}") {
         // limit surge of patchsets

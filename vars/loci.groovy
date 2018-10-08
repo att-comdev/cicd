@@ -1,5 +1,68 @@
 import att.comdev.cicd.config.conf
 
+def project_config = [
+      'keystone':            ['profiles': '"fluent apache ldap"',
+                               'packages': '"pycrypto python-openstackclient"',
+                               'distpackages': ' ',
+                               'plugin_base_project': '',
+                               'plugin_projects': [ ] ],
+      'heat':                 ['profiles': '"fluent apache"',
+                               'packages': 'pycrypto',
+                               'distpackages': 'curl',
+                               'plugin_base_project': '',
+                               'plugin_projects': ['python-neutronclient', 'python-openstackclient', 'python-heatclient'] ],
+      'glance':               ['profiles': '"fluent glance ceph"',
+                               'packages': '"pycrypto python-swiftclient"',
+                               'distpackages': ' ',
+                               'plugin_base_project': '',
+                               'plugin_projects': [ ] ],
+      'horizon':              ['profiles': '"fluent horizon apache"',
+                               'packages': 'pycrypto',
+                               'distpackages': ' ',
+                               'plugin_base_project': '',
+                               'plugin_projects': [ ] ],
+      'cinder':               ['profiles': '"fluent cinder lvm ceph qemu"',
+                               'packages': '"pycrypto python-swiftclient"',
+                               'distpackages': ' ',
+                               'plugin_base_project': '',
+                               'plugin_projects': [ ] ],
+      'neutron':              ['profiles': '"fluent neutron openvswitch linuxbridge"',
+                               'packages': 'pycrypto',
+                               'distpackages': ' ',
+                               'plugin_base_project': '',
+                               'plugin_projects': ['tap-as-a-service'] ],
+      'nova':                 ['profiles': '"fluent nova ceph linuxbridge openvswitch configdrive qemu apache"',
+                               'packages': 'pycrypto',
+                               'distpackages': ' ',
+                               'plugin_base_project': '',
+                               'plugin_projects': [ ] ],
+      'barbican':             ['profiles': 'fluent',
+                               'packages': 'pycrypto',
+                               'distpackages': ' ',
+                               'plugin_base_project': '',
+                               'plugin_projects': [ ] ],
+      'nova-1804':            ['profiles': '"fluent nova ceph linuxbridge openvswitch configdrive qemu apache"',
+                               'packages': 'pycrypto',
+                               'distpackages': 'libssl1.0.0',
+                               'plugin_base_project': '',
+                               'plugin_projects': [ ] ],
+      'neutron-sriov':        ['profiles': '"fluent neutron linuxbridge openvswitch"',
+                               'packages': 'pycrypto',
+                               'distpackages': '"ethtool lshw"',
+                               'plugin_base_project': '',
+                               'plugin_projects': [ ] ],
+      'tap-as-a-service':     ['profiles': '"fluent neutron linuxbridge openvswitch"',
+                               'packages': 'pycrypto',
+                               'distpackages': '"ethtool lshw"',
+                               'plugin_base_project': 'neutron',
+                               'plugin_projects': ['tap-as-a-service'] ],
+      'python-neutronclient': ['profiles': '"fluent apache"',
+                               'packages': 'pycrypto',
+                               'distpackages': 'curl',
+                               'plugin_base_project': 'heat',
+                               'plugin_projects': ['python-neutronclient', 'python-openstackclient', 'python-heatclient'] ],
+    ]
+
 /**
  * Setup docker within docker (to get latest docker version on Ubuntu 16.04)
  * requires setting {"storage-driver": "overlay2"} option in docker.json
@@ -74,42 +137,35 @@ def exportWheels(String containerName, String requirementsImage) {
  * @return project_confs String containing the project configs as docker build args
  */
 def getDependencies(String projectName) {
-    def project_config = [
-      'keystone':      ['profiles': '"fluent apache ldap"',
-                        'packages': '"pycrypto python-openstackclient"',
-                        'distpackages': ' '],
-      'heat':          ['profiles': '"fluent apache"',
-                        'packages': 'pycrypto',
-                        'distpackages': 'curl'],
-      'glance':        ['profiles': '"fluent glance ceph"',
-                        'packages': '"pycrypto python-swiftclient"',
-                        'distpackages': ' '],
-      'horizon':       ['profiles': '"fluent horizon apache"',
-                        'packages': 'pycrypto',
-                        'distpackages': ' '],
-      'cinder':        ['profiles': '"fluent cinder lvm ceph qemu"',
-                        'packages': '"pycrypto python-swiftclient"',
-                        'distpackages': ' '],
-      'neutron':       ['profiles': '"fluent neutron openvswitch linuxbridge"',
-                        'packages': 'pycrypto',
-                        'distpackages': ' '],
-      'nova':          ['profiles': '"fluent nova ceph linuxbridge openvswitch configdrive qemu apache"',
-                        'packages': 'pycrypto',
-                        'distpackages': ' '],
-      'barbican':      ['profiles': 'fluent',
-                        'packages': 'pycrypto',
-                        'distpackages': ' '],
-      'nova-1804':     ['profiles': '"fluent nova ceph linuxbridge openvswitch configdrive qemu apache"',
-                        'packages': 'pycrypto',
-                        'distpackages': 'libssl1.0.0'],
-      'neutron-sriov': ['profiles': '"fluent neutron linuxbridge openvswitch"',
-                        'packages': 'pycrypto',
-                        'distpackages': '"ethtool lshw"']
-    ]
-
     project_confs = " --build-arg PROFILES=${project_config[projectName].profiles}\
                       --build-arg PIP_PACKAGES=${project_config[projectName].packages}\
                       --build-arg DIST_PACKAGES=${project_config[projectName].distpackages}"
 
     return project_confs
+}
+
+/**
+ * Retrieve project's base project if any
+ * Used for determining if project is a plugin to some other
+ * base project during loci image build process.
+ *
+ * @param projectName Name of the openstack project
+ * @return plugin_base_project String containing the project
+ * name of base project if any.
+ */
+def getPluginBaseProject(String projectName) {
+    return ${project_config[projectName].plugin_base_project}
+}
+
+/**
+ * Retrieve project's plugins if any
+ * Used for determining if project has any plugin(s) to install
+ * during loci image build process.
+ *
+ * @param projectName Name of the openstack project
+ * @return plugin_projects List of Strings containing the names
+ * of the plugin projects to be installed in the loci image.
+ */
+def getPluginProjects(String projectName) {
+    return ${project_config[projectName].plugin_projects}
 }

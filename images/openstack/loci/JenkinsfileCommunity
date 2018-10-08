@@ -27,6 +27,8 @@ if (env.GERRIT_REFSPEC) {
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${DISPLAY_PREFIX} ${PROJECT_BRANCH}"
 
+PLUGIN_BRANCH = "-b ${PROJECT_BRANCH}"
+
 // handle diffs in stable/<rel>, and <rel>-eol
 if (PROJECT_BRANCH.contains('stable/')) {
     PROJECT_RELEASE = PROJECT_BRANCH.replace('stable/', '')
@@ -41,17 +43,29 @@ if (PROJECT_BRANCH.contains('stable/')) {
     PROJECT_RELEASE = 'rocky'
     // use requirements:latest for master as community release image is not yet available
     WHEELS_LATEST = "${ARTF_DOCKER_URL}/openstack/rocky/loci/community/requirements:latest"
+    PLUGIN_BRANCH = ""
 } else {
     error("Unsupported branch/tag: ${PROJECT_BRANCH}")
 }
 
 // openstack community repos by default
 PROJECT_REPO = "https://git.openstack.org/openstack/${PROJECT}"
+PLUGIN_BASE_PROJECT = loci.getPluginBaseProject(PROJECT)
+PLUGIN_PROJECTS = loci.getPluginProjects(PROJECT)
+BASE_PROJECT_REF = '${PROJECT_REF}'
+
+if (${PLUGIN_BASE_PROJECT} != '') {
+PROJECT_REPO = "https://git.openstack.org/openstack/${PLUGIN_BASE_PROJECT}"
+BASE_PROJECT_REF = ''
+} else {
+PLUGIN_BASE_PROJECT = "${PROJECT}"
+}
+
 PROJECT_PREFIX = "loci/community"
 IMAGE_BASE = "${ARTF_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
 DEFAULT_ARGS = "--build-arg FROM=${LOCI_BASE_IMAGE}\
-  --build-arg PROJECT=${PROJECT}\
-  --build-arg PROJECT_REF=${PROJECT_REF}\
+  --build-arg PROJECT=${PLUGIN_BASE_PROJECT}\
+  --build-arg PROJECT_REF=${BASE_PROJECT_REF}\
   --build-arg NO_PROXY=${NO_PROXY}\
   --build-arg http_proxy=${HTTP_PROXY}\
   --build-arg https_proxy=${HTTPS_PROXY}\
@@ -61,17 +75,46 @@ DEFAULT_ARGS = "--build-arg FROM=${LOCI_BASE_IMAGE}\
 DIND_CONTAINER = "locibuildcont"
 DIND = "sudo docker exec ${DIND_CONTAINER}"
 
+PLUGINS_INSTALL_STR = ""
+PLUGIN_PROJECTS.each { plugin ->
+    PLUGIN_REPO = "https://git.openstack.org/openstack/${plugin}"
+    PLUGINS_INSTALL_STR += "apt-get remove -y ${plugin} ;\ "
+    PLUGINS_INSTALL_STR += "git clone ${PLUGIN_REPO} ${PLUGIN_BRANCH} /opt/${plugin} ;\ "
+    PLUGINS_INSTALL_STR += "cd /opt/${plugin} ; pip install --editable . "
+    if ( plugin != PLUGIN_PROJECTS.last() ) {
+        PLUGINS_INSTALL_STR += " ;\ "
+    }
+}
+
 def buildLoci(projConfArgs = '', wheelArgs = '') {
 
-    def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
+    def image_tag = "${IMAGE_BASE}/${PLUGIN_BASE_PROJECT}:${PROJECT_VERSION}"
     ansiColor('xterm') {
         sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${DEFAULT_ARGS} ${projConfArgs} ${wheelArgs} --tag ${image_tag}"
+
+        sh "tee > /tmp/Dockerfile.plugins <<EOF
+        FROM ${image_tag}
+        RUN set -ex; echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections ;\
+            apt-get update ;\
+            apt-get upgrade -y ;\
+            apt-get install -y --no-install-recommends
+                git \
+                python \
+                virtualenv ;\
+            . /var/lib/openstack/bin/activate ;\
+            ${PLUGINS_INSTALL_STR}
+        EOF
+
+        DOCKERFILE_PLUGINS = $(base64 -w0 /tmp/Dockerfile.plugins)
+        sh '${DIND} sh -c "echo $DOCKERFILE_PLUGINS | base64 -d > /tmp/Dockerfile.plugins"'
+        sh "${DIND} docker build --file /tmp/Dockerfile.plugins /tmp --no-cache --tag ${image_tag}"
     }
+
     sh "${DIND} docker push ${image_tag}"
 
     //publish latest (branch) tag on merge
     if (env.GERRIT_EVENT_TYPE == 'change-merged') {
-        def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
+        def image_latest = "${IMAGE_BASE}/${PLUGIN_BASE_PROJECT}:latest"
         sh "${DIND} docker tag ${image_tag} ${image_latest}"
         sh "${DIND} docker push ${image_latest}"
     }
@@ -106,7 +149,7 @@ vm2('loci-bootstrap.sh',
             loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT)
             loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
             WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
-            IMAGE_LOCI = buildLoci(loci.getDependencies(PROJECT), WHEELS_ARG)
+            IMAGE_LOCI = buildLoci(loci.getDependencies(PLUGIN_BASE_PROJECT), WHEELS_ARG)
         }
     }
 }
@@ -117,7 +160,7 @@ if (!PROJECT.contains('requirements') &&
     PROJECT_RELEASE == 'ocata') {
 
     // pass ps image as env variable
-    LOCI_IMAGE_VAR="${PROJECT.toUpperCase()}_LOCI"
+    LOCI_IMAGE_VAR="${PLUGIN_BASE_PROJECT.toUpperCase()}_LOCI"
     print "Overriding default for $LOCI_IMAGE_VAR with $IMAGE_LOCI..."
 
     // OSH AIO requires min 8 cpus cores and 16 GB ram

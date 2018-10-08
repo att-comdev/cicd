@@ -36,26 +36,42 @@ if (env.GERRIT_REFSPEC) {
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${DISPLAY_PREFIX} ${PROJECT_BRANCH}"
 
+PLUGIN_BRANCH = "-b ${PROJECT_BRANCH}"
+
 if (PROJECT_BRANCH == 'master') {
     PROJECT_RELEASE = 'ocata'
+    PLUGIN_BRANCH = ""
 }
 
-PROJECT_PREFIX = "loci/mos"
 PROJECT_SUFFIX = PROJECT.split('-')[1]
 PROJECT_REPO = "${INTERNAL_GERRIT_SSH}/mos-${PROJECT_SUFFIX}"
 WHEELS_LATEST = conf.MOS_REQUIREMENTS_LOCI
+PLUGIN_BASE_PROJECT = loci.getPluginBaseProject(PROJECT_SUFFIX)
+PLUGIN_PROJECTS = loci.getPluginProjects(PROJECT_SUFFIX)
+BASE_PROJECT_REF = '${PROJECT_REF}'
+
+if (${PLUGIN_BASE_PROJECT} != '') {
+PROJECT_REPO = "${INTERNAL_GERRIT_SSH}/mos-${PLUGIN_BASE_PROJECT}"
+BASE_PROJECT_REF = ''
+} else {
+PLUGIN_BASE_PROJECT = "${PROJECT_SUFFIX}"
+}
+
+PROJECT_PREFIX = "loci/mos"
 IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
 DEFAULT_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}\
-  --build-arg PROJECT=${PROJECT_SUFFIX}\
-  --build-arg PROJECT_REF=${PROJECT_REF}\
+  --build-arg PROJECT=${PLUGIN_BASE_PROJECT}\
+  --build-arg PROJECT_REF=${BASE_PROJECT_REF}\
   --build-arg NO_PROXY=${NO_PROXY}\
   --build-arg http_proxy=${HTTP_PROXY}\
   --build-arg https_proxy=${HTTPS_PROXY}\
-  --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}"
+  --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/mos-${PLUGIN_BASE_PROJECT}"
 
 // cmd for running Docker in Docker
 DIND_CONTAINER = "locibuildcont"
 DIND = "sudo docker exec ${DIND_CONTAINER}"
+
+PLUGINS_INSTALL_STR = ""
 
 // git clone mirror the project on local nginx server to allow passing http git url as build arg for loci builds
 def repo_clone_mirror = {
@@ -67,8 +83,22 @@ def repo_clone_mirror = {
             sh 'mkdir -p web/repo'
             sh "ssh-keyscan -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} | tee -a ~/.ssh/known_hosts"
             dir ('web/repo') {
-                sh "git clone --mirror ${PROJECT_REPO} ${PROJECT}"
-                sh "cd ${PROJECT} && git update-server-info"
+                // Setup mirror for base project
+                sh "git clone --mirror ${PROJECT_REPO} mos-${PLUGIN_BASE_PROJECT}"
+                sh "cd mos-${PLUGIN_BASE_PROJECT} && git update-server-info"
+
+                // Setup mirrors for plugin projects
+                PLUGIN_PROJECTS.each { plugin ->
+                    PLUGIN_REPO = "${INTERNAL_GERRIT_SSH}/mos-${plugin}"
+                    sh "git clone --mirror ${PLUGIN_REPO} mos-${plugin}"
+                    sh "cd mos-${project} && git update-server-info"
+                    PLUGINS_INSTALL_STR += "apt-get remove -y ${plugin} ;\ "
+                    PLUGINS_INSTALL_STR += "git clone ${LOCAL_WEB_URL}/repo/mos-${plugin} ${PLUGIN_BRANCH} /opt/mos-${plugin} ;\ "
+                    PLUGINS_INSTALL_STR += "cd /opt/mos-${plugin} ; pip install --editable . "
+                    if ( plugin != PLUGIN_PROJECTS.last() ) {
+                        PLUGINS_INSTALL_STR += " ;\ "
+                    }
+                }
             }
         }
     }
@@ -114,15 +144,33 @@ def buildLociMos(projConfArgs = '', wheelArgs = '') {
        labels += " --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE}"
     }
 
-    def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
+    def image_tag = "${IMAGE_BASE}/${PLUGIN_BASE_PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
     ansiColor('xterm') {
         sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO_PATH} ${DEFAULT_ARGS} ${projConfArgs} ${wheelArgs} ${labels} --tag ${image_tag}"
+
+        sh "tee > /tmp/Dockerfile.plugins <<EOF
+        FROM ${image_tag}
+        RUN set -ex; echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections ;\
+            apt-get update ;\
+            apt-get upgrade -y ;\
+            apt-get install -y --no-install-recommends
+                git \
+                python \
+                virtualenv ;\
+            . /var/lib/openstack/bin/activate ;\
+            ${PLUGINS_INSTALL_STR}
+        EOF
+
+        DOCKERFILE_PLUGINS = $(base64 -w0 /tmp/Dockerfile.plugins)
+        sh '${DIND} sh -c "echo $DOCKERFILE_PLUGINS | base64 -d > /tmp/Dockerfile.plugins"'
+        sh "${DIND} docker build --file /tmp/Dockerfile.plugins /tmp --no-cache --tag ${image_tag}"
     }
+
     sh "${DIND} docker push ${image_tag}"
 
     //publish latest (branch) tag on merge for requirements
     if (PROJECT.contains('requirements') && env.GERRIT_EVENT_TYPE == 'change-merged') {
-        def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
+        def image_latest = "${IMAGE_BASE}/${PLUGIN_BASE_PROJECT}:latest"
         sh "${DIND} docker tag ${image_tag} ${image_latest}"
         sh "${DIND} docker push ${image_latest}"
     }
@@ -156,9 +204,9 @@ vm2('loci-bootstrap.sh',
         } else {
             loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
             WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
-            IMAGE_LOCI = buildLociMos(loci.getDependencies(PROJECT_SUFFIX), WHEELS_ARG)
+            IMAGE_LOCI = buildLociMos(loci.getDependencies(PLUGIN_BASE_PROJECT), WHEELS_ARG)
         }
-        LOCI_IMAGE_VAR = "${PROJECT_SUFFIX.toUpperCase()}_LOCI"
+        LOCI_IMAGE_VAR = "${PLUGIN_BASE_PROJECT.toUpperCase()}_LOCI"
         cmd = "${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE_LOCI}"
         IMAGE_SHA = sh(returnStdout: true, script: cmd).trim()
         sh "mkdir -p ${WORKSPACE}/artifacts"
@@ -233,7 +281,7 @@ if (!PROJECT.contains('requirements') && PROJECT_RELEASE == 'ocata') {
                 //publish latest (branch) tag on merge
                 if (env.GERRIT_EVENT_TYPE == 'change-merged') {
                     print "Promoting $IMAGE_LOCI to latest..."
-                    def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
+                    def image_latest = "${IMAGE_BASE}/${PLUGIN_BASE_PROJECT}:latest"
                     sh "sudo docker tag $IMAGE_LOCI ${image_latest}"
                     sh "sudo docker push ${image_latest}"
                 }
