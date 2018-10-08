@@ -138,7 +138,13 @@ lint_jenkins_files(){
 
     echo "NOTICE: Jenkins linter does not check for all errors and can't be 100% trusted"
     for file in ${MODIFIED_FILES}; do
-        echo "INFO: linting jenkins file ""${file}""..."
+        # JENKINS-42730: declarative-linter don't work with shared library
+        # Iterate all files and skip linter checks if file contains
+        # class imports from global share libraries
+        egrep "import.*att.*" ${file} && \
+            echo "INFO:[JENKINS-42730] Skipping linter for file ""${file}""..." && \
+            continue
+        echo "INFO: linting file ""${file}""..."
         opts="-s ${JENKINS_CLI_URL} -auth ${JENKINS_USER}:${JENKINS_TOKEN}"
         cat "${file}" | java -jar ${JENKINS_CLI} ${opts} declarative-linter
     done
