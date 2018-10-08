@@ -1,5 +1,5 @@
-import groovy.json.JsonSlurper
 import att.comdev.cicd.config.conf
+import groovy.json.JsonSlurper
 
 def imagesJson = '''{ "airship":[{
                         "repo":"airship",
