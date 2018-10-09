@@ -11,6 +11,9 @@ jobs.each { job_name, branch ->
     JOB_NAME=job_name
     RELEASE_BRANCH=branch
     pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
+        logRotator{
+            daysToKeep(90)
+        }
         parameters {
             stringParam {
                 name ('RELEASE_BRANCH')

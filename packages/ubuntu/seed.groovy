@@ -10,9 +10,8 @@ pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
                 'Ubuntu packages and upload them to Artifactory.\nList of '+
                 'packages is in Jenkinsfile, submit a change to amend it.')
 
-    logRotator {
-        numToKeep(5)
-        artifactNumToKeep(5)
+    logRotator{
+        daysToKeep(90)
     }
 
     parameters {
