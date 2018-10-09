@@ -25,6 +25,9 @@ MOS_PROJECTS = ['mos-requirements': 'master',
                 'mos-nova-1804': 'master']
 COMMUNITY_PROJECTS.each { project, ref ->
     pipelineJob("${JOB_BASE}/community/${project}") {
+        logRotator{
+            daysToKeep(90)
+        }
         // limit surge of patchsets
         configure {
             node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
@@ -84,6 +87,9 @@ COMMUNITY_PROJECTS.each { project, ref ->
 
 MOS_PROJECTS.each { project, ref ->
     pipelineJob("${JOB_BASE}/mos/${project}") {
+        logRotator{
+            daysToKeep(90)
+        }
         def propsPrefix = "${project}".split('-')[0]
         def propsSuffix = "${project}".split('-')[1]
         // limit surge of patchsets
