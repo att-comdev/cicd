@@ -31,6 +31,10 @@ COMMUNITY_PROJECTS.each { project, ref ->
 
     pipelineJob("${JOB_BASE}/community/${project}") {
 
+        logRotator{
+            daysToKeep(90)
+        }
+
         parameters {
             stringParam {
                 defaultValue(ref)
@@ -82,6 +86,10 @@ COMMUNITY_PROJECTS.each { project, ref ->
 MOS_PROJECTS.each { project, ref ->
 
     pipelineJob("${JOB_BASE}/mos/${project}") {
+
+        logRotator{
+            daysToKeep(90)
+        }
 
         parameters {
             stringParam {

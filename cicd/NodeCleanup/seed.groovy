@@ -4,12 +4,14 @@ folder("${base_path}")
 
 pipelineJob(job_path) {
     description("This job deletes the jenkins node and its underlying stack")
+    logRotator{
+        daysToKeep(30)
+    }
     parameters {
         stringParam {
             name ('DELETE_NODENAME')
             defaultValue('')
             description('Node to be deleted')
-            trim(true)
         }
     }
     definition {
