@@ -3,6 +3,9 @@ job_path = "${base_path}/SuperSeed"
 folder("${base_path}")
 
 freeStyleJob("${job_path}") {
+    logRotator{
+        daysToKeep(90)
+    }
     label('master')
     parameters {
         stringParam {
