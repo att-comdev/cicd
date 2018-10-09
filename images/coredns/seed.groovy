@@ -3,6 +3,9 @@ JOB_NAME='coredns'
 
 folder(JOB_FOLDER)
 pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
+    logRotator{
+        daysToKeep(90)
+    }
     parameters {
         stringParam {
             name ('GO_VERSION')
