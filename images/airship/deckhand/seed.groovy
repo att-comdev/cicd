@@ -4,6 +4,10 @@ folder(JOB_BASE)
 
 pipelineJob("${JOB_BASE}/deckhand") {
 
+    logRotator{
+        daysToKeep(90)
+    }
+
     configure {
         node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
             durationName 'hour'
