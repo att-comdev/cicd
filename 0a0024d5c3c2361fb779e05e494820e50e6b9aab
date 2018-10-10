@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "622ab443_60ad8316",
+        "filename": "vars/shipyard.groovy",
+        "patchSetId": 48
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-10T20:03:45Z",
+      "side": 1,
+      "message": "Please add some sleep before re-trying.\nI\u0027m not sure if there is any better way to do it, I have so far done.. might be better ways.\n\n\n        retry(3) {\n            try {\n                res \u003d httpRequest (url: \"${SHIPYARD_URL}/configdocs/${SITE_NAME}?buffermode\u003dreplace\",\n                               httpMode: \u0027POST\u0027,\n                               customHeaders: [[name: \u0027Content-Type\u0027, value: \u0027application/x-yaml\u0027],\n                                               [name: \u0027X-Auth-Token\u0027, value: token]],\n                               requestBody: manifests)\n            } catch (err) {\n                sleep 120\n                error(err)\n            }\n        }",
+      "revId": "0a0024d5c3c2361fb779e05e494820e50e6b9aab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}

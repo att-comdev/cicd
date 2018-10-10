@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f96cd6e_7fafb689",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 37
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-10T20:03:45Z",
+      "side": 1,
+      "message": "I would remove all container related functions.\nPlease check with Darren if he\u0027s OK. API is the way to go.",
+      "revId": "e8dada9ef6ac07352f4a68044d90fc35977890c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a327107_9ac6d4d7",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 37
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-10T20:03:45Z",
+      "side": 1,
+      "message": "We should add a wait time before next re-try.\n\nThere are times when cluster would sync ceph, etc.\nRetrying right away would give not much benefit.",
+      "revId": "e8dada9ef6ac07352f4a68044d90fc35977890c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
