@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40bdcc31_148c0a57",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-10T06:27:29Z",
+      "side": 1,
+      "message": "remove whitespace",
+      "range": {
+        "startLine": 144,
+        "startChar": 85,
+        "endLine": 144,
+        "endChar": 86
+      },
+      "revId": "6a46ace96330a3da9b9b6cc92bc30525741e6277",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8a5827c_2173c4f0",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-10T06:27:29Z",
+      "side": 1,
+      "message": "you could combine both greps into one.. but its just a suggestion",
+      "range": {
+        "startLine": 141,
+        "startChar": 1,
+        "endLine": 144,
+        "endChar": 85
+      },
+      "revId": "6a46ace96330a3da9b9b6cc92bc30525741e6277",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d4d214c_b670721a",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-10T06:27:29Z",
+      "side": 1,
+      "message": "\u0027file\u0027",
+      "range": {
+        "startLine": 146,
+        "startChar": 54,
+        "endLine": 146,
+        "endChar": 59
+      },
+      "revId": "6a46ace96330a3da9b9b6cc92bc30525741e6277",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ed469ce_9b95472a",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-10T06:27:29Z",
+      "side": 1,
+      "message": "remove whitespace",
+      "range": {
+        "startLine": 149,
+        "startChar": 10,
+        "endLine": 149,
+        "endChar": 11
+      },
+      "revId": "6a46ace96330a3da9b9b6cc92bc30525741e6277",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
