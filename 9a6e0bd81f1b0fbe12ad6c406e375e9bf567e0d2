@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07a6c6cc_cfd85280",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 13
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-11T20:42:54Z",
+      "side": 1,
+      "message": "What if I would add sandbox( true)?\nPlease improve this to be proper REGEX to capture variations with spaces.",
+      "revId": "9a6e0bd81f1b0fbe12ad6c406e375e9bf567e0d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
