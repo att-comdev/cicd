@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0b2a74b_50b1823f",
+        "filename": "vars/idrac.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-11T07:34:09Z",
+      "side": 1,
+      "message": "Timeout 1 and sleep 10 below? Is this all in seconds and would it work properly?",
+      "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4474137c_716a5f0b",
+        "filename": "vars/idrac.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-11T07:34:09Z",
+      "side": 1,
+      "message": "I would print info on what\u0027s going on. E.g. \"Power state is xxx; pending yy seconds.\"\nOther power stated are PoweringOn and PoweringOff.",
+      "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "489bf43d_2488d19d",
+        "filename": "vars/idrac.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-11T07:34:09Z",
+      "side": 1,
+      "message": "Add ForceRestart, might be good to have.",
+      "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b18c5bf_21093f32",
+        "filename": "vars/idrac.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-11T07:34:09Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "504e6761_eb9d3483",
+        "filename": "vars/idrac.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-11T07:34:09Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
