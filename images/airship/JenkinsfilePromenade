@@ -98,7 +98,7 @@ vms {
                 IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
             }
             gerrit.cloneToBranch("https://git.openstack.org/openstack/airship-${JOB_BASE_NAME}","${IMAGE_TAG}","")
-         
+
             if(GERRIT_EVENT_TYPE != 'change-merged') {
                 gerrit.rebase()
             }
@@ -125,7 +125,6 @@ vms {
             }]}
         """
     }
-
 
     stage('Promenade Config'){
        node("${PROM_NODE_BASE}-build"){
@@ -167,6 +166,7 @@ vms {
 
         timeout (25) {
             dir("${WORKSPACE}/promenade-bundle") {
+
                sh ("sudo ./${jn}")
                sh ("sudo ./${vn}")
             }
