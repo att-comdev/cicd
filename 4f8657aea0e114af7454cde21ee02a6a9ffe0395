@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "10c50395_955dd5d3",
+        "filename": "vars/idrac.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-11T14:50:00Z",
+      "side": 1,
+      "message": "Oh, yes, it\u0027s 1min for timeout default library, and sleep is always in seconds.\nSo it waits total of 1min in 10s intervals.",
+      "parentUuid": "a0b2a74b_50b1823f",
+      "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4474137c_716a5f0b",
         "filename": "vars/idrac.groovy",
         "patchSetId": 5
@@ -53,6 +71,24 @@
       "writtenOn": "2018-10-11T07:34:09Z",
       "side": 1,
       "message": "I would print info on what\u0027s going on. E.g. \"Power state is xxx; pending yy seconds.\"\nOther power stated are PoweringOn and PoweringOff.",
+      "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c6da717_c44ca374",
+        "filename": "vars/idrac.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-11T14:50:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4474137c_716a5f0b",
       "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -76,6 +112,24 @@
     },
     {
       "key": {
+        "uuid": "207a0720_311a5eca",
+        "filename": "vars/idrac.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-11T14:50:00Z",
+      "side": 1,
+      "message": "I would say additional feature? Please contribute.",
+      "parentUuid": "489bf43d_2488d19d",
+      "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b18c5bf_21093f32",
         "filename": "vars/idrac.groovy",
         "patchSetId": 5
@@ -93,6 +147,24 @@
     },
     {
       "key": {
+        "uuid": "18911c68_f00e7871",
+        "filename": "vars/idrac.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-11T14:50:00Z",
+      "side": 1,
+      "message": "Same as above.",
+      "parentUuid": "7b18c5bf_21093f32",
+      "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "504e6761_eb9d3483",
         "filename": "vars/idrac.groovy",
         "patchSetId": 5
@@ -104,6 +176,24 @@
       "writtenOn": "2018-10-11T07:34:09Z",
       "side": 1,
       "message": "Ditto.",
+      "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aeddcfe2_d605b9c3",
+        "filename": "vars/idrac.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-11T14:50:00Z",
+      "side": 1,
+      "message": "Same as above.",
+      "parentUuid": "504e6761_eb9d3483",
       "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
