@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "ad8d998b_74500ddf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-11T07:35:19Z",
+      "side": 1,
+      "message": "RedFish. And it works also for HP and other vendors.",
+      "range": {
+        "startLine": 7,
+        "startChar": 16,
+        "endLine": 7,
+        "endChar": 21
+      },
+      "revId": "4f8657aea0e114af7454cde21ee02a6a9ffe0395",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0b2a74b_50b1823f",
         "filename": "vars/idrac.groovy",
         "patchSetId": 5
