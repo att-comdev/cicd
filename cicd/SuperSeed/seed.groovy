@@ -59,11 +59,11 @@ freeStyleJob("${job_path}") {
             }
             triggerOnEvents {
 /// PatchsetCreated trigger should be manually enabled on staging:
-//                patchsetCreated {
-//                   excludeDrafts(true)
-//                   excludeTrivialRebase(false)
-//                   excludeNoCodeChange(false)
-//                }
+                patchsetCreated {
+                   excludeDrafts(true)
+                   excludeTrivialRebase(false)
+                   excludeNoCodeChange(false)
+                }
 
 /// changeMerged trigger for production:
                 changeMerged()
