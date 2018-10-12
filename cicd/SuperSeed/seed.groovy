@@ -59,11 +59,11 @@ freeStyleJob("${job_path}") {
             }
             triggerOnEvents {
 /// PatchsetCreated trigger should be manually enabled on staging:
-//                patchsetCreated {
-//                   excludeDrafts(true)
-//                   excludeTrivialRebase(false)
-//                   excludeNoCodeChange(false)
-//                }
+                patchsetCreated {
+                   excludeDrafts(true)
+                   excludeTrivialRebase(false)
+                   excludeNoCodeChange(false)
+                }
 
 /// changeMerged trigger for production:
                 changeMerged()
@@ -79,8 +79,10 @@ freeStyleJob("${job_path}") {
             }
         }
         shell(readFileFromWorkspace("${job_path}/superseed.sh"))
-        dsl {
-            external('${BUILD_NUMBER}/**/seed*.groovy')
+        jobDsl {
+            targets('${BUILD_NUMBER/**/seed*.groovy')
+            // Add ignoreMissingFiles to ignore when seeds are not copied for patchsets
+            ignoreMissingFiles(true)
             //ignoreExisting(true)
             //removeAction('DISABLE')
         }
