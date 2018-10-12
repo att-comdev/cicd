@@ -11,8 +11,10 @@ git_clone(){
     local local_path=$2
     local refspec=$3
 
-    if [[ "${GERRIT_HOST}" =~ review ]]; then
+    if [[ "${GERRIT_HOST}" == "review.gerrithub.io" ]]; then
         local gerrit_url='https://review.gerrithub.io'
+    elif [[ "${GERRIT_HOST}" == "review.openstack.org" ]]; then
+        local gerrit_url='https://review.openstack.org'
     else
         local gerrit_url=$INTERNAL_GERRIT_SSH
     fi

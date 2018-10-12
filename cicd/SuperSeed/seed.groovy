@@ -56,6 +56,17 @@ freeStyleJob("${job_path}") {
                     }
                     disableStrictForbiddenFileVerification(false)
                 }
+                gerritProject {
+                    compareType('REG_EXP')
+                    pattern("^openstack/airship-treasuremap\$")
+                    branches {
+                        branch {
+                            compareType('ANT')
+                            pattern("**/master")
+                        }
+                    }
+                    disableStrictForbiddenFileVerification(false)
+                }
             }
             triggerOnEvents {
 /// PatchsetCreated trigger should be manually enabled on staging:
