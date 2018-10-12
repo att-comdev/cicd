@@ -16,6 +16,24 @@
       "revId": "a6a98c749655fe791e32f9bba0ab12f20eb2a8bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29a8aeee_27273604",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-12T17:24:04Z",
+      "side": 1,
+      "message": "Done. added \n\"INFO: Not applying seeds for patchsets, Seeds are applied only after merge\"",
+      "parentUuid": "aeee4b76_8adbe11c",
+      "revId": "a6a98c749655fe791e32f9bba0ab12f20eb2a8bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
