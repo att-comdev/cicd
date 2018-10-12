@@ -168,6 +168,12 @@ lint_jenkins_files
 find_seed
 set +x
 
+# Skip applying the seed files for patchsets
+if [[ ${GERRIT_EVENT_TYPE} == "patchset-created" ]]; then
+    echo "INFO: Not applying seeds for patchsets, Seeds are applied only after merge"
+    exit 0
+fi
+
 if [[ ! ${SEED_PATH} =~ ^tests/ ]]; then
     copy_seed ${SEED_PATH}
 else
