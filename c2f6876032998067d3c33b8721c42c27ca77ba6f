@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e9fec17_eddd8836",
+        "filename": "vars/ssh.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2018-10-15T18:33:32Z",
+      "side": 1,
+      "message": "repeated across the functions - is there maybe an opportunity for a private function that returns just this object?",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 35
+      },
+      "revId": "c2f6876032998067d3c33b8721c42c27ca77ba6f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
