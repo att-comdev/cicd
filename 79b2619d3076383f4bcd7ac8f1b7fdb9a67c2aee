@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd9ed39b_d8e39689",
+        "filename": "vars/ssh.groovy",
+        "patchSetId": 15
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-10-15T18:54:31Z",
+      "side": 1,
+      "message": "Is it only one command that will be executed remotely?\nSince this is a common library may be it would be better to have some common method for cmd retries with cmd as an argument. So this logic may be used for different commands in different places.",
+      "range": {
+        "startLine": 29,
+        "startChar": 29,
+        "endLine": 29,
+        "endChar": 37
+      },
+      "revId": "79b2619d3076383f4bcd7ac8f1b7fdb9a67c2aee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
