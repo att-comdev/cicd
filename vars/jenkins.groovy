@@ -1,6 +1,6 @@
 //This groovy file is used for Jenkins node methods.
 
-def node_create(String name, String host, String key = 'jenkins-slave-ssh', Number numOfExecutors) {
+def node_create(String name, String host, String key = 'jenkins-slave-ssh', Number numOfExecutors = 2) {
     config = node_config(name, host, key, numOfExecutors)
     withCredentials([usernamePassword(credentialsId: 'jenkins-token',
                                       usernameVariable: 'JENKINS_USER',

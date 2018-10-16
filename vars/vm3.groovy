@@ -104,28 +104,31 @@ def call(Map map,
         error(error)
 
     } finally {
-        try {
-            // node(name){
-            //     stage("Publish Jenkins Logs"){
-            //         try{
-            //             publish.putArtifacts(logs.getJenkinsConsoleOutput(), "logs/${JOB_NAME}/")
-            //         } catch (error){
-            //             notify.msg("Logs published failed: ${error}")
-            //         }
-            //     }
-            // }
-        } finally {
-            if (!doNotDeleteNode) {
-                stage ('Node Destroy') {
-                    node('master') {
-                        jenkins.node_delete(name)
-                    }
-                    node(launch_node) {
-                       heat.stack_delete(name)
-                    }
+        if (!doNotDeleteNode) {
+            stage ('Node Destroy') {
+                node('master') {
+                    jenkins.node_delete(name)
+                }
+                node(launch_node) {
+                   heat.stack_delete(name)
                 }
             }
         }
+
+        // publish Jenkins console log
+        node('master'){
+            try{
+                def baseUrl = "logs/${JOB_NAME}/${BUILD_ID}"
+
+                artifactory.upload (logs.getJenkinsConsoleOutput(), baseUrl)
+                setGerritReview customUrl: "${ARTF_WEB_URL}/${baseUrl}"
+
+            } catch (error){
+                // gracefully handle failures to publish
+                print error
+            }
+        }
+
     }
   return ip
 }
