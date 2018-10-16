@@ -1,0 +1,11 @@
+Code-Review+1: <ss233c@att.com>
+Code-Review+2: <sb464f@att.com>
+Code-Review-1: Roman Gorshunov <roman.gorshunov@att.com>
+Code-Review+2: Darren DeJaeger <darren.dejaeger@gmail.com>
+Verified+1: Jenkins <attcomdev.jenkins@gmail.com>
+Workflow+1: Kaspars Skels <kaspars.skels@gmail.com>
+Submitted-by: Kaspars Skels <kaspars.skels@gmail.com>
+Submitted-at: Tue, 16 Oct 2018 13:58:41 +0000
+Reviewed-on: https://review.gerrithub.io/429061
+Project: att-comdev/cicd
+Branch: refs/heads/master
