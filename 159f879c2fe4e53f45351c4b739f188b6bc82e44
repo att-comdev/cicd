@@ -1,0 +1,11 @@
+Code-Review+2: Kaspars Skels <kaspars.skels@gmail.com>
+Code-Review+1: Roman Gorshunov <roman.gorshunov@att.com>
+Code-Review+2: <narendra.choudhary@ericsson.com>
+Verified+1: Jenkins <attcomdev.jenkins@gmail.com>
+Verified+1: <narendra.choudhary@ericsson.com>
+Workflow+1: <narendra.choudhary@ericsson.com>
+Submitted-by: <narendra.choudhary@ericsson.com>
+Submitted-at: Tue, 16 Oct 2018 14:21:44 +0000
+Reviewed-on: https://review.gerrithub.io/429223
+Project: att-comdev/cicd
+Branch: refs/heads/master
