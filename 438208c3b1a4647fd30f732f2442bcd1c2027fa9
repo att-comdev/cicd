@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2ab20d5b_3313bd24",
+        "filename": "vars/ssh.groovy",
+        "patchSetId": 22
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-16T13:57:56Z",
+      "side": 1,
+      "message": "I think documenting standard commands would not add any value given that ssh-steps link is already on top of the file, and this servers more of a as a wrapper.\n\nAdding boilerplate just makes things hard to read.",
+      "parentUuid": "5dd5d781_f2cca378",
+      "revId": "438208c3b1a4647fd30f732f2442bcd1c2027fa9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8b8889e_82d57fea",
         "filename": "vars/ssh.groovy",
         "patchSetId": 22
