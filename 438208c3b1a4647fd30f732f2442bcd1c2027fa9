@@ -22,6 +22,30 @@
       "revId": "438208c3b1a4647fd30f732f2442bcd1c2027fa9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c3f4304c_a7b69911",
+        "filename": "vars/ssh.groovy",
+        "patchSetId": 22
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-16T02:33:30Z",
+      "side": 1,
+      "message": "def makes variable local.\nSo need to define where it\u0027s used.",
+      "parentUuid": "f8b8889e_82d57fea",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 37
+      },
+      "revId": "438208c3b1a4647fd30f732f2442bcd1c2027fa9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
