@@ -1,4 +1,7 @@
 
+import att.comdev.cicd.config.conf
+
+
 // Required credentials names
 //  - jenkins-openstack
 //  - jenkins-token
@@ -8,6 +11,7 @@
 // Jenkins global env variables (: examples)
 //  - JENKINS_URL
 //  - JENKINS_CLI
+
 
 /**
  * Create single node using a heat template
@@ -48,6 +52,14 @@ def call(Map map,
     //  false - default, deletes node after job
     //  true - do not delete node
     def doNotDeleteNode = map.doNotDeleteNode ?: false
+
+    // Flag to control console log publishing to Artifactory, and setting
+    // custom URL to be returned when voting in Gerrit
+    // https://jenkins.io/doc/pipeline/steps/gerrit-trigger/
+    //
+    // Useful for providing Jenkins console log when acting as 3rd party gate
+    // especially when Jenkins itself (and it's log) is not available
+    def artifactoryLogs = map.artifactoryLogs ?: false
 
     // resolve args to heat parameters
     def parameters = " --parameter image=${image}" +
@@ -104,28 +116,33 @@ def call(Map map,
         error(error)
 
     } finally {
-        try {
-            // node(name){
-            //     stage("Publish Jenkins Logs"){
-            //         try{
-            //             publish.putArtifacts(logs.getJenkinsConsoleOutput(), "logs/${JOB_NAME}/")
-            //         } catch (error){
-            //             notify.msg("Logs published failed: ${error}")
-            //         }
-            //     }
-            // }
-        } finally {
-            if (!doNotDeleteNode) {
-                stage ('Node Destroy') {
-                    node('master') {
-                        jenkins.node_delete(name)
-                    }
-                    node(launch_node) {
-                       heat.stack_delete(name)
-                    }
+        if (!doNotDeleteNode) {
+            stage ('Node Destroy') {
+                node('master') {
+                    jenkins.node_delete(name)
+                }
+                node(launch_node) {
+                   heat.stack_delete(name)
                 }
             }
         }
+
+        // publish Jenkins console log
+        if (artifactoryLogs) {
+            node('master'){
+                try{
+                    sh "curl -s -o console.log ${BUILD_URL}/consoleText"
+                    artifactory.upload ('console.log', "${conf.ARTF_LOGS_BASE}/console.log")
+
+                    setGerritReview customUrl: conf.ARTF_LOGS_URL
+
+                } catch (error){
+                    // gracefully handle failures to publish
+                    print error
+                }
+            }
+        }
+
     }
   return ip
 }
