@@ -1,13 +1,13 @@
 // pipeline for airship-in-a-bottle, more info at
 // http://www.airshipit.org/
 
+ARTF_BASE = "logs/${JOB_NAME}/${BUILD_ID}"
+
 REPO_URL = 'https://git.openstack.org/openstack/airship-in-a-bottle'
 REPO_HOME = '/root/deploy/airship-in-a-bottle'
 
 
-vm2('bootstrap.sh',
-    'cicd-ubuntu-16.04-server-cloudimg-amd64',
-    'm1.xxlarge') {
+vm(flavor: 'm1.xlarge', artifactoryLogs: true) {
 
     stage('Checkout'){
 
@@ -27,8 +27,21 @@ vm2('bootstrap.sh',
 
     stage('Run Airship') {
         dir("${REPO_HOME}/manifests/dev_single_node"){
-            timeout(120){
-                sh 'sudo ./airship-in-a-bottle.sh -y'
+            try {
+                timeout(120){
+                    sh 'sudo ./airship-in-a-bottle.sh -y'
+                }
+            } catch (err) {
+                try {
+                    sh 'sudo debug-report.sh'
+                    artifactory.upload("debug-${HOSTNAME}.tgz",
+                                   "${ARTF_BASE}/debug-${HOSTNAME}.tgz")
+                } catch (lerr){
+                    // pipeline may not yet deployed basic k8s
+                    // cause of the issue will be found in Jenkins console log
+                    print "Failed to publish debug report: ${lerr}"
+                }
+                error(err)
             }
         }
     }
