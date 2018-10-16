@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "5dd5d781_f2cca378",
+        "filename": "vars/ssh.groovy",
+        "patchSetId": 22
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-16T12:48:59Z",
+      "side": 1,
+      "message": "Docs missing.",
+      "revId": "438208c3b1a4647fd30f732f2442bcd1c2027fa9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8b8889e_82d57fea",
         "filename": "vars/ssh.groovy",
         "patchSetId": 22
@@ -43,6 +60,74 @@
         "endLine": 32,
         "endChar": 37
       },
+      "revId": "438208c3b1a4647fd30f732f2442bcd1c2027fa9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd088fe4_58e1193c",
+        "filename": "vars/ssh.groovy",
+        "patchSetId": 22
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-16T12:48:59Z",
+      "side": 1,
+      "message": "Docs missing.",
+      "revId": "438208c3b1a4647fd30f732f2442bcd1c2027fa9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "75aaf1f6_6eb1c31c",
+        "filename": "vars/ssh.groovy",
+        "patchSetId": 22
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-16T12:48:59Z",
+      "side": 1,
+      "message": "Docs missing.",
+      "revId": "438208c3b1a4647fd30f732f2442bcd1c2027fa9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b523447_d0334210",
+        "filename": "vars/ssh.groovy",
+        "patchSetId": 22
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-16T12:48:59Z",
+      "side": 1,
+      "message": "Docs missing.",
+      "revId": "438208c3b1a4647fd30f732f2442bcd1c2027fa9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "739cee6f_e062b66d",
+        "filename": "vars/ssh.groovy",
+        "patchSetId": 22
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-16T12:48:59Z",
+      "side": 1,
+      "message": "Docs missing.",
       "revId": "438208c3b1a4647fd30f732f2442bcd1c2027fa9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
