@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2692e189_c7cc9e1a",
+        "filename": "vars/vm.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-16T15:52:41Z",
+      "side": 1,
+      "message": "renaming to vm",
+      "range": {
+        "startLine": 19,
+        "startChar": 6,
+        "endLine": 22,
+        "endChar": 12
+      },
+      "revId": "ab083f2d7ad3eec4f5e060fda1ef38bd5cd84d65",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
