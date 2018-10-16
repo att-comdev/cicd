@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "308255b6_88c30180",
+        "filename": "vars/ssh.groovy",
+        "patchSetId": 21
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-10-16T00:33:56Z",
+      "side": 1,
+      "message": "Since this is a common method for arbitrary commands it would be nice to have number of retries and time for sleep as arguments with default values.",
+      "range": {
+        "startLine": 42,
+        "startChar": 11,
+        "endLine": 42,
+        "endChar": 13
+      },
+      "revId": "58b6dcfcf7053a5dfff7819f524e2872d614a316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
