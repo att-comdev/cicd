@@ -1,16 +1,26 @@
 
-import att.comdev.cicd.config.conf
-
-
-// Required credentials names
+// Required Jenkins credentials
 //  - jenkins-openstack
 //  - jenkins-token
 //  - jenkins-slave-ssh
 
 
-// Jenkins global env variables (: examples)
+// Jenkins global env variables
 //  - JENKINS_URL
 //  - JENKINS_CLI
+//  - ARTF_WEB_URL
+
+
+/**
+ *
+ */
+def message(String headline, Closure body) {
+     print '======================================================================'
+     print headline
+     print '======================================================================'
+     body()
+     print '----------------------------------------------------------------------'
+}
 
 
 /**
@@ -24,8 +34,7 @@ import att.comdev.cicd.config.conf
  *           initScript:'loci-bootstrap.sh')
  *
 **/
-def call(Map map,
-         Closure body) {
+def call(Map map, Closure body) {
 
     // Startup script to run after VM instance creation
     //  bootstrap.sh - default
@@ -62,6 +71,10 @@ def call(Map map,
     // especially when Jenkins itself is not accessible
     def artifactoryLogs = map.artifactoryLogs ?: false
 
+    // global timeout for executing pipeline
+    // useful to prevent forever hanging pipelines consuming resources
+    def globalTimeout = map.timeout ?: 120
+
     // resolve args to heat parameters
     def parameters = " --parameter image=${image}" +
                      " --parameter flavor=${flavor}"
@@ -71,10 +84,12 @@ def call(Map map,
 
     def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
 
+    // templates located in resources from shared libraries
+    // https://github.com/att-comdev/cicd/tree/master/resources
     def stack_template="heat/stack/ubuntu.${buildType}.stack.template.yaml"
 
     // optionally uer may supply additional identified for the VM
-    // this makes it easier to find it in OpenStack
+    // this makes it easier to find it in OpenStack (e.g. name)
     if (nodePostfix) {
       name += "-${nodePostfix}"
     }
@@ -83,6 +98,7 @@ def call(Map map,
 
     try {
         stage ('Node Launch') {
+
             node(launch_node) {
                 tmpl = libraryResource "${stack_template}"
                 writeFile file: 'template.yaml', text: tmpl
@@ -96,10 +112,8 @@ def call(Map map,
 
             node('master') {
                 jenkins.node_create (name, ip)
-            }
 
-            node(launch_node) {
-                 timeout (14) {
+                timeout (14) {
                     node(name) {
                         sh 'hostname'
                     }
@@ -107,14 +121,36 @@ def call(Map map,
             }
         }
 
-        // body executed under specified vm node
+        // execute pipeline body, everything within vm()
         node (name) {
-            body()
+            try {
+                message ('JENKINS WORKER READY') {
+                    print "Launch overrides: ${map}.\n" +
+                          "Heat template: ${stack_template}.\n" +
+                          "Node IP: ${ip}"
+                }
+                timeout(globalTimeout) {
+                    body()
+                }
+                message ('SUCCESS: PIPELINE EXECUTION DONE') {}
+                currentBuild.result = 'SUCCESS'
+
+            } catch (err) {
+                message ('FAILURE: PIPELINE EXECUTION HALTED') {
+                    print "Pipeline body failed or timed out: ${err}.\n" +
+                          'Likely gate reports failure.\n'
+                }
+                currentBuild.result = 'FAILURE'
+            }
         }
 
-    } catch (error) {
-        // notify.msg("Pipeline failed: ${error}")
-        error(error)
+    } catch (err) {
+        message ('FAILED TO LAUNCH JENKINS WORKER') {
+            print 'Failed to launch Jenkins VM/worker.\n' +
+                  'Likely infra/template or config error.\n' +
+                  "Error message: ${err}"
+        }
+        currentBuild.result = 'FAILURE'
 
     } finally {
         if (!doNotDeleteNode) {
@@ -132,13 +168,15 @@ def call(Map map,
         // note: keep this as very last step to capture most logs
         if (artifactoryLogs) {
             node('master'){
+                message ('PUBLISHING LOGS TO ARTIFACTORY') {}
                 try{
                     def logBase = "logs/${JOB_NAME}/${BUILD_ID}"
 
-                    sh "curl -s -o console.log ${BUILD_URL}/consoleText"
-                    artifactory.upload ('console.log', "${logBase}/console.log")
+                    sh "curl -s -o console.txt ${BUILD_URL}/consoleText"
+                    artifactory.upload ('console.txt', "${logBase}/console.txt")
 
-                    setGerritReview customUrl: "${conf.ARTF_WEB_URL}/${logBase}"
+                    // Jenkins global variable for Artifactory URL
+                    setGerritReview customUrl: "${ARTF_WEB_URL}/${logBase}"
 
                 } catch (error){
                     // gracefully handle failures to publish
@@ -154,7 +192,6 @@ def call(Map map,
 /**
  *  This method allow for conventional usage as vm()
  *       vm() - All defaults
- *
 **/
 def call(Closure body) {
    map = [:]
