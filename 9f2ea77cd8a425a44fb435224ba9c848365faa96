@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "60ad3c2c_99a755ff",
+        "filename": "vars/shipyard.groovy",
+        "patchSetId": 58
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-17T19:03:11Z",
+      "side": 1,
+      "message": "please consolidate methods to single for create/commit configdocs.\n\nUnless there is a reason.. this will be confusing for lot of people.",
+      "revId": "9f2ea77cd8a425a44fb435224ba9c848365faa96",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22dc6c18_b9f7378f",
         "filename": "vars/shipyard.groovy",
         "patchSetId": 58
