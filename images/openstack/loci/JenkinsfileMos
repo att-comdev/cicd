@@ -151,12 +151,13 @@ vm2('loci-bootstrap.sh',
 
     stage ("Build Project") {
         print "Building ${PROJECT.capitalize()}"
+        dependencies = loci.getDependencies(PROJECT_SUFFIX)
         if (PROJECT.contains('requirements')) {
-            IMAGE_LOCI = buildLociMos()
+            IMAGE_LOCI = buildLociMos(dependencies)
         } else {
             loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
             WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
-            IMAGE_LOCI = buildLociMos(loci.getDependencies(PROJECT_SUFFIX), WHEELS_ARG)
+            IMAGE_LOCI = buildLociMos(dependencies, WHEELS_ARG)
         }
         LOCI_IMAGE_VAR = "${PROJECT_SUFFIX.toUpperCase()}_LOCI"
         cmd = "${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE_LOCI}"
