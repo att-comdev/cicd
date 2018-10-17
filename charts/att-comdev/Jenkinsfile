@@ -1,55 +1,77 @@
-currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+currentBuild.displayName = "#${BUILD_NUMBER} master"
+GIT_COMMIT=""
 
-node("att-comdev-charts"){
-    stage('Project Checkout'){
-        cleanWs()
-        if(env.GERRIT_NEWREV){
-            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_NEWREV, "jenkins")
-        } else {
-            gerrithub.cloneToBranch(GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
-            dir("${WORKSPACE}/jenkins"){
-                gerrit.rebase()
-            }
+vm(flavor: 'm1.xxlarge') {
+    stage('Setup environment'){
+        vm2.setproxy()
+    }
+
+    stage('Install Helm'){
+        //osh.cloneOSH()
+        gerrit.cloneProject("https://github.com/openstack/openstack-helm-infra",
+                            "master",
+                            "",
+                            "${WORKSPACE}/openstack-helm-infra")
+        sh 'sudo apt-get update'
+        sh 'sudo apt-get install -y make curl'
+
+        osh.updateProxy()
+        dir("${WORKSPACE}/openstack-helm-infra") {
+            sh 'make dev-deploy setup-host'
+            sh 'make dev-deploy k8s'
         }
-        dir("${WORKSPACE}/jenkins"){
-            def file_location=""
-            //Remove after divingbell is updated
-            if("${JOB_BASE_NAME}" == "divingbell"){
-                file_location = "${JOB_BASE_NAME}/Chart.yaml"
-            } else {
-                file_location = "charts/${JOB_BASE_NAME}/Chart.yaml"
-            }
+    }
+
+    stage('Project Checkout'){
+        if ("${GERRIT_EVENT_TYPE}" == "patchset-created"){
+            gerrit.cloneToBranch("https://review.gerrithub.io/att-comdev/charts", GERRIT_PATCHSET_REVISION, GERRIT_PROJECT)
+        } else {
+            gerrit.cloneToBranch("https://review.gerrithub.io/att-comdev/charts", GERRIT_NEWREV, GERRIT_PROJECT)
+        }
+        dir("${WORKSPACE}/${GERRIT_PROJECT}"){
+            //gerrit.rebase()
             GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+            file_location = "${JOB_BASE_NAME}/Chart.yaml"
             def chartVersion = readYaml file: file_location
             def chartOverride = readYaml file: file_location, text: "version: 0.9.${BUILD_NUMBER}-"+GIT_COMMIT
             sh "sudo rm -rf ${file_location}"
             writeYaml file: file_location, data: chartOverride
         }
     }
-    stage('Make and Publish Charts'){
-        dir("${WORKSPACE}/jenkins"){
-            def status = sh(returnStatus: true, script: "sudo make ${JOB_BASE_NAME}")
+    dir("${WORKSPACE}/${GERRIT_PROJECT}"){
+        stage('Build & Package'){
+            sh 'helm repo add --ca-file=/etc/ssl/certs/ca-certificates.crt stable https://kubernetes-charts.storage.googleapis.com/'
+            sh 'helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/'
+            def status = sh(returnStatus: true, script: "make all")
             if (status != 0) {
                 currentBuild.result = 'FAILED'
-                notify.msg("Charts build failed for ${GERRIT_CHANGE_NUMBER}!")
+                notify.msg("Charts build failed for ${GIT_COMMIT}!")
             }else{
-                notify.msg("Charts were built for ${GERRIT_CHANGE_NUMBER}")
-            }
-            if(status == 0){
-                if ( GERRIT_EVENT_TYPE == 'change-merged' ){
-                    ARTF_REPO="charts/att-comdev/${JOB_BASE_NAME}/"
-                } else {
-                    ARTF_REPO="charts/att-comdev/patchsets/${JOB_BASE_NAME}/"
-                }
-                def server = Artifactory.server 'artifactory'
-                def uploadSpec = """{"files": [{"pattern":"*${JOB_BASE_NAME}*0.9.${BUILD_NUMBER}*.tgz","target":"${ARTF_REPO}"}]}"""
-                server.upload(uploadSpec)
-                if ( GERRIT_EVENT_TYPE == 'change-merged' ){
-                    publish.setProperty ('jenkins-artifactory', '${ARTF_API_URL}/clcp-manifests', "${RELEASE_CURRENT_KEY}=${ARTF_WEB_URL}/${ARTF_REPO}${JOB_BASE_NAME}-0.9.${BUILD_NUMBER}-${GIT_COMMIT}.tgz")
-                    publish.setProperty ('jenkins-artifactory', '${ARTF_API_URL}/clcp-manifests', "${RELEASE_STATUS_KEY}=NoStatus")
-                }
-                notify.msg("Charts from ${GERRIT_PROJECT} pushed to ${ARTF_REPO}")
+                notify.msg("Charts were built for ${GIT_COMMIT}")
             }
         }
+        // stage('Rename tarballs'){
+        //     def cmd = 'rename "s/0.1.0/'+GIT_COMMIT+'.'+HELM_TOOLKIT_COMMIT+ '/g" *'
+        //     echo (cmd)
+        //     sh(returnStatus:true, script: cmd)
+        // }
+        // stage('Publish'){
+        // if(status == 0){
+        //        if ( GERRIT_EVENT_TYPE == 'change-merged' ){
+        //            ARTF_REPO="charts/att-comdev/${JOB_BASE_NAME}/"
+        //        } else {
+        //            ARTF_REPO="charts/att-comdev/patchsets/${JOB_BASE_NAME}/"
+        //        }
+        //     ARTF_REPO="openstack-helm-addons-local"
+
+        //     def server = Artifactory.server 'artifactory'
+        //     def uploadSpec = """{"files": [{"pattern":"*.tgz","target":"${ARTF_REPO}/${REPO}/openstack-helm-addons/"}]}"""
+        //     server.upload(uploadSpec)
+        //     notify.msg("Chart for ${GIT_COMMIT}.${HELM_TOOLKIT_COMMIT} pushed to ${ARTF_REPO}/{REPO}/openstack-helm-addons")
+
+        // }
+    }
+    stage('Deploy chart'){
+    // to be added
     }
 }
