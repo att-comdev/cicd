@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cee4e919_42ebc46a",
+        "filename": "vars/keystone.groovy",
+        "patchSetId": 58
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-17T18:59:34Z",
+      "side": 1,
+      "message": "Does it reveal username/password in logs?",
+      "revId": "9f2ea77cd8a425a44fb435224ba9c848365faa96",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd406547_37149167",
+        "filename": "vars/shipyard.groovy",
+        "patchSetId": 58
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-17T18:59:34Z",
+      "side": 1,
+      "message": "each",
+      "range": {
+        "startLine": 311,
+        "startChar": 9,
+        "endLine": 311,
+        "endChar": 12
+      },
+      "revId": "9f2ea77cd8a425a44fb435224ba9c848365faa96",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
