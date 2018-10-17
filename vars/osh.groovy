@@ -312,3 +312,28 @@ def deployK8sAIO() {
     }
     return helm_infra_commit
 }
+
+/**
+ * Deploy OSH infra components and keystone using developer scripts
+ * uses ceph fs
+ * Useful for deploying charts requiring authentication with keystone
+ */
+def installOSHLite() {
+    dir("${WORKSPACE}/openstack-helm"){
+        // artifactory has dependency on rados
+        // jenkins has dependency on keystone
+        def deploy_steps = ['Clients'   : '020-setup-client.sh',
+                            'Ingress'   : '030-ingress.sh',
+                            'Ceph'      : '040-ceph.sh',
+                            'Ceph NS'   : '045-ceph-ns-activate.sh',
+                            'MariaDB'   : '050-mariadb.sh',
+                            'RabbitMQ'  : '060-rabbitmq.sh',
+                            'Memcached' : '070-memcached.sh',
+                            'Keystone'  : '080-keystone.sh',
+                            'Rados GW'  : '110-ceph-radosgateway.sh']
+        deploy_steps.each { key, value ->
+            print "Installing $key..."
+            sh "./tools/deployment/developer/ceph/${value}"
+        }
+    }
+}
