@@ -56,6 +56,9 @@ object = jsonSlurper.parseText(imagesJson)
 for (entry in object.github) {
   folder("${entry.directory}")
     pipelineJob("${entry.directory}/${entry.image}") {
+        logRotator{
+            daysToKeep(90)
+        }
         parameters {
             stringParam {
                 defaultValue("${entry.repo}")
@@ -107,7 +110,7 @@ for (entry in object.github) {
            definition {
                cps {
                    script(readFileFromWorkspace("images/airship/JenkinsfileMaster"))
-                   sandbox()
+                   sandbox(false)
                }
            }
         }
@@ -135,6 +138,9 @@ object = jsonSlurper.parseText(imagesJson)
 for (entry in object.github) {
   folder("${entry.directory}")
     pipelineJob("${entry.directory}/${entry.image}") {
+        logRotator{
+            daysToKeep(90)
+        }
         parameters {
             stringParam {
                 defaultValue("${entry.repo}")
@@ -185,7 +191,7 @@ for (entry in object.github) {
            definition {
                cps {
                  script(readFileFromWorkspace("images/airship/${entry.jenkinsfile_loc}"))
-                   sandbox()
+                   sandbox(false)
                }
            }
         }
