@@ -138,14 +138,10 @@ check_sandbox_parameter(){
     LAST_2COMMITS=$(git log -2 --reverse --pretty=format:%H)
     MODIFIED_FILES_SEEDGROOVY=$(git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | egrep "seed.groovy" | cut -f2)
     for file in ${MODIFIED_FILES_SEEDGROOVY[@]}; do
-        SANDBOX_TRUE_COUNT=$(grep -ic 'sandbox *( *true *)' $file)
-        SANDBOX_NULL_COUNT=$(grep -c 'sandbox *( *)' $file )
-        echo " the count of value which are set to sandbox(true)  is $SANDBOX_TRUE_COUNT"
-        echo " the count of value which are set to sandbox()  is $SANDBOX_NULL_COUNT"
-        if [ $SANDBOX_TRUE_COUNT -ge 1 ] || [ $SANDBOX_NULL_COUNT -ge 1 ] ; then
+        SANDBOX_CHECK=$(awk '/sandbox *\( *\)|sandbox *\( *true[^false]/' $file)
+        if [ ! -z "${SANDBOX_CHECK}" ]; then
             echo "Set sandbox(false) in the following file: $file"
             exit 1
-
         fi
     done
 
