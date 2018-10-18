@@ -56,6 +56,9 @@ object = jsonSlurper.parseText(imagesJson)
 for (entry in object.github) {
   folder("${entry.directory}")
     pipelineJob("${entry.directory}/${entry.image}") {
+        logRotator{
+            daysToKeep(90)
+        }
         parameters {
             stringParam {
                 defaultValue("${entry.repo}")
@@ -135,6 +138,9 @@ object = jsonSlurper.parseText(imagesJson)
 for (entry in object.github) {
   folder("${entry.directory}")
     pipelineJob("${entry.directory}/${entry.image}") {
+        logRotator{
+            daysToKeep(90)
+        }
         parameters {
             stringParam {
                 defaultValue("${entry.repo}")
