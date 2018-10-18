@@ -98,7 +98,7 @@ def createAction(uuid, token, shipyardUrl, action) {
 }
 
 /**
- * Getter of steps for given shipyard action.
+ * Getter of shipyard action.
  *
  * @param action Shipyard action.
  * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
@@ -107,7 +107,7 @@ def createAction(uuid, token, shipyardUrl, action) {
  * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  * @return List of steps for given shipyard action.
  */
-def getSteps(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
+def _getAction(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
     def req = keystone.retrieveToken(keystoneCredId, keystoneUrl, withCreds)
     def token = req.getHeaders()["X-Subject-Token"][0]
     def res = null
@@ -132,9 +132,23 @@ def getSteps(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
 
     def cont = new JsonSlurperClassic().parseText(res.content)
     print cont
+    return cont
 
-    return cont.steps
+/**
+ * Getter of steps for given shipyard action.
+ *
+ * @param action Shipyard action.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ * @param keystoneCredId The ID of the credential (user+pass) established within Jenkins to authenticate against a site's Keystone or keystone password.
+ * @param keystoneUrl The IAM URL of the site you are authenticating against.
+ * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
+ * @return List of steps for given shipyard action.
+ */
+def getSteps(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
+    action = _getAction(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true)
+    return action.steps
 }
+
 
 /**
  * Gets state for given step.
@@ -240,6 +254,7 @@ def waitStep(systep, interval, shipyardUrl, keystoneCredId, keystoneUrl, withCre
     }
 }
 
+
 /**
  * Helper method for waiting steps for given shipyard action.
  * Waits each step to become in success or skipped status.
@@ -250,7 +265,7 @@ def waitStep(systep, interval, shipyardUrl, keystoneCredId, keystoneUrl, withCre
  * @param keystoneUrl The IAM URL of the site you are authenticating against.
  * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  */
-def waitAction(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
+def waitActionSteps(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
 
     def systeps = getSteps(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds)
 
@@ -262,5 +277,48 @@ def waitAction(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true)
         } else {
             waitStep(it, 4, shipyardUrl, keystoneCredId, keystoneUrl, withCreds)
         }
+    }
+}
+
+
+/**
+ * Helper mthod for action steps info.
+ *
+ *  @param action Shipyard action from requet json.
+ */
+def _printActionSteps(action) {
+    def steps = action.steps
+    steps.each() {
+        print "Step ${it.id}(${it.index}) in ${it.state} state."
+    }
+}
+
+
+/**
+ * Helper method for waiting shipyard action in one of the finished states (Failed, Paused, Complete).
+ * Waits each step to become in success or skipped status.
+ *
+ * @param actionID Shipyard action id.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ * @param keystoneCredId The ID of the credential (user+pass) established within Jenkins to authenticate against a site's Keystone or keystone password.
+ * @param keystoneUrl The IAM URL of the site you are authenticating against.
+ * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
+ */
+def waitAction(actionID, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
+
+    action = _getAction(actionID, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true)
+    def String status = action.action_lifecycle
+
+    while (status == "Pending" || status == "Processing") {
+        sleep 240
+
+        action = _getAction(actionID, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true)
+        status = action.action_lifecycle
+        print "Wait until action will be completed. Currently in ${status} state."
+        _printActionSteps(action)
+    }
+
+    if (status != "Complete") {
+        error("Shipyard action finished with status ${status} instead of complete.")
     }
 }
