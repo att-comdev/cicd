@@ -107,7 +107,7 @@ for (entry in object.github) {
            definition {
                cps {
                    script(readFileFromWorkspace("images/airship/JenkinsfileMaster"))
-                   sandbox()
+                   sandbox(false)
                }
            }
         }
@@ -126,7 +126,7 @@ imagesJson = '''{ "github":[{
                                 "directory":"images/airship/update/airship-maas/sstream-cache",
                                 "image":"sstream-cache",
                                 "name":"maas",
-                                "jenkinsfile_loc":"JenkinsfileMaas"
+                                "jenkinsfile_loc":"JenkinsfileMaster"
                             }]}'''
 
 jsonSlurper = new JsonSlurper()
@@ -185,7 +185,7 @@ for (entry in object.github) {
            definition {
                cps {
                  script(readFileFromWorkspace("images/airship/${entry.jenkinsfile_loc}"))
-                   sandbox()
+                   sandbox(false)
                }
            }
         }
