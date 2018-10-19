@@ -250,7 +250,7 @@ def waitStep(systep, interval, shipyardUrl, keystoneCredId, keystoneUrl, withCre
  * @param keystoneUrl The IAM URL of the site you are authenticating against.
  * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  */
-def waitAction(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
+def _waitAction(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
 
     def systeps = getSteps(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds)
 
@@ -263,4 +263,47 @@ def waitAction(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true)
             waitStep(it, 4, shipyardUrl, keystoneCredId, keystoneUrl, withCreds)
         }
     }
+}
+
+
+/**
+ * Upload config
+ *
+ * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ * @param artfPath Artifactory path for executed pipeline.
+ * @param siteName Site name for executed pipeline.
+ */
+def uploadConfig(uuid, token, shipyardUrl, artfPath, siteName) {
+
+    stage('Shipyard Config Create') {
+        createConfigdocs(uuid, token, shipyardUrl, artfPath, siteName)
+    }
+
+    stage('Shipyard Config Commit') {
+        commitConfigdocs(uuid, token,  shipyardUrl)
+    }
+}
+
+
+/** Create action and wait of it's complition.
+ *
+ * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ * @param keystoneCredId The ID of the credential (user+pass) established within Jenkins to authenticate against a site's Keystone or keystone password.
+ * @param keystoneUrl The IAM URL of the site you are authenticating against.
+ * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
+ */
+def waitAction(uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
+    def actionId
+    stage('Action create') {
+        def req = keystone.retrieveToken(keystoneCredId, keystoneUrl, withCreds)
+        def token = req.getHeaders()["X-Subject-Token"][0]
+        def res = createAction(uuid, token, shipyardUrl, action)
+        def cont = new JsonSlurperClassic().parseText(res.content)
+        print cont
+        actionId = cont.id
+    }
+    _waitAction(actionId, shipyardUrl, keystoneCredId, keystoneUrl, withCreds)
 }
