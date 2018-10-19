@@ -3,9 +3,9 @@ IMAGE_PREFIX="airship"
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 QUAY_IMAGE_LATEST="${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}"
-PYTHON_BASE_IMAGES = [ "shipyard" : "att-comdev/python:3.5",
+PYTHON_BASE_IMAGES = [ "shipyard" : "att-comdev/python:3.6",
                        "drydock" : "att-comdev/python:3.5" ,
-                       "armada" : "att-comdev/python:3.5" ,
+                       "armada" : "att-comdev/python:3.6" ,
                        "pegleg" : "att-comdev/python:3.6" ,
                        "promenade" : "att-comdev/python:3.6" ]
 
