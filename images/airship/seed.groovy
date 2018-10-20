@@ -29,6 +29,11 @@ def imagesJson = '''{ "github":[{
                                 "image":"maas-rack-controller",
                                 "name":"maas"
                             },{
+                                "repo":"https://git.openstack.org/openstack/airship-maas",
+                                "directory":"images/airship/update/airship-maas/sstream-cache",
+                                "image":"sstream-cache",
+                                "name":"maas"
+                            },{
                                 "repo":"https://git.openstack.org/openstack/airship-deckhand",
                                 "directory":"images/airship/update/airship-deckhand",
                                 "image":"deckhand",
@@ -123,13 +128,6 @@ imagesJson = '''{ "github":[{
                                 "image":"multi-node-promenade",
                                 "name":"promenade",
                                 "jenkinsfile_loc":"JenkinsfilePromenade"
-                            },
-                            {
-                                "repo":"https://git.openstack.org/openstack/airship-maas",
-                                "directory":"images/airship/update/airship-maas/sstream-cache",
-                                "image":"sstream-cache",
-                                "name":"maas",
-                                "jenkinsfile_loc":"JenkinsfileMaas"
                             }]}'''
 
 jsonSlurper = new JsonSlurper()
