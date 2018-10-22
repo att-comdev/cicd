@@ -140,6 +140,30 @@
     },
     {
       "key": {
+        "uuid": "98e46c8b_0674a79a",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-10-22T16:10:06Z",
+      "side": 1,
+      "message": "+1 to Bala comment. Achievable with adding to upper-constraints.txt of mos-requirements and to requirements.txt of mos-neutron.",
+      "parentUuid": "3d1102ea_34a4e4ac",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 73
+      },
+      "revId": "7793eca5ff1f0d3a20afee12592313b3155bed72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb1b21fd_0747c743",
         "filename": "vars/loci.groovy",
         "patchSetId": 1
