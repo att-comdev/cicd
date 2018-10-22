@@ -308,6 +308,30 @@
     },
     {
       "key": {
+        "uuid": "ceece218_00172572",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1014586
+      },
+      "writtenOn": "2018-10-22T18:41:49Z",
+      "side": 1,
+      "message": "So would it trigger a new LOCI image build for the base repo in case there is some commit to any of its plugin repos? for ex. if there is a change submitted to tap-as-a-service then would it trigger a neutron loci image build? If not, how are we planning to integrate automated tests like shaker to gerrit gate jobs?",
+      "parentUuid": "8ac2c400_293ee4e0",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 73
+      },
+      "revId": "7793eca5ff1f0d3a20afee12592313b3155bed72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb1b21fd_0747c743",
         "filename": "vars/loci.groovy",
         "patchSetId": 1
@@ -328,6 +352,30 @@
       "revId": "7793eca5ff1f0d3a20afee12592313b3155bed72",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5842c778_caeb2d35",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1014586
+      },
+      "writtenOn": "2018-10-22T18:41:49Z",
+      "side": 1,
+      "message": "Same doubt as in above comment",
+      "parentUuid": "cb1b21fd_0747c743",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 124
+      },
+      "revId": "7793eca5ff1f0d3a20afee12592313b3155bed72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
