@@ -22,6 +22,30 @@
       "revId": "bf78cfef7d44a7f1742d26efa7337a94512090eb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bdd33ea8_a4c6c020",
+        "filename": "images/airship/JenkinsfileMaster",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1014995
+      },
+      "writtenOn": "2018-10-22T15:24:07Z",
+      "side": 1,
+      "message": "Drydock is no more using Python it will be using ubuntu so this changes Mohan is currently working on and that is the reason i did not change that.",
+      "parentUuid": "0e068edf_2e75f797",
+      "range": {
+        "startLine": 7,
+        "startChar": 24,
+        "endLine": 7,
+        "endChar": 31
+      },
+      "revId": "bf78cfef7d44a7f1742d26efa7337a94512090eb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
