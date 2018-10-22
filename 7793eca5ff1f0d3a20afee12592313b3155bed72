@@ -164,6 +164,30 @@
     },
     {
       "key": {
+        "uuid": "8ac2c400_293ee4e0",
+        "filename": "vars/loci.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-10-22T16:15:18Z",
+      "side": 1,
+      "message": "will look like this https://gerrit.mtn5.cci.att.com/#/c/50884/17/upper-constraints.txt\nI\u0027m currently working on making mtn5 gerrit access available inside of container that will allow to build wheels and install requirements for internal projects.",
+      "parentUuid": "98e46c8b_0674a79a",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 73
+      },
+      "revId": "7793eca5ff1f0d3a20afee12592313b3155bed72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb1b21fd_0747c743",
         "filename": "vars/loci.groovy",
         "patchSetId": 1
