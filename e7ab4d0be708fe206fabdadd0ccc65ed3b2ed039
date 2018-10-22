@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d618b0c6_a00851aa",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-22T14:15:04Z",
+      "side": 1,
+      "message": "Add info on what this parameter does, please.",
+      "revId": "e7ab4d0be708fe206fabdadd0ccc65ed3b2ed039",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a084548_6c216761",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-22T14:15:04Z",
+      "side": 1,
+      "message": "Either add default value, or it will break vm2 library method.",
+      "range": {
+        "startLine": 95,
+        "startChar": 44,
+        "endLine": 95,
+        "endChar": 56
+      },
+      "revId": "e7ab4d0be708fe206fabdadd0ccc65ed3b2ed039",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
