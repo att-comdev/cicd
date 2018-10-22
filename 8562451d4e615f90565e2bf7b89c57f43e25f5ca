@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfd64973_f29d80e4",
+        "filename": "images/airship/seed.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-22T13:25:23Z",
+      "side": 1,
+      "message": "pls add info about this change in the commit msg as well.",
+      "range": {
+        "startLine": 194,
+        "startChar": 19,
+        "endLine": 194,
+        "endChar": 33
+      },
+      "revId": "8562451d4e615f90565e2bf7b89c57f43e25f5ca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
