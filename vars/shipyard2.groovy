@@ -17,7 +17,7 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
     def res = null
     retry(3) {
         try {
-            res = httpRequest (url: shipyardUrl + "/api/v1.0/configdocs/${bucketName}?buffermode=${bufferMode}",
+            res = httpRequest (url: shipyardUrl + "/configdocs/${bucketName}?buffermode=${bufferMode}",
                                   httpMode: "POST",
                                   customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
                                                   [name: "X-Auth-Token", value: token],
@@ -47,7 +47,7 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
     def res = null
     retry(3) {
         try {
-            res = httpRequest(url: shipyardUrl + "/api/v1.0/commitconfigdocs",
+            res = httpRequest(url: shipyardUrl + "/commitconfigdocs",
                               httpMode: "POST",
                               customHeaders: [[name: "X-Auth-Token", value: token],
                                               [name: "X-Context-Marker", value: uuid]],
@@ -80,7 +80,7 @@ def createAction(uuid, token, shipyardUrl, action) {
 
     retry(3) {
         try {
-            res = httpRequest(url: shipyardUrl + "/api/v1.0/actions?allow-intermediate-commits=true",
+            res = httpRequest(url: shipyardUrl + "/actions?allow-intermediate-commits=true",
                               httpMode: "POST",
                               customHeaders: [[name: "Content-Type", value: "application/json"],
                                               [name: "X-Auth-Token", value: token],
@@ -113,7 +113,7 @@ def getSteps(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
     def res = null
     retry(3) {
         try {
-            res = httpRequest (url: shipyardUrl + "/api/v1.0/actions/${action}",
+            res = httpRequest (url: shipyardUrl + "/actions/${action}",
                                contentType: "APPLICATION_JSON",
                                httpMode: "GET",
                                quiet: true,
@@ -152,7 +152,7 @@ def getState(systep, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
     def res = null
     retry(3) {
         try {
-            res = httpRequest (url: shipyardUrl + "/api/v1.0${systep.url}",
+            res = httpRequest (url: shipyardUrl + "${systep.url}",
                                    contentType: "APPLICATION_JSON",
                                    httpMode: "GET",
                                    quiet: true,
