@@ -198,7 +198,7 @@ def getState(systep, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
  */
 def createConfigdocs(uuid, token, shipyardUrl, artfPath, siteName) {
     artifactory.download("${artfPath}/site-config.tar.gz", "")
-    sh "sudo rm -rf ${siteName}"
+    sh "sudo rm -rf ${siteName} || true"
     sh "tar xzf site-config.tar.gz"
 
     def manifests = ""
