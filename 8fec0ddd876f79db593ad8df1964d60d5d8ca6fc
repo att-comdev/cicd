@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fe54211_375abfe9",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-10-24T19:20:45Z",
+      "side": 1,
+      "message": "This is repeated in multiple pipelines.  Would it make sense to create an osh.install_helm() with everything in this stage as it is?",
+      "revId": "8fec0ddd876f79db593ad8df1964d60d5d8ca6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a61745b0_8f69b40b",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-10-24T19:20:45Z",
+      "side": 1,
+      "message": "This is no longer valid.  We just want to replace the version with the att-comdev charts commit + openstack-helm-infra commit",
+      "revId": "8fec0ddd876f79db593ad8df1964d60d5d8ca6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13ff2e2d_db8f0fd4",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-10-24T19:20:45Z",
+      "side": 1,
+      "message": "I don\u0027t think this is valid any longer either, can we make sure it\u0027s patchsets directory and not test directory?",
+      "revId": "8fec0ddd876f79db593ad8df1964d60d5d8ca6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb4a6fd4_5998e9b7",
+        "filename": "charts/att-comdev/seed.groovy",
+        "patchSetId": 18
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-10-24T19:20:45Z",
+      "side": 1,
+      "message": "We also want this to run when there is a change to the openstack-helm-infra repository to make sure our charts stay up to date (Only on merge)",
+      "revId": "8fec0ddd876f79db593ad8df1964d60d5d8ca6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
