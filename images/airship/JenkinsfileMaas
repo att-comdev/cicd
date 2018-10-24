@@ -61,13 +61,13 @@ vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64') {
         // Note 1: code is kind of flaky here. The Makefile invokes docker
         // with --label $(LABEL) hence we ommit here the --label at the beginning of the
         // string.
-        def LABELS = "'org.label-schema.vcs-ref=${IMAGE_TAG}\
-          --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL}\
-          --label org.label-schema.base-image=${base_sha256}\
-          --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
+        def LABELS = "'com.att.image.vcs-ref=${IMAGE_TAG}\
+          --label com.att.image.vcs-url=${GERRIT_CHANGE_URL}\
+          --label com.att.image.base-image=${base_sha256}\
+          --label com.att.image.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
 
         if (env.GERRIT_EVENT_TYPE == 'change-merged') {
-           LABELS += " --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE}'"
+           LABELS += " --label com.att.image.vcs-event=${GERRIT_EVENT_TYPE}'"
         } else {
            LABELS += "'"
         }

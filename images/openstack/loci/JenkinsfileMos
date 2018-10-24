@@ -96,22 +96,22 @@ def buildLociMos(projConfArgs = '', wheelArgs = '') {
     // Add tests deletion step into install scenario for loci
     sh "${DIND} sed  -i '/clone_project.sh/a \$(dirname \$0)/remove_tests.sh' ${LOCI_REPO_PATH}/scripts/install.sh"
 
-    def labels = " --label org.label-schema.vcs-ref=${PROJECT_VERSION}\
-      --label org.label-schema.vcs-url=${PROJECT_URL}\
-      --label org.label-schema.loci-ref=${loci_version}\
-      --label org.label-schema.base-image=${base_sha256}\
-      --label org.label-schema.vendor=\"${conf.CUSTOM_LABEL}\"\
-      --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
+    def labels = " --label com.att.image.vcs-ref=${PROJECT_VERSION}\
+      --label com.att.image.vcs-url=${PROJECT_URL}\
+      --label com.att.image.loci-ref=${loci_version}\
+      --label com.att.image.base-image=${base_sha256}\
+      --label com.att.image.vendor=\"${conf.CUSTOM_LABEL}\"\
+      --label com.att.image.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
 
     if (!PROJECT.contains('requirements')) {
         sh "${DIND} docker pull ${WHEELS_LATEST}"
         cmd="${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${WHEELS_LATEST}"
         def requirements_sha256 = sh(returnStdout: true, script: cmd).trim()
-        labels += " --label org.label-schema.requirements-image=${requirements_sha256}"
+        labels += " --label com.att.image.requirements-image=${requirements_sha256}"
     }
 
     if (env.GERRIT_EVENT_TYPE == 'change-merged') {
-       labels += " --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE}"
+       labels += " --label com.att.image.vcs-event=${GERRIT_EVENT_TYPE}"
     }
 
     def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"

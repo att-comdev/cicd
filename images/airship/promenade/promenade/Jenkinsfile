@@ -102,7 +102,7 @@ vms {
             currentBuild.displayName = "${GERRIT_EVENT_TYPE}-${env.BUILD_NUMBER}"
 
             sh "sudo apt-get install -y docker.io curl"
-            sh "sudo docker build -t ${IMAGE} --label org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER} ."
+            sh "sudo docker build -t ${IMAGE} --label com.att.image.vcs-ref=${IMAGE_TAG} --label com.att.image.vcs-url=${GERRIT_CHANGE_URL} --label com.att.image.version=0.1.0-${BUILD_NUMBER} ."
             sh "sudo docker inspect ${IMAGE} | grep promenade"
             publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
         }

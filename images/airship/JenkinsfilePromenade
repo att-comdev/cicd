@@ -106,7 +106,7 @@ vms {
             currentBuild.displayName = "${GERRIT_EVENT_TYPE}-${env.BUILD_NUMBER}"
 
             sh "sudo apt-get install -y curl"
-            sh "sudo make images IMAGE_PREFIX=att-comdev PYTHON_BASE_IMAGE=python:3.6 IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
+            sh "sudo make images IMAGE_PREFIX=att-comdev PYTHON_BASE_IMAGE=python:3.6 IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='com.att.image.vcs-ref=${IMAGE_TAG} --label com.att.image.vcs-url=${GERRIT_CHANGE_URL} --label com.att.image.version=0.1.0-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG}"
             sh "sudo docker inspect ${IMAGE} | grep promenade"
             publish.artifactory (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
         }
