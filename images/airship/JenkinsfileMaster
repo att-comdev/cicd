@@ -3,6 +3,7 @@ IMAGE_PREFIX="airship"
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 QUAY_IMAGE_LATEST="${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}"
+UBUNTU_REPO="${ARTF_UBUNTU_REPO}"
 PYTHON_BASE_IMAGES = [ "shipyard" : "att-comdev/python:3.6",
                        "drydock" : "att-comdev/python:3.5" ,
                        "armada" : "att-comdev/python:3.6" ,
@@ -81,8 +82,9 @@ vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64') {
         // Note 2: IMAGE_NAME is also a key parameter of the Makefile which prevent
         //         all the images supported by the Makefile from being rebuild.
         //         Hence we need on JenkinsJob per image
-        sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE} UBUNTU_BASE_IMAGE=${UBUNTU_BASE_IMAGE} IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL=${LABELS} IMAGE_TAG=${IMAGE_TAG}"
-
+        sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE} \
+                             UBUNTU_BASE_IMAGE=${UBUNTU_BASE_IMAGE} IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL=${LABELS} \
+                             IMAGE_TAG=${IMAGE_TAG} UBUNTU_REPO=${ARTF_UBUNTU_REPO}"
     }
     stage('Publish'){
         publish.artifactory("${IMAGE}:${IMAGE_TAG}","test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
