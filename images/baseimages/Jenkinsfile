@@ -64,7 +64,8 @@ vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64'){
         echo ("Base image: ${BASE_IMAGE}")
 
         dir("${WORKSPACE}/base-images") {
-           sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE=${TARGET_IMAGE} UBUNTU_BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=${IMAGE_NAME} LABEL=${IMAGE_LABEL}"
+           sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE=${TARGET_IMAGE} UBUNTU_BASE_IMAGE=${BASE_IMAGE} IMAGE_NAME=${IMAGE_NAME} LABEL=${IMAGE_LABEL} \
+                                UBUNTU_BASE_IMAGE_PACKAGE=${UBUNTU_BASE_IMAGE_PACKAGE}"
         }
 
         publish.artifactory("${TARGET_IMAGE}","${TARGET_IMAGE}.${BUILD_TIMESTAMP}")
