@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5aadf0f3_fe049904",
+        "filename": "images/airship/JenkinsfileMaster",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-25T22:52:43Z",
+      "side": 1,
+      "message": "Long line",
+      "revId": "34899d2a2b26045cb3f7df0265233529e8e2be08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
