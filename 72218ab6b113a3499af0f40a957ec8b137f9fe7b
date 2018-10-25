@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "de639fa0_dc8633f2",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-10-25T14:51:11Z",
+      "side": 1,
+      "message": "Done and thank you for the suggestion.",
+      "parentUuid": "5d831dbb_06ad8c5b",
+      "range": {
+        "startLine": 93,
+        "startChar": 15,
+        "endLine": 93,
+        "endChar": 45
+      },
+      "revId": "72218ab6b113a3499af0f40a957ec8b137f9fe7b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b25e3cf7_bfb6f23a",
         "filename": "vars/publish.groovy",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-10-25T07:54:41Z",
       "side": 1,
       "message": "Default must be `true`, because this is how it is statically set in current version of vars/publish.groovy, and it\u0027s a default value if you do not specify this parameter at all. Otherwise you would break existing functionality.",
+      "range": {
+        "startLine": 95,
+        "startChar": 59,
+        "endLine": 95,
+        "endChar": 64
+      },
+      "revId": "72218ab6b113a3499af0f40a957ec8b137f9fe7b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe1c6cd2_3cb81eeb",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-10-25T14:51:11Z",
+      "side": 1,
+      "message": "Done and thank you for the suggestion.",
+      "parentUuid": "b25e3cf7_bfb6f23a",
       "range": {
         "startLine": 95,
         "startChar": 59,
