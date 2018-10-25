@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d271849_9cbfdcd3",
+        "filename": "images/airship/JenkinsfileMaster",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-10-25T19:25:11Z",
+      "side": 1,
+      "message": "Does UBUNTU_REPO have to be defined in the Makefile or does the tools directory recognize this argument?",
+      "revId": "48fb99ef2d8d5173c0f4f9cfa8f3d05ec3a00e0b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
