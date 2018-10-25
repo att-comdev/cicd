@@ -227,7 +227,7 @@ def waitStep(systep, interval, shipyardUrl, keystoneCredId, keystoneUrl, withCre
 
     def String state = systep.state
 
-    while (state == null || state == "running" || state == "queued" || state == "scheduled") {
+    while (state == null || state == "running" || state == "queued" || state == "scheduled" || state = "up_for_retry") {
         sleep interval
 
         retry (3) {
