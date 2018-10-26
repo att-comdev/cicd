@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83e8f883_20f7b066",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-26T16:04:12Z",
+      "side": 1,
+      "message": "There should be nothing, if I\u0027m not mistaken, unless you run `make docs` somewhere.",
+      "range": {
+        "startLine": 84,
+        "startChar": 36,
+        "endLine": 84,
+        "endChar": 50
+      },
+      "revId": "dbddd206bff8a5486e0b7d55f82ad7e458dda9bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7efc89d7_8a45d295",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-26T16:04:12Z",
+      "side": 1,
+      "message": "Just `false`.",
+      "range": {
+        "startLine": 88,
+        "startChar": 79,
+        "endLine": 88,
+        "endChar": 91
+      },
+      "revId": "dbddd206bff8a5486e0b7d55f82ad7e458dda9bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3fd8643b_72a70a84",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-26T16:04:12Z",
+      "side": 1,
+      "message": "Wouldn\u0027t you want to remove old docs first? There might be file renames, or deletions, and this could result in documentation containing old files.",
+      "range": {
+        "startLine": 91,
+        "startChar": 50,
+        "endLine": 91,
+        "endChar": 65
+      },
+      "revId": "dbddd206bff8a5486e0b7d55f82ad7e458dda9bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "64be5974_56259fba",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-26T16:04:12Z",
+      "side": 1,
+      "message": "Just `false`.",
+      "range": {
+        "startLine": 93,
+        "startChar": 79,
+        "endLine": 93,
+        "endChar": 91
+      },
+      "revId": "dbddd206bff8a5486e0b7d55f82ad7e458dda9bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
