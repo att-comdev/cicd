@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "611580cc_1aebd8ab",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-10-26T17:02:30Z",
+      "side": 1,
+      "message": "I can understand why a developer of this job would think there are no docs being built when a `make tests` call is made, or as you pointed out specifically `make docs` was NOT called, however allow me to explain the structure of aic-aqa-* Makefile for you and then we can discuss what the next step should be.\n\nMost of aic-aqa-* projects Makefiles will call `tox`[1] for the `make tests` call and the tox envlist[2] includes building the docs for most projects.\n\nIn order to deliver the story for publishing documentation, do you prefer I amend the Makefiles with a \u0027docs\u0027 section instead of using the existing docs built from the envlist or is the way it is now ok?\n\n[1] https://gerrit.mtn5.cci.att.com/gitweb?p\u003daic-aqa-api.git;a\u003dblob;f\u003dMakefile;h\u003dc1bc1225383033c06c654a69802afad80c29a80a;hb\u003drefs/heads/master#l33\n[2] https://gerrit.mtn5.cci.att.com/gitweb?p\u003daic-aqa-api.git;a\u003dblob;f\u003dtox.ini;h\u003d63b57a21f24e302b209a3693a32903fc030c4722;hb\u003drefs/heads/master#l3",
+      "parentUuid": "83e8f883_20f7b066",
+      "range": {
+        "startLine": 84,
+        "startChar": 36,
+        "endLine": 84,
+        "endChar": 50
+      },
+      "revId": "dbddd206bff8a5486e0b7d55f82ad7e458dda9bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7efc89d7_8a45d295",
         "filename": "code-review/Jenkinsfile",
         "patchSetId": 25
@@ -36,6 +60,30 @@
       "writtenOn": "2018-10-26T16:04:12Z",
       "side": 1,
       "message": "Just `false`.",
+      "range": {
+        "startLine": 88,
+        "startChar": 79,
+        "endLine": 88,
+        "endChar": 91
+      },
+      "revId": "dbddd206bff8a5486e0b7d55f82ad7e458dda9bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "721d795a_0511aa2b",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-10-26T17:02:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7efc89d7_8a45d295",
       "range": {
         "startLine": 88,
         "startChar": 79,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e37c9fe1_8d311cb6",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-10-26T17:02:30Z",
+      "side": 1,
+      "message": "Yes I believe you are right, thanks for catching this. \n\nUnfortunately, I\u0027m not sure on how I can delete the files from Artifactory. Is using the artifactory client appropriate for this case? https://github.com/jfrog/artifactory-client-java \n\nAny help or suggestions you can provide for a means to delete files from artifactory would be very much appreciated here.\n\nI\u0027ll work on proposing something to use the client delete call in the meantime although I\u0027m really unsure on what means I have to test these changes. https://github.com/jfrog/artifactory-client-java/blob/2baa6adfbd5b49282b952a9af663e6f6ec229e06/services/src/main/groovy/org/jfrog/artifactory/client/impl/ReplicationsImpl.groovy#L28",
+      "parentUuid": "3fd8643b_72a70a84",
+      "range": {
+        "startLine": 91,
+        "startChar": 50,
+        "endLine": 91,
+        "endChar": 65
+      },
+      "revId": "dbddd206bff8a5486e0b7d55f82ad7e458dda9bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "64be5974_56259fba",
         "filename": "code-review/Jenkinsfile",
         "patchSetId": 25
@@ -82,6 +154,30 @@
       "writtenOn": "2018-10-26T16:04:12Z",
       "side": 1,
       "message": "Just `false`.",
+      "range": {
+        "startLine": 93,
+        "startChar": 79,
+        "endLine": 93,
+        "endChar": 91
+      },
+      "revId": "dbddd206bff8a5486e0b7d55f82ad7e458dda9bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e53f3c8_e5a2706f",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1014968
+      },
+      "writtenOn": "2018-10-26T17:02:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64be5974_56259fba",
       "range": {
         "startLine": 93,
         "startChar": 79,
