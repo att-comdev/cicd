@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c41e031_f409f0fa",
+        "filename": "images/airship/seed.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-10-26T14:40:57Z",
+      "side": 1,
+      "message": "Can you move this up to the earlier section?  Just realized this is on patchset only...so we aren\u0027t building on change-merged",
+      "revId": "f54f887700c4627ed49afd6c5c2ae682c871fe6a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
