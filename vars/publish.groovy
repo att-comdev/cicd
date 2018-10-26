@@ -103,3 +103,22 @@ def putArtifacts (String file, String repo, Boolean flat = true) {
 
      artf.publishBuildInfo(artf.upload(spec))
 }
+
+/**
+ * Delete files (html, logs, xml, etc) artifacts from Artifactory
+ *
+ * @param path Path to a file or folder to remove from Artifactory
+ * @param repo Repository to remove artifact from
+ * @param url artifact URL, e.g. "${ARTF_DOCKER_URL}/clcp-manifests"
+ * @param creds jenkins credentials ID; 'jenkins-artifactory' or
+ *        'secure-artifactory' at the moment
+**/
+def deleteArtifacts (String path, String repo, String url, String creds) {
+    withCredentials([usernamePassword(credentialsId: creds,
+                    usernameVariable: 'REPO_USER',
+                    passwordVariable: 'REPO_PASSWORD')]) {
+
+       opts = '-u $REPO_USER:$REPO_PASSWORD -X DELETE'
+       sh "curl ${opts} ${url}/${repo}/${path}"
+   }
+}
