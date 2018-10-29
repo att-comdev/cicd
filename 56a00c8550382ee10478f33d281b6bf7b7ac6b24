@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "38df22f3_344d1da9",
+        "filename": "images/baseimages/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-10-29T16:13:47Z",
+      "side": 1,
+      "message": "Too long lines.",
+      "revId": "56a00c8550382ee10478f33d281b6bf7b7ac6b24",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
