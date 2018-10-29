@@ -1,0 +1,251 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b455ce8a_b53d73a6",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-29T17:30:51Z",
+      "side": 1,
+      "message": "Move to Build stage.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 5
+      },
+      "revId": "0890b02c7c1f9a58f5234eeebc4be02601da9cf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a26548db_a826534c",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-29T17:30:51Z",
+      "side": 1,
+      "message": "This part is exactly the same as in lines 16-18 above. Move them out of `if ... else ...` block.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 96
+      },
+      "revId": "0890b02c7c1f9a58f5234eeebc4be02601da9cf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffc6a5e6_fd1c2405",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-29T17:30:51Z",
+      "side": 1,
+      "message": "Move to Build stage.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 5
+      },
+      "revId": "0890b02c7c1f9a58f5234eeebc4be02601da9cf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6b048dc_cb28a913",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-29T17:30:51Z",
+      "side": 1,
+      "message": "There is no need to login here. publish.artifactory calls publish.image, which does login to the artifactory.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 68
+      },
+      "revId": "0890b02c7c1f9a58f5234eeebc4be02601da9cf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "78ecebdb_f43fa836",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-29T17:30:51Z",
+      "side": 1,
+      "message": "Why 1.0? Don\u0027t add potentially dynamic information into the stage name, it makes jenkins dashboard look inconsistent.",
+      "range": {
+        "startLine": 58,
+        "startChar": 29,
+        "endLine": 58,
+        "endChar": 33
+      },
+      "revId": "0890b02c7c1f9a58f5234eeebc4be02601da9cf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53d356f0_3d1e76fe",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-29T17:30:51Z",
+      "side": 1,
+      "message": "Move constant declaration to line 4. IMAGE_PREFIX is defined on line 1 and then never changed.",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 62
+      },
+      "revId": "0890b02c7c1f9a58f5234eeebc4be02601da9cf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5bbc3b9d_ba7eab75",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-29T17:30:51Z",
+      "side": 1,
+      "message": "Try to avoid listing version in tag. Could possibly cause problems in scripts, which assume that \u0027whatever is after : is a tag, and whatever before : is an image\u0027.",
+      "range": {
+        "startLine": 64,
+        "startChar": 54,
+        "endLine": 64,
+        "endChar": 58
+      },
+      "revId": "0890b02c7c1f9a58f5234eeebc4be02601da9cf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ee6ab7b7_54c4bb75",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-29T17:30:51Z",
+      "side": 1,
+      "message": "Move constant declaration to line 4.",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 44
+      },
+      "revId": "0890b02c7c1f9a58f5234eeebc4be02601da9cf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a0b2257_951bd168",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-29T17:30:51Z",
+      "side": 1,
+      "message": "Move to the separate stage called \u0027Publish\u0027.",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 64
+      },
+      "revId": "0890b02c7c1f9a58f5234eeebc4be02601da9cf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "908d4ec2_4b38ea2b",
+        "filename": "images/staas-backup/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-29T17:30:51Z",
+      "side": 1,
+      "message": "Add: \nlogRotator{ daysToKeep(90) }\ndescription(\u0027xxxxxxx\u0027)",
+      "revId": "0890b02c7c1f9a58f5234eeebc4be02601da9cf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "349e3ba2_e3e2c1f7",
+        "filename": "images/staas-backup/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-29T17:30:51Z",
+      "side": 1,
+      "message": "Is it there already? I was not able to find it.",
+      "range": {
+        "startLine": 27,
+        "startChar": 41,
+        "endLine": 27,
+        "endChar": 53
+      },
+      "revId": "0890b02c7c1f9a58f5234eeebc4be02601da9cf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
