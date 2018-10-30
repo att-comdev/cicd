@@ -45,6 +45,7 @@ PROJECT_SUFFIX = PROJECT.split('-')[1]
 PROJECT_REPO = "${INTERNAL_GERRIT_SSH}/mos-${PROJECT_SUFFIX}"
 WHEELS_LATEST = env.REQUIREMENTS_LOCI.trim() ? env.REQUIREMENTS_LOCI : conf.MOS_REQUIREMENTS_LOCI
 IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
+DEFAULT_BUILD_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}"
 DEFAULT_ARGS = [
   'FROM':         "${LOCI_BASE_IMAGE}",
   'PROJECT':      "${PROJECT_SUFFIX}",
@@ -69,6 +70,16 @@ def repo_clone_mirror = {
     }
 }
 
+def getDockerfileDefaultArgs(dockerfileStr) {
+    def matcher = dockerfileStr =~ /ARG (.*)=(.*)/
+    dockerfileArgsMap = [:]
+    matcher.each {
+        (k, v) = [it[1], it[2]]
+        dockerfileArgsMap[k] = ((v in ["''", '""']) ? "": v)
+    }
+    return dockerfileArgsMap
+}
+
 def buildLociMos(projConfArgs = null, wheelArgs = null) {
 
     sh "${DIND} docker pull ${LOCI_BASE_IMAGE}"
@@ -80,6 +91,14 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     LOCI_REPO_PATH = "/tmp/loci"
     // Clone loci repo to apply cicd patch for tests deletion
     sh "${DIND} git clone ${LOCI_REPO} ${LOCI_REPO_PATH}"
+
+    // Gather default arguments from upstream Dockerfile to pass them on 'docker run' for install.sh script
+    DOCKERFILE = sh(script: "${DIND} cat ${LOCI_REPO_PATH}/Dockerfile", returnStdout: true).trim()
+    dockerfileDefaultArgs = getDockerfileDefaultArgs(DOCKERFILE)
+
+    // Create DockerfileMos in dind container to build loci image from it
+    dockerfileMos = libraryResource "cicd/Dockerfile"
+    sh """${DIND} sh -c 'cat <<EOT > ${LOCI_REPO_PATH}/DockerfileMos\n${dockerfileMos}EOT'"""
 
     // Copy script for tests cleanup to docker
     data = libraryResource "cicd/remove_tests.sh"
@@ -100,7 +119,7 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
 
     if (!PROJECT.contains('requirements')) {
         sh "${DIND} docker pull ${WHEELS_LATEST}"
-        cmd="${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${WHEELS_LATEST}"
+        cmd = "${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${WHEELS_LATEST}"
         def requirements_sha256 = sh(returnStdout: true, script: cmd).trim()
         labels += " --label org.label-schema.requirements-image=${requirements_sha256}"
     }
@@ -109,22 +128,40 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
        labels += " --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE}"
     }
 
-    def argsMap = loci.mergeArgs([DEFAULT_ARGS, projConfArgs, wheelArgs])
-    def args = loci.buildParameters(argsMap)
-    def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
+    def argsMap = loci.mergeArgs([dockerfileDefaultArgs, DEFAULT_ARGS, projConfArgs, wheelArgs])
+    def args = loci.buildParameters(argsMap, '--env')
+    def containerName = "${PROJECT_SUFFIX}"
+    def imageTag = "${PROJECT_SUFFIX}:build"
     ansiColor('xterm') {
-        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO_PATH} ${args} ${labels} --tag ${image_tag}"
+        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO_PATH} -f ${LOCI_REPO_PATH}/DockerfileMos ${DEFAULT_BUILD_ARGS} ${labels} --tag ${imageTag}"
+        sh "${DIND} docker run --name ${containerName} ${args} ${imageTag} bash -c \"/opt/loci/scripts/install.sh\""
     }
-    sh "${DIND} docker push ${image_tag}"
+    if (!PROJECT.contains('requirements')) {
+        // As far as we pass arguments required by install.sh as environment variables
+        // we need to run container with created image one more time to unset them so
+        // they are not a part of resulting image, except mentioned in docker inspect
+        // output as part of environment, that does not affect functionality.
+        imageTag = "${PROJECT_SUFFIX}:postbuild"
+        sh "${DIND} docker commit ${containerName} ${imageTag}"
+
+        // creating args with empty environment variables
+        args = loci.buildParameters(argsMap, '--env', true)
+        sh "${DIND} docker rm ${containerName}"
+        sh "${DIND} docker run --name ${containerName} ${args} ${imageTag} bash"
+    }
+
+    imageTag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
+    sh "${DIND} docker commit ${containerName} ${imageTag}"
+    sh "${DIND} docker push ${imageTag}"
 
     //publish latest (branch) tag on merge for requirements
     if (PROJECT.contains('requirements') && env.GERRIT_EVENT_TYPE == 'change-merged') {
-        def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
-        sh "${DIND} docker tag ${image_tag} ${image_latest}"
-        sh "${DIND} docker push ${image_latest}"
+        def imageLatest = "${IMAGE_BASE}/${PROJECT}:latest"
+        sh "${DIND} docker tag ${imageTag} ${imageLatest}"
+        sh "${DIND} docker push ${imageLatest}"
     }
 
-    return image_tag
+    return imageTag
 }
 
 vm2('loci-bootstrap.sh',
