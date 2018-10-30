@@ -59,18 +59,11 @@ DIND = "sudo docker exec ${DIND_CONTAINER}"
 
 // git clone mirror the project on local nginx server to allow passing http git url as build arg for loci builds
 def repo_clone_mirror = {
-    withCredentials([sshUserPrivateKey(credentialsId: INTERNAL_GERRIT_KEY,
-                                       keyFileVariable: 'SSH_KEY')]) {
-        // wrapper for custom git ssh key
-        // ssh -i $SSH_KEY $@
-        withEnv(["GIT_SSH=/usr/bin/git-ssh-wrapper"]) {
-            sh 'mkdir -p web/repo'
-            sh "ssh-keyscan -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} | tee -a ~/.ssh/known_hosts"
-            dir ('web/repo') {
-                sh "git clone --mirror ${PROJECT_REPO} ${PROJECT}"
-                sh "cd ${PROJECT} && git update-server-info"
-            }
-        }
+    sh 'mkdir -p web/repo'
+    sh "ssh-keyscan -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} | tee -a ~/.ssh/known_hosts"
+    dir ('web/repo') {
+        sh "git clone --mirror ${PROJECT_REPO} ${PROJECT}"
+        sh "cd ${PROJECT} && git update-server-info"
     }
 }
 
@@ -136,34 +129,35 @@ vm2('loci-bootstrap.sh',
          '',
          'loci',
          false){
-
-    stage('Docker Setup') {
-        loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory", DIND_CONTAINER)
-    }
-
-    stage('Local Repo Setup') {
-        loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT)
-        repo_clone_mirror()
-        if (!env.GERRIT_REFSPEC) {
-            PROJECT_VERSION = gerrit.getVersion(PROJECT_REPO, PROJECT_REF, INTERNAL_GERRIT_KEY)
+    sshagent(credentials: [INTERNAL_GERRIT_KEY]) {
+        stage('Docker Setup') {
+            loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory", DIND_CONTAINER)
         }
-    }
 
-    stage ("Build Project") {
-        print "Building ${PROJECT.capitalize()}"
-        if (PROJECT.contains('requirements')) {
-            IMAGE_LOCI = buildLociMos()
-        } else {
-            loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
-            WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
-            IMAGE_LOCI = buildLociMos(loci.getDependencies(PROJECT_SUFFIX), WHEELS_ARG)
+        stage('Local Repo Setup') {
+            loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT)
+            repo_clone_mirror()
+            if (!env.GERRIT_REFSPEC) {
+                PROJECT_VERSION = gerrit.getVersion(PROJECT_REPO, PROJECT_REF, INTERNAL_GERRIT_KEY)
+            }
         }
-        LOCI_IMAGE_VAR = "${PROJECT_SUFFIX.toUpperCase()}_LOCI"
-        cmd = "${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE_LOCI}"
-        IMAGE_SHA = sh(returnStdout: true, script: cmd).trim()
-        sh "mkdir -p ${WORKSPACE}/artifacts"
-        sh "echo $IMAGE_SHA | tee -a ${WORKSPACE}/artifacts/loci_image.txt"
-        archiveArtifacts 'artifacts/*'
+
+        stage ("Build Project") {
+            print "Building ${PROJECT.capitalize()}"
+            if (PROJECT.contains('requirements')) {
+                IMAGE_LOCI = buildLociMos()
+            } else {
+                loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
+                WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
+                IMAGE_LOCI = buildLociMos(loci.getDependencies(PROJECT_SUFFIX), WHEELS_ARG)
+            }
+            LOCI_IMAGE_VAR = "${PROJECT_SUFFIX.toUpperCase()}_LOCI"
+            cmd = "${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE_LOCI}"
+            IMAGE_SHA = sh(returnStdout: true, script: cmd).trim()
+            sh "mkdir -p ${WORKSPACE}/artifacts"
+            sh "echo $IMAGE_SHA | tee -a ${WORKSPACE}/artifacts/loci_image.txt"
+            archiveArtifacts 'artifacts/*'
+        }
     }
 }
 
