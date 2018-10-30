@@ -289,3 +289,25 @@ def artifactLogs() {
     sh(script: cmd)
     archiveArtifacts 'artifacts/*'
 }
+
+/**
+ * Deploy Kubernetes AIO
+ * Setup Kubernetes AIO and install Helm
+ * @return helm_infra_commit commit hash of the latest openstack-helm-infra
+ */
+
+def deployK8sAIO() {
+
+    sh 'sudo apt-get update'
+    sh 'sudo apt-get install -y make curl'
+
+    cloneOSH()
+    updateProxy()
+
+    dir("${WORKSPACE}/openstack-helm-infra") {
+        helm_infra_commit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+        sh 'make dev-deploy setup-host'
+        sh 'make dev-deploy k8s'
+    }
+    return helm_infra_commit
+}
