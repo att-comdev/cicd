@@ -24,10 +24,12 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
                                                   [name: "X-Context-Marker", value: uuid]],
                                   quiet: true,
                                   requestBody: filePath)
+            if (res.status != 200) {
+                    print res.status
+                    print res.content
+            }
         } catch (err) {
                 sleep 120
-                print "Status: " + res.status
-                print "Content: " + res.content
                 error(err)
         }
     }
@@ -52,10 +54,12 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
                               customHeaders: [[name: "X-Auth-Token", value: token],
                                               [name: "X-Context-Marker", value: uuid]],
                               quiet: true)
+            if (res.status != 200) {
+                    print res.status
+                    print res.content
+            }
         } catch (err) {
                 sleep 120
-                print "Status: " + res.status
-                print "Content: " + res.content
                 error(err)
         }
     }
@@ -87,10 +91,12 @@ def createAction(uuid, token, shipyardUrl, action) {
                                               [name: "X-Context-Marker", value: uuid]],
                               quiet: true,
                               requestBody: jreq)
+            if (res.status != 200) {
+                    print res.status
+                    print res.content
+            }
         } catch (err) {
                 sleep 120
-                print "Status: " + res.status
-                print "Content: " + res.content
                 error(err)
         }
     }
@@ -118,10 +124,12 @@ def getSteps(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
                                httpMode: "GET",
                                quiet: true,
                                customHeaders: [[name: "X-Auth-Token", value: token]])
+            if (res.status != 200) {
+                    print res.status
+                    print res.content
+            }
         } catch (err) {
                 sleep 120
-                print "Status: " + res.status
-                print "Content: " + res.content
                 error(err)
         }
     }
@@ -157,10 +165,12 @@ def getState(systep, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
                                    httpMode: "GET",
                                    quiet: true,
                                    customHeaders: [[name: "X-Auth-Token", value: token]])
+            if (res.status != 200) {
+                    print res.status
+                    print res.content
+            }
         } catch (err) {
                 sleep 120
-                print "Status: " + res.status
-                print "Content: " + res.content
                 error(err)
         }
     }
