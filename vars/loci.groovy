@@ -104,12 +104,15 @@ def getDependencies(String projectName) {
                         'distpackages': 'libssl1.0.0'],
       'neutron-sriov': ['profiles': '"fluent neutron linuxbridge openvswitch"',
                         'packages': 'pycrypto',
-                        'distpackages': '"ethtool lshw"']
+                        'distpackages': '"ethtool lshw"'],
+      'requirements': ['profiles': ' ',
+                       'packages': ' ',
+                       'distpackages': ' ']
     ]
 
-    project_confs = " --build-arg PROFILES=${project_config[projectName].profiles}\
-                      --build-arg PIP_PACKAGES=${project_config[projectName].packages}\
-                      --build-arg DIST_PACKAGES=${project_config[projectName].distpackages}"
+    project_confs = " --env PROFILES=${project_config[projectName].profiles}\
+                      --env PIP_PACKAGES=${project_config[projectName].packages}\
+                      --env DIST_PACKAGES=${project_config[projectName].distpackages}"
 
     return project_confs
 }
