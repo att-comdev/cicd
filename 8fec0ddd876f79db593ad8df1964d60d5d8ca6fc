@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ed989940_c9349d76",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-30T18:27:18Z",
+      "side": 1,
+      "message": "done. created ps https://review.gerrithub.io/c/att-comdev/cicd/+/431370",
+      "parentUuid": "4fe54211_375abfe9",
+      "revId": "8fec0ddd876f79db593ad8df1964d60d5d8ca6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a61745b0_8f69b40b",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 18
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "08b523b7_e988128c",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-30T18:27:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a61745b0_8f69b40b",
+      "revId": "8fec0ddd876f79db593ad8df1964d60d5d8ca6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "13ff2e2d_db8f0fd4",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 18
@@ -47,6 +83,24 @@
       "writtenOn": "2018-10-24T19:20:45Z",
       "side": 1,
       "message": "I don\u0027t think this is valid any longer either, can we make sure it\u0027s patchsets directory and not test directory?",
+      "revId": "8fec0ddd876f79db593ad8df1964d60d5d8ca6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1725c8e7_75094886",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-10-30T18:27:18Z",
+      "side": 1,
+      "message": "done. Pushing the tarballs into att-comdev-helm-local/patchsets/\u003ccomponentname\u003e/ for all gerrit events",
+      "parentUuid": "13ff2e2d_db8f0fd4",
       "revId": "8fec0ddd876f79db593ad8df1964d60d5d8ca6fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
