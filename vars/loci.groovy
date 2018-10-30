@@ -114,9 +114,9 @@ def getDependencies(String projectName) {
  * Merged maps specified in mapList into one map and compiles build arguments.
  *
  * @param mapList List containing maps with build parameters, merge priority increases with element index
- * @return String compiled from map with merged arguments
+ * @return mergedArgsMap Map Resulting map
  */
-def mergeArgs(mapList) {
+def mergeArgs(mapList, unset=false) {
     mergedArgsMap = [:]
     mapList.each {
         if (it != null) {
@@ -126,7 +126,7 @@ def mergeArgs(mapList) {
     return mergedArgsMap
 
 /**
- * Create docker build arguments from provided map.
+ * Create docker run argument from provided map.
  *
  * @param paramMap Map Map that contains docker run parameters
  * @param unset Boolean Build empty parameters if true
@@ -135,9 +135,9 @@ def mergeArgs(mapList) {
 def buildParameters(paramMap, unset=false)
     args = ''
     if(unset) {
-        paramMap.each { entry -> args += " --build-arg $entry.key" }
+        paramMap.each { entry -> args += " --env $entry.key" }
     } else {
-        paramMap.each { entry -> args += " --build-arg $entry.key='$entry.value'" }
+        paramMap.each { entry -> args += " --env $entry.key='$entry.value'" }
     }
     return args
 }
