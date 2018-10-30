@@ -23,11 +23,14 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
                                                   [name: "X-Auth-Token", value: token],
                                                   [name: "X-Context-Marker", value: uuid]],
                                   quiet: true,
-                                  requestBody: filePath)
+                                  requestBody: filePath,
+                                  validResponseCodes: '200:400')
+            if (res.status != 201) {
+                print "See details content: " + res.content
+                error("Request failed with ${res.status}")
+            }
         } catch (err) {
                 sleep 120
-                print "Status: " + res.status
-                print "Content: " + res.content
                 error(err)
         }
     }
@@ -51,11 +54,14 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
                               httpMode: "POST",
                               customHeaders: [[name: "X-Auth-Token", value: token],
                                               [name: "X-Context-Marker", value: uuid]],
-                              quiet: true)
+                              quiet: true,
+                              validResponseCodes: '200:400')
+            if (res.status != 200) {
+                print "See details content: " + res.content
+                error("Request failed with ${res.status}")
+            }
         } catch (err) {
                 sleep 120
-                print "Status: " + res.status
-                print "Content: " + res.content
                 error(err)
         }
     }
@@ -86,11 +92,14 @@ def createAction(uuid, token, shipyardUrl, action) {
                                               [name: "X-Auth-Token", value: token],
                                               [name: "X-Context-Marker", value: uuid]],
                               quiet: true,
-                              requestBody: jreq)
+                              requestBody: jreq,
+                              validResponseCodes: '200:400')
+            if (res.status != 201) {
+                print "See details content: " + res.content
+                error("Request failed with ${res.status}")
+            }
         } catch (err) {
                 sleep 120
-                print "Status: " + res.status
-                print "Content: " + res.content
                 error(err)
         }
     }
@@ -117,11 +126,14 @@ def getSteps(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
                                contentType: "APPLICATION_JSON",
                                httpMode: "GET",
                                quiet: true,
-                               customHeaders: [[name: "X-Auth-Token", value: token]])
+                               customHeaders: [[name: "X-Auth-Token", value: token]],
+                               validResponseCodes: '200:400')
+            if (res.status != 200) {
+                print "See details content: " + res.content
+                error("Request failed with ${res.status}")
+            }
         } catch (err) {
                 sleep 120
-                print "Status: " + res.status
-                print "Content: " + res.content
                 error(err)
         }
     }
@@ -156,11 +168,14 @@ def getState(systep, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
                                    contentType: "APPLICATION_JSON",
                                    httpMode: "GET",
                                    quiet: true,
-                                   customHeaders: [[name: "X-Auth-Token", value: token]])
+                                   customHeaders: [[name: "X-Auth-Token", value: token]],
+                                   validResponseCodes: '200:400')
+            if (res.status != 200) {
+                print "See details content: " + res.content
+                error("Request failed with ${res.status}")
+            }
         } catch (err) {
                 sleep 120
-                print "Status: " + res.status
-                print "Content: " + res.content
                 error(err)
         }
     }
