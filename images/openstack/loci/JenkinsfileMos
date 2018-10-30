@@ -45,13 +45,21 @@ PROJECT_SUFFIX = PROJECT.split('-')[1]
 PROJECT_REPO = "${INTERNAL_GERRIT_SSH}/mos-${PROJECT_SUFFIX}"
 WHEELS_LATEST = conf.MOS_REQUIREMENTS_LOCI
 IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
-DEFAULT_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}\
-  --build-arg PROJECT=${PROJECT_SUFFIX}\
-  --build-arg PROJECT_REF=${PROJECT_REF}\
-  --build-arg NO_PROXY=${NO_PROXY}\
-  --build-arg http_proxy=${HTTP_PROXY}\
-  --build-arg https_proxy=${HTTPS_PROXY}\
-  --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}"
+DEFAULT_BUILD_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}"
+DEFAULT_ARGS = " --env PROJECT=${PROJECT_SUFFIX}\
+  --env PROJECT_REF=${PROJECT_REF}\
+  --env NO_PROXY=${NO_PROXY}\
+  --env http_proxy=${HTTP_PROXY}\
+  --env https_proxy=${HTTPS_PROXY}\
+  --env PROJECT_REPO=${PROJECT_REPO}\
+  --env PYTHON3=no\
+  --env PLUGIN=no\
+  --env NOVNC_REPO=https://github.com/novnc/novnc\
+  --env NOVNC_REF=v1.0.0\
+  --env SPICE_REPO=https://gitlab.freedesktop.org/spice/spice-html5.git\
+  --env SPICE_REF=spice-html5-0.1.6\
+  --env UID=42424\
+  --env GID=42424"
 
 // cmd for running Docker in Docker
 DIND_CONTAINER = "locibuildcont"
@@ -79,6 +87,16 @@ def buildLociMos(projConfArgs = '', wheelArgs = '') {
     // Clone loci repo to apply cicd patch for tests deletion
     sh "${DIND} git clone ${LOCI_REPO} ${LOCI_REPO_PATH}"
 
+    sh """sudo docker exec locibuildcont sh -c 'cat <<EOT > /tmp/loci/Dockerfile
+ARG FROM=ubuntu:xenial
+FROM \\\${FROM}
+
+ENV PATH=/var/lib/openstack/bin:\\\$PATH
+
+COPY scripts /opt/loci/scripts
+ADD bindep.txt pydep.txt \\\$EXTRA_BINDEP \\\$EXTRA_PYDEP /opt/loci/
+"""
+
     // Copy script for tests cleanup to docker
     data = libraryResource "cicd/remove_tests.sh"
     writeFile file: 'remove_tests.sh', text: data
@@ -98,7 +116,7 @@ def buildLociMos(projConfArgs = '', wheelArgs = '') {
 
     if (!PROJECT.contains('requirements')) {
         sh "${DIND} docker pull ${WHEELS_LATEST}"
-        cmd="${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${WHEELS_LATEST}"
+        cmd = "${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${WHEELS_LATEST}"
         def requirements_sha256 = sh(returnStdout: true, script: cmd).trim()
         labels += " --label org.label-schema.requirements-image=${requirements_sha256}"
     }
@@ -107,17 +125,21 @@ def buildLociMos(projConfArgs = '', wheelArgs = '') {
        labels += " --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE}"
     }
 
-    def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
+    def containerName = "${PROJECT_SUFFIX}"
+    def buildImageTag = "${PROJECT_SUFFIX}:build"
     ansiColor('xterm') {
-        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO_PATH} ${DEFAULT_ARGS} ${projConfArgs} ${wheelArgs} ${labels} --tag ${image_tag}"
+        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO_PATH} ${DEFAULT_BUILD_ARGS} ${labels} --tag ${buildImageTag}"
+        sh "${DIND} docker run --name ${containerName} ${DEFAULT_ARGS} ${projConfArgs} ${wheelArgs} ${buildImageTag} bash -c \"/opt/loci/scripts/install.sh\""
     }
-    sh "${DIND} docker push ${image_tag}"
+    def imageTag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
+    sh "${DIND} docker commit ${containerName} ${imageTag}"
+    sh "${DIND} docker push ${imageTag}"
 
     //publish latest (branch) tag on merge for requirements
     if (PROJECT.contains('requirements') && env.GERRIT_EVENT_TYPE == 'change-merged') {
-        def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
-        sh "${DIND} docker tag ${image_tag} ${image_latest}"
-        sh "${DIND} docker push ${image_latest}"
+        def imageLatest = "${IMAGE_BASE}/${PROJECT}:latest"
+        sh "${DIND} docker tag ${imageTag} ${imageLatest}"
+        sh "${DIND} docker push ${imageLatest}"
     }
 
     return image_tag
@@ -144,12 +166,13 @@ vm2('loci-bootstrap.sh',
 
         stage ("Build Project") {
             print "Building ${PROJECT.capitalize()}"
+            dependencies = loci.getDependencies(PROJECT_SUFFIX)
             if (PROJECT.contains('requirements')) {
-                IMAGE_LOCI = buildLociMos()
+                IMAGE_LOCI = buildLociMos(dependencies)
             } else {
                 loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
                 WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
-                IMAGE_LOCI = buildLociMos(loci.getDependencies(PROJECT_SUFFIX), WHEELS_ARG)
+                IMAGE_LOCI = buildLociMos(dependencies, WHEELS_ARG)
             }
             LOCI_IMAGE_VAR = "${PROJECT_SUFFIX.toUpperCase()}_LOCI"
             cmd = "${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE_LOCI}"
