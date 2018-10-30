@@ -126,13 +126,18 @@ def mergeArgs(mapList) {
     return mergedArgsMap
 
 /**
- * Create docker build arguments from provided map.
+ * Create docker run arguments from provided map.
  *
  * @param paramMap Map Map that contains docker run parameters
+ * @param unset Boolean Build empty parameters if true
  * @return args String containing ready to use parameter for docker run
  */
 def buildParameters(paramMap, unset=false)
     args = ''
-    paramMap.each { entry -> args += " --build-arg $entry.key='$entry.value'" }
+    if(unset) {
+        paramMap.each { entry -> args += " --env $entry.key" }
+    } else {
+        paramMap.each { entry -> args += " --env $entry.key='$entry.value'" }
+    }
     return args
 }
