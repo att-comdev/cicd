@@ -26,6 +26,7 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
                                   requestBody: filePath)
         } catch (err) {
                 sleep 120
+                print err
                 print "Status: " + res.status
                 print "Content: " + res.content
                 error(err)
@@ -54,6 +55,7 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
                               quiet: true)
         } catch (err) {
                 sleep 120
+                print err
                 print "Status: " + res.status
                 print "Content: " + res.content
                 error(err)
@@ -89,6 +91,7 @@ def createAction(uuid, token, shipyardUrl, action) {
                               requestBody: jreq)
         } catch (err) {
                 sleep 120
+                print err
                 print "Status: " + res.status
                 print "Content: " + res.content
                 error(err)
@@ -120,6 +123,7 @@ def getSteps(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
                                customHeaders: [[name: "X-Auth-Token", value: token]])
         } catch (err) {
                 sleep 120
+                print err
                 print "Status: " + res.status
                 print "Content: " + res.content
                 error(err)
@@ -159,6 +163,7 @@ def getState(systep, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
                                    customHeaders: [[name: "X-Auth-Token", value: token]])
         } catch (err) {
                 sleep 120
+                print err
                 print "Status: " + res.status
                 print "Content: " + res.content
                 error(err)
