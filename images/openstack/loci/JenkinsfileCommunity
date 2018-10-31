@@ -49,23 +49,26 @@ if (PROJECT_BRANCH.contains('stable/')) {
 PROJECT_REPO = "https://git.openstack.org/openstack/${PROJECT}"
 PROJECT_PREFIX = "loci/community"
 IMAGE_BASE = "${ARTF_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
-DEFAULT_ARGS = "--build-arg FROM=${LOCI_BASE_IMAGE}\
-  --build-arg PROJECT=${PROJECT}\
-  --build-arg PROJECT_REF=${PROJECT_REF}\
-  --build-arg NO_PROXY=${NO_PROXY}\
-  --build-arg http_proxy=${HTTP_PROXY}\
-  --build-arg https_proxy=${HTTPS_PROXY}\
-  --build-arg PROJECT_REPO=${PROJECT_REPO}"
+DEFAULT_ARGS = [
+  'FROM':         "${LOCI_BASE_IMAGE}",
+  'PROJECT':      "${PROJECT_SUFFIX}",
+  'PROJECT_REF':  "${PROJECT_REF}",
+  'NO_PROXY':     "${NO_PROXY}",
+  'http_proxy':   "${HTTP_PROXY}",
+  'https_proxy':  "${HTTPS_PROXY}",
+  'PROJECT_REPO': "${PROJECT_REPO}",
+]
 
 // cmd for running Docker in Docker
 DIND_CONTAINER = "locibuildcont"
 DIND = "sudo docker exec ${DIND_CONTAINER}"
 
-def buildLoci(projConfArgs = '', wheelArgs = '') {
+def buildLoci(projConfArgs = null, wheelArgs = null) {
 
+    def args = loci.mergeArgs([DEFAULT_ARGS, projConfArgs, wheelArgs])
     def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"
     ansiColor('xterm') {
-        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${DEFAULT_ARGS} ${projConfArgs} ${wheelArgs} --tag ${image_tag}"
+        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO} ${args} --tag ${image_tag}"
     }
     sh "${DIND} docker push ${image_tag}"
 
