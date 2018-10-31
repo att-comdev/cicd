@@ -71,45 +71,68 @@ def exportWheels(String containerName, String requirementsImage) {
  * Used as args for building loci images
  *
  * @param projectName Name of the openstack project
- * @return project_confs String containing the project configs as docker build args
+ * @return Map containing the project configs for projectName
  */
 def getDependencies(String projectName) {
     def project_config = [
-      'keystone':      ['profiles': '"fluent apache ldap"',
-                        'packages': '"pycrypto python-openstackclient"',
-                        'distpackages': ' '],
-      'heat':          ['profiles': '"fluent apache"',
-                        'packages': 'pycrypto',
-                        'distpackages': 'curl'],
-      'glance':        ['profiles': '"fluent glance ceph"',
-                        'packages': '"pycrypto python-swiftclient"',
-                        'distpackages': ' '],
-      'horizon':       ['profiles': '"fluent horizon apache"',
-                        'packages': 'pycrypto',
-                        'distpackages': ' '],
-      'cinder':        ['profiles': '"fluent cinder lvm ceph qemu"',
-                        'packages': '"pycrypto python-swiftclient"',
-                        'distpackages': ' '],
-      'neutron':       ['profiles': '"fluent neutron openvswitch linuxbridge"',
-                        'packages': 'pycrypto',
-                        'distpackages': ' '],
-      'nova':          ['profiles': '"fluent nova ceph linuxbridge openvswitch configdrive qemu apache"',
-                        'packages': 'pycrypto',
-                        'distpackages': ' '],
-      'barbican':      ['profiles': 'fluent',
-                        'packages': 'pycrypto',
-                        'distpackages': ' '],
-      'nova-1804':     ['profiles': '"fluent nova ceph linuxbridge openvswitch configdrive qemu apache"',
-                        'packages': 'pycrypto',
-                        'distpackages': 'libssl1.0.0'],
-      'neutron-sriov': ['profiles': '"fluent neutron linuxbridge openvswitch"',
-                        'packages': 'pycrypto',
-                        'distpackages': '"ethtool lshw"']
+      'keystone':      ['PROFILES': 'fluent apache ldap',
+                        'PIP_PACKAGES': 'pycrypto python-openstackclient',
+                        'DIST_PACKAGES': ' '],
+      'heat':          ['PROFILES': 'fluent apache',
+                        'PIP_PACKAGES': 'pycrypto',
+                        'DIST_PACKAGES': 'curl'],
+      'glance':        ['PROFILES': 'fluent glance ceph',
+                        'PIP_PACKAGES': 'pycrypto python-swiftclient',
+                        'DIST_PACKAGES': ' '],
+      'horizon':       ['PROFILES': 'fluent horizon apache',
+                        'PIP_PACKAGES': 'pycrypto',
+                        'DIST_PACKAGES': ' '],
+      'cinder':        ['PROFILES': 'fluent cinder lvm ceph qemu',
+                        'PIP_PACKAGES': 'pycrypto python-swiftclient',
+                        'DIST_PACKAGES': ' '],
+      'neutron':       ['PROFILES': 'fluent neutron openvswitch linuxbridge',
+                        'PIP_PACKAGES': 'pycrypto',
+                        'DIST_PACKAGES': ' '],
+      'nova':          ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
+                        'PIP_PACKAGES': 'pycrypto',
+                        'DIST_PACKAGES': ' '],
+      'barbican':      ['PROFILES': 'fluent',
+                        'PIP_PACKAGES': 'pycrypto',
+                        'DIST_PACKAGES': ' '],
+      'nova-1804':     ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
+                        'PIP_PACKAGES': 'pycrypto',
+                        'DIST_PACKAGES': 'libssl1.0.0'],
+      'neutron-sriov': ['PROFILES': 'fluent neutron linuxbridge openvswitch',
+                        'PIP_PACKAGES': 'pycrypto',
+                        'DIST_PACKAGES': 'ethtool lshw']
     ]
 
-    project_confs = " --build-arg PROFILES=${project_config[projectName].profiles}\
-                      --build-arg PIP_PACKAGES=${project_config[projectName].packages}\
-                      --build-arg DIST_PACKAGES=${project_config[projectName].distpackages}"
+    return project_config[projectName]
+}
 
-    return project_confs
+/**
+ * Merged maps specified in mapList into one map and compiles build arguments.
+ *
+ * @param mapList List containing maps with build parameters, merge priority increases with element index
+ * @return mergedArgsMap Map Resulting map
+ */
+def mergeArgs(mapList) {
+    mergedArgsMap = [:]
+    mapList.each {
+        if (it != null) {
+            mergedArgsMap.putAll(it)
+        }
+    }
+    return mergedArgsMap
+
+/**
+ * Create docker build arguments from provided map.
+ *
+ * @param paramMap Map Map that contains docker run parameters
+ * @return args String containing ready to use parameter for docker run
+ */
+def buildParameters(paramMap)
+    args = ''
+    paramMap.each { entry -> args += " --build-arg $entry.key='$entry.value'" }
+    return args
 }
