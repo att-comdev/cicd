@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "57d9be98_300ca5c6",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1014899
+      },
+      "writtenOn": "2018-10-31T21:03:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70e2dd5a_f3154712",
+      "revId": "b5ecc724334d211b6ddbaa22f1b54d1e87aa94d9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "32a7e487_a7c6c815",
         "filename": "images/staas-backup/Jenkinsfile",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2018-10-31T11:02:59Z",
       "side": 1,
       "message": "Move to line 32.",
+      "range": {
+        "startLine": 39,
+        "startChar": 7,
+        "endLine": 42,
+        "endChar": 92
+      },
+      "revId": "b5ecc724334d211b6ddbaa22f1b54d1e87aa94d9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "135ffc7a_6abc02eb",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1014899
+      },
+      "writtenOn": "2018-10-31T21:03:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32a7e487_a7c6c815",
       "range": {
         "startLine": 39,
         "startChar": 7,
