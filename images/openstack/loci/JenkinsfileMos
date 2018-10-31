@@ -45,13 +45,15 @@ PROJECT_SUFFIX = PROJECT.split('-')[1]
 PROJECT_REPO = "${INTERNAL_GERRIT_SSH}/mos-${PROJECT_SUFFIX}"
 WHEELS_LATEST = env.REQUIREMENTS_LOCI_IMAGE.trim() ? env.REQUIREMENTS_LOCI_IMAGE : conf.MOS_REQUIREMENTS_LOCI
 IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
-DEFAULT_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}\
-  --build-arg PROJECT=${PROJECT_SUFFIX}\
-  --build-arg PROJECT_REF=${PROJECT_REF}\
-  --build-arg NO_PROXY=${NO_PROXY}\
-  --build-arg http_proxy=${HTTP_PROXY}\
-  --build-arg https_proxy=${HTTPS_PROXY}\
-  --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}"
+DEFAULT_ARGS = [
+  'FROM':         "${LOCI_BASE_IMAGE}",
+  'PROJECT':      "${PROJECT_SUFFIX}",
+  'PROJECT_REF':  "${PROJECT_REF}",
+  'NO_PROXY':     "${NO_PROXY}",
+  'http_proxy':   "${HTTP_PROXY}",
+  'https_proxy':  "${HTTPS_PROXY}",
+  'PROJECT_REPO': "${LOCAL_WEB_URL}/repo/${PROJECT}",
+]
 
 // cmd for running Docker in Docker
 DIND_CONTAINER = "locibuildcont"
@@ -67,7 +69,7 @@ def repo_clone_mirror = {
     }
 }
 
-def buildLociMos(projConfArgs = '', wheelArgs = '') {
+def buildLociMos(projConfArgs = null, wheelArgs = null) {
 
     sh "${DIND} docker pull ${LOCI_BASE_IMAGE}"
     def cmd="${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${LOCI_BASE_IMAGE}"
@@ -107,9 +109,11 @@ def buildLociMos(projConfArgs = '', wheelArgs = '') {
        labels += " --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE}"
     }
 
+    def argsMap = loci.mergeArgs([DEFAULT_ARGS, projConfArgs, wheelArgs])
+    def args = loci.buildParameters(argsMap)
     def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}.${BUILD_TIMESTAMP}"
     ansiColor('xterm') {
-        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO_PATH} ${DEFAULT_ARGS} ${projConfArgs} ${wheelArgs} ${labels} --tag ${image_tag}"
+        sh "${DIND} docker build --force-rm --no-cache ${LOCI_REPO_PATH} ${args} ${labels} --tag ${image_tag}"
     }
     sh "${DIND} docker push ${image_tag}"
 
@@ -148,7 +152,7 @@ vm2('loci-bootstrap.sh',
                 IMAGE_LOCI = buildLociMos()
             } else {
                 loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
-                WHEELS_ARG = " --build-arg WHEELS=${LOCAL_WEB_URL}/images/wheels.tar"
+                WHEELS_ARG = ['WHEELS': "${LOCAL_WEB_URL}/images/wheels.tar"]
                 IMAGE_LOCI = buildLociMos(loci.getDependencies(PROJECT_SUFFIX), WHEELS_ARG)
             }
             LOCI_IMAGE_VAR = "${PROJECT_SUFFIX.toUpperCase()}_LOCI"
