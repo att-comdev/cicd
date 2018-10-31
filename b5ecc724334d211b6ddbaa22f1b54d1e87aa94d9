@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70e2dd5a_f3154712",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-31T11:02:59Z",
+      "side": 1,
+      "message": "Add \" --label org.label-schema.vcs-event\u003d${GERRIT_EVENT_TYPE}\u0027\" to LABELS somewhere here. You are missing this label.",
+      "revId": "b5ecc724334d211b6ddbaa22f1b54d1e87aa94d9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "32a7e487_a7c6c815",
+        "filename": "images/staas-backup/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-10-31T11:02:59Z",
+      "side": 1,
+      "message": "Move to line 32.",
+      "range": {
+        "startLine": 39,
+        "startChar": 7,
+        "endLine": 42,
+        "endChar": 92
+      },
+      "revId": "b5ecc724334d211b6ddbaa22f1b54d1e87aa94d9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
