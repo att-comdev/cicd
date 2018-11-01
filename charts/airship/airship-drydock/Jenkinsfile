@@ -1,0 +1,53 @@
+currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
+GIT_COMMIT=""
+
+vm2("bootstrap.sh", "cicd-ubuntu-16.04-server-cloudimg-amd64", "m1.large", '${JOB_BASE_NAME}', 'basic', false) {
+    sh ('hostname')
+    stage('Setup environment'){
+        vm2.setproxy()
+    }
+
+    stage('Infra Helm Checkout'){
+
+        git branch:"master", url:"https://github.com/openstack/openstack-helm-infra"
+        sh "git checkout ${OPENSTACK_HELM_INFRA_COMMIT}"
+        HELM_TOOLKIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+    }
+    stage('Project Checkout'){
+        gerrit.cloneToBranch("https://git.openstack.org/${PROJECT}", "${GERRIT_PATCHSET_REVISION}","${JOB_BASE_NAME}")
+
+        dir("${WORKSPACE}/${JOB_BASE_NAME}"){
+            GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+            def chartOverride = readYaml file: "charts/drydock/Chart.yaml", text: "version: ${GIT_COMMIT}.${HELM_TOOLKIT_COMMIT}"
+            sh 'sudo rm -rf charts/drydock/Chart.yaml'
+            writeYaml file: "charts/drydock/Chart.yaml", data: chartOverride
+            sh "cat charts/drydock/Chart.yaml"
+
+        }
+    }
+    dir("${WORKSPACE}/${JOB_BASE_NAME}"){
+        stage('Build & Package'){
+            sh 'sudo apt-get install -y make'
+            sh "sudo make charts HTK_COMMIT=${HELM_TOOLKIT_COMMIT}"
+
+            def status = sh(returnStatus: true, script: "sudo make charts")
+            if (status != 0) {
+                currentBuild.result = 'FAILED'
+                notify.msg("Charts build failed for ${GIT_COMMIT}!")
+            }else{
+                notify.msg("Charts were built for ${GIT_COMMIT}")
+            }
+        }
+        stage('Publish'){
+            ARTF_REPO="airship-helm-local/airship"
+            if("${GERRIT_EVENT_TYPE}" != "change-merged"){
+                ARTF_REPO="${ARTF_REPO}/test"
+            }
+
+            def server = Artifactory.server 'artifactory'
+            def uploadSpec = """{"files": [{"pattern":"drydock*.tgz","target":"${ARTF_REPO}/drydock/"}]}"""
+            server.upload(uploadSpec)
+            notify.msg("Chart for ${GIT_COMMIT}.${HELM_TOOLKIT_COMMIT} pushed to ${ARTF_REPO}/drydock")
+        }
+    }
+}
