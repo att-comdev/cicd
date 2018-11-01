@@ -5,6 +5,7 @@ LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
 LOCAL_WEB_PORT = '8080'
 LOCAL_WEB_URL = "http://172.18.0.1:${LOCAL_WEB_PORT}"
 CONT_SSH_AUTH_SOCK = '/ssh_agent'
+SSH_DIR = '/root/.ssh'
 
 PROJECT = JOB_BASE_NAME
 SEMANTIC_RELEASE_VERSION = "0.9.0"
@@ -43,7 +44,8 @@ if (PROJECT_BRANCH == 'master') {
 
 PROJECT_PREFIX = "loci/mos"
 PROJECT_SUFFIX = PROJECT.split('-')[1]
-PROJECT_REPO = "${INTERNAL_GERRIT_SSH}/mos-${PROJECT_SUFFIX}"
+// We don't use INTERNAL_GERRIT_SSH as it contains username, that is no longer required
+PROJECT_REPO = "ssh://${INTERNAL_GERRIT_URL}:${INTERNAL_GERRIT_PORT}/mos-${PROJECT_SUFFIX}"
 WHEELS_LATEST = conf.MOS_REQUIREMENTS_LOCI
 IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
 DEFAULT_BUILD_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}"
@@ -54,26 +56,17 @@ DEFAULT_ARGS = [
   'NO_PROXY':      "${NO_PROXY}",
   'http_proxy':    "${HTTP_PROXY}",
   'https_proxy':   "${HTTPS_PROXY}",
-  'PROJECT_REPO':  "${LOCAL_WEB_URL}/repo/${PROJECT}",
+  'PROJECT_REPO':  "${PROJECT_REPO}",
   'SSH_AUTH_SOCK': "${CONT_SSH_AUTH_SOCK}",
 ]
 SSH_VOLUMES_ARGS = [
   "${CONT_SSH_AUTH_SOCK}": "${CONT_SSH_AUTH_SOCK}",
+  "${SSH_DIR}": "${SSH_DIR}",
 ]
 
 // cmd for running Docker in Docker
 DIND_CONTAINER = "locibuildcont"
 DIND = "sudo docker exec ${DIND_CONTAINER}"
-
-// git clone mirror the project on local nginx server to allow passing http git url as build arg for loci builds
-def repo_clone_mirror = {
-    sh 'mkdir -p web/repo'
-    sh "ssh-keyscan -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} | tee -a ~/.ssh/known_hosts"
-    dir ('web/repo') {
-        sh "git clone --mirror ${PROJECT_REPO} ${PROJECT}"
-        sh "cd ${PROJECT} && git update-server-info"
-    }
-}
 
 def getDockerfileDefaultArgs(dockerfileStr) {
     def matcher = dockerfileStr =~ /ARG (.*)=(.*)/
@@ -85,9 +78,9 @@ def getDockerfileDefaultArgs(dockerfileStr) {
     return dockerfileArgsMap
 }
 
-def compileSshConfig() {
+def compileSshConfig(sshData) {
     sshConfig = ""
-    parseSshData().values().each() {
+    sshData.values().each() {
         sshConfig += "Host ${it['resource']}\n" +
                      "User ${it['user']}\n" +
                      "StrictHostKeyChecking no\n"
@@ -116,14 +109,6 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     // Gather default arguments from Dockerfile to pass them on 'docker run' for install.sh script
     DOCKERFILE = sh(script: "${DIND} cat ${LOCI_REPO_PATH}/Dockerfile", returnStdout: true).trim()
     dockerfileDefaultArgs = getDockerfileDefaultArgs(DOCKERFILE)
-
-    // Compiles ssh config for SSH_DATA to be mounted to loci docker container on docker run
-    // This allows to control what user is used for what resource without specifying it in sources
-    sshConfig = compileSshConfig()
-    sshDir = "${LOCI_REPO_PATH}/ssh"
-    sh "${DIND} mkdir ${sshDir}"
-    sh """${DIND} sh -c 'cat <<EOT > ${sshDir}/config\n${sshConfig}EOT'"""
-    SSH_VOLUMES_ARGS[sshDir] = '/root/.ssh'
 
     // Remove install.sh line as we want it to be invoked during docker run
     sh "${DIND} sed  -i '/install.sh/d' ${LOCI_REPO_PATH}/Dockerfile"
@@ -199,16 +184,23 @@ vm2('loci-bootstrap.sh',
          '',
          'loci',
          false){
-    sshagent(credentials: parseSshData().keySet().collect()) {
+
+    sshData = parseSshData()
+    keys = sshData.keySet().collect()
+    // Compiles ssh config for SSH_DATA to be mounted to loci docker container on docker run
+    // This allows to control what user is used for what resource without specifying it in sources
+    sshConfig = compileSshConfig(sshData)
+    new File("${SSH_DIR}/config").append(sshConfig)
+
+    sshagent(credentials: keys) {
         stage('Docker Setup') {
             loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory", DIND_CONTAINER)
         }
 
         stage('Local Repo Setup') {
             loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT)
-            repo_clone_mirror()
             if (!env.GERRIT_REFSPEC) {
-                PROJECT_VERSION = gerrit.getVersion(PROJECT_REPO, PROJECT_REF, INTERNAL_GERRIT_KEY)
+                PROJECT_VERSION = gerrit.getVersion(PROJECT_REPO, PROJECT_REF)
             }
         }
 

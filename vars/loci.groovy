@@ -14,7 +14,7 @@ def runDind(String artifactoryURL, String artifactoryCred, String containerName)
     def mounts = '-v /var/lib/docker' +
                  ' -v $(pwd):/opt/loci'
     if ("${SSH_AUTH_SOCK}") {
-        mounts += " -v ${SSH_AUTH_SOCK}:${CONT_SSH_AUTH_SOCK}"
+        mounts += " -v ${SSH_AUTH_SOCK}:${CONT_SSH_AUTH_SOCK} -v ${SSH_DIR}:${SSH_DIR}"
     }
 
     // cmd for running Docker in Docker
