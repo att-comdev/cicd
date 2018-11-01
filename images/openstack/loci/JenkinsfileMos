@@ -43,7 +43,8 @@ if (PROJECT_BRANCH == 'master') {
 
 PROJECT_PREFIX = "loci/mos"
 PROJECT_SUFFIX = PROJECT.split('-')[1]
-PROJECT_REPO = "${INTERNAL_GERRIT_SSH}/mos-${PROJECT_SUFFIX}"
+// We don't use INTERNAL_GERRIT_SSH as it contains username, that is no longer required
+PROJECT_REPO = "ssh://${INTERNAL_GERRIT_URL}:${INTERNAL_GERRIT_PORT}/mos-${PROJECT_SUFFIX}"
 WHEELS_LATEST = conf.MOS_REQUIREMENTS_LOCI
 IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
 DEFAULT_BUILD_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}"
@@ -54,7 +55,7 @@ DEFAULT_ARGS = [
   'NO_PROXY':      "${NO_PROXY}",
   'http_proxy':    "${HTTP_PROXY}",
   'https_proxy':   "${HTTPS_PROXY}",
-  'PROJECT_REPO':  "${LOCAL_WEB_URL}/repo/${PROJECT}",
+  'PROJECT_REPO':  "${PROJECT_REPO}",
   'SSH_AUTH_SOCK': "${CONT_SSH_AUTH_SOCK}",
 ]
 SSH_VOLUMES_ARGS = [
@@ -64,16 +65,6 @@ SSH_VOLUMES_ARGS = [
 // cmd for running Docker in Docker
 DIND_CONTAINER = "locibuildcont"
 DIND = "sudo docker exec ${DIND_CONTAINER}"
-
-// git clone mirror the project on local nginx server to allow passing http git url as build arg for loci builds
-def repo_clone_mirror = {
-    sh 'mkdir -p web/repo'
-    sh "ssh-keyscan -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} | tee -a ~/.ssh/known_hosts"
-    dir ('web/repo') {
-        sh "git clone --mirror ${PROJECT_REPO} ${PROJECT}"
-        sh "cd ${PROJECT} && git update-server-info"
-    }
-}
 
 def getDockerfileDefaultArgs(dockerfileStr) {
     def matcher = dockerfileStr =~ /ARG (.*)=(.*)/
@@ -206,7 +197,6 @@ vm2('loci-bootstrap.sh',
 
         stage('Local Repo Setup') {
             loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT)
-            repo_clone_mirror()
             if (!env.GERRIT_REFSPEC) {
                 PROJECT_VERSION = gerrit.getVersion(PROJECT_REPO, PROJECT_REF, INTERNAL_GERRIT_KEY)
             }
