@@ -13,6 +13,7 @@ def runDind(String artifactoryURL, String artifactoryCred, String containerName)
                " -e HTTP_PROXY=${HTTP_PROXY} -e HTTPS_PROXY=${HTTP_PROXY} "
     def mounts = '-v /var/lib/docker' +
                  ' -v $(pwd):/opt/loci'
+    mounts += " -v ${SSH_AUTH_SOCK}:${CONT_SSH_AUTH_SOCK}"
 
     // cmd for running Docker in Docker
     dind = "sudo docker exec ${containerName}"
