@@ -4,6 +4,7 @@ LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
 
 LOCAL_WEB_PORT = '8080'
 LOCAL_WEB_URL = "http://172.18.0.1:${LOCAL_WEB_PORT}"
+CONT_SSH_AUTH_SOCK = '/ssh_agent'
 
 PROJECT = JOB_BASE_NAME
 SEMANTIC_RELEASE_VERSION = "0.9.0"
@@ -47,13 +48,17 @@ WHEELS_LATEST = env.REQUIREMENTS_LOCI.trim() ? env.REQUIREMENTS_LOCI : conf.MOS_
 IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
 DEFAULT_BUILD_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}"
 DEFAULT_ARGS = [
-  'FROM':         "${LOCI_BASE_IMAGE}",
-  'PROJECT':      "${PROJECT_SUFFIX}",
-  'PROJECT_REF':  "${PROJECT_REF}",
-  'NO_PROXY':     "${NO_PROXY}",
-  'http_proxy':   "${HTTP_PROXY}",
-  'https_proxy':  "${HTTPS_PROXY}",
-  'PROJECT_REPO': "${LOCAL_WEB_URL}/repo/${PROJECT}",
+  'FROM':          "${LOCI_BASE_IMAGE}",
+  'PROJECT':       "${PROJECT_SUFFIX}",
+  'PROJECT_REF':   "${PROJECT_REF}",
+  'NO_PROXY':      "${NO_PROXY}",
+  'http_proxy':    "${HTTP_PROXY}",
+  'https_proxy':   "${HTTPS_PROXY}",
+  'PROJECT_REPO':  "${LOCAL_WEB_URL}/repo/${PROJECT}",
+  'SSH_AUTH_SOCK': "${CONT_SSH_AUTH_SOCK}",
+]
+SSH_VOLUMES_ARGS = [
+  "${CONT_SSH_AUTH_SOCK}": "${CONT_SSH_AUTH_SOCK}",
 ]
 
 // cmd for running Docker in Docker
@@ -80,6 +85,22 @@ def getDockerfileDefaultArgs(dockerfileStr) {
     return dockerfileArgsMap
 }
 
+def compileSshConfig() {
+    sshConfig = ""
+    parseSshData().values().each() {
+        sshConfig += "Host ${it['resource']}\n" +
+                     "User ${it['user']}\n" +
+                     "StrictHostKeyChecking no\n"
+    }
+    return sshConfig
+}
+
+// Parse json containing {'<credential_name>': {'user': '<user>', 'resource': '<resource>'}}, ...}
+// The source of data what credentials to use in ssh-agent with what user to what resource
+def parseSshData() {
+    return new groovy.json.JsonSlurper().parseText(SSH_DATA)
+}
+
 def buildLociMos(projConfArgs = null, wheelArgs = null) {
 
     sh "${DIND} docker pull ${LOCI_BASE_IMAGE}"
@@ -95,6 +116,14 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     // Gather default arguments from upstream Dockerfile to pass them on 'docker run' for install.sh script
     DOCKERFILE = sh(script: "${DIND} cat ${LOCI_REPO_PATH}/Dockerfile", returnStdout: true).trim()
     dockerfileDefaultArgs = getDockerfileDefaultArgs(DOCKERFILE)
+
+    // Compiles ssh config for SSH_DATA to be mounted to loci docker container on docker run
+    // This allows to control what user is used for what resource without specifying it in sources
+    sshConfig = compileSshConfig()
+    sshDir = "${LOCI_REPO_PATH}/ssh"
+    sh "${DIND} mkdir ${sshDir}"
+    sh """${DIND} sh -c 'cat <<EOT > ${sshDir}/config\n${sshConfig}EOT'"""
+    SSH_VOLUMES_ARGS[sshDir] = '/root/.ssh'
 
     // Create DockerfileMos in dind container to build loci image from it
     dockerfileMos = libraryResource "cicd/Dockerfile"
@@ -130,11 +159,12 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
 
     def argsMap = loci.mergeArgs([dockerfileDefaultArgs, DEFAULT_ARGS, projConfArgs, wheelArgs])
     def args = loci.buildParameters(argsMap, '--env')
+    def sshVolumesArgs = loci.buildParameters(SSH_VOLUMES_ARGS, '--volume', false, ':')
     def containerName = "${PROJECT_SUFFIX}"
     def imageTag = "${PROJECT_SUFFIX}:build"
     ansiColor('xterm') {
         sh "${DIND} docker build --force-rm --no-cache -f {LOCI_REPO_PATH}/DockerfileMos ${DEFAULT_BUILD_ARGS} ${labels} --tag ${imageTag}"
-        sh "${DIND} docker run --name ${containerName} ${args} ${imageTag} bash -c \"/opt/loci/scripts/install.sh\""
+        sh "${DIND} docker run --name ${containerName} ${args} ${sshVolumesArgs} ${imageTag} bash -c \"/opt/loci/scripts/install.sh\""
     }
     if (!PROJECT.contains('requirements')) {
         // As far as we pass arguments required by install.sh as environment variables
@@ -170,7 +200,7 @@ vm2('loci-bootstrap.sh',
          '',
          'loci',
          false){
-    sshagent(credentials: [INTERNAL_GERRIT_KEY]) {
+    sshagent(credentials: parseSshData().keySet().collect()) {
         stage('Docker Setup') {
             loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory", DIND_CONTAINER)
         }

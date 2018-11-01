@@ -13,6 +13,9 @@ def runDind(String artifactoryURL, String artifactoryCred, String containerName)
                " -e HTTP_PROXY=${HTTP_PROXY} -e HTTPS_PROXY=${HTTP_PROXY} "
     def mounts = '-v /var/lib/docker' +
                  ' -v $(pwd):/opt/loci'
+    if ("${SSH_AUTH_SOCK}") {
+        mounts += " -v ${SSH_AUTH_SOCK}:${CONT_SSH_AUTH_SOCK}"
+    }
 
     // cmd for running Docker in Docker
     dind = "sudo docker exec ${containerName}"
@@ -131,14 +134,15 @@ def mergeArgs(mapList) {
  *
  * @param paramMap Map Map that contains docker run parameters
  * @param unset Boolean Build empty parameters if true
+ * @param separator String used between key and value
  * @return args String containing ready to use parameter for docker run
  */
-def buildParameters(paramMap, dockerArg='--build-arg', unset=false) {
+def buildParameters(paramMap, dockerArg='--build-arg', unset=false, separator='=') {
     args = ''
     if(unset) {
         paramMap.each { entry -> args += " ${dockerArg} $entry.key" }
     } else {
-        paramMap.each { entry -> args += " ${dockerArg} $entry.key='$entry.value'" }
+        paramMap.each { entry -> args += " ${dockerArg} $entry.key${separator}'$entry.value'" }
     }
     return args
 }
