@@ -1,0 +1,67 @@
+currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
+DRYDOCK_COMMIT =""
+INFRA_REVISION = ${OPENSTACK_HELM_INFRA_COMMIT}
+DRYDOCK_REVISION = "master"
+
+vm(flavor: "m1.large"){
+    sh ('hostname')
+    stage('Setup environment'){
+        vm2.setproxy()
+    }
+
+    stage('Infra Helm Checkout'){
+
+        if ("${GERRIT_PROJECT}" == "${INFRA_PROJECT}" && "${GERRIT_EVENT_TYPE}" == "change-merged"){
+            sh 'echo Openstack-helm-infra ${GERRIT_NEWREV} just merged'
+            INFRA_REVISION = ${GERRIT_NEWREV}
+        }
+        gerrit.cloneToBranch("https://git.openstack.org/${INFRA_PROJECT}", "${INFRA_REVISION}","openstack-helm-infra")
+        dir("${WORKSPACE}/openstack-helm-infra") {
+            HELM_TOOLKIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+        }
+    }
+    stage('Drydock Checkout'){
+        if ("${GERRIT_PROJECT}" == "${DRYDOCK_PROJECT}" && "${GERRIT_EVENT_TYPE}" != "change-merged") {
+            sh 'echo Drydock commit SHA: ${GERRIT_PATCHSET_REVISION}'
+            DRYDOCK_REVISION = ${GERRIT_PATCHSET_REVISION}
+        }
+        if ("${GERRIT_PROJECT}" == "${DRYDOCK_PROJECT}" && "${GERRIT_EVENT_TYPE}" == "change-merged"){
+            sh 'echo Drydock commit SHA: ${GERRIT_NEWREV}'
+            DRYDOCK_REVISION = ${GERRIT_NEWREV}
+        }
+
+        gerrit.cloneToBranch("https://git.openstack.org/${DRYDOCK_PROJECT}", "${DRYDOCK_REVISION}", "${JOB_BASE_NAME}")
+
+        dir("${WORKSPACE}/${JOB_BASE_NAME}"){
+            DRYDOCK_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+            sh "echo Chart version: ${DRYDOCK_COMMIT}.${HELM_TOOLKIT_COMMIT}"
+            def chartOverride = readYaml file: "charts/drydock/Chart.yaml", text: "version: ${DRYDOCK_COMMIT}.${HELM_TOOLKIT_COMMIT}"
+            sh 'sudo rm -rf charts/drydock/Chart.yaml'
+            writeYaml file: "charts/drydock/Chart.yaml", data: chartOverride
+            sh "cat charts/drydock/Chart.yaml"
+
+        }
+    }
+    dir("${WORKSPACE}/${JOB_BASE_NAME}"){
+        stage('Build & Package'){
+            sh 'sudo apt-get install -y make'
+            def status = sh(returnStatus: true, script: "sudo make charts HTK_COMMIT=${HELM_TOOLKIT_COMMIT}")
+            if (status != 0) {
+                currentBuild.result = 'FAILED'
+                notify.msg("Charts build failed for Drydock SHA: ${DRYDOCK_COMMIT} " +
+                           "and Helm toolkit SHA: ${HELM_TOOLKIT_COMMIT}")
+            }else{
+                notify.msg("Charts were built for Drydock SHA: ${DRYDOCK_COMMIT} " +
+                           "and Helm toolkit SHA: ${HELM_TOOLKIT_COMMIT}")
+            }
+        }
+        stage('Publish'){
+            ARTF_REPO="airship-helm-local/airship"
+            if("${GERRIT_EVENT_TYPE}" != "change-merged"){
+                ARTF_REPO="${ARTF_REPO}/test"
+            }
+            publish.putArtifacts("drydock*.tgz", "${ARTF_REPO}/drydock/")
+            notify.msg("Chart for ${DRYDOCK_COMMIT}.${HELM_TOOLKIT_COMMIT} pushed to ${ARTF_REPO}/drydock")
+        }
+    }
+}
