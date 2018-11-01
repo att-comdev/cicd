@@ -1,0 +1,64 @@
+
+GIT_COMMIT=""
+
+vm2("bootstrap.sh", "cicd-ubuntu-16.04-server-cloudimg-amd64", "m1.large", '${JOB_BASE_NAME}', 'basic', false) {
+    sh ('hostname')
+    stage('Setup environment'){
+        vm2.setproxy()
+    }
+    stage('Project Checkout'){
+        sh 'echo ${IS_MANUAL} herethree'
+        if(!"${IS_MANUAL}".toBoolean()){
+            currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
+            sh 'echo ${GERRIT_EVENT_TYPE} here'
+            gerrit.cloneToBranch("https://git.openstack.org/${PROJECT}", "${GERRIT_PATCHSET_REVISION}","${JOB_BASE_NAME}")
+            // gerrit.cloneToBranch("https://github.com/${PROJECT}", "${GERRIT_PATCHSET_REVISION}","${JOB_BASE_NAME}")
+        } else {
+            sh 'echo heretwo'
+            currentBuild.displayName = "#${BUILD_NUMBER}-master"
+            sh 'mkdir -p ${JOB_BASE_NAME}'
+            dir("${WORKSPACE}/${JOB_BASE_NAME}"){
+                // git "https://git.openstack.org/${PROJECT}"
+                git "https://github.com/${PROJECT}"
+                sh "git checkout ${AIRSHIP_COMMIT}"
+            }
+        }
+        dir("${WORKSPACE}/${JOB_BASE_NAME}"){
+            GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+            def chartVersion = readYaml file: "charts/drydock/Chart.yaml"
+            def chartOverride = readYaml file: "charts/drydock/Chart.yaml", text: "version: ${GIT_COMMIT}.${HELM_TOOLKIT_COMMIT}"
+            sh 'sudo rm -rf charts/drydock/Chart.yaml'
+            writeYaml file: "charts/drydock/Chart.yaml", data: chartOverride
+            sh "cat charts/drydock/Chart.yaml"
+            
+        
+            sh 'sudo apt-get install -y make'
+            sh 'sudo make charts'
+        }
+        // currentBuild.displayName = "#${BUILD_NUMBER}-master"
+    }
+    dir("${WORKSPACE}/${JOB_BASE_NAME}"){
+        stage('Build & Package'){
+            def status = sh(returnStatus: true, script: "sudo make charts")
+            if (status != 0) {
+                currentBuild.result = 'FAILED'
+                notify.msg("Charts build failed for ${GIT_COMMIT}!")
+            }else{
+                notify.msg("Charts were built for ${GIT_COMMIT}")
+            }
+        }
+        stage('Publish'){
+            ARTF_REPO="airship-helm-local/airship"
+            if(!"${IS_MANUAL}"){
+                if("${GERRIT_EVENT_TYPE}" != "change-merged"){
+                    ARTF_REPO="${ARTF_REPO}/test"
+                }
+            }
+
+            def server = Artifactory.server 'artifactory'
+            def uploadSpec = """{"files": [{"pattern":"drydock*.tgz","target":"${ARTF_REPO}/drydock/"}]}"""
+            server.upload(uploadSpec)
+            notify.msg("Chart for ${GIT_COMMIT}.${HELM_TOOLKIT_COMMIT} pushed to ${ARTF_REPO}/drydock")
+        }
+    }
+}
