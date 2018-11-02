@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b8ffe3d_19666bbd",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-11-02T20:58:49Z",
+      "side": 1,
+      "message": "Can you go ahead and use vm here?  Slowly moving away from vm2 (att-comdev/cicd/vars/vm.groovy)",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6f9a698e_4c96acb9",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-11-02T20:58:49Z",
+      "side": 1,
+      "message": "May want to use GERRIT_NEWREV when it\u0027s a change-merged (in case they do not match), this depends on merge strategy set on the repo",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ac52b00f_7d3926d9",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-11-02T20:58:49Z",
+      "side": 1,
+      "message": "Same here, is this a merge?  GERRIT_NEWREV should be used",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3eb63f0_5166d93f",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-11-02T20:58:49Z",
+      "side": 1,
+      "message": "duplicate make commands?",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6284da46_e9034d7f",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-11-02T20:58:49Z",
+      "side": 1,
+      "message": "Can you list the helm toolkit commit used also?",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "07c05816_9f216396",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-11-02T20:58:49Z",
+      "side": 1,
+      "message": "Can you check publish.groovy is there a method that already does this?",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5670979e_a32b362a",
+        "filename": "charts/airship/airship-drydock/seed.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-11-02T20:58:49Z",
+      "side": 1,
+      "message": "Can you look in other seeds to restrict the number of days we keep the logs",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c3aee90_24086a0d",
+        "filename": "charts/airship/airship-drydock/seed.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-11-02T20:58:49Z",
+      "side": 1,
+      "message": "Can we go ahead and rebuild on any directory.  (This is for other uplifting automation work that will rely on the current commit of openstack-helm-infra)",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
