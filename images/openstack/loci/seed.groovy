@@ -78,7 +78,7 @@ COMMUNITY_PROJECTS.each { project, ref ->
             definition {
                 cps {
                     script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileCommunity"))
-                    sandbox()
+                    sandbox(false)
                 }
             }
         }
@@ -105,6 +105,12 @@ MOS_PROJECTS.each { project, ref ->
                 description('Default branch for manual build.\n\n' +
                             'Currently master is supported.')
                 name ('PROJECT_REF')
+            }
+            stringParam {
+                defaultValue('')
+                description('Url to requirements loci image.\n\n' +
+                            'If empty, default one is used.')
+                name ('REQUIREMENTS_LOCI')
             }
         }
         triggers {
@@ -138,7 +144,7 @@ MOS_PROJECTS.each { project, ref ->
             definition {
                 cps {
                     script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileMos"))
-                    sandbox()
+                    sandbox(false)
                 }
             }
         }
