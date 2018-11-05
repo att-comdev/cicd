@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de32d75d_ee2741ac",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 18
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-05T18:42:39Z",
+      "side": 1,
+      "message": "though we dont expose mos-requirements image, since it is stored in Artifactory would suggest follow the 3 step build for mos-requirements image as well",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 44
+      },
+      "revId": "7bb6e87257b1e5be09fdab9fdb65a3e408fdb4ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
