@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "5672a732_3dff575b",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-05T15:27:57Z",
+      "side": 1,
+      "message": "I am tried to use the GERRIT_NEWREV but jenkins gives me this error: No such property: GERRIT_NEWREV for class: groovy.lang.Binding] \n\nAlso I checked the parameters of the job and there is no parameter called GERRIT_NEWREV. So probably we do not support this yet. \n\nWhat do you think ?",
+      "parentUuid": "6f9a698e_4c96acb9",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac52b00f_7d3926d9",
         "filename": "charts/airship/airship-drydock/Jenkinsfile",
         "patchSetId": 6
@@ -47,6 +65,24 @@
       "writtenOn": "2018-11-02T20:58:49Z",
       "side": 1,
       "message": "Same here, is this a merge?  GERRIT_NEWREV should be used",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98915faf_3c33baf3",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-05T15:27:57Z",
+      "side": 1,
+      "message": "Check the comment above",
+      "parentUuid": "ac52b00f_7d3926d9",
       "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
