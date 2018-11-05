@@ -16,6 +16,24 @@
       "revId": "e28ab620e8b4f9976f225a4cee01f94a7ce95148",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7053a99b_eef576a4",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-05T21:42:38Z",
+      "side": 1,
+      "message": "sure. Renamed",
+      "parentUuid": "2d92fbf5_0c70d344",
+      "revId": "e28ab620e8b4f9976f225a4cee01f94a7ce95148",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
