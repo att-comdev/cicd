@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "03ee5ab1_0ced3e21",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 18
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-05T20:37:34Z",
+      "side": 1,
+      "message": "that will look like that:\n\nARG FROM\u003dubuntu:xenial\nFROM ${FROM}\n\nENV PATH\u003d/var/lib/openstack/bin:$PATH\n\nCOPY scripts /opt/loci/scripts\nADD bindep.txt pydep.txt $EXTRA_BINDEP $EXTRA_PYDEP /opt/loci/\n\nThat is only what we need on for \u0027docker build\u0027\nPrevious solution allowed to keep original Dockerfile and not worry about maintaining it if some new steps are added upstream.",
+      "parentUuid": "0c865fb2_b3116ad6",
+      "range": {
+        "startLine": 100,
+        "startChar": 4,
+        "endLine": 100,
+        "endChar": 69
+      },
+      "revId": "7bb6e87257b1e5be09fdab9fdb65a3e408fdb4ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de32d75d_ee2741ac",
         "filename": "images/openstack/loci/JenkinsfileMos",
         "patchSetId": 18
