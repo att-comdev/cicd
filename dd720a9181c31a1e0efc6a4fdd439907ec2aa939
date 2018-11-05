@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1ee1924e_cf6d367e",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-05T17:42:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b8ffe3d_19666bbd",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6f9a698e_4c96acb9",
         "filename": "charts/airship/airship-drydock/Jenkinsfile",
         "patchSetId": 6
@@ -106,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "eb6455b3_9b07de00",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-05T17:42:13Z",
+      "side": 1,
+      "message": "Yes you are right I fixed it",
+      "parentUuid": "f3eb63f0_5166d93f",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6284da46_e9034d7f",
         "filename": "charts/airship/airship-drydock/Jenkinsfile",
         "patchSetId": 6
@@ -123,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "baf20a9b_20ef0e0f",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-05T17:42:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6284da46_e9034d7f",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07c05816_9f216396",
         "filename": "charts/airship/airship-drydock/Jenkinsfile",
         "patchSetId": 6
@@ -134,6 +188,24 @@
       "writtenOn": "2018-11-02T20:58:49Z",
       "side": 1,
       "message": "Can you check publish.groovy is there a method that already does this?",
+      "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed680cc7_4f079731",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-05T17:42:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07c05816_9f216396",
       "revId": "dd720a9181c31a1e0efc6a4fdd439907ec2aa939",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
