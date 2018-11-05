@@ -51,6 +51,24 @@
       "revId": "4792140e6f93c5d0db893ed217557b5620d2a30c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6de2ba39_95d513a8",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-05T19:08:43Z",
+      "side": 1,
+      "message": "Makes sense, however as it merged already, will do this change while working on future review pipeline for dependencies.",
+      "parentUuid": "90d785bc_faacff1d",
+      "revId": "4792140e6f93c5d0db893ed217557b5620d2a30c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
