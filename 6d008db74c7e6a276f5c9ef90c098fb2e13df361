@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d34f961_8e2cc3c5",
+        "filename": "images/openstack/loci/JenkinsfileCommunity",
+        "patchSetId": 9
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-05T11:56:50Z",
+      "side": 1,
+      "message": "should be \u0027PROJECT\u0027:      \"${PROJECT}\",",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 38
+      },
+      "revId": "6d008db74c7e6a276f5c9ef90c098fb2e13df361",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
