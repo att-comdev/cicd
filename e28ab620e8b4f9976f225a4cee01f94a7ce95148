@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d92fbf5_0c70d344",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-11-05T21:23:50Z",
+      "side": 1,
+      "message": "This seems more like deploy k8s with aio not install helm.",
+      "revId": "e28ab620e8b4f9976f225a4cee01f94a7ce95148",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
