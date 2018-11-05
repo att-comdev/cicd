@@ -22,6 +22,30 @@
       "revId": "7bb6e87257b1e5be09fdab9fdb65a3e408fdb4ff",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42c03789_3a114b1c",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 18
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-05T19:05:29Z",
+      "side": 1,
+      "message": "we dismiss this step for mos-requirements as it will never be used as a base for container and actually does not have operational system. It is only used only as a source of wheels for components that are not available in wheel form. For this particular component we move from 1-step to 2-step build procedure.",
+      "parentUuid": "de32d75d_ee2741ac",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 44
+      },
+      "revId": "7bb6e87257b1e5be09fdab9fdb65a3e408fdb4ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
