@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bb8b57af_95f83dda",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-05T20:46:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7815fbe6_f8a58c7f",
+      "range": {
+        "startLine": 62,
+        "startChar": 11,
+        "endLine": 62,
+        "endChar": 18
+      },
+      "revId": "9aea18ce647f4f7d7380c14dbf76ec49ba347e91",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0627cbcd_856cb6c0",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 25
@@ -36,6 +60,30 @@
       "writtenOn": "2018-11-05T15:34:57Z",
       "side": 1,
       "message": "same fro mariadb also",
+      "range": {
+        "startLine": 98,
+        "startChar": 32,
+        "endLine": 98,
+        "endChar": 40
+      },
+      "revId": "9aea18ce647f4f7d7380c14dbf76ec49ba347e91",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c8ff3b0_904add7b",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-05T20:46:02Z",
+      "side": 1,
+      "message": "sure. overriding network policy with OSH_EXTRA_HELM_ARGS",
+      "parentUuid": "0627cbcd_856cb6c0",
       "range": {
         "startLine": 98,
         "startChar": 32,
