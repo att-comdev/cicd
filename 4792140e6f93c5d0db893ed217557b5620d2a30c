@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f321012e_39aff177",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-11-05T18:57:12Z",
+      "side": 1,
+      "message": "Why would trim() be required?",
+      "revId": "4792140e6f93c5d0db893ed217557b5620d2a30c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "90d785bc_faacff1d",
+        "filename": "images/openstack/loci/seed.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-11-05T18:57:12Z",
+      "side": 1,
+      "message": "This is the requirements base image right? Maybe we could call it more obvious like\n\nREQUIREMENTS_LOCI_IMAGE or LOCI_WHEELS_IMAGE.\n\nThat\u0027s minor note, generally great to see this pulled out as a paramever vs hardcoded in files.",
+      "revId": "4792140e6f93c5d0db893ed217557b5620d2a30c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
