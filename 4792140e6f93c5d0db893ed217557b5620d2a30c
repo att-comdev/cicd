@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "43a4c5c8_29661828",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-05T19:07:02Z",
+      "side": 1,
+      "message": "for case if, e.g., string with spaces is provided. Makes it a bit more robust.",
+      "parentUuid": "f321012e_39aff177",
+      "revId": "4792140e6f93c5d0db893ed217557b5620d2a30c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "90d785bc_faacff1d",
         "filename": "images/openstack/loci/seed.groovy",
         "patchSetId": 6
