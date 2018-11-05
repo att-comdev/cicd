@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0c865fb2_b3116ad6",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 18
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-05T20:29:01Z",
+      "side": 1,
+      "message": "Unfortunately this is a keystone of a solution because of docker limitations, that does not allow to mount volumes on docker build. We\u0027re not actually removing invoking install.sh from Dockerfile, we\u0027re moving it from to \u0027docker run\u0027, that allows mounts.\n\nFrom your comment it\u0027s not clear if you\u0027re opposed to modifying sources by itself or will it be the same if we maintain and use our own?",
+      "parentUuid": "dfb76689_1ad21078",
+      "range": {
+        "startLine": 100,
+        "startChar": 4,
+        "endLine": 100,
+        "endChar": 69
+      },
+      "revId": "7bb6e87257b1e5be09fdab9fdb65a3e408fdb4ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de32d75d_ee2741ac",
         "filename": "images/openstack/loci/JenkinsfileMos",
         "patchSetId": 18
