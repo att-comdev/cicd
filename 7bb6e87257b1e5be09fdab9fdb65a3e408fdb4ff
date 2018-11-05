@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "dfb76689_1ad21078",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 18
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1010324
+      },
+      "writtenOn": "2018-11-05T20:02:31Z",
+      "side": 1,
+      "message": "please find another way to do this - modifying source in a pipeline is not the way to go.",
+      "range": {
+        "startLine": 100,
+        "startChar": 4,
+        "endLine": 100,
+        "endChar": 69
+      },
+      "revId": "7bb6e87257b1e5be09fdab9fdb65a3e408fdb4ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de32d75d_ee2741ac",
         "filename": "images/openstack/loci/JenkinsfileMos",
         "patchSetId": 18
