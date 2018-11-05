@@ -110,7 +110,7 @@ MOS_PROJECTS.each { project, ref ->
                 defaultValue('')
                 description('Url to requirements loci image.\n\n' +
                             'If empty, default one is used.')
-                name ('REQUIREMENTS_LOCI')
+                name ('REQUIREMENTS_LOCI_IMAGE')
             }
         }
         triggers {
