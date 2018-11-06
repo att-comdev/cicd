@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3f41844_dfdb57bf",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 12
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-11-06T19:42:16Z",
+      "side": 1,
+      "message": "Looks like repeatable code that could be defined in 1 line with a method defined printError(201, res.status, res.content) or just printError(201,res)",
+      "revId": "083540688f8135b7d6d0f06515628d60e3f51ee6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
