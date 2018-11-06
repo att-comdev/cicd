@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "75637bf8_6d8e681d",
+        "filename": "vars/keystone2.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-11-06T15:38:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de142580_f92c5947",
+      "range": {
+        "startLine": 93,
+        "startChar": 41,
+        "endLine": 93,
+        "endChar": 51
+      },
+      "revId": "039bf6cb7d757219fe3518164d8f9f4f320c3a80",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71ac825c_ef57a982",
         "filename": "vars/keystone2.groovy",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f3ae7421_d1428c42",
+        "filename": "vars/keystone2.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-11-06T15:38:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71ac825c_ef57a982",
+      "range": {
+        "startLine": 107,
+        "startChar": 33,
+        "endLine": 107,
+        "endChar": 41
+      },
+      "revId": "039bf6cb7d757219fe3518164d8f9f4f320c3a80",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "59d29576_e11ce2cd",
         "filename": "vars/keystone2.groovy",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2018-11-05T21:46:50Z",
       "side": 1,
       "message": "make this null ?",
+      "range": {
+        "startLine": 186,
+        "startChar": 41,
+        "endLine": 186,
+        "endChar": 51
+      },
+      "revId": "039bf6cb7d757219fe3518164d8f9f4f320c3a80",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df57c11e_f4d2398c",
+        "filename": "vars/keystone2.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-11-06T15:38:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59d29576_e11ce2cd",
       "range": {
         "startLine": 186,
         "startChar": 41,
