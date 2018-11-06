@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8b03fb5_9a20ca61",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 11
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-11-06T17:51:32Z",
+      "side": 1,
+      "message": "Why only range 200-503 is considered as valid? What if it returns 504, 505, 511?",
+      "range": {
+        "startLine": 27,
+        "startChar": 55,
+        "endLine": 27,
+        "endChar": 62
+      },
+      "revId": "09e3b4bb1d6112c23ccec0931b7c192a5f074a93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
