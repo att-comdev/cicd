@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a4c3da7_fdc17ed6",
+        "filename": "vars/keystone2.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2018-11-06T20:10:27Z",
+      "side": 1,
+      "message": "Isn\u0027t this checked already in the \"getServiceEndpoint(Map map)\" method?",
+      "range": {
+        "startLine": 133,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 5
+      },
+      "revId": "58ee5296df11b557c39f6d9b47367635a8575bc9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
