@@ -30,7 +30,6 @@ if (env.GERRIT_REFSPEC) {
     PROJECT_VERSION = ""
     // need to update url
     PROJECT_URL = ""
-    PROJECT_BRANCH = PROJECT_REF
     DISPLAY_PREFIX = "manual"
 }
 
