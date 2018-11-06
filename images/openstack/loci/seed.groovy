@@ -102,9 +102,15 @@ MOS_PROJECTS.each { project, ref ->
         parameters {
             stringParam {
                 defaultValue(ref)
+                description('Default reference for manual build.\n\n' +
+                            'Branch or gerrit refspec is supported.')
+                name ('PROJECT_REF')
+            }
+            stringParam {
+                defaultValue(ref)
                 description('Default branch for manual build.\n\n' +
                             'Currently master is supported.')
-                name ('PROJECT_REF')
+                name ('PROJECT_BRANCH')
             }
             stringParam {
                 defaultValue('')
