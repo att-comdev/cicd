@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4242d0c5_4ee0dda6",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 14
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-11-06T17:59:44Z",
+      "side": 1,
+      "message": "`rm -rf xxxx` always returns `0`. There is no need to add `|| true` here:\n\n\u003e vagrant@node01:~$ ls -l 12345; echo $?; rm -rf 12345; echo $?\n\u003e ls: cannot access \u002712345\u0027: No such file or directory\n\u003e 2\n\u003e 0\n\u003e vagrant@node01:~$",
+      "range": {
+        "startLine": 201,
+        "startChar": 31,
+        "endLine": 201,
+        "endChar": 39
+      },
+      "revId": "660e53ef9ca0de7099b378b25c9c95505fa037d1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa98bdb5_f4069f64",
+        "filename": "vars/version.groovy",
+        "patchSetId": 14
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-11-06T17:59:44Z",
+      "side": 1,
+      "message": "Groovy docs are missing for all methods. Please, add.",
+      "revId": "660e53ef9ca0de7099b378b25c9c95505fa037d1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
