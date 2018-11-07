@@ -40,9 +40,10 @@ if (PROJECT_BRANCH == 'master') {
     PROJECT_RELEASE = 'ocata'
 }
 
+REQ_PROJECT_NAME = 'mos-requirements'
 PROJECT_PREFIX = "loci/mos"
 PROJECT_SUFFIX = PROJECT.split('-')[1]
-PROJECT_REPO = "${INTERNAL_GERRIT_SSH}/mos-${PROJECT_SUFFIX}"
+PROJECT_REPO = getProjectRepoUrl(PROJECT)
 WHEELS_LATEST = env.REQUIREMENTS_LOCI_IMAGE.trim() ? env.REQUIREMENTS_LOCI_IMAGE : conf.MOS_REQUIREMENTS_LOCI
 IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${PROJECT_RELEASE}/${PROJECT_PREFIX}"
 DEFAULT_ARGS = [
@@ -52,28 +53,100 @@ DEFAULT_ARGS = [
   'NO_PROXY':     "${NO_PROXY}",
   'http_proxy':   "${HTTP_PROXY}",
   'https_proxy':  "${HTTPS_PROXY}",
-  'PROJECT_REPO': "${LOCAL_WEB_URL}/repo/${PROJECT}",
+  'PROJECT_REPO': getProjectRepoInternalUrl(PROJECT),
 ]
 
 // cmd for running Docker in Docker
 DIND_CONTAINER = "locibuildcont"
 DIND = "sudo docker exec ${DIND_CONTAINER}"
 
-// git clone mirror the project on local nginx server to allow passing http git url as build arg for loci builds
-def repo_clone_mirror = {
-    withCredentials([sshUserPrivateKey(credentialsId: INTERNAL_GERRIT_KEY,
-                                       keyFileVariable: 'SSH_KEY')]) {
-        // wrapper for custom git ssh key
-        // ssh -i $SSH_KEY $@
-        withEnv(["GIT_SSH=/usr/bin/git-ssh-wrapper"]) {
-            sh 'mkdir -p web/repo'
-            sh "ssh-keyscan -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} | tee -a ~/.ssh/known_hosts"
-            dir ('web/repo') {
-                sh "git clone --mirror ${PROJECT_REPO} ${PROJECT}"
-                sh "cd ${PROJECT} && git update-server-info"
+// Compile ssh-agent key names and ssh config from SSH_DATA to be used
+// for fetching projects to internal mirror
+(KEY_NAMES, SSH_CONFIG) = compileSshData()
+
+def getProjectRepoUrl(prj) {
+    return prj.contains("ssh://") ? prj : "${INTERNAL_GERRIT_SSH}/${prj}"
+}
+
+def getProjectRepoInternalUrl(prj) {
+    return "${LOCAL_WEB_URL}/repo/${prj}"
+}
+
+def create_mirrors(projectList, keyList) {
+    sshagent(keyList) {
+        dir ('web/repo') {
+            projectList.each {
+                (url, name) = [getProjectRepoUrl(it), it.split("/")[-1]]
+                sh "git clone --mirror ${url} ${name}"
+                sh "git --git-dir ${name} update-server-info"
             }
         }
     }
+}
+
+def getRequirementsImageVersion() {
+    sh "${DIND} docker pull ${WHEELS_LATEST}"
+    cmd="${DIND} docker inspect --format='{{index .Config.Labels \"org.label-schema.vcs-ref\"}}' ${WHEELS_LATEST}"
+    return sh(returnStdout: true, script: cmd).trim()
+}
+
+// Prepare local mirrors for project and it's dependencies specified in upper-constraints.txt
+// of mos-requirements project. In case of mos-requirements image building, replaces
+// external 'git+ssh://' urls in upper-constraints.txt to point local nginx.
+// Another solution here could be to maintain separate list of projects to mirror,
+// that would simplify current code, but having single source of truth is tempting
+def prepare_local_mirrors = {
+    // Create ssh config on slave to control what login is used for what resource
+    sh "cat <<EOT >> ${HOME}/.ssh/config\n${SSH_CONFIG}EOT"
+    projectList = [PROJECT]
+    // We always need requirements project as upper-constraints.txt is a single source of truth of a dependeny list
+    if (!PROJECT.contains('requirements')) {
+        projectList.add(REQ_PROJECT_NAME)
+    }
+    sh 'mkdir -p web/repo'
+    create_mirrors(projectList, [INTERNAL_GERRIT_KEY])
+    sh 'mkdir -p worktree'
+    gitArg = "--git-dir web/repo/${REQ_PROJECT_NAME} --work-tree worktree"
+    // Pick ref for requirements project from requirements image we build current image with
+    requirementsRef = PROJECT.contains('requirements') ? PROJECT_REF : getRequirementsImageVersion()
+    sh "git ${gitArg} checkout ${requirementsRef}"
+    // Creating a list of dependency urls from upper-constraints.txt
+    dependencyList = []
+    uc_path = 'worktree/upper-constraints.txt'
+    upperConstraints = readFile uc_path
+    (upperConstraints =~ /git\+(ssh:\/\/.*?\/.*?)@.*/).each {
+        dependencyList.add(it[1])
+    }
+    // if we build requirements image, replace external urls to point nginx in
+    // upper-constraints.txt and replace PROJECT_REF build argument
+    if (dependencyList && PROJECT.contains('requirements')) {
+        upperConstraints = upperConstraints.replaceAll("((?<=git\\+)ssh://.*?(?=/))", "${LOCAL_WEB_URL}/repo")
+        writeFile file: uc_path, text: upperConstraints
+        sh "git ${gitArg} diff"
+        sh "git ${gitArg} checkout -b local"
+        sh "git ${gitArg} -c 'user.name=Jenkins' -c 'user.email=jenkins@example.com' commit -a -m \"Switch to local urls\""
+        sh "git ${gitArg} update-server-info"
+        DEFAULT_ARGS['PROJECT_REF'] = 'local'
+    }
+    create_mirrors(dependencyList, KEY_NAMES)
+}
+
+def compileSshData() {
+    sshConfig = ""
+    keys = []
+    parseSshData().each { entry ->
+        sshConfig += "Host $entry.value.resource\n" +
+                     "User $entry.value.user\n" +
+                     "StrictHostKeyChecking no\n"
+        keys.add(entry.key)
+    }
+    return [keys, sshConfig]
+}
+
+// Parse json containing {'<credential_name>': {'user': '<user>', 'resource': '<resource>'}}, ...}
+// The source of data what credentials to use in ssh-agent with what user to what resource
+def parseSshData() {
+    return new groovy.json.JsonSlurper().parseText(SSH_DATA)
 }
 
 def buildLociMos(projConfArgs = null, wheelArgs = null) {
@@ -147,7 +220,7 @@ vm2('loci-bootstrap.sh',
 
     stage('Local Repo Setup') {
         loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT)
-        repo_clone_mirror()
+        prepare_local_mirrors()
         if (!env.GERRIT_REFSPEC) {
             PROJECT_VERSION = gerrit.getVersion(PROJECT_REPO, PROJECT_REF, INTERNAL_GERRIT_KEY)
         }
