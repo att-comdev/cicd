@@ -1,0 +1,12 @@
+charts_calico: https://artifacts-nc.mtn29.cci.att.com/artifactory/helm-charts/openstack-helm-infra/calico-b28aed833182.b28aed833182.tgz
+charts_apiserver: https://ARTIFACTS_DOMAIN/artifactory/airship-helm-local/airship/promenade/apiserver-13d6831aa585.4f4e9c5838e9.tgz
+charts_etcd: https://ARTIFACTS_DOMAIN/artifactory/airship-helm-local/airship/promenade/etcd-30b806a460c3.16072765bf1e.tgz
+charts_controller_manager: https://ARTIFACTS_DOMAIN/artifactory/airship-helm-local/airship/promenade/controller_manager-425d8bdff8b5.2a0b1836133d.tgz
+charts_coredns: https://ARTIFACTS_DOMAIN/artifactory/airship-helm-local/airship/promenade/coredns-425d8bdff8b5.2a0b1836133d.tgz
+charts_etcd: https://ARTIFACTS_DOMAIN/artifactory/helm-charts/openstack-helm-infra/helm-toolkit-f0f1b57b3c4b.f0f1b57b3c4b.tgz
+charts_haproxy: https://ARTIFACTS_DOMAIN/artifactory/airship-helm-local/airship/promenade/haproxy-425d8bdff8b5.2a0b1836133d.tgz
+charts_proxy: https://ARTIFACTS_DOMAIN/artifactory/airship-helm-local/airship/promenade/proxy-425d8bdff8b5.2a0b1836133d.tgz
+charts_scheduler: https://ARTIFACTS_DOMAIN/artifactory/airship-helm-local/airship/promenade/scheduler-425d8bdff8b5.2a0b1836133d.tgz
+charts_promenade: https://ARTIFACTS_DOMAIN/artifactory/airship-helm-local/airship/promenade/promenade-425d8bdff8b5.2a0b1836133d.tgz
+charts_api_webhook: https://ARTIFACTS_DOMAIN/artifactory/airship-helm-local/airship/promenade/apiserver-webhook-b50357efdb92.0f176e2455da.tgz
+charts_armada: https://ARTIFACTS_DOMAIN/artifactory/airship-helm-local/airship/armada/armada-e6f294bacb02.0a53cad3a4b3.tgz
