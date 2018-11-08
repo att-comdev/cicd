@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e6c7daf_31cfc351",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-11-08T16:18:57Z",
+      "side": 1,
+      "message": "Check please comments here https://review.gerrithub.io/#/c/att-comdev/cicd/+/432203/ Looks like the same can be done here.",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 23,
+        "endChar": 108
+      },
+      "revId": "2da157bd83950738daf7fafa895e21c37cf86946",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1d8a9a4_2bec52d5",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-11-08T16:18:57Z",
+      "side": 1,
+      "message": "The same",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 9
+      },
+      "revId": "2da157bd83950738daf7fafa895e21c37cf86946",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
