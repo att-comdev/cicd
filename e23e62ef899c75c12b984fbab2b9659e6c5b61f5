@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "26cc26ca_19cfaa99",
+        "filename": "charts/airship/airship-promenade/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-08T17:51:39Z",
+      "side": 1,
+      "message": "From what I checked we cannot generalize this by using gerrit.cloneToBranch for every case because if revision \u003d \"master\" the gerrit.cloneToBranch doesn\u0027t work because it always tries to find a GERRIT_REFSPEC parameter and in the revision \u003d \"master\" case the GERRIT_REFSPEC parameter doesn\u0027t exist. More info: \n\nhttps://github.com/att-comdev/cicd/blob/master/vars/gerrit.groovy#L48",
+      "parentUuid": "fdf50158_52c04396",
+      "range": {
+        "startLine": 13,
+        "startChar": 7,
+        "endLine": 24,
+        "endChar": 108
+      },
+      "revId": "e23e62ef899c75c12b984fbab2b9659e6c5b61f5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a6973952_95b350b6",
         "filename": "charts/airship/airship-promenade/Jenkinsfile",
         "patchSetId": 8
