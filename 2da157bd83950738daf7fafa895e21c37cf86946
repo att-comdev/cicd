@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c14bac94_8cd4097d",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-08T17:56:51Z",
+      "side": 1,
+      "message": "I replied in :  https://review.gerrithub.io/#/c/att-comdev/cicd/+/432203/",
+      "parentUuid": "8e6c7daf_31cfc351",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 23,
+        "endChar": 108
+      },
+      "revId": "2da157bd83950738daf7fafa895e21c37cf86946",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b1d8a9a4_2bec52d5",
         "filename": "charts/airship/airship-drydock/Jenkinsfile",
         "patchSetId": 9
