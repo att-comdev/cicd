@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdf50158_52c04396",
+        "filename": "charts/airship/airship-promenade/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-11-08T16:11:51Z",
+      "side": 1,
+      "message": "As I understood here the difference only in the revision that will be cloned. So no need to have this duplicated code for gerrit clone. Just implement logic that will identify revision.",
+      "range": {
+        "startLine": 13,
+        "startChar": 7,
+        "endLine": 24,
+        "endChar": 108
+      },
+      "revId": "e23e62ef899c75c12b984fbab2b9659e6c5b61f5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6973952_95b350b6",
+        "filename": "charts/airship/airship-promenade/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-11-08T16:11:51Z",
+      "side": 1,
+      "message": "Looks like the same and can be done easy.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 9
+      },
+      "revId": "e23e62ef899c75c12b984fbab2b9659e6c5b61f5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
