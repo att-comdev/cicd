@@ -10,6 +10,7 @@ def installDockerCE() {
           curl \\
           software-properties-common'''
 
+    sh 'sudo apt-get remove -y runc containerd'
     sh 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -'
     sh '''sudo add-apt-repository \\
         "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"'''
