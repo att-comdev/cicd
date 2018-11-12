@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6f5d3666_3ac9ffce",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-12T20:33:04Z",
+      "side": 1,
+      "message": "will this somehow improve security? we will get the same situation if host is replaced.\nRight way to do this is to store public key of server in variable in jenkins and put it to know_hosts each time.",
+      "parentUuid": "2aebde0d_c13344ea",
+      "revId": "1d209038ae81979e8298b889528abc2d2242b54c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b0f1e93_bb5ee3a1",
         "filename": "vars/publish.groovy",
         "patchSetId": 8
