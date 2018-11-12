@@ -9,6 +9,8 @@
 //  - JENKINS_URL
 //  - JENKINS_CLI
 
+import com.att.nccicd.config.conf
+
 
 /**
  * Create single node using a heat template
@@ -69,6 +71,7 @@ def call(udata = 'bootstrap.sh',
 
         // body executed under specified vm node
         node (name) {
+            setKnownHosts()
             body()
         }
 
@@ -139,4 +142,13 @@ EOF'''
         sh 'export HTTPS_PROXY=${HTTP_PROXY}'
         sh 'export NO_PROXY=${NO_PROXY}'
     }
+}
+
+/**
+ * This method updates known_hosts for each slave from configuration
+ * to prevent minm attacks. ssh-keyscan needs to be removed and KNOWN_HOSTS to be
+ * populated with proper keys.
+ */
+def setKnownHosts() {
+    sh "mkdir -p ${HOME}/.ssh; echo \"${conf.KNOWN_HOSTS}\" >> ${HOME}/.ssh/known_hosts"
 }
