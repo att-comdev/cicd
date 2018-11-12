@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6024da4a_0d64fd30",
+        "filename": "charts/airship/airship-shipyard/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-12T19:18:33Z",
+      "side": 1,
+      "message": "Yes this is a refactoring. I discussed with Stacey the refactoring of some code in these patches and she said to me that we can do the refactoring in a later time because is urgent to have these patchsets merged. Is pretty important to have these patchsets in the codebase because we need to consume the tarballs that these pipelines are producing.",
+      "parentUuid": "9b57a567_042a9da1",
+      "range": {
+        "startLine": 16,
+        "startChar": 38,
+        "endLine": 16,
+        "endChar": 108
+      },
+      "revId": "306975da7b3aff484cc5add6d7254bf8104b54ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "00e666b8_03394613",
         "filename": "charts/airship/airship-shipyard/Jenkinsfile",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-11-12T17:19:07Z",
       "side": 1,
       "message": "may you please add explanation here. are we sure that HELM_TOOLKIT_COMMIT is a part of history here. why we don\u0027t just checkout to it? Do you want script to fail if provided commit is not a part of current branch history?",
+      "range": {
+        "startLine": 44,
+        "startChar": 12,
+        "endLine": 44,
+        "endChar": 97
+      },
+      "revId": "306975da7b3aff484cc5add6d7254bf8104b54ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2341b70e_3f689ade",
+        "filename": "charts/airship/airship-shipyard/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-12T19:18:33Z",
+      "side": 1,
+      "message": "So let me explain you why we need this HELM_TOOLKIT_COMMIT variable. We want to have the flexibility to build all the airship-components charts against the latest or the most stable commit of the openstack-helm-infra repo. The problem is that we use the target \"charts\" [0] of the Makefile of each individual airship component to build the charts. But those targets are always checking out internally the latest master or a specific commit of Openstack helm infra repo. So we need a mechanism to override this behavior and the \"sed\" command does exactly that. Overrides the default Openstack_helm-infra commit with the one that we chose.\n\n[0] https://github.com/openstack/airship-shipyard/blob/master/Makefile#L56",
+      "parentUuid": "00e666b8_03394613",
       "range": {
         "startLine": 44,
         "startChar": 12,
