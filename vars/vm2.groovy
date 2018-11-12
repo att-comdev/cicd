@@ -69,6 +69,7 @@ def call(udata = 'bootstrap.sh',
 
         // body executed under specified vm node
         node (name) {
+            setKnownHosts()
             body()
         }
 
@@ -138,5 +139,16 @@ EOF'''
         sh 'export HTTP_PROXY=${HTTP_PROXY}'
         sh 'export HTTPS_PROXY=${HTTP_PROXY}'
         sh 'export NO_PROXY=${NO_PROXY}'
+    }
+}
+
+/**
+ * This method updates known_hosts for each slave from Jenkins variable
+ * to prevent minm attacks. ssh-keyscan needs to be removed and KNOWN_HOSTS to be
+ * populated with proper keys.
+ */
+def setKnownHosts() {
+    if (env.KNOWN_HOSTS) {
+        sh "mkdir -p ${HOME}/.ssh; echo \"${KNOWN_HOSTS}\" >> ${HOME}/.ssh/known_hosts"
     }
 }
