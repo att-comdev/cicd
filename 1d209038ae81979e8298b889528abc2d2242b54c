@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2aebde0d_c13344ea",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-11-12T20:28:24Z",
+      "side": 1,
+      "message": "I would suggest to use ssh-keyscan instead of dsiabling checking",
+      "revId": "1d209038ae81979e8298b889528abc2d2242b54c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
