@@ -16,6 +16,29 @@
       "revId": "1d209038ae81979e8298b889528abc2d2242b54c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b0f1e93_bb5ee3a1",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-12T20:29:58Z",
+      "side": 1,
+      "message": "Please use username from your credentials data like here\n     withCredentials([sshUserPrivateKey(credentialsId: creds,                   \n         keyFileVariable: \u0027SSH_KEY\u0027,                                            \n         usernameVariable: \u0027SSH_USER\u0027)]) {}",
+      "range": {
+        "startLine": 113,
+        "startChar": 1,
+        "endLine": 117,
+        "endChar": 93
+      },
+      "revId": "1d209038ae81979e8298b889528abc2d2242b54c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
