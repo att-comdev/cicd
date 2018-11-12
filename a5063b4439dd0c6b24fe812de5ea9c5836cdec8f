@@ -22,6 +22,30 @@
       "revId": "a5063b4439dd0c6b24fe812de5ea9c5836cdec8f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b5c14d3_6748fca6",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-12T16:40:24Z",
+      "side": 1,
+      "message": "Thanks",
+      "parentUuid": "559b3a33_e1841b22",
+      "range": {
+        "startLine": 46,
+        "startChar": 15,
+        "endLine": 46,
+        "endChar": 28
+      },
+      "revId": "a5063b4439dd0c6b24fe812de5ea9c5836cdec8f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
