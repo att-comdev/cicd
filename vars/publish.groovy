@@ -102,3 +102,13 @@ def putArtifacts (String file, String repo) {
 
      artf.publishBuildInfo(artf.upload(spec))
 }
+
+/**
+ * Publish file via ssh
+ * @param file Source filename to copy
+ * @param path Destination path
+**/
+def scp(key, ip, src, dst) {
+    ssh.cmd(key, ip, "mkdir -p ${dst}")
+    ssh.put(key, ip, src, dst)
+}
