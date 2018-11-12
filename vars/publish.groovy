@@ -102,3 +102,17 @@ def putArtifacts (String file, String repo) {
 
      artf.publishBuildInfo(artf.upload(spec))
 }
+
+/**
+ * Publish file via ssh
+ * @param file Source filename to copy
+ * @param path Destination path
+**/
+def mirrors(file, path="") {
+    withCredentials([sshUserPrivateKey(credentialsId: MIRROR_KEY,
+                                       keyFileVariable: 'SSH_KEY',
+                                       usernameVariable: 'SSH_USER')]) {
+        sh "ssh -i ${SSH_KEY} ${SSH_USER}@${MIRROR_SLAVE_IP} mkdir -p ${path}"
+        sh "scp -i ${SSH_KEY} ${file} ${SSH_USER}@${MIRROR_SLAVE_IP}:${path}"
+    }
+}
