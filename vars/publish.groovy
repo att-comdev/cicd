@@ -102,3 +102,18 @@ def putArtifacts (String file, String repo) {
 
      artf.publishBuildInfo(artf.upload(spec))
 }
+
+/**
+ * Publish file for aqua
+ * @param file Source filename to copy
+ * @param path Destination path under http://mirrors.mtn5.cci.att.com/files/aic-aqa/
+ *             By default files will be copied under the top directory.
+**/
+def mirrors(file, path="") {
+    withCredentials([sshUserPrivateKey(credentialsId: AQUA_KEY,
+                                       keyFileVariable: 'SSH_KEY')]) {
+        def dest = "/opt/files/aic-aqa/${path}"
+        sh "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} aqua@135.16.118.18 mkdir -p ${dest}"
+        sh "scp -o StrictHostKeyChecking=no -i ${SSH_KEY} ${file} aqua@135.16.118.18:${dest}"
+    }
+}
