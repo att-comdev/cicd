@@ -200,7 +200,6 @@ EOF"""
             sh "sudo chmod a+x $filewrapper"
         }
         withEnv(["GIT_SSH=$filewrapper"]) {
-            sh "ssh-keyscan -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} | tee -a ~/.ssh/known_hosts"
             def cmd = "git ls-remote $url $branch | cut -f1"
             return sh(returnStdout: true, script: cmd).trim()
         }

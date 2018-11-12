@@ -65,7 +65,6 @@ def repo_clone_mirror = {
         // ssh -i $SSH_KEY $@
         withEnv(["GIT_SSH=/usr/bin/git-ssh-wrapper"]) {
             sh 'mkdir -p web/repo'
-            sh "ssh-keyscan -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} | tee -a ~/.ssh/known_hosts"
             dir ('web/repo') {
                 sh "git clone --mirror ${PROJECT_REPO} ${PROJECT}"
                 sh "cd ${PROJECT} && git update-server-info"
