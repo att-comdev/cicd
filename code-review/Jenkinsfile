@@ -1,12 +1,7 @@
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
 
 //large VM for running tests Ex: Nova, Neutron
-vm2('bootstrap.sh',
-         'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         'm1.xlarge',
-         '',
-         'basic',
-         false){
+vm(flavor:'m1.xlarge'){
     stage('Project Checkout'){
         cleanWs()
         //To be removed once all projects are controlling their own dependencies
@@ -31,7 +26,7 @@ vm2('bootstrap.sh',
               libsasl2-dev \
               libssl-dev'''
 
-        vm2.setproxy()
+        vm.setproxy()
         //tox > 2.3.1 for running tests Ex: Horizon, Neutron
         sh 'sudo pip install --no-cache-dir tox'
         if(env.GERRIT_NEWREV){

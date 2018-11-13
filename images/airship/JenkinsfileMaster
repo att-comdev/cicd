@@ -18,10 +18,10 @@ UBUNTU_BASE_IMAGES = [ "airflow" : "att-comdev/ubuntu:xenial",
                        "deckhand" : "att-comdev/ubuntu:xenial" ]
 SEMANTIC_RELEASE_VERSION = "0.1.0"
 
-vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64') {
+vm(image:'cicd-ubuntu-18.04-server-cloudimg-amd64') {
 
     stage('Build & Checkout'){
-        vm2.setproxy()
+        vm.setproxy()
         if (GERRIT_EVENT_TYPE == 'change-merged') {
             echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
             IMAGE_TAG="${GERRIT_NEWREV}"
