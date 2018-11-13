@@ -62,6 +62,9 @@ def call(Map map, Closure body) {
     //  true - do not delete node
     def doNotDeleteNode = map.doNotDeleteNode ?: false
 
+    // Number of executors to run on the jenkins slave
+    def numOfExecutors = map.numOfExecutors ?: 2
+
     // Flag to control Jenkins console log publishing to Artifactory.
     //
     // This will also set custom URL to be returned when voting in Gerrit
@@ -111,7 +114,7 @@ def call(Map map, Closure body) {
             }
 
             node('master') {
-                jenkins.node_create (name, ip)
+                jenkins.node_create (name, ip, 'jenkins-slave-ssh', numOfExecutors)
 
                 timeout (14) {
                     node(name) {
@@ -197,4 +200,42 @@ def call(Map map, Closure body) {
 def call(Closure body) {
    map = [:]
     call(map, body)
+}
+
+/**
+ * This method is used for any Jenkins pipelines that are behind the proxy.  They are currently
+ * set to global variables in Jenkins, if you have no firewall you can define these parameters as
+ * empty string in globals.
+ *
+ */
+def setproxy(){
+    if (env.HTTP_PROXY){
+
+        // redirection with "<<-" doesnot work well to remove whitespaces/tabs
+        sh'''sudo mkdir -p /etc/systemd/system/docker.service.d
+             cat << EOF | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
+[Service]
+Environment="HTTP_PROXY=${HTTP_PROXY}"
+Environment="HTTPS_PROXY=${HTTP_PROXY}"
+Environment="NO_PROXY=${NO_PROXY}"
+EOF'''
+
+        sh'''cat << EOF | sudo tee -a /etc/environment
+http_proxy=${HTTP_PROXY}
+https_proxy=${HTTP_PROXY}
+no_proxy=${NO_PROXY}
+HTTP_PROXY=${HTTP_PROXY}
+HTTPS_PROXY=${HTTP_PROXY}
+NO_PROXY=${NO_PROXY}
+EOF'''
+
+        sh "sudo systemctl daemon-reload"
+        sh "sudo systemctl restart docker"
+        sh 'export http_proxy=${HTTP_PROXY}'
+        sh 'export https_proxy=${HTTP_PROXY}'
+        sh 'export no_proxy=${NO_PROXY}'
+        sh 'export HTTP_PROXY=${HTTP_PROXY}'
+        sh 'export HTTPS_PROXY=${HTTP_PROXY}'
+        sh 'export NO_PROXY=${NO_PROXY}'
+    }
 }
