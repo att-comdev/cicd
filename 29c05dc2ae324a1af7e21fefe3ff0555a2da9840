@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "62c280a1_87f89dc6",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 17
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-11-13T16:48:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e25e8c83_65bc979e",
+      "revId": "29c05dc2ae324a1af7e21fefe3ff0555a2da9840",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6066a374_540d7cf8",
         "filename": "vars/publish.groovy",
         "patchSetId": 17
@@ -39,6 +57,30 @@
       "revId": "29c05dc2ae324a1af7e21fefe3ff0555a2da9840",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c1ec6cd_bf7cf0f6",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 17
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-11-13T16:48:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6066a374_540d7cf8",
+      "range": {
+        "startLine": 115,
+        "startChar": 44,
+        "endLine": 115,
+        "endChar": 59
+      },
+      "revId": "29c05dc2ae324a1af7e21fefe3ff0555a2da9840",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
