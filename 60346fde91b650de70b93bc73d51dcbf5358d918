@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c00afb89_7319df82",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 7
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-13T15:50:08Z",
+      "side": 1,
+      "message": "cant see it being used anywhere. could we remove it",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 22
+      },
+      "revId": "60346fde91b650de70b93bc73d51dcbf5358d918",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a001f6f_e5335ad4",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-13T15:50:08Z",
+      "side": 1,
+      "message": "should this be changed to GERRIT_PATCHSET_REVISION for consistency as your fetching org.label-schema.vcs-ref which is the revision",
+      "range": {
+        "startLine": 115,
+        "startChar": 57,
+        "endLine": 115,
+        "endChar": 69
+      },
+      "revId": "60346fde91b650de70b93bc73d51dcbf5358d918",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcbadaca_cb98b348",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-13T15:50:08Z",
+      "side": 1,
+      "message": "Inbuilt readFile could also be used as \ndef upperConstraints \u003d readFile file",
+      "range": {
+        "startLine": 120,
+        "startChar": 4,
+        "endLine": 120,
+        "endChar": 68
+      },
+      "revId": "60346fde91b650de70b93bc73d51dcbf5358d918",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5073b1d1_a6ba42b8",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 7
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-13T15:50:08Z",
+      "side": 1,
+      "message": "Im not sure I understand whether this would work for building non requirement images.\nDo you have a test run",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 61
+      },
+      "revId": "60346fde91b650de70b93bc73d51dcbf5358d918",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
