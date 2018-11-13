@@ -3,7 +3,7 @@ IMAGE_PREFIX="att-comdev"
 IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
 SEMANTIC_RELEASE_VERSION = "0.1.0"
 
-vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64'){
+vm(image:'cicd-ubuntu-18.04-server-cloudimg-amd64'){
 
     def LABELS = ""
 
@@ -25,7 +25,7 @@ vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64'){
     }
 
     stage('Checkout') {
-        vm2.setproxy()
+        vm.setproxy()
 
 
         gerrit.cloneToBranch("https://review.gerrithub.io/att-comdev/dockerfiles", "${IMAGE_TAG}", "")

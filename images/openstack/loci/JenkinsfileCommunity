@@ -79,12 +79,8 @@ def buildLoci(projConfArgs = '', wheelArgs = '') {
     return image_tag
 }
 
-vm2('loci-bootstrap.sh',
-         'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         'm1.medium',
-         '',
-         'loci',
-         false){
+vm(initScript:'loci-bootstrap.sh',
+   buildType:'loci'){
 
     stage('Docker Setup') {
         loci.runDind(ARTF_DOCKER_URL, "jenkins-artifactory", DIND_CONTAINER)
@@ -121,15 +117,11 @@ if (!PROJECT.contains('requirements') &&
     print "Overriding default for $LOCI_IMAGE_VAR with $IMAGE_LOCI..."
 
     // OSH AIO requires min 8 cpus cores and 16 GB ram
-    vm2('bootstrap.sh',
-        'cicd-ubuntu-16.04-server-cloudimg-amd64',
-        'm1.xlarge',
-        'deploy-osh-aio',
-        'basic',
-        false) {
+    vm(flavor:'m1.xlarge',
+       nodePostfix:'deploy-osh-aio'){
 
         stage('Setup proxy') {
-            vm2.setproxy()
+            vm.setproxy()
         }
         stage('Install docker-ce') {
             osh.installDockerCE()
