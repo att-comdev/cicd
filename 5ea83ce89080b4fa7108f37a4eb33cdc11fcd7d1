@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76796c92_486aca20",
+        "filename": "vars/vm2.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-13T09:38:32Z",
+      "side": 1,
+      "message": "could you pls use env.KNOWN_HOSTS. I have seen\nKNOWN_HOSTS would cause a failure when the variable is undefined\nenv.KNOWN_HOSTS would not execute the code if undefined",
+      "range": {
+        "startLine": 151,
+        "startChar": 8,
+        "endLine": 151,
+        "endChar": 19
+      },
+      "revId": "5ea83ce89080b4fa7108f37a4eb33cdc11fcd7d1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
