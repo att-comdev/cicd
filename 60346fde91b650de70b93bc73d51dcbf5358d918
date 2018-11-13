@@ -187,6 +187,30 @@
       "revId": "60346fde91b650de70b93bc73d51dcbf5358d918",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17065318_3e9cbede",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 7
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-13T19:00:03Z",
+      "side": 1,
+      "message": "PROJECT_VERSION would have though it would require moving line 225 before prepare_local_mirrors()",
+      "parentUuid": "0309ecbe_e5259a49",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 61
+      },
+      "revId": "60346fde91b650de70b93bc73d51dcbf5358d918",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
