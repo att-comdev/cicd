@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae367634_013995ed",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-11-13T09:11:35Z",
+      "side": 1,
+      "message": "This must never be published.",
+      "range": {
+        "startLine": 13,
+        "startChar": 4,
+        "endLine": 13,
+        "endChar": 54
+      },
+      "revId": "bb08064549c89c440476c58ad884b04e93bfad90",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d42bd4e4_0a64db44",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-11-13T09:11:35Z",
+      "side": 1,
+      "message": "This must never be published.",
+      "range": {
+        "startLine": 15,
+        "startChar": 23,
+        "endLine": 15,
+        "endChar": 69
+      },
+      "revId": "bb08064549c89c440476c58ad884b04e93bfad90",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2f0185fa_7bdee5d8",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 11
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-11-13T09:11:35Z",
+      "side": 1,
+      "message": "Does anyone outside of AT\u0026T know what is auqa? Make method generic and usable in opensource, if you want to keep it in public repository. Or remove completely.",
+      "range": {
+        "startLine": 107,
+        "startChar": 20,
+        "endLine": 107,
+        "endChar": 24
+      },
+      "revId": "bb08064549c89c440476c58ad884b04e93bfad90",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae463182_62a4c477",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 11
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-11-13T09:11:35Z",
+      "side": 1,
+      "message": "This must never be published.",
+      "range": {
+        "startLine": 109,
+        "startChar": 38,
+        "endLine": 109,
+        "endChar": 84
+      },
+      "revId": "bb08064549c89c440476c58ad884b04e93bfad90",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd78b9b7_9edd489f",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 11
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-11-13T09:11:35Z",
+      "side": 1,
+      "message": "Letter \u0027u\u0027 is probably missing: aic-aca -\u003e aic-aqua.",
+      "range": {
+        "startLine": 116,
+        "startChar": 31,
+        "endLine": 116,
+        "endChar": 38
+      },
+      "revId": "bb08064549c89c440476c58ad884b04e93bfad90",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
