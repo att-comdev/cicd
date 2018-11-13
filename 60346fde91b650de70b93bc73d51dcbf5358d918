@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "51a9a0ff_ffce5868",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 7
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-13T16:47:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c00afb89_7319df82",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 22
+      },
+      "revId": "60346fde91b650de70b93bc73d51dcbf5358d918",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a001f6f_e5335ad4",
         "filename": "images/openstack/loci/JenkinsfileMos",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2018-11-13T15:50:08Z",
       "side": 1,
       "message": "should this be changed to GERRIT_PATCHSET_REVISION for consistency as your fetching org.label-schema.vcs-ref which is the revision",
+      "range": {
+        "startLine": 115,
+        "startChar": 57,
+        "endLine": 115,
+        "endChar": 69
+      },
+      "revId": "60346fde91b650de70b93bc73d51dcbf5358d918",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9efa7cd3_0009be92",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-13T16:47:48Z",
+      "side": 1,
+      "message": "this may not be changed as it break manual runs",
+      "parentUuid": "3a001f6f_e5335ad4",
       "range": {
         "startLine": 115,
         "startChar": 57,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "52bf3f35_50b0fe5a",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-13T16:47:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fcbadaca_cb98b348",
+      "range": {
+        "startLine": 120,
+        "startChar": 4,
+        "endLine": 120,
+        "endChar": 68
+      },
+      "revId": "60346fde91b650de70b93bc73d51dcbf5358d918",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5073b1d1_a6ba42b8",
         "filename": "images/openstack/loci/JenkinsfileMos",
         "patchSetId": 7
@@ -82,6 +154,30 @@
       "writtenOn": "2018-11-13T15:50:08Z",
       "side": 1,
       "message": "Im not sure I understand whether this would work for building non requirement images.\nDo you have a test run",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 61
+      },
+      "revId": "60346fde91b650de70b93bc73d51dcbf5358d918",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0309ecbe_e5259a49",
+        "filename": "images/openstack/loci/JenkinsfileMos",
+        "patchSetId": 7
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2018-11-13T16:47:48Z",
+      "side": 1,
+      "message": "I did test run. this block is not invoked for non requirements images",
+      "parentUuid": "5073b1d1_a6ba42b8",
       "range": {
         "startLine": 126,
         "startChar": 0,
