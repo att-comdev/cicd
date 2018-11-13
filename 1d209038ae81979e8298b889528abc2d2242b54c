@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "64ec9d30_42650334",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-11-13T00:38:19Z",
+      "side": 1,
+      "message": "Fixed with https://review.gerrithub.io/c/att-comdev/cicd/+/432929/2",
+      "parentUuid": "6f5d3666_3ac9ffce",
+      "revId": "1d209038ae81979e8298b889528abc2d2242b54c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b0f1e93_bb5ee3a1",
         "filename": "vars/publish.groovy",
         "patchSetId": 8
@@ -57,6 +75,30 @@
       "revId": "1d209038ae81979e8298b889528abc2d2242b54c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f30f33ce_6a499a2c",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2018-11-13T00:38:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b0f1e93_bb5ee3a1",
+      "range": {
+        "startLine": 113,
+        "startChar": 1,
+        "endLine": 117,
+        "endChar": 93
+      },
+      "revId": "1d209038ae81979e8298b889528abc2d2242b54c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
