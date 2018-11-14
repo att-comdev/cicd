@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5317a85_1018973c",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-14T19:16:41Z",
+      "side": 1,
+      "message": "pls remove tabs",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 29
+      },
+      "revId": "214488dd2510e8c16a7d57c0276eb4a0753a3e3c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59c3eb25_07889d1d",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-14T19:16:41Z",
+      "side": 1,
+      "message": "pls remove tab here as well",
+      "revId": "214488dd2510e8c16a7d57c0276eb4a0753a3e3c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
