@@ -1,0 +1,465 @@
+#!/usr/bin/env groovy
+import com.att.nccicd.config.conf
+import groovy.json.JsonSlurperClassic
+
+def server_url = "https://artifacts-nc.mtn29.cci.att.com/artifactory"
+def chart_virtual_url = "https://artifacts-nc.mtn29.cci.att.com/artifactory/helm-charts"
+def GIT_COMMIT = ""
+
+def label = "worker-${UUID.randomUUID().toString()}"
+
+podTemplate(label: label, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  securityContext:
+    runAsUser: 0
+  nodeSelector:
+    jenkins-node: enabled
+""", containers: [
+        containerTemplate(name: "ubuntu",
+                image: "docker-open-nc.mtn29.cci.att.com/att-comdev/python@sha256:17a3d187458324f1061b30632454424521d0aef29f41e76ed50df8c2511a0a50",
+                command: "cat",
+                ttyEnabled: true)]) {
+
+    node(label) {
+        container("ubuntu") {
+    def git_urls = """{
+                "helm_charts":[
+                     {"repo":"https://git.openstack.org/openstack/openstack-helm",
+                     "repo_dir":"openstack-helm",
+                     "chart_name":["nova",
+                                   "neutron",
+                                   "barbican",
+                                   "horizon",
+                                   "heat",
+                                   "glance",
+                                   "cinder",
+                                   "keystone"
+                                   ]
+                     },
+                     {
+                     "repo":"https://git.openstack.org/openstack/openstack-helm-infra",
+                     "repo_dir":"openstack-helm-infra",
+                     "chart_name":["elasticsearch",
+                                   "helm-toolkit",
+                                   "calico",
+                                   "fluent-logging",
+                                   "grafana",
+                                   "prometheus",
+                                   "nagios",
+                                   "prometheus-alertmanager",
+                                   "kibana",
+                                   "prometheus-kube-state-metrics",
+                                   "prometheus-openstack-exporter",
+                                   "ceph-rgw",
+                                   "ceph-mon",
+                                   "ceph-osd",
+                                   "ceph-client",
+                                   "ceph-provisioners",
+                                   "mariadb",
+                                   "postgresql",
+                                   "memcached",
+                                   "rabbitmq",
+                                   "libvirt",
+                                   "ingress",
+                                   "prometheus-process-exporter",
+                                   "falco",
+                                   "prometheus-node-exporter"]
+                     },
+                     {
+                     "repo":"https://git.openstack.org/openstack/openstack-helm-addons",
+                     "repo_dir":"openstack-helm-addons",
+                     "chart_name":["sonobuoy","ranger-agent","ranger"]
+                    },
+                    {
+                     "repo":"ssh://m92484@gerrit.mtn5.cci.att.com:29418/nc-helm",
+                     "repo_dir":"nc-helm",
+                     "chart_name":["gstools-deploy-allmid",
+                                   "gstools-deploy-attlogins",
+                                   "gstools-deploy-attnologin",
+                                   "gstools-deploy-attsudo",
+                                   "gstools-deploy-bpa",
+                                   "gstools-deploy-eksh",
+                                   "gstools-deploy-mcafee",
+                                   "gstools-deploy-sact",
+                                   "gstools-deploy-sensage",
+                                   "gstools-deploy-uam",
+                                   "gstools-deploy-uamroles",
+                                   "gstools-deploy-xpw","ro"]
+                    },
+                    {
+                     "repo":"https://git.openstack.org/openstack/airship-promenade",
+                     "repo_dir":"airship-promenade",
+                     "chart_name":["promenade",
+                                   "etcd",
+                                   "haproxy",
+                                   "apiserver",
+                                   "apiserver-webhook",
+                                   "controller_manager",
+                                   "coredns","proxy",
+                                   "scheduler"]
+                    },
+                    {
+                     "repo":"https://git.openstack.org/openstack/airship-deckhand",
+                     "repo_dir":"airship-deckhand",
+                     "chart_name":["deckhand"]
+                    },
+                    {
+                     "repo":"https://git.openstack.org/openstack/airship-drydock",
+                     "repo_dir":"airship-drydock",
+                     "chart_name":["drydock"]
+                    },
+                    {
+                     "repo":"https://git.openstack.org/openstack/airship-armada",
+                     "repo_dir":"airship-armada",
+                     "chart_name":["armada"]
+                    },
+                    {
+                     "repo":"https://git.openstack.org/openstack/airship-shipyard",
+                     "repo_dir":"airship-shipyard",
+                     "chart_name":["shipyard",
+                                   "airflow"]
+                    },
+                    {
+                     "repo":"https://github.com/att-comdev/charts",
+                     "repo_dir":"charts",
+                     "chart_name":["artifactory-ha",
+                                   "distribution",
+                                   "jenkins",
+                                   "mission-control",
+                                   "xray"]
+                    }
+             ]
+    }"""
+    def images_to_pull = """{
+               "images": [
+                    {
+                     "repo":"ssh://m92484@gerrit.mtn5.cci.att.com:29418/mos-nova",
+                     "repo_dir":"mos-nova",
+                     "docker_repo":"docker-nc",
+                     "image_name":["mos-nova",
+                                   "mos-nova-1804"]
+                    },
+                    {
+                     "repo":"ssh://m92484@gerrit.mtn5.cci.att.com:29418/mos-keystone",
+                     "repo_dir":"openstack/ocata/loci/mos/mos-keystone",
+                     "docker_repo":"docker-nc",
+                     "image_name":["mos-keystone"]
+                    },
+                    {
+                     "repo":"ssh://m92484@gerrit.mtn5.cci.att.com:29418/mos-horizon",
+                     "repo_dir":"openstack/ocata/loci/mos/mos-horizon",
+                     "docker_repo":"docker-nc",
+                     "image_name":["mos-horizon"]
+                    },
+                    {
+                     "repo":"ssh://m92484@gerrit.mtn5.cci.att.com:29418/mos-heat",
+                     "repo_dir":"openstack/ocata/loci/mos/mos-heat",
+                     "docker_repo":"docker-nc",
+                     "image_name":["mos-heat"]
+                    },
+                    {
+                     "repo":"ssh://m92484@gerrit.mtn5.cci.att.com:29418/mos-glance",
+                     "repo_dir":"openstack/ocata/loci/mos/mos-glance",
+                     "docker_repo":"docker-nc",
+                     "image_name":["mos-glance"]
+                    },
+                    {
+                     "repo":"ssh://m92484@gerrit.mtn5.cci.att.com:29418/mos-cinder",
+                     "repo_dir":"openstack/ocata/loci/mos/mos-cinder",
+                     "docker_repo":"docker-nc",
+                     "image_name":["mos-cinder"]
+                    },
+                    {
+                     "repo":"ssh://m92484@gerrit.mtn5.cci.att.com:29418/mos-neutron",
+                     "repo_dir":"openstack/ocata/loci/mos/mos-neutron",
+                     "docker_repo":"docker-nc",
+                     "image_name":["mos-neutron",
+                                   "mos-neutron-sriov"]
+                    },
+                    {
+                     "repo":"ssh://m92484@gerrit.mtn5.cci.att.com:29418/ro-helm",
+                     "repo_dir":"ro-helm",
+                     "docker_repo":"docker-open-nc",
+                     "image_name":["ro"]
+                    },
+                    {"repo":"https://github.com/openstack/airship-drydock",
+                     "repo_dir":"airship-drydock",
+                     "docker_repo":"docker-open-nc",
+                     "image_name": ["drydock"]
+                    },
+                    {
+                     "repo":"https://github.com/openstack/airship-deckhand",
+                     "repo_dir":"airship-deckhand",
+                     "docker_repo":"docker-open-nc",
+                     "image_name":["deckhand"]
+                    },
+                    {
+                     "repo":"https://github.com/openstack/airship-shipyard",
+                     "repo_dir":"airship-shipyard",
+                     "docker_repo":"docker-open-nc",
+                     "image_name":["shipyard","airflow"]
+                    },
+                    {
+                     "repo":"https://github.com/openstack/airship-pegleg",
+                     "repo_dir":"airship-pegleg",
+                     "docker_repo":"docker-open-nc",
+                     "image_name":["pegleg"]
+                    },
+                    {
+                     "repo":"https://github.com/openstack/airship-promenade",
+                     "repo_dir":"airship-promenade",
+                     "docker_repo":"docker-open-nc",
+                     "image_name":["promenade"]
+                    },
+                    {
+                     "repo":"https://github.com/openstack/airship-armada",
+                     "repo_dir":"airship-armada",
+                     "docker_repo":"docker-open-nc",
+                     "image_name":["armada"]
+                    },
+                    {
+                     "repo":"https://github.com/openstack/airship-maas",
+                     "repo_dir":"airship-maas",
+                     "docker_repo":"docker-open-nc",
+                     "image_name":["maas-rack-controller",
+                                   "maas-region-controller",
+                                   "sstream-cache"]
+                    },
+                    {
+                     "repo":"https://github.com/openstack/ranger-agent",
+                     "repo_dir":"ranger-agent",
+                     "docker_repo":"docker-open-nc",
+                     "image_name":["ranger-agent"]
+                    },
+                    {
+                     "repo":"https://github.com/openstack/ranger",
+                     "repo_dir":"ranger",
+                     "docker_repo":"docker-open-nc",
+                     "image_name":["ranger"]
+                    }
+             ]
+    }"""
+    stage("Get Helm Toolkit Commit"){
+        git "https://github.com/openstack/openstack-helm-infra"
+        HELM_TOOLKIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+    }
+    stage("Retrieve Charts"){
+        def props = readJSON text: git_urls
+        for (chart in props.helm_charts) {
+            if("${chart.repo}".startsWith("ssh")){
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']],
+                          doGenerateSubmoduleConfigurations: false,
+                          extensions: [[$class: 'LocalBranch',
+                                        localBranch: "${chart.repo_dir}"],
+                                       [$class: 'RelativeTargetDirectory', 
+                                        relativeTargetDir: "${chart.repo_dir}"]],
+                                        submoduleCfg: [],
+                                        userRemoteConfigs: [[
+                                            credentialsId: conf.JENKINS_GERRIT_MTN5_CRED_ID,
+                                            url: "${chart.repo}"]]])
+            } else {
+                cmd = "git clone " + "${chart.repo}"
+                sh(returnStdout: true, script: "${cmd}").trim()
+            }
+            dir("${chart.repo_dir}"){
+                sh "pwd"
+                GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+                for (aName in chart.chart_name) {
+                    echo aName
+                    chart_tag = getLatestChartPackage(server_url,
+                                                      "chart_${aName}",
+                                                      "${aName}-"+GIT_COMMIT+"."+HELM_TOOLKIT_COMMIT+".tgz",
+                                                      "${chart.repo_dir}")
+                }
+            }
+            sh "rm -rf ${WORKSPACE}/${chart.repo_dir}"
+        }
+    }
+    sh "mkdir -p images"
+    dir("${WORKSPACE}/images"){
+        stage("Retrieve Images"){
+            def props = readJSON text: images_to_pull
+            for (image in props.images) {
+                if("${image.repo}".startsWith("ssh")){
+                    sleep 15
+                    checkout([$class: 'GitSCM',
+                              branches: [[name: 'master']],
+                              doGenerateSubmoduleConfigurations: false,
+                              extensions: [[$class: 'LocalBranch',
+                                            localBranch: "${image.repo_dir}"],
+                                           [$class: 'RelativeTargetDirectory', 
+                                            relativeTargetDir: "${image.repo_dir}"]], 
+                              submoduleCfg: [], 
+                              userRemoteConfigs: [[
+                                   credentialsId: conf.JENKINS_GERRIT_MTN5_CRED_ID,
+                                   url: "${image.repo}"]]])
+                } else {
+                    cmd = "git clone " + "${image.repo}"
+                    sh(returnStdout: true, script: "${cmd}").trim()
+                }
+                dir("${image.repo_dir}"){
+                    GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                    for (aName in image.image_name) {
+                        echo aName
+                        withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                            credentialsId: 'jenkins-artifactory',
+                            usernameVariable: 'USERNAME',
+                            passwordVariable: 'PASSWORD']]) {
+                            opts = '-u $USERNAME -p $PASSWORD'
+                            sh "docker login ${opts} ${image.docker_repo}.mtn29.cci.att.com"
+                            image_tag = getLatestDockerImage(server_url,
+                                                         GIT_COMMIT,
+                                                         "${aName}",
+                                                         "${image.docker_repo}")
+                        }
+                    }
+                }
+                sh "rm -rf ${WORKSPACE}/${image.repo_dir}"
+            }
+        }
+    }
+    sh ('hostname')
+    stage('Setup environment'){
+        sh 'env'
+        sh "echo ${HTTP_PROXY}"
+        sh "echo ${HTTPS_PROXY}"
+        sh "echo ${NO_PROXY}"
+        sh "export test_proxy=${HTTP_PROXY}"
+        setproxy()
+    }
+    stage('Ansible'){
+        dir("${WORKSPACE}/cicd"){
+            checkout([$class: 'GitSCM', branches: [[name: 'refs/changes/41/56241/2']],
+                          doGenerateSubmoduleConfigurations: false,
+                          extensions: [[$class: 'LocalBranch',
+                                        localBranch: "jenkins"],
+                                       [$class: 'RelativeTargetDirectory', 
+                                        relativeTargetDir: "aic-clcp-manifests_uplift"]],
+                                        submoduleCfg: [],
+                                        userRemoteConfigs: [[
+                                            refspec: 'refs/changes/*:refs/changes/*',
+                                            credentialsId: conf.JENKINS_GERRIT_MTN5_CRED_ID,
+                                            url: "ssh://m92484@gerrit.mtn5.cci.att.com:29418/aic-clcp-manifests"]]])
+
+            sh "cp -R ${WORKSPACE}/vars.yaml ${WORKSPACE}/cicd/tools/automation/opt/group_vars/vars.yaml"
+            sh "cat ${WORKSPACE}/cicd/tools/automation/opt/group_vars/vars.yaml"
+            sh "chmod +x ${WORKSPACE}/cicd/tools/automation/scripts/start.sh"
+            sh "${WORKSPACE}/cicd/tools/automation/scripts/start.sh"
+            sh "cat versions.yaml"
+            //Push patchset up to global manifests
+            checkout([$class: 'GitSCM',
+                              branches: [[name: 'master']],
+                              doGenerateSubmoduleConfigurations: false,
+                              extensions: [[$class: 'LocalBranch',
+                                            localBranch: "aic-clcp-manifests"],
+                                           [$class: 'RelativeTargetDirectory', 
+                                            relativeTargetDir: "aic-clcp-manifests"]], 
+                              submoduleCfg: [], 
+                              userRemoteConfigs: [[
+                                   credentialsId: conf.JENKINS_GERRIT_MTN5_CRED_ID,
+                                   url: "ssh://m92484@gerrit.mtn5.cci.att.com:29418/aic-clcp-manifests"]]])
+            def commitMessage = "[JENKINS-AUTO-UPLIFT] Uplift images and charts built internally"
+            def gerritUrl = "${conf.SSH_REPO_USER}@gerrit.mtn5.cci.att.com"
+            def gerritPort = "29418"
+            sh "cp versions.yaml ${WORKSPACE}/cicd/aic-clcp-manifests/global/v4.0/software/config/"
+            sh "pwd"
+            sh "cat ${WORKSPACE}/cicd/aic-clcp-manifests/global/v4.0/software/config/versions.yaml"
+            dir ("${WORKSPACE}/cicd/aic-clcp-manifests"){
+                gerrit.submitPatchset(conf.JENKINS_GERRIT_MTN5_CRED_ID, "${USER_EMAIL}", "${USER_NAME}", commitMessage, gerritUrl, conf.SECRETS_REPO)
+            }
+            archive "versions.yaml"
+        }
+    }
+}
+}
+}
+
+def getLatestChartPackage(server_url, chart_key, chart_name, directory){
+    echo chart_name
+    def aqlString = 'items.find ({"name":"'+chart_name+'"}).include("name","path","sha256","created")'
+    echo aqlString
+    File aqlFile = File.createTempFile("helm_search", ".tmp")
+    aqlFile << aqlString
+    withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                      credentialsId: 'jenkins-artifactory',
+                      usernameVariable: 'USERNAME',
+                      passwordVariable: 'PASSWORD']]) {
+        def getLatestChart = "curl -u$USERNAME:$PASSWORD -X POST " + server_url + "/api/search/aql -T " + aqlFile.getAbsolutePath()
+        try {
+            def latestChart = readJSON text: getLatestChart.execute().text
+            if(latestChart != null && latestChart.results.size() > 0){
+                echo latestChart.results[0].path +":" +latestChart.results[0].name
+                def chartname = latestChart.results[0].name
+                def path = latestChart.results[0].path
+                echo latestChart.results[0].created
+                echo latestChart.results[0].sha256
+                chart_key = "${chart_key}".replaceAll('-','_')
+sh """cat <<EOF >> ${WORKSPACE}/vars.yaml
+${chart_key}: "https://artifacts-nc.mtn29.cci.att.com/artifactory/helm-charts/${path}/${chartname}"
+EOF"""
+
+sh "cat ${WORKSPACE}/vars.yaml"
+            } else {
+                echo "${chart_name} does not exist"
+            }
+        } catch (Exception e) {
+            println "Caught an exception. Message ${e.message}"
+            throw e
+        }
+    }
+}
+
+
+def getLatestDockerImage (server_url, commit, image_name, docker_repo) {
+    def aqlString = '''items.find ({ "repo":"'''+docker_repo+'''",
+                                   "type":"folder",
+                                   "name":{"$match":"*'''+commit+'''*"},
+                                   "path":{"$match":"*'''+image_name+'''"}})
+                                   .include("path",
+                                            "created",
+                                            "name",
+                                            "sha256")
+                                   .sort({"$desc" : ["created"]}).limit(1)'''
+    echo aqlString
+    File aqlFile = File.createTempFile("aql_search", ".tmp")
+    aqlFile << aqlString
+
+    withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                      credentialsId: 'jenkins-artifactory',
+                      usernameVariable: 'USERNAME',
+                      passwordVariable: 'PASSWORD']]) {
+         def getLatestImage = "curl -u$USERNAME:$PASSWORD -X POST " + server_url + "/api/search/aql -T " + aqlFile.getAbsolutePath()
+
+       try {
+             def latestImage = readJSON text: getLatestImage.execute().text
+
+             if(latestImage != null && latestImage.results.size() > 0){
+
+                 docker_image = docker_repo + ".mtn29.cci.att.com/"+latestImage.results[0].path +":" +latestImage.results[0].name
+                 sh "docker pull ${docker_image}"
+
+                 digest = "docker inspect --format='{{index .RepoDigests 0}}' ${docker_image}"
+                 result = sh(returnStdout: true, script: "${digest}").trim()
+                 imageKey = "${image_name}".replaceAll('-','_')
+//Want to add comment above image_ to show the tag of the image
+sh """cat <<EOF >> ${WORKSPACE}/vars.yaml
+comment_${imageKey}: ${latestImage.results[0].name}
+image_${imageKey}: ${result}
+EOF"""
+
+sh "cat ${WORKSPACE}/vars.yaml"
+                echo latestImage.results[0].created
+             } else {
+                 echo "**********MISSING IMAGE***********"
+             }
+        } catch (Exception e) {
+            println "Caught an exception. Message ${e.message}"
+            throw e
+        }
+    }
+}
+
+currentBuild.displayName = "#${BUILD_NUMBER} VM ${NODE_POSTFIX} ${fip}"
+print "Access VM on Floating IP => ubuntu@${fip}"
