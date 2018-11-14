@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "309f4084_2d199b11",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-14T15:00:41Z",
+      "side": 1,
+      "message": "Should we create a test repository for the tarballs of the patchsets which are not yet merged? Something like:\n\nIf GERRIT_EVENT_TYPE !\u003d change-merged:\n    ${ARTF_REPO}/test/${chart_name}/\nelse:\n     ${ARTF_REPO}/${chart_name}/",
+      "range": {
+        "startLine": 117,
+        "startChar": 4,
+        "endLine": 124,
+        "endChar": 120
+      },
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
