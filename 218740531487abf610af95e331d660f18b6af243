@@ -22,6 +22,30 @@
       "revId": "218740531487abf610af95e331d660f18b6af243",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51302156_48eeede6",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-14T18:02:14Z",
+      "side": 1,
+      "message": "I had this to differentiate between merged and non merged events. Removed after comment from Stacey below\nhttps://review.gerrithub.io/c/att-comdev/cicd/+/429758/18/charts/att-comdev/Jenkinsfile#62",
+      "parentUuid": "309f4084_2d199b11",
+      "range": {
+        "startLine": 117,
+        "startChar": 4,
+        "endLine": 124,
+        "endChar": 120
+      },
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
