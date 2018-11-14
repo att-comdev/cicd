@@ -45,12 +45,13 @@ get_seed(){
 
     SEED=''
     dir_path=$1
-    if [ -f "${WORKSPACE}/${dir_path}/seed.groovy" ]; then
-        # found seed for the Jenkinsfile
-        SEED="${dir_path}/seed.groovy"
+    set +e
+    FILE=`ls ${WORKSPACE}/${dir_path}/ | egrep "*seed*.groovy"`
+    if [ $FILE ]; then
+	# found seed for the Jenkinsfile
+    	SEED="${dir_path}/$FILE"
         return
     fi
-
     up_dir=$(dirname ${dir_path})
     if [ ${up_dir} == "." ]; then
         # reached top level dir
@@ -101,8 +102,9 @@ find_seed(){
         LAST_2COMMITS=`git log -2 --reverse --pretty=format:%H`
 
         # Looking for added or modified seed.groovy files or Jenkinsfiles or only superseed.sh:
-        MODIFIED_FILES=`git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | egrep "seed.groovy|Jenkinsfile|superseed.sh" | cut -f2`
-        echo "INFO: changed seed or Jenkinsfile(s): $MODIFIED_FILES"
+        MODIFIED_FILES=`git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | egrep "*seed*.groovy|*Jenkinsfile*|superseed.sh" | cut -f2`
+
+	echo "INFO: changed seed or Jenkinsfile(s): $MODIFIED_FILES"
 
         echo "INFO: Building the SEED_PATH for all seed.groovy files..."
         if [ ! -z "${MODIFIED_FILES}" ]; then
@@ -136,7 +138,7 @@ check_sandbox_parameter(){
     #checks if the Sandbox value is either true or an empty  value and fails the job
     # Looking for added or modified seed.groovy files or Jenkinsfiles
     LAST_2COMMITS=$(git log -2 --reverse --pretty=format:%H)
-    MODIFIED_FILES_SEEDGROOVY=$(git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | egrep "seed.groovy" | cut -f2)
+    MODIFIED_FILES_SEEDGROOVY=$(git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | egrep "*seed*.groovy" | cut -f2)
     for file in ${MODIFIED_FILES_SEEDGROOVY[@]}; do
         SANDBOX_CHECK=$(awk '/sandbox *\( *\)|sandbox *\( *true[^false]/' $file)
         if [ ! -z "${SANDBOX_CHECK}" ]; then
@@ -150,7 +152,7 @@ check_sandbox_parameter(){
 lint_jenkins_files(){
     # Looking for added or modified seed.groovy files or Jenkinsfiles
     LAST_2COMMITS=$(git log -2 --reverse --pretty=format:%H)
-    MODIFIED_FILES=$(git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | egrep "seed.groovy|Jenkinsfile" | cut -f2)
+    MODIFIED_FILES=$(git diff --name-status --no-renames ${LAST_2COMMITS} | grep -v ^D | egrep "*seed*.groovy|*Jenkinsfile*" | cut -f2)
 
     echo "NOTICE: Jenkins linter does not check for all errors and can't be 100% trusted"
     for file in ${MODIFIED_FILES}; do
