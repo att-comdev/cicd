@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41cebf7d_f25881c5",
+        "filename": "charts/airship/airship-armada/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-15T11:21:55Z",
+      "side": 1,
+      "message": "good to have add GERRIT_PROJECT also in here to make easier to identify if airship-armada or infra change that triggered the job",
+      "range": {
+        "startLine": 1,
+        "startChar": 45,
+        "endLine": 1,
+        "endChar": 46
+      },
+      "revId": "719a28bda406da1c2b9b2c4e9fe87fed04a9f466",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bd11284_b02eca6d",
+        "filename": "charts/airship/airship-armada/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-15T11:21:55Z",
+      "side": 1,
+      "message": "could you pls move this to src/*/conf.groov if used in multiple pipelines",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 17
+      },
+      "revId": "719a28bda406da1c2b9b2c4e9fe87fed04a9f466",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3c89009_6fe1e772",
+        "filename": "charts/airship/airship-armada/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-15T11:21:55Z",
+      "side": 1,
+      "message": "could you pls use library call from gerrit.groovy\nlike gerrit.cloneProject(url, branch, \"\", \"${WORKSPACE}/openstack-helm-infra\")",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 64
+      },
+      "revId": "719a28bda406da1c2b9b2c4e9fe87fed04a9f466",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0cfe4ed_d469e5bf",
+        "filename": "charts/airship/airship-armada/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-15T11:21:55Z",
+      "side": 1,
+      "message": "\"${JOB_BASE_NAME}\" is same as just using JOB_BASE_NAME",
+      "range": {
+        "startLine": 32,
+        "startChar": 111,
+        "endLine": 32,
+        "endChar": 129
+      },
+      "revId": "719a28bda406da1c2b9b2c4e9fe87fed04a9f466",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8a9c001_03f010cf",
+        "filename": "charts/airship/airship-armada/Jenkinsfile",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-15T11:21:55Z",
+      "side": 1,
+      "message": "same as above comment",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 40
+      },
+      "revId": "719a28bda406da1c2b9b2c4e9fe87fed04a9f466",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d29af08_a99056fd",
+        "filename": "charts/airship/airship-armada/seed.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-15T11:21:55Z",
+      "side": 1,
+      "message": "you could use this in the branch trigger below or remove it",
+      "range": {
+        "startLine": 6,
+        "startChar": 24,
+        "endLine": 6,
+        "endChar": 38
+      },
+      "revId": "719a28bda406da1c2b9b2c4e9fe87fed04a9f466",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
