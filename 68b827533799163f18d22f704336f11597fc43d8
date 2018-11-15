@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d55cd66_09c619cc",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-15T11:38:57Z",
+      "side": 1,
+      "message": "any reason why we change the version here as against the \u0027rename tarball\u0027 stage used in other airship* pipelines\nI see the version for drydock is also 0.1.0 similar to other airship components\nhttps://github.com/openstack/airship-drydock/blob/master/charts/drydock/Chart.yaml#L18",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 9
+      },
+      "revId": "68b827533799163f18d22f704336f11597fc43d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
