@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "e1772e8a_ba0ff659",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-11-15T17:37:23Z",
+      "side": 1,
+      "message": "Can you change this xlarge",
+      "range": {
+        "startLine": 7,
+        "startChar": 15,
+        "endLine": 7,
+        "endChar": 22
+      },
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a804437_e9932a66",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 32
