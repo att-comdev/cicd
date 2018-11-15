@@ -2,6 +2,125 @@
   "comments": [
     {
       "key": {
+        "uuid": "6a804437_e9932a66",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-11-15T16:09:05Z",
+      "side": 1,
+      "message": "I would suggest to drive commit via parameter not library.\nMeaning you should use library to deploy needed commit - rather then pull latest and return commit.",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b839005_e82eb692",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-11-15T16:09:05Z",
+      "side": 1,
+      "message": "use `def variable` for all local variables.\nIf we don\u0027t use `def` - the variable is global to whole file.",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ce40b0a_30309805",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-11-15T16:09:05Z",
+      "side": 1,
+      "message": "Why hardcoded folder `jenkins`.\nThere are multiple charts for this job.",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09d4ba85_0a79c6bd",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-11-15T16:09:05Z",
+      "side": 1,
+      "message": "Should this be configurable and overriden with local varaibles?",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4624b71_44a14eef",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-11-15T16:09:05Z",
+      "side": 1,
+      "message": "Why hardcoded Jenkins?",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4a93d4e_681796f6",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-11-15T16:09:05Z",
+      "side": 1,
+      "message": "This seems like a step that should be run as base setup after deploying k8s.\nIs there reason to add it as part of deploying chart?\nI would move it up in separate stage next to deploy k8s.\nAlso can it be a library similar to deploy k8s.",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c733b0c_aeb195c0",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2018-11-15T16:09:05Z",
+      "side": 1,
+      "message": "Also - bring this variable to beginning of file, something like\n\nCHARTS_HOME\u003d\"${WORKSPACE}/charts\" or similar.",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "309f4084_2d199b11",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 32
