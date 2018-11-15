@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "a51a33d4_8e1d0abb",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2018-11-15T20:54:15Z",
+      "side": 1,
+      "message": "probably change this to build number and gerrit event type",
+      "range": {
+        "startLine": 1,
+        "startChar": 45,
+        "endLine": 1,
+        "endChar": 51
+      },
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e1772e8a_ba0ff659",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 32
