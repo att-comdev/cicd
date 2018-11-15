@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "414613c9_2246b5bf",
+        "filename": "charts/airship/airship-promenade/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-15T10:38:57Z",
+      "side": 1,
+      "message": "\"${GERRIT_PROJECT}\" is same as GERRIT_PROJECT here and in other places\nso the condition can be just GERRIT_PROJECT \u003d\u003d INFRA_PROJECT",
+      "range": {
+        "startLine": 13,
+        "startChar": 12,
+        "endLine": 13,
+        "endChar": 53
+      },
+      "revId": "39dd639e45d9e6f3cb04ae9082b16d9478453284",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf9610a5_67ef2164",
+        "filename": "charts/airship/airship-promenade/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-15T10:38:57Z",
+      "side": 1,
+      "message": "you could use the inbuilt \necho (\"Openstack-helm-infra ${GERRIT_NEWREV} just merged\")",
+      "range": {
+        "startLine": 14,
+        "startChar": 12,
+        "endLine": 14,
+        "endChar": 71
+      },
+      "revId": "39dd639e45d9e6f3cb04ae9082b16d9478453284",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6234b50_668aa690",
+        "filename": "charts/airship/airship-promenade/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-15T10:38:57Z",
+      "side": 1,
+      "message": "could you pls use library call from gerrit.groovy\nyou could look at osh.cloneOSH()\n\nSee",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 64
+      },
+      "revId": "39dd639e45d9e6f3cb04ae9082b16d9478453284",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "606b6ca0_0e9324d5",
+        "filename": "charts/airship/airship-promenade/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-15T10:38:57Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 37,
+        "startChar": 11,
+        "endLine": 41,
+        "endChar": 13
+      },
+      "revId": "39dd639e45d9e6f3cb04ae9082b16d9478453284",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
