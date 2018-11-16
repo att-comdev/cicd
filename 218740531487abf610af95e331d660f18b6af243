@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0a61d55c_6345320b",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a51a33d4_8e1d0abb",
+      "range": {
+        "startLine": 1,
+        "startChar": 45,
+        "endLine": 1,
+        "endChar": 51
+      },
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e1772e8a_ba0ff659",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 32
@@ -65,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "30335e4f_eadd11fd",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "Added the library on suggestion from Stacey earlier,\nI would like to revisit this method in a new ps as osh.cloneOSH() needs to be modified to support commits without breaking loci pipelines.",
+      "parentUuid": "6a804437_e9932a66",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b839005_e82eb692",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 32
@@ -76,6 +118,24 @@
       "writtenOn": "2018-11-15T16:09:05Z",
       "side": 1,
       "message": "use `def variable` for all local variables.\nIf we don\u0027t use `def` - the variable is global to whole file.",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44b52601_8b7217df",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b839005_e82eb692",
       "revId": "218740531487abf610af95e331d660f18b6af243",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -117,6 +177,42 @@
     },
     {
       "key": {
+        "uuid": "76a3acd1_6e76e8d3",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "yes. Changed it to reponame in this case charts rather than hardcoding to jenkins",
+      "parentUuid": "e8a791fb_9b20b8c7",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "08295f5c_9d5c9fe7",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "changed it to the git repo name",
+      "parentUuid": "0ce40b0a_30309805",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09d4ba85_0a79c6bd",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 32
@@ -128,6 +224,24 @@
       "writtenOn": "2018-11-15T16:09:05Z",
       "side": 1,
       "message": "Should this be configurable and overriden with local varaibles?",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e4c9a9d_4049d71e",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "added in src/*/conf.groovy for now",
+      "parentUuid": "09d4ba85_0a79c6bd",
       "revId": "218740531487abf610af95e331d660f18b6af243",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -151,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "d1b12f93_a7759c6a",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "https://review.gerrithub.io/c/att-comdev/charts/+/433616 ps created",
+      "parentUuid": "4880b1db_58975483",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f4624b71_44a14eef",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 32
@@ -162,6 +294,24 @@
       "writtenOn": "2018-11-15T16:09:05Z",
       "side": 1,
       "message": "Why hardcoded Jenkins?",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "893ad75a_a0912d45",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "changed it to the git repo name",
+      "parentUuid": "f4624b71_44a14eef",
       "revId": "218740531487abf610af95e331d660f18b6af243",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -185,6 +335,24 @@
     },
     {
       "key": {
+        "uuid": "3f10e919_cb2feee8",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "We want to only deploy if the build passes, hence this step is after build.\nIt wouldnt add any value to deploy these components unless the charts build is successful.\n\nSure would add it as a library and a separate stage",
+      "parentUuid": "e4a93d4e_681796f6",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c733b0c_aeb195c0",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 32
@@ -202,6 +370,24 @@
     },
     {
       "key": {
+        "uuid": "a384bb2f_202ccdd8",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c733b0c_aeb195c0",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "063f6946_87c6026a",
         "filename": "charts/att-comdev/Jenkinsfile",
         "patchSetId": 32
@@ -213,6 +399,24 @@
       "writtenOn": "2018-11-15T20:49:54Z",
       "side": 1,
       "message": "publish.putArtifacts(\"*${GIT_COMMIT}.*.tgz\", \"${ARTF_REPO}\")  comments below go before this publish, no loop is required, it will pull all built charts into the repo as it should and prints out the urls that were uploaded.",
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5a22f79_9e3bde9c",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "done, had the loop to be able to push the charts into right subfolders on artifactory.\nI guess that wouldnt be required",
+      "parentUuid": "063f6946_87c6026a",
       "revId": "218740531487abf610af95e331d660f18b6af243",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -278,6 +482,30 @@
       "side": 1,
       "message": "This is my fault.  When I said it wasn\u0027t relevant, I meant the path that was being used.  \nARTF_REPO\u003d\"att-comdev-helm-local/charts\"\nif(\"${GERRIT_EVENT_TYPE}\" !\u003d \"change-merged\"){\n    ARTF_REPO\u003d\"${ARTF_REPO}/test\"\n}",
       "parentUuid": "51302156_48eeede6",
+      "range": {
+        "startLine": 117,
+        "startChar": 4,
+        "endLine": 124,
+        "endChar": 120
+      },
+      "revId": "218740531487abf610af95e331d660f18b6af243",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "93e6aa61_764325ca",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 32
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-16T19:30:09Z",
+      "side": 1,
+      "message": "sure added it back",
+      "parentUuid": "ffa17046_cc6091c4",
       "range": {
         "startLine": 117,
         "startChar": 4,
