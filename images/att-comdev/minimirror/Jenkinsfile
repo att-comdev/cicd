@@ -1,0 +1,34 @@
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
+IMAGE_PREFIX="att-comdev"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+VERSION=1.0
+
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+if(env.GERRIT_NEWREV){
+    echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+    IMAGE_TAG=env.GERRIT_NEWREV
+}
+IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+
+vm2 {
+    currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+
+    gerrit.cloneToBranch("openstack/airship-utils", IMAGE_TAG,"")
+
+    if (GERRIT_EVENT_TYPE == 'change-merged') {
+        gerrit.rebase()
+    }
+    stage('Build') {
+        timeout(20){
+            sh "sudo make build IMAGE_PREFIX=${IMAGE_PREFIX} IMAGE_NAME=${JOB_BASE_NAME} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=${VERSION}-${BUILD_NUMBER}' IMAGE_TAG=${IMAGE_TAG} PUSH_IMAGE=true COMPONENTS=main UPSTREAM_URL=http://ubuntumirror.it.att.com/ubuntu/ UPSTREAM_KEY_URL=http://ubuntumirror.it.att.com/keys/mirror_key.pub"
+        }
+    }
+
+    stage('Image Publish'){
+        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory (IMAGE, IMAGE_LATEST)
+        }
+    }
+}
