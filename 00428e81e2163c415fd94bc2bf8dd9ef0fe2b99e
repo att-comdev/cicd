@@ -22,6 +22,30 @@
       "revId": "00428e81e2163c415fd94bc2bf8dd9ef0fe2b99e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52bc0b7e_8f4468ae",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 35
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-19T17:16:48Z",
+      "side": 1,
+      "message": "As noted in the earlier comment I would be revisiting osh.deployK8sAIO() in a new ps to handle specific commits with modify. Loci pipelines are also dependent on this and i would like to take care of this separately",
+      "parentUuid": "c5e3492f_f5ceaf22",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 24
+      },
+      "revId": "00428e81e2163c415fd94bc2bf8dd9ef0fe2b99e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
