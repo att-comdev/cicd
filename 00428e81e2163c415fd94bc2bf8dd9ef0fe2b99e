@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5e3492f_f5ceaf22",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 35
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-19T17:06:00Z",
+      "side": 1,
+      "message": "Can you please add this as a parameter to he seed.groovy too ?\nBecause it would be nice to have the flexibility to point by hand to a stable Openstack helm infra commit in case the latest commit in master branch is unstable.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 24
+      },
+      "revId": "00428e81e2163c415fd94bc2bf8dd9ef0fe2b99e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
