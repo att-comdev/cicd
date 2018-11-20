@@ -40,7 +40,7 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
             _printError(201, res)
         } catch (err) {
                 sleep 120
-                error(err)
+                error(err.getMessage())
         }
     }
     return res
@@ -68,7 +68,7 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
             _printError(200, res)
         } catch (err) {
                 sleep 120
-                error(err)
+                error(err.getMessage())
         }
     }
     return res
@@ -103,7 +103,7 @@ def createAction(uuid, token, shipyardUrl, action) {
             _printError(201, res)
         } catch (err) {
                 sleep 120
-                error(err)
+                error(err.getMessage())
         }
     }
     return res
@@ -134,7 +134,7 @@ def getSteps(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
             _printError(200, res)
         } catch (err) {
                 sleep 120
-                error(err)
+                error(err.getMessage())
         }
     }
 
@@ -173,7 +173,7 @@ def getState(systep, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
             _printError(200, res)
         } catch (err) {
                 sleep 120
-                error(err)
+                error(err.getMessage())
         }
     }
 
