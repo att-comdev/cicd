@@ -51,6 +51,7 @@ DEFAULT_ARGS = " --build-arg FROM=${LOCI_BASE_IMAGE}\
   --build-arg NO_PROXY=${NO_PROXY}\
   --build-arg http_proxy=${HTTP_PROXY}\
   --build-arg https_proxy=${HTTPS_PROXY}\
+  --build-arg PIP_ARGS=--no-cache-dir --index-url ${conf.PIP_INDEX_URL} --trusted-host ${conf.PIP_TRUSTED_HOST}\
   --build-arg PROJECT_REPO=${LOCAL_WEB_URL}/repo/${PROJECT}"
 
 // cmd for running Docker in Docker
