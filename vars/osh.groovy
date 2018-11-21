@@ -38,18 +38,38 @@ def dockerAuth(String creds = 'jenkins-artifactory') {
 
 /**
  * Clone OpenstackHelm projects into 'WORKSPACE'
- * Logs commmithash of latest revision into 'artifacts/OSH_version.txt'
+ * Logs commmithash of checkout revision into 'artifacts/OSH_version.txt'
+ *
+ * @param commitIDs map containing commitHash of openstackHelm projects to checkout
+ *                  default is latest master
  */
-def cloneOSH() {
-    sh 'mkdir -p $WORKSPACE/artifacts'
+def cloneOSH(Map commitIDs) {
+    // commit hash for openstack/openstack-helm-infra
+    def helmInfraCommitid = commitIDs.helmInfraCommitid ?: ''
 
+    // commit hash for openstack/openstack-helm
+    def helmCommitid = commitIDs.helmCommitid ?: ''
+
+    sh 'mkdir -p $WORKSPACE/artifacts'
     for (proj in ['openstack-helm', 'openstack-helm-infra']) {
-        git_url = "https://git.openstack.org/openstack/${proj}.git"
-        branch = "master"
+        def git_url = "https://git.openstack.org/openstack/${proj}.git"
+        def branch = (proj == 'openstack-helm') ? (helmCommitid ? helmCommitid : 'master') :
+                                                  (helmInfraCommitid ? helmInfraCommitid : 'master')
         gerrit.cloneProject(git_url, branch, "", "${WORKSPACE}/${proj}")
-        version = gerrit.getVersion(git_url, branch)
-        sh "echo ${proj} head is at ${version} | tee -a ${WORKSPACE}/artifacts/OSH_version.txt"
+        dir("${WORKSPACE}/${proj}"){
+            version = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+            sh "echo ${proj}: ${version} | tee -a ${WORKSPACE}/artifacts/OSH_version.txt"
+        }
     }
+}
+
+/**
+ *  This method allow for conventional usage as cloneOSH()
+ *       cloneOSH() - All defaults
+**/
+def cloneOSH() {
+   commitIDs = [:]
+    cloneOSH(commitIDs)
 }
 
 /**
@@ -294,7 +314,28 @@ def artifactLogs() {
 /**
  * Deploy Kubernetes AIO
  * Setup Kubernetes AIO and install Helm
- * @return helm_infra_commit commit hash of the latest openstack-helm-infra
+ *
+ * @param commitIDs map containing commitHash of openstackHelm projects to checkout
+ *                  default is latest master
+ */
+
+def deployK8sAIO(Map commitIDs) {
+
+    sh 'sudo apt-get update'
+    sh 'sudo apt-get install -y make curl'
+
+    cloneOSH(commitIDs)
+    updateProxy()
+
+    dir("${WORKSPACE}/openstack-helm-infra") {
+        sh 'make dev-deploy setup-host'
+        sh 'make dev-deploy k8s'
+    }
+}
+
+/**
+ * Deploy Kubernetes AIO
+ * Setup Kubernetes AIO and install Helm
  */
 
 def deployK8sAIO() {
@@ -306,11 +347,9 @@ def deployK8sAIO() {
     updateProxy()
 
     dir("${WORKSPACE}/openstack-helm-infra") {
-        helm_infra_commit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
         sh 'make dev-deploy setup-host'
         sh 'make dev-deploy k8s'
     }
-    return helm_infra_commit
 }
 
 /**
