@@ -52,6 +52,7 @@ DEFAULT_ARGS = [
   'NO_PROXY':     "${NO_PROXY}",
   'http_proxy':   "${HTTP_PROXY}",
   'https_proxy':  "${HTTPS_PROXY}",
+  'PIP_ARGS':     "--no-cache-dir --index-url ${conf.PIP_INDEX_URL} --trusted-host ${conf.PIP_TRUSTED_HOST}",
   'PROJECT_REPO': getProjectRepoInternalUrl(PROJECT),
 ]
 
