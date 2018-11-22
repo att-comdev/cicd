@@ -9,8 +9,7 @@ GIT_COMMIT = ""
 HELM_TOOLKIT_COMMIT = ""
 CHARTS_HOME = ""
 
-// deploying all charts require m1.xxlarge
-FLAVOR = (JOB_BASE_NAME == "openstack-helm-infra") ? 'm1.xxlarge' : 'm1.xlarge'
+FLAVOR = 'm1.xlarge'
 
 vm(flavor: FLAVOR) {
     stage('Setup environment'){
@@ -54,6 +53,8 @@ vm(flavor: FLAVOR) {
     dir(CHARTS_HOME){
         stage('Build & Package'){
             HELM_REPO.each { entry -> sh "helm repo add $entry.key $entry.value" }
+
+            // build all charts for openstack-helm-infra
             def cmd = (JOB_BASE_NAME == "openstack-helm-infra") ? "make all" : "make ${JOB_BASE_NAME}"
             def status = sh(returnStatus: true, script: cmd)
             if (status != 0) {
@@ -85,7 +86,8 @@ vm(flavor: FLAVOR) {
             }
         }
 
-        stage('Deploy Chart'){
+        stage('Deploy Chart(s)'){
+            // Deploy the built chart(s)
             charts = sh(returnStdout: true, script: "ls *${GIT_COMMIT}*.tgz").trim()
             print "charts is ${charts}"
             for (chart in charts.split()) {
@@ -98,6 +100,12 @@ vm(flavor: FLAVOR) {
                 sh "${WORKSPACE}/openstack-helm/tools/deployment/common/wait-for-pods.sh openstack 1800"
 
                 sh "helm status ${chart_name}"
+
+                // delete chart to free up resources prior to installing another chart
+                sh "helm delete --purge ${chart_name}"
+
+                // wait 5 min for pods to terminate
+                sh "${WORKSPACE}/openstack-helm/tools/deployment/common/wait-for-pods.sh openstack 300"
             }
         }
 
