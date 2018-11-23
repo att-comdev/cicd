@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bac60c4_412c1094",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-23T14:21:14Z",
+      "side": 1,
+      "message": "5 minutes looks to me as an overkill. Does it take so long ?",
+      "range": {
+        "startLine": 107,
+        "startChar": 18,
+        "endLine": 107,
+        "endChar": 51
+      },
+      "revId": "fb432d509e6c716da79ffba0ca2cd4729905c14d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
