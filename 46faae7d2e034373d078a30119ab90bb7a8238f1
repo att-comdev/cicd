@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af06a1e8_65a92abe",
+        "filename": "charts/airship/airship-utils/seed.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-11-26T20:47:10Z",
+      "side": 1,
+      "message": "Same question as for a airship-maas. Why do we loop here, is we have only one item?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 29
+      },
+      "revId": "46faae7d2e034373d078a30119ab90bb7a8238f1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
