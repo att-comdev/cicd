@@ -22,6 +22,30 @@
       "revId": "d39ff196d9990d35d2f4a08ec09d8259a0578e02",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4d6cc9e5_a4ce7d81",
+        "filename": "charts/airship/airship-maas/seed.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-26T20:52:33Z",
+      "side": 1,
+      "message": "Yes in the future we will squash all the different seeds from other pipelines (drydock,deckhand,promenade etc) to one \nso we keep this loop as a reference for now. We decided to do the refactor later. For now we need to have the pipelines merged because we really need the tarballs that are producing.",
+      "parentUuid": "e42e002c_9ddbc98d",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 31
+      },
+      "revId": "d39ff196d9990d35d2f4a08ec09d8259a0578e02",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
