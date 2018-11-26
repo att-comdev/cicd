@@ -22,6 +22,30 @@
       "revId": "fb432d509e6c716da79ffba0ca2cd4729905c14d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "46283d2d_247c38f0",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2018-11-26T08:33:14Z",
+      "side": 1,
+      "message": "5 min is the max for timeout. Heavy Charts like Xray take atleast a couple of minutes.\nThis is to ensure we dont timeout earlier and fail the job when it would have otherwise terminated nicely.",
+      "parentUuid": "7bac60c4_412c1094",
+      "range": {
+        "startLine": 107,
+        "startChar": 18,
+        "endLine": 107,
+        "endChar": 51
+      },
+      "revId": "fb432d509e6c716da79ffba0ca2cd4729905c14d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
