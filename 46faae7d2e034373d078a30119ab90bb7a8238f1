@@ -22,6 +22,30 @@
       "revId": "46faae7d2e034373d078a30119ab90bb7a8238f1",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4d03f876_fbddb232",
+        "filename": "charts/airship/airship-utils/seed.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-26T20:53:31Z",
+      "side": 1,
+      "message": "I replied to the airship-maas PS",
+      "parentUuid": "af06a1e8_65a92abe",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 29
+      },
+      "revId": "46faae7d2e034373d078a30119ab90bb7a8238f1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
