@@ -102,3 +102,43 @@ def putArtifacts (String file, String repo) {
 
      artf.publishBuildInfo(artf.upload(spec))
 }
+
+
+/**
+ * Delete files (html, logs, xml, etc) artifacts from Artifactory
+ *
+ * @param creds jenkins credentials ID; 'jenkins-artifactory' or
+ *        'secure-artifactory' at the moment
+ * @param url artifactory URL, e.g. "https://my-artifactory.com/artifactory"
+ * @param repo Repository to remove artifact from, e.g. "aqua-docs"
+ * @param path Path to the folder to remove from Artifactory without a
+          trailing /
+ * @param name Name of the file to remove from the given path, if no name is
+ *        given, all files in the given path will be removed
+**/
+def deleteArtifacts (String creds, String url, String repo, String path,
+                     String name="") {
+    withCredentials([usernamePassword(credentialsId: creds,
+                    usernameVariable: 'REPO_USER',
+                    passwordVariable: 'REPO_PASSWORD')]) {
+
+       data = "items.find({\"repo\": \"${repo}\", \"path\": \"${path}\", "
+       if ("${name}" == ""){
+           data += "\"name\": \"{\"\$match\": \"*\"}\"})"
+       } else {
+           data += "\"name\": \"${name}\"})"
+           path = "${path}/${name}"
+       }
+       opts = "-u $REPO_USER:$REPO_PASSWORD "
+       opts += "-s -H \"Content-Type: text/plain\" -d \'${data}\' -X POST"
+       cmd = "curl ${opts} ${url}/api/search/aql | awk \'/total/{print}\'"
+       totatlArtifactsCmd = "${cmd} | xargs"
+       sh "echo \"Deleting \$(${totatlArtifactsCmd}) artifacts.\""
+       opts = "-o /dev/null -s -w '%{http_code}' -u $REPO_USER:$REPO_PASSWORD -X DELETE"
+       cmd = "curl ${opts} ${url}/${repo}/${path}"
+       sh "echo \"API status code \$(${cmd}) received from artifactory.\" "
+       cmd = "echo \"\$(${totatlArtifactsCmd}) artifacts currently match the "
+       cmd += "given path \\\"${path}\\\" after the delete request.\""
+       sh "${cmd}"
+   }
+}
