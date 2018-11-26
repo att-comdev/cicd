@@ -1,4 +1,5 @@
-
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurperClassic
 //Format for method names
 //{artifact_repo}_{what is being published}
 //For example nexus_jenkins_log
@@ -101,4 +102,56 @@ def putArtifacts (String file, String repo) {
             }]}"""
 
      artf.publishBuildInfo(artf.upload(spec))
+}
+
+
+/**
+ * Delete files (html, logs, xml, etc) artifacts from Artifactory
+ *
+ * @param creds jenkins credentials ID; 'jenkins-artifactory' or
+ *        'secure-artifactory' at the moment
+ * @param url artifactory URL, e.g. "https://my-artifactory.com/artifactory"
+ * @param repo Repository to remove artifact from, e.g. "aqua-docs"
+ * @param path Path to the folder to remove from Artifactory without a
+          trailing /
+ * @param name Name of the file to remove from the given path, if no name is
+ *        given, all files in the given path will be removed
+**/
+def deleteArtifacts (String creds, String url, String repo, String path,
+                     String name="") {
+    if (name == ""){
+        data = ["repo": repo, "path": path, "name": ["\$match": "*"]]
+    } else {
+        data = ["repo": repo, "path": path, "name": name]
+        path = path + "/" + name
+    }
+    jsonData = new JsonOutput().toJson(data)
+    reqBody = "items.find(" + data + ")"
+    resp = httpRequest(url: "${url}/api/search/aql",
+                       authentication: creds,
+                       contentType: "TEXT_PLAIN",
+                       httpMode: "POST",
+                       quiet: true,
+                       requestBody: reqBody)
+    jsonResp = new JsonSlurperClassic().parseText(resp.content)
+    total = jsonResp.range.total
+    print "Attempting to delete ${total} artifacts."
+
+    resp = httpRequest(url: "${url}/${repo}/${path}",
+                       authentication: creds,
+                       httpMode: "DELETE",
+                       quiet: true)
+    status = resp.status
+    msg = "The API status code ${status} was received from artifactory"
+    print msg + " after the delete request."
+    resp = httpRequest(url: "${url}/api/search/aql",
+                       authentication: creds,
+                       contentType: "TEXT_PLAIN",
+                       httpMode: "POST",
+                       quiet: true,
+                       requestBody: reqBody)
+    jsonResp = new JsonSlurperClassic().parseText(resp.content)
+    total = jsonResp.range.total
+    msg = "A total of ${total} artifacts currently match the given path"
+    print msg + " " + path + " after the delete request."
 }
