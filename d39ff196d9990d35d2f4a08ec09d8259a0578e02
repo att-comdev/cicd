@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e42e002c_9ddbc98d",
+        "filename": "charts/airship/airship-maas/seed.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-11-26T20:44:10Z",
+      "side": 1,
+      "message": "Are there plans to build from multiple repositories? If not, then why do we use for loop here, which goes over a single item?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 31
+      },
+      "revId": "d39ff196d9990d35d2f4a08ec09d8259a0578e02",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
