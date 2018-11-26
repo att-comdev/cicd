@@ -120,7 +120,7 @@ def prepare_local_mirrors = {
     // if we build requirements image, replace external urls to point nginx in
     // upper-constraints.txt and replace PROJECT_REF build argument
     if (dependencyList && PROJECT.contains('requirements')) {
-        upperConstraints = upperConstraints.replaceAll("((?<=git\\+)ssh://.*?(?=/))", "${LOCAL_WEB_URL}/repo")
+        upperConstraints = upperConstraints.replaceAll("((?<=git\\+)ssh://.*(?=/.+@))", "${LOCAL_WEB_URL}/repo")
         writeFile file: uc_path, text: upperConstraints
         sh "git ${gitArg} diff"
         sh "git ${gitArg} checkout -b local"
