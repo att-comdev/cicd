@@ -46,6 +46,30 @@
       "revId": "fb432d509e6c716da79ffba0ca2cd4729905c14d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89eeab46_30531499",
+        "filename": "charts/att-comdev/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2018-11-27T14:29:22Z",
+      "side": 1,
+      "message": "ok looks good to me then.",
+      "parentUuid": "46283d2d_247c38f0",
+      "range": {
+        "startLine": 107,
+        "startChar": 18,
+        "endLine": 107,
+        "endChar": 51
+      },
+      "revId": "fb432d509e6c716da79ffba0ca2cd4729905c14d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
