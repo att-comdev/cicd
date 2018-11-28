@@ -1,0 +1,40 @@
+projectList = env.PROJECT_LIST.split()
+
+def getProjName(String project) {
+    project.split('/')[-1]
+}
+
+def getRefParamName(String project) {
+    getProjName(project).toUpperCase().replace('-', '_') + "_REF"
+}
+
+def compileDependencies(Map dependencyMap) {
+    res = []
+    dependencyMap.each { name, ref -> res.add("${name}:${ref}") }
+    res.join(" ")
+}
+
+projName = getProjName(GERRIT_PROJECT)
+if (projectList.contains(projName)) {
+    params = [
+        stringParam(name: getRefParamName(GERRIT_PROJECT),
+                    value: GERRIT_REFSPEC),
+    ]
+} else {
+    print projName
+    params = [
+        stringParam(name: 'DEPENDENCY_LIST',
+                    value: compileDependencies([(projName): GERRIT_REFSPEC])),
+    ]
+}
+params.add(stringParam(name: 'EVENT_TYPE', value: GERRIT_EVENT_TYPE))
+
+print "Building Generic Pipeline with ${params}"
+stage("Generic Pipeline") {
+    job = build(
+        job: "${JOB_BASE}/GenericPipeline",
+        wait: true,
+        propagate: true,
+        parameters: params
+    )
+}
