@@ -1,0 +1,414 @@
+import com.att.nccicd.config.conf as config
+import groovy.json.JsonSlurperClassic
+
+conf = new config(env).CONF
+
+LOCI_REPO = 'https://opendev.org/openstack/loci.git'
+
+LOCAL_WEB_PORT = '8080'
+LOCAL_WEB_ADDR = '172.18.0.1'
+LOCAL_WEB_URL = "http://${LOCAL_WEB_ADDR}:${LOCAL_WEB_PORT}"
+NO_PROXY += ",${LOCAL_WEB_ADDR}"
+REPO_BASE_PATH = 'web/repo'
+COMMIT_ARGS = "-c 'user.name=Jenkins' -c 'user.email=jenkins@example.com'"
+PY3 = 'no'
+
+NET_RETRY_COUNT = env.NET_RETRY_COUNT.toInteger()
+
+SEMANTIC_RELEASE_VERSION = "0.9.0"
+
+def getOriginalCause(cause) {
+    if (cause instanceof hudson.model.Cause$UpstreamCause) {
+        cause = getOriginalCause(cause.getUpstreamCauses()[0])
+    }
+    return cause
+}
+
+def isStartedByUser() {
+    cause = getOriginalCause(currentBuild.rawBuild.getCauses()[0])
+    if (cause instanceof hudson.model.Cause$UserIdCause) {
+        return true
+    }
+    return false
+}
+
+if (EVENT_TYPE != 'manual' && RESTRICT_EVENT_TYPE.toBoolean() &&
+        isStartedByUser()) {
+    error "Only manual EVENT_TYPE is allowed for manual builds"
+}
+
+ARTF_REPO = 'openstack'
+PS = ''
+
+if (['patchset-created', 'comment-added'].contains(EVENT_TYPE)) {
+    PS = '-patchset'
+}
+
+PROJECT_SUFFIX = env.PROJECT_NAME.split('-')[-1]
+IMAGE_NAME = "mos-" + BUILD_TYPE
+
+if (RELEASE == 'ocata') {
+    PROJECT_BRANCH = conf.OCATA_BRANCH
+} else if (RELEASE == 'stein') {
+    PROJECT_BRANCH = conf.STEIN_BRANCH
+    PY3 = 'affirmative'
+} else {
+    error("Unsupported RELEASE: ${RELEASE}")
+}
+
+PROJECT_REF = PROJECT_REF ? PROJECT_REF : PROJECT_BRANCH
+
+DISPLAY_PREFIX = "${BUILD_TYPE} ${EVENT_TYPE} ${PROJECT_BRANCH}"
+
+currentBuild.displayName = (
+    "#${BUILD_NUMBER} ${DISPLAY_PREFIX}"
+)
+
+
+if (RELEASE == 'stein' || ["neutron-sriov", "nova-1804"].contains(BUILD_TYPE)) {
+    LOCI_BASE_IMAGE = conf.LOCI_SRIOV_BASE_IMAGE
+    OVS_REPO = conf.OVS_REPO_BIONIC
+} else {
+    LOCI_BASE_IMAGE = conf.LOCI_BASE_IMAGE
+    OVS_REPO = conf.OVS_REPO_XENIAL
+}
+
+
+REQ_PROJECT_NAME = 'mos-requirements'
+PROJECT_PREFIX = "loci/mos"
+PROJECT_REPO = getProjectRepoUrl(PROJECT_NAME)
+
+PROJECT_URL = ""
+PROJECT_VERSION = ""
+
+IMAGE_BASE = ("${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}${PS}/${RELEASE}/" +
+              "${PROJECT_PREFIX}")
+
+WHEELS_LATEST = (
+    env.REQUIREMENTS_LOCI_IMAGE ?
+    env.REQUIREMENTS_LOCI_IMAGE :
+    "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${RELEASE}/${PROJECT_PREFIX}/mos-requirements:latest"
+)
+
+DEFAULT_ARGS = [
+  'FROM':         "${LOCI_BASE_IMAGE}",
+  'PROJECT':      "${PROJECT_SUFFIX}",
+  'PROJECT_REF':  "${PROJECT_REF}",
+  'NO_PROXY':     "${NO_PROXY}",
+  'http_proxy':   "${HTTP_PROXY}",
+  'https_proxy':  "${HTTPS_PROXY}",
+  'PROJECT_REPO': getProjectRepoInternalUrl(PROJECT_NAME),
+  'PYTHON3'     : PY3,
+]
+
+// cmd for running Docker in Docker
+DIND_CONTAINER = "locibuildcont"
+DIND = "sudo docker exec ${DIND_CONTAINER}"
+
+// Compile ssh-agent key names and ssh config from SSH_DATA to be used
+// for fetching projects to internal mirror
+(KEY_NAMES, SSH_CONFIG) = compileSshData()
+
+def getProjectRepoUrl(prj) {
+    return prj.contains("ssh://") ? prj : "ssh://${INTERNAL_GERRIT_URL}:${INTERNAL_GERRIT_PORT}/${prj}"
+}
+
+def getProjectRepoInternalUrl(prj) {
+    return "${LOCAL_WEB_URL}/repo/${prj}"
+}
+
+def create_mirrors(projectList, keyList) {
+    sshagent(keyList) {
+        dir (REPO_BASE_PATH) {
+            projectList.each {
+                (url, name) = [getProjectRepoUrl(it), it.split("/")[-1]]
+                sh "git clone --mirror ${url} ${name}"
+                sh "git --git-dir ${name} update-server-info"
+            }
+        }
+    }
+}
+
+def getRequirementsImageVersion() {
+    pull(WHEELS_LATEST)
+    cmd = (
+        "${DIND} docker inspect " +
+        "--format='{{index .Config.Labels \"org.label-schema.vcs-ref\"}}' " +
+        " ${WHEELS_LATEST}"
+    )
+    return sh(returnStdout: true, script: cmd).trim()
+}
+
+def getRevision(projectRepo, projectRef) {
+    try {
+        Long.parseLong(projectRef, 16)
+        revision = projectRef
+    } catch(java.lang.NumberFormatException ex) {
+        revision = gerrit.getVersion(projectRepo, projectRef,
+                                     INTERNAL_GERRIT_KEY)
+    }
+    return revision
+}
+
+def pushRequirements() {
+    sshagent([INTERNAL_GERRIT_KEY]) {
+        sh ("scp -p -P ${INTERNAL_GERRIT_PORT} " +
+            "${INTERNAL_GERRIT_URL}:hooks/commit-msg " +
+            "${REPO_BASE_PATH}/${REQ_PROJECT_NAME}/hooks/")
+        gitArg = ("--git-dir ${REPO_BASE_PATH}/${REQ_PROJECT_NAME} " +
+                  "--work-tree worktree")
+        // pushing commit to repo creating Gerrit change first
+        sh "git ${gitArg} ${COMMIT_ARGS} commit --amend -C HEAD"
+        sh "git ${gitArg} config --unset remote.origin.mirror"
+        sh "git ${gitArg} push origin HEAD:refs/for/${PROJECT_BRANCH}/${UPDATE_TOPIC}"
+        sh "git ${gitArg} push origin HEAD:${PROJECT_BRANCH}"
+        sh "git ${gitArg} config --local remote.origin.mirror true"
+    }
+    PROJECT_VERSION = sh (script: "git ${gitArg} rev-parse HEAD",
+                          returnStdout: true).trim()
+    PROJECT_URL = getChangeUrl(REQ_PROJECT_NAME, PROJECT_VERSION)
+}
+
+def commit(gitArg, message) {
+    sh "git ${gitArg} diff"
+    sh("git ${gitArg} ${COMMIT_ARGS} commit -a -m \"${message}\"")
+}
+
+// Prepare local mirrors for project and it's dependencies specified in
+// upper-constraints.txt of mos-requirements project. In case of
+// mos-requirements image building, replaces external 'git+ssh://' urls in
+// upper-constraints.txt to point local nginx.
+// Another solution here could be to maintain separate list of projects to
+// mirror, that would simplify current code, but having single source of
+// truth is tempting
+def prepare_local_mirrors = {
+    projectList = [PROJECT_NAME]
+    // We always need requirements project as upper-constraints.txt is
+    // a single source of truth of a dependeny list
+    if (!PROJECT_NAME.contains('requirements')) {
+        projectList.add(REQ_PROJECT_NAME)
+    }
+    sh "mkdir -p ${REPO_BASE_PATH}"
+    create_mirrors(projectList, [INTERNAL_GERRIT_KEY])
+    sh 'mkdir -p worktree'
+
+    gitArg = ("--git-dir ${REPO_BASE_PATH}/${REQ_PROJECT_NAME} " +
+              "--work-tree worktree")
+    // Pick ref for requirements project from requirements image we build
+    // current image with
+    // PROJECT_REF is not provided for dependency review, default is used
+    requirementsRef = (PROJECT_NAME.contains('requirements') ? PROJECT_REF :
+                       getRequirementsImageVersion())
+    sh "git ${gitArg} checkout ${requirementsRef}"
+    // Creating a list of ssh dependency urls from upper-constraints.txt
+    sshDependencyList = []
+    uc_path = 'worktree/upper-constraints.txt'
+    upperConstraints = readFile uc_path
+    (upperConstraints =~ /git\+(ssh:\/\/.*?\/.*?)@.*/).each {
+        sshDependencyList.add(it[1])
+    }
+    if (sshDependencyList) {
+        create_mirrors(sshDependencyList, KEY_NAMES)
+    }
+
+    // if we build requirements image, replace external urls to point nginx in
+    // upper-constraints.txt and replace PROJECT_REF build argument
+    // Also replace revisions for components in OVERRIDE_DEPENDENCY_LIST
+    // if provided
+    if (!PROJECT_NAME.contains('requirements')) { return }
+    OVERRIDE_DEPENDENCY_LIST = env.DEPENDENCY_LIST.split()
+    if (!(OVERRIDE_DEPENDENCY_LIST || sshDependencyList)) { return }
+
+    sh "git ${gitArg} checkout -b local"
+    DEFAULT_ARGS['PROJECT_REF'] = 'local'
+
+    upperConstraintsUpdated = upperConstraints
+    OVERRIDE_DEPENDENCY_LIST.each {
+        (depName, depRef) = it.split(':')
+        if (EVENT_TYPE == 'change-merged') {
+            depRef = getRevision(getProjectRepoUrl(depName), depRef)
+        }
+        // Groovy does not support look-behind with undefined maximum length
+        upperConstraintsUpdated = upperConstraintsUpdated.replaceAll(
+            "(?<=git\\+(ssh|https)://.{0,30}/${depName}@).*(?=#.*)", depRef)
+    }
+    if (upperConstraintsUpdated != upperConstraints) {
+        upperConstraints = upperConstraintsUpdated
+        writeFile file: uc_path, text: upperConstraints
+        commit(gitArg, "[update] Update dependency revisions")
+        // push newly created commit to mos-requirements repository
+        if (EVENT_TYPE == 'change-merged') {
+            pushRequirements()
+        }
+    }
+
+    upperConstraintsUpdated = upperConstraints.replaceAll(
+        "((?<=git\\+)ssh://.*(?=/.+@))", "${LOCAL_WEB_URL}/repo")
+    if (upperConstraintsUpdated != upperConstraints) {
+        upperConstraints = upperConstraintsUpdated
+        writeFile file: uc_path, text: upperConstraints
+        commit(gitArg, "Switch to local urls")
+    }
+
+    sh "git ${gitArg} update-server-info"
+}
+
+def getChangeUrl(proj, projRevision) {
+    cmd = "ssh -p ${INTERNAL_GERRIT_PORT} ${INTERNAL_GERRIT_URL} "
+    cmd += "gerrit query --format=JSON commit:${projRevision} project:${proj}"
+    sshagent([INTERNAL_GERRIT_KEY]) {
+         queryResult = sh(returnStdout: true, script: cmd)
+    }
+    new JsonSlurperClassic().parseText(queryResult).get('url', '')
+}
+
+def compileSshData() {
+    sshConfig = ""
+    keys = []
+    parseSshData().each { entry ->
+        sshConfig += "Host $entry.value.resource\n" +
+                     "User $entry.value.user\n"
+        keys.add(entry.key)
+    }
+    return [keys, sshConfig]
+}
+
+// Parse json containing
+// {'<credential_name>': {'user': '<user>', 'resource': '<resource>'}}, ...}
+// The source of data what credentials to use in ssh-agent with what user
+// to what resource
+def parseSshData() {
+    return new groovy.json.JsonSlurper().parseText(SSH_DATA)
+}
+
+def pull(url) {
+    utils.retrier (NET_RETRY_COUNT) {
+        sh "${DIND} docker pull ${url}"
+    }
+}
+
+def push(image_tag) {
+    utils.retrier (NET_RETRY_COUNT) {
+        sh "${DIND} docker push ${image_tag}"
+    }
+}
+
+def buildLociMos(projConfArgs = null, wheelArgs = null) {
+    pull(LOCI_BASE_IMAGE)
+    def cmd = ("${DIND} docker inspect --format='{{index .RepoDigests 0}}' " +
+               "${LOCI_BASE_IMAGE}")
+    def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+
+    def loci_version = gerrit.getVersion(LOCI_REPO, "master")
+
+    LOCI_REPO_PATH = "/tmp/loci"
+    // Clone loci repo to apply cicd patch for tests deletion
+    sh "${DIND} git clone ${LOCI_REPO} ${LOCI_REPO_PATH}"
+
+    // Copy script for tests cleanup to docker
+    data = libraryResource "cicd/remove_tests.sh"
+    writeFile file: 'remove_tests.sh', text: data
+
+    sh ("sudo docker exec " +
+        "-e REMOVE_TESTS_FILE_DATA=\"\$(cat ${WORKSPACE}/remove_tests.sh)\" " +
+        "${DIND_CONTAINER} sh -c 'echo \"\$REMOVE_TESTS_FILE_DATA\" > " +
+        "${LOCI_REPO_PATH}/scripts/remove_tests.sh'")
+    sh "${DIND} chmod +x ${LOCI_REPO_PATH}/scripts/remove_tests.sh"
+
+    // Add tests deletion step into install scenario for loci
+    sh ("${DIND} " +
+        "sed -i '/clone_project.sh/a \$(dirname \$0)/remove_tests.sh' " +
+        "${LOCI_REPO_PATH}/scripts/install.sh")
+
+    def labels = " --label org.label-schema.vcs-ref=${PROJECT_VERSION}\
+      --label org.label-schema.vcs-url=${PROJECT_URL}\
+      --label org.label-schema.loci-ref=${loci_version}\
+      --label org.label-schema.base-image=${base_sha256}\
+      --label org.label-schema.vendor=\"${conf.CUSTOM_LABEL}\"\
+      --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
+
+    if (!PROJECT_NAME.contains('requirements')) {
+        pull(WHEELS_LATEST)
+        cmd = ("${DIND} docker inspect --format='{{index .RepoDigests 0}}' " +
+               "${WHEELS_LATEST}")
+        def requirements_sha256 = sh(returnStdout: true, script: cmd).trim()
+        labels += (" --label org.label-schema.requirements-image=" +
+                   "${requirements_sha256}")
+    }
+
+    if (EVENT_TYPE == 'change-merged') {
+       labels += " --label org.label-schema.vcs-event=${EVENT_TYPE}"
+    }
+
+    customArgs = [:]
+    if (params.CUSTOM_OVS) {
+        sh ("${DIND} sh -c 'echo -e \"FROM ${LOCI_BASE_IMAGE}\n" +
+            "RUN echo \"${OVS_REPO}\" >> /etc/apt/sources.list\"" +
+            "| docker build - -t base_image'")
+        customArgs["FROM"] = "base_image"
+    }
+
+    def argsMap = loci.mergeArgs([DEFAULT_ARGS, projConfArgs, wheelArgs, customArgs])
+    def args = loci.buildParameters(argsMap)
+    def image_tag = ("${IMAGE_BASE}/${IMAGE_NAME}:${PROJECT_VERSION}" +
+                     ".${BUILD_TIMESTAMP}")
+    ansiColor('xterm') {
+        utils.retrier(NET_RETRY_COUNT) {
+            sh ("${DIND} docker build --force-rm --no-cache " +
+                "${LOCI_REPO_PATH} ${args} ${labels} --tag ${image_tag}")
+        }
+    }
+    push(image_tag)
+
+    //publish latest (branch) tag on merge for requirements
+    if (EVENT_TYPE == 'change-merged') {
+        def image_latest = "${IMAGE_BASE}/${IMAGE_NAME}:latest"
+        sh "${DIND} docker tag ${image_tag} ${image_latest}"
+        push(image_latest)
+    }
+
+    return image_tag
+}
+
+vm2 ('loci-bootstrap.sh',
+         'cicd-ubuntu-16.04-server-cloudimg-amd64',
+         'm1.medium',
+         '',
+         'loci',
+         false) {
+
+    stage('Docker Setup') {
+        loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
+                     DIND_CONTAINER, NET_RETRY_COUNT)
+    }
+
+    stage('Local Repo Setup') {
+        loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT, NET_RETRY_COUNT)
+        // Create ssh config on slave to control what login is used for
+        // what resource
+        writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
+        PROJECT_VERSION = getRevision(PROJECT_REPO, PROJECT_REF)
+        PROJECT_URL = getChangeUrl(PROJECT_NAME, PROJECT_VERSION)
+        prepare_local_mirrors()
+    }
+
+    stage ("Build Project") {
+        print "Building ${PROJECT_NAME.capitalize()}"
+        if (PROJECT_NAME.contains('requirements')) {
+            IMAGE_LOCI = buildLociMos()
+        } else {
+            loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
+            WHEELS_ARG = ['WHEELS': "${LOCAL_WEB_URL}/images/wheels.tar"]
+            IMAGE_LOCI = buildLociMos(loci.getDependencies(BUILD_TYPE),
+                                      WHEELS_ARG)
+        }
+        env.LOCI_IMAGE_VAR = (
+            "${BUILD_TYPE.replace('-', '_').toUpperCase()}_LOCI")
+        cmd = ("${DIND} docker inspect " +
+               "--format='{{index .RepoDigests 0}}' ${IMAGE_LOCI}")
+        env.IMAGE_SHA = sh(returnStdout: true, script: cmd).trim()
+        sh "mkdir -p ${WORKSPACE}/artifacts"
+        sh "echo $IMAGE_SHA | tee -a ${WORKSPACE}/artifacts/loci_image.txt"
+        archiveArtifacts 'artifacts/*'
+    }
+}
