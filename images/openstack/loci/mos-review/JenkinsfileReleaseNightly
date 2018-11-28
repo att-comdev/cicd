@@ -1,0 +1,277 @@
+import groovy.json.JsonSlurperClassic
+import groovy.json.JsonOutput
+
+json = new JsonSlurperClassic()
+
+MANIFESTS_PROJECT_NAME = 'aic-clcp-manifests'
+VERSIONS_PATH = 'global/v4.0/software/config/versions.yaml'
+REQ_PROJECT_NAME = 'mos-requirements'
+PROJECT_MAP = json.parseText(env.PROJECT_MAP)
+DEPENDENCY_PROJECT_LIST = json.parseText(env.DEPENDENCY_PROJECT_LIST)
+TOPIC = "automatic-loci-update"
+MESSAGE = "[Update] Nightly loci update"
+
+DIND_CONTAINER = "locibuildcont"
+DIND = "sudo docker exec ${DIND_CONTAINER}"
+
+COMMIT_ARGS = "-c 'user.name=Jenkins (${INTERNAL_GERRIT_USER})' -c 'user.email=${INTERNAL_GERRIT_USER}@att.com'"
+
+ARTF_REPO = 'openstack'
+BRANCH = 'master'
+if (BRANCH == 'master') {
+    RELEASE = 'ocata'
+}
+
+PROJECT_PREFIX = "loci/mos"
+IMAGE_BASE = "${ARTF_SECURE_DOCKER_URL}/${ARTF_REPO}/${RELEASE}/${PROJECT_PREFIX}"
+TAG = 'latest'
+
+
+def getProjectRepoUrl(prj) {
+    return prj.contains("ssh://") ? prj : "${INTERNAL_GERRIT_SSH}/${prj}"
+}
+
+
+def getImageVersions(url) {
+    versions = [:]
+    sh "${DIND} docker pull ${url}"
+
+    cmd = "${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${url}"
+    versions['url'] = sh(returnStdout: true, script: cmd).trim()
+    versions['sha256'] = versions['url'].split('@')[-1]
+
+    cmd = (
+        "${DIND} docker inspect " +
+        "--format='{{index .Config.Labels \"org.label-schema.vcs-ref\"}}' " +
+        " ${url}"
+    )
+    versions['vcsRef'] = sh(returnStdout: true, script: cmd).trim()
+
+    cmd = (
+        "${DIND} docker inspect " +
+        "--format='{{index .Config.Labels \"org.label-schema.requirements-image\"}}' " +
+        " ${url}"
+    )
+    versions['requirements_sha256'] = sh(returnStdout: true, script: cmd).trim().split('@')[-1]
+    return versions
+}
+
+
+def getLatestSetVersions = {
+    imagesVersions = [:]
+    PROJECT_MAP.each { projectName, buildTypes ->
+        if (!buildTypes) {
+            buildTypes = [projectName.split('-')[-1]]
+        }
+        buildTypes.each { buildType ->
+            image_name = "mos-" + buildType
+            url = "${IMAGE_BASE}/${image_name}:${TAG}"
+            imagesVersions[buildType] = getImageVersions(url)
+        }
+    }
+    return imagesVersions
+}
+
+
+def getProjectsVersions(projectList) {
+    projectsVersions = [:]
+    projectList.each { projectName ->
+        projectRepo = getProjectRepoUrl(projectName)
+        revision = gerrit.getVersion(projectRepo, BRANCH, INTERNAL_GERRIT_KEY)
+        projectsVersions[projectName] = revision
+    }
+    return projectsVersions
+}
+
+
+def verifyImagesVersions(imagesVersions, reposVersions) {
+    failure = false
+    requirements_sha256 = imagesVersions['requirements']['sha256']
+    PROJECT_MAP.each { projectName, buildTypes ->
+        if (!buildTypes) {
+            buildTypes = [projectName.split('-')[-1]]
+        }
+        buildTypes.each { buildType ->
+            imageVersion = imagesVersions[buildType]['vcsRef']
+            imageReqSha = imagesVersions[buildType]['requirements_sha256']
+            projectVersion = reposVersions[projectName]
+            if (imageVersion != projectVersion ||
+                  (!buildType.contains('requirements') && imageReqSha != requirements_sha256)) {
+                failure = true
+                print ("--- ${buildType}: FAILURE ---")
+                imagesVersions[buildType]['status'] = "FAILURE"
+            } else {
+                print ("--- ${buildType}: SUCCESS ---")
+                imagesVersions[buildType]['status'] = "SUCCESS"
+            }
+            imagesVersions[buildType]['project_version'] = projectVersion
+            print ("${buildType} image version: ${imageVersion}" +
+                   "\n${projectName} ${BRANCH} version: ${projectVersion}" +
+                   "\n${buildType} image requirements sha256: ${imageReqSha}" +
+                   "\nlatest requirements sha256: ${requirements_sha256}")
+        }
+    }
+    return failure
+}
+
+
+def verifyDepVersions(upperConstraintsVersions, reposVersions) {
+    failure = false
+    DEPENDENCY_PROJECT_LIST.each { projectName ->
+        upperConstraintsVersion = upperConstraintsVersions[projectName]
+        projectVersion = reposVersions[projectName]
+        if (upperConstraintsVersion != projectVersion) {
+            failure = true
+            print ("--- ${projectName}: FAILURE ---")
+            upperConstraintsVersions[buildType]['status'] = "FAILURE"
+        } else {
+            print ("--- ${projectName}: SUCCESS ---")
+            upperConstraintsVersions[buildType]['status'] = "SUCCESS"
+        }
+        upperConstraintsVersions[buildType]['project_version'] = projectVersion
+        print ("${projectName} version in upper-constraints.txt: ${upperConstraintsVersion}" +
+               "\n${projectName} ${BRANCH} version: ${projectVersion}")
+    }
+    return failure
+}
+
+
+vm2 ('loci-bootstrap.sh',
+         'cicd-ubuntu-16.04-server-cloudimg-amd64',
+         'm1.medium',
+         '',
+         'loci',
+         false) {
+    stage('Docker Setup') {
+        loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
+                     DIND_CONTAINER)
+    }
+    stage('Gather projects versions') {
+        reposVersions = getProjectsVersions(
+            PROJECT_MAP.keySet() + DEPENDENCY_PROJECT_LIST as Set
+        )
+        print "Projects versions:\n${reposVersions}"
+    }
+    stage('Gather latest set versions') {
+        imagesVersions = getLatestSetVersions()
+        print "Images versions:\n${imagesVersions}"
+    }
+    stage('Verify images versions') {
+        imagesHasFailures = verifyImagesVersions(imagesVersions, reposVersions)
+    }
+    stage('Verify dependency components versions') {
+        gerrit.cloneToBranch(
+            getProjectRepoUrl(REQ_PROJECT_NAME),
+            BRANCH,
+            REQ_PROJECT_NAME,
+            INTERNAL_GERRIT_KEY,
+            null
+        )
+        requirement_ref = imagesVersions['requirements']['vcsRef']
+        dir(REQ_PROJECT_NAME) {
+            sh "git checkout ${requirement_ref}"
+            upperConstraints = readFile 'upper-constraints.txt'
+            upperConstraintsVersions = [:]
+            depStr = DEPENDENCY_PROJECT_LIST.join('|')
+            (upperConstraints =~ /git\+.+?\/\/.*?\/(${depStr})?@(.*)?#.*/).each {
+                upperConstraintsVersions[it[1]] = it[2]
+            }
+        }
+        depsHasFailures = verifyDepVersions(upperConstraintsVersions, reposVersions)
+    }
+    print ("REPORT:\n${imagesVersions}\n${upperConstraintsVersions}")
+    if(imagesHasFailures || depsHasFailures) {
+        error("Failed to validate images integrity. Please check logs for details.")
+    } else {
+        print("Successfully verified integrity of images")
+    }
+}
+
+overrideImages = [:]
+imagesVersions.each { buildType, data ->
+    var_name = "${buildType.replace('-', '_').toUpperCase()}_LOCI"
+    overrideImages[var_name] = data["url"]
+}
+
+overrideImagesJSON = JsonOutput.toJson(overrideImages)
+parameters = [
+    stringParam(name: "OVERRIDE_IMAGES", value: overrideImagesJSON)
+]
+
+images = ""
+overrideImages.each { k, v -> images += "${k}=${v}\n"}
+
+stage("Test Deployment") {
+    if (RUN_DEPLOYMENT) {
+        print ("Starting test deployment with latest set:\n${images}")
+        build(job: "${JOB_BASE}/TestDeploymentPipeline",
+              parameters: parameters,
+              wait: true,
+              propagate: true
+        )
+    } else {
+        print ("Skipping test deployment")
+    }
+}
+
+currentBuild.description = images
+
+vm2 ('loci-bootstrap.sh',
+         'cicd-ubuntu-16.04-server-cloudimg-amd64',
+         'm1.medium',
+         '',
+         'loci',
+         false) {
+    stage("Replacing images in versions.yaml") {
+        env.GERRIT_TOPIC = TOPIC
+        changes = gerrit.getTopicCommitInfo(
+            MANIFESTS_PROJECT_NAME, INTERNAL_GERRIT_URL, INTERNAL_GERRIT_PORT,
+            INTERNAL_GERRIT_KEY
+        )
+
+        if (changes.size() > 1) {
+            error("Something wrong occurred. There should be either one or " +
+                  "none open changes for topic ${TOPIC}.\n" +
+                  "Please close extra changes.")
+        }
+
+        changeId = null
+        if (changes) {
+            changeId = changes[0]["id"]
+        }
+
+        gerrit.cloneToBranch(
+            getProjectRepoUrl(MANIFESTS_PROJECT_NAME),
+            BRANCH,
+            MANIFESTS_PROJECT_NAME,
+            INTERNAL_GERRIT_KEY,
+            'master'
+        )
+        dir(MANIFESTS_PROJECT_NAME) {
+            versions = versions_updated = readFile VERSIONS_PATH
+            overrideImages.each { _, image ->
+                pattern = (image =~ /.*?\/(.*)@.*/)[0][1] + '@.*'
+                replace_to = (image =~ /.*?\/(.*)/)[0][1]
+                versions_updated = versions_updated.replaceAll(
+                    pattern, replace_to)
+            }
+            if(versions_updated == versions) {
+                print "No new changes. Versions.yaml is up to date."
+            } else {
+                sshagent([INTERNAL_GERRIT_KEY]) {
+                    writeFile file: VERSIONS_PATH, text: versions_updated
+                    sh ("scp -p -P ${INTERNAL_GERRIT_PORT} " +
+                        "${INTERNAL_GERRIT_URL}:hooks/commit-msg " +
+                        ".git/hooks/")
+                    msg = MESSAGE + "\n\n${env.BUILD_URL}"
+                    if (changeId) {
+                        msg += "\n\nChange-Id: ${changeId}"
+                    }
+                    sh "git ${COMMIT_ARGS} commit -a -m '${msg}'"
+                    sh "git show HEAD"
+                    sh "git push origin HEAD:refs/for/${BRANCH}/${TOPIC}"
+                }
+            }
+        }
+    }
+}
