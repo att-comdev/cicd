@@ -1,0 +1,116 @@
+@Library("nc_cicd_internal_libs@e8f1b1d9aa34b8d5737f2a1d7e553824c4dfe4cc")
+
+import com.att.nccicd.config.conf as config
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurperClassic
+
+conf = new config(env).CONF
+
+EVENT_TYPE = env.EVENT_TYPE ? env.EVENT_TYPE : 'manual'
+RETRY_COUNT = env.RETRY_COUNT.toInteger()
+
+def getProjName(String project) {
+    project.split('/')[-1]
+}
+
+def getRefParamName(String project) {
+    getProjName(project).toUpperCase().replace('-', '_') + "_REF"
+}
+
+reqRefParam = getRefParamName(env.REQ_PROJECT_NAME)
+reqRef = env."${reqRefParam}"
+
+if (REQUIREMENTS_LOCI_IMAGE && (DEPENDENCY_LIST || reqRef)) {
+    error('Can not specify REQUIREMENTS_LOCI_IMAGE with DEPENDENCY_LIST ' +
+          'or ${reqRefParam}')
+}
+
+stage("${REQ_PROJECT_NAME} image build") {
+    if (DEPENDENCY_LIST || reqRef) {
+        parameters = [
+            stringParam(name: 'DEPENDENCY_LIST', value: DEPENDENCY_LIST),
+            stringParam(name: 'EVENT_TYPE', value: EVENT_TYPE),
+            stringParam(name: 'PROJECT_REF', value: reqRef),
+            stringParam(name: 'RELEASE', value: RELEASE),
+        ]
+        print "Building image for ${REQ_PROJECT_NAME} with ${parameters}"
+        job = utils.runBuild(
+            "${JOB_BASE}/${REQ_PROJECT_NAME}",
+            parameters,
+            RETRY_COUNT
+        )
+        REQUIREMENTS_LOCI_IMAGE = job.getBuildVariables()["IMAGE_SHA"]
+    } else {
+        print ("Skipping build for ${REQ_PROJECT_NAME} as there " +
+               'are no related changes.')
+    }
+}
+
+PROJECT_MAP = new JsonSlurperClassic().parseText(env.PROJECT_MAP)[RELEASE]
+results = [:]
+runningSet = [:]
+PROJECT_MAP.each { projectName, buildTypes ->
+    if (projectName == REQ_PROJECT_NAME) { return }
+    // Don't build component image with both default refspec and
+    // default requirement image
+    if (!(REQUIREMENTS_LOCI_IMAGE || env."${getRefParamName(projectName)}")) {
+        print ("Skipping build for ${projectName} as there are no " +
+               "related changes.")
+        return
+    }
+    if (!buildTypes) {
+        buildTypes = [projectName.split('-')[-1]]
+    }
+    buildTypes.each { buildType ->
+        runningSet[buildType] = {
+            stage("mos-${buildType} image build") {
+                projectRef = env."${getRefParamName(projectName)}"
+                parameters = [
+                    stringParam(name: 'PROJECT_REF', value: projectRef),
+                    stringParam(name: 'RELEASE', value: RELEASE),
+                    stringParam(name: 'REQUIREMENTS_LOCI_IMAGE',
+                                value: REQUIREMENTS_LOCI_IMAGE),
+                    stringParam(name: 'EVENT_TYPE', value: EVENT_TYPE),
+                ]
+                print "Building image for ${buildType} with ${parameters}"
+                results[buildType] = utils.runBuild(
+                    "${JOB_BASE}/mos-${buildType}",
+                    parameters,
+                    RETRY_COUNT
+                )
+            }
+        }
+    }
+}
+
+parallel runningSet
+
+overrideImages = [:]
+results.each { _, job ->
+    buildVars = job.getBuildVariables()
+    overrideImages[buildVars["LOCI_IMAGE_VAR"]] = buildVars["IMAGE_SHA"]
+}
+overrideImagesJSON = JsonOutput.toJson(overrideImages)
+parameters = [
+    stringParam(name: "OVERRIDE_IMAGES", value: overrideImagesJSON),
+    stringParam(name: "RELEASE", value: RELEASE),
+]
+
+images = ""
+overrideImages.each { k, v -> images += "${k}=${v}\n"}
+if (REQUIREMENTS_LOCI_IMAGE) {
+    images += "REQUIREMENTS_LOCI=${REQUIREMENTS_LOCI_IMAGE}"
+}
+currentBuild.description = images
+
+if (EVENT_TYPE != 'change-merged' && params.RUN_DEPLOYMENT) {
+    stage("Test Deployment") {
+        utils.runBuild(
+            "${JOB_BASE}/TestDeploymentPipeline",
+            parameters,
+            RETRY_COUNT,
+        )
+    }
+}
+
+env.IMAGES = images
