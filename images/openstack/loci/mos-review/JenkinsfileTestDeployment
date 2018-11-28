@@ -1,0 +1,240 @@
+@Library("nc_cicd_internal_libs@e8f1b1d9aa34b8d5737f2a1d7e553824c4dfe4cc")
+
+import groovy.json.JsonSlurperClassic
+import com.att.nccicd.config.conf as config
+
+conf = new config(env).CONF
+json = new JsonSlurperClassic()
+
+overrideImagesMap = json.parseText(OVERRIDE_IMAGES)
+
+if (RELEASE == 'ocata') {
+    DISTRO_VERSION = 'xenial'
+} else if (RELEASE == 'stein') {
+    DISTRO_VERSION = 'bionic'
+}
+
+def getProjectRepoUrl(prj) {
+    return prj.contains("ssh://") ? prj : "${INTERNAL_GERRIT_SSH}/${prj}"
+}
+
+NET_RETRY_COUNT = NET_RETRY_COUNT.toInteger()
+MANIFESTS_BRANCH = 'master'
+MANIFESTS_PROJECT_NAME = conf.GLOBAL_REPO
+VERSIONS_PATH = conf.VERSIONS_PATH
+IMAGE_BASE_URL = String.format(conf.MOS_IMAGES_BASE_URL, "",RELEASE)
+RELEASES_REGEX = "(${json.parseText(env.SUPPORTED_RELEASES).join("|")})"
+RELEASE_OVERRIDES = conf.OSH_AIO_RELEASE_OVERRIDES
+REPOS = conf.OSH_AIO_REPOS
+
+
+def imageOverrides(Map images) {
+    imageTypes = ['nova', 'nova-1804', 'neutron', 'neutron-sriov', 'glance',
+                  'cinder', 'heat', 'horizon', 'keystone']
+    // populate images with default values
+    imageTypes.each {
+        key = "${it.replace('-', '_').toUpperCase()}_LOCI"
+        if (images[key] == null) {
+            images[key] = "${IMAGE_BASE_URL}/mos-${it}:latest"
+        }
+    }
+    // replace upstream docker registries to artifactory cache
+    ['docker\\.io', 'quay\\.io', 'k8s\\.gcr\\.io', 'gcr\\.io'].each {
+        sh ("find . -type f -exec sed -i 's#${it}#${ARTF_DOCKER_URL}#g' {} +")
+    }
+
+    utils.retrier (NET_RETRY_COUNT) {
+        gerrit.cloneToBranch(
+            getProjectRepoUrl(MANIFESTS_PROJECT_NAME),
+            MANIFESTS_BRANCH,
+            MANIFESTS_PROJECT_NAME,
+            INTERNAL_GERRIT_KEY,
+            MANIFESTS_BRANCH
+        )
+    }
+    dir(MANIFESTS_PROJECT_NAME) {
+        sh ("sed -i 's#DOCKER_OPEN_DOMAIN#${ARTF_DOCKER_URL}#g' ${VERSIONS_PATH}")
+        sh ("sed -i 's#DOCKER_DOMAIN#${ARTF_SECURE_DOCKER_URL}#g' ${VERSIONS_PATH}")
+        versions = readFile VERSIONS_PATH
+        images.each { _, image ->
+            (_, replace_to, pattern) = ((image =~ /.*?\/((.*)[@:].*)/)[0])
+            // For pattern replace actual release name by regex matching any release
+            pattern = pattern.replaceAll(RELEASES_REGEX, RELEASES_REGEX) + '[@:].*'
+            versions = versions.replaceAll(pattern, replace_to)
+        }
+        writeFile file: VERSIONS_PATH, text: versions
+        versionsData = (readYaml(file: VERSIONS_PATH))['data']['images']
+    }
+
+    def overrideYaml
+    def releaseOverrides
+    ['osh', 'ceph'].each {
+        versionsData[it].each { chart, overrides ->
+            if (fileExists("openstack-helm/${chart}")) {
+                chartDir = "openstack-helm"
+            } else if (fileExists("openstack-helm-infra/${chart}")) {
+                chartDir = "openstack-helm-infra"
+            } else { return }
+            releaseOverrides = RELEASE_OVERRIDES[RELEASE][chart]
+            if (releaseOverrides) {
+                overrides << releaseOverrides
+            }
+            dir (chartDir) {
+                overrideYaml = "${chart}/values_overrides/${RELEASE}-ubuntu_${DISTRO_VERSION}.yaml"
+                sh "rm -rf ${overrideYaml}"
+                writeYaml file: overrideYaml, data: ["images": ["tags": overrides]]
+            }
+        }
+    }
+    // update cirros image location to internal mirror to allow access from rally without proxy.
+    // get glance test schema error while defining OSH_EXTRA_HELM_ARGS_GLANCE with --set overrides
+    // replacing the url string for now
+    sh """sed -i -e "s|http://download.cirros-cloud.net/0.3.5/|${conf.CIRROS_IMAGE_PATH}|" \\
+          ${WORKSPACE}/openstack-helm/glance/values.yaml"""
+}
+
+
+def setproxy(){
+    if (HTTP_PROXY){
+
+        // redirection with "<<-" doesnot work well to remove whitespaces/tabs
+        sh """sudo mkdir -p /etc/systemd/system/docker.service.d
+             cat << EOF | sudo tee /etc/systemd/system/docker.service.d/http-proxy.conf
+[Service]
+Environment="HTTP_PROXY=${HTTP_PROXY}"
+Environment="HTTPS_PROXY=${HTTP_PROXY}"
+Environment="NO_PROXY=${NO_PROXY}"
+EOF"""
+        sh """cat << EOF | sudo tee -a /etc/environment
+http_proxy=${HTTP_PROXY}
+https_proxy=${HTTP_PROXY}
+no_proxy=${NO_PROXY}
+HTTP_PROXY=${HTTP_PROXY}
+HTTPS_PROXY=${HTTP_PROXY}
+NO_PROXY=${NO_PROXY}
+EOF"""
+        sh "sudo systemctl daemon-reload"
+        sh "sudo systemctl restart docker"
+        sh "export http_proxy=${HTTP_PROXY}"
+        sh "export https_proxy=${HTTP_PROXY}"
+        sh "export no_proxy=${NO_PROXY}"
+        sh "export HTTP_PROXY=${HTTP_PROXY}"
+        sh "export HTTPS_PROXY=${HTTP_PROXY}"
+        sh "export NO_PROXY=${NO_PROXY}"
+    }
+}
+
+
+def installDockerCE() {
+    sh 'sudo apt-get remove -y runc containerd docker.io'
+    packages = 'apt-transport-https ca-certificates curl software-properties-common'
+    sh "sudo apt-get update && sudo apt-get upgrade -y; sudo apt-get install -y ${packages}"
+    REPOS.each { component, data ->
+        sh "sudo bash -c 'echo \"${data.source}\" >> /etc/apt/sources.list.d/${component}.list'"
+        sh "sudo bash -c 'echo \"${data.pref}\" >> /etc/apt/preferences.d/${component}.pref'"
+    }
+    sh 'sudo apt-get update && sudo apt-get install -y docker-ce'
+    sh "sudo systemctl daemon-reload"
+    sh "sudo systemctl restart docker"
+}
+
+
+def tweakOSH() {
+    // to remove once https://review.opendev.org/#/c/676823/ is merged
+    sh 'sudo apt-get install -y bc'
+    // to remove once https://review.opendev.org/#/c/675797/ is merged
+    dir ("openstack-helm") { sh "git fetch https://review.opendev.org/openstack/openstack-helm refs/changes/97/675797/6 && git checkout FETCH_HEAD" }
+    // to remove once https://review.opendev.org/#/c/675789/ or https://review.opendev.org/#/c/675792/ are merged
+    sh "sed -i 's/project_domain_id = \"\"/project_domain_id =/g' openstack-helm/glance/values.yaml"
+    sh "sed -i 's/user_domain_id = \"\"/user_domain_id =/g' openstack-helm/glance/values.yaml"
+
+    // to remove once https://review.opendev.org/#/c/675747/ is merged
+    if (RELEASE == 'stein') {
+        sh "sed -i 's/backup_driver: \"cinder.backup.drivers.swift\"/backup_driver: \"cinder.backup.drivers.swift.SwiftBackupDriver\"/g' openstack-helm/cinder/values.yaml"
+    }
+
+    // TODO
+    sh "sed -i 's/options ndots:5 timeout:1 attempts:1/options ndots:5 timeout:1 attempts:1 rotate/g' openstack-helm-infra/tools/deployment/common/005-deploy-k8s.sh openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/roles/deploy-kubelet/templates/resolv.conf.j2"
+}
+
+
+// OSH AIO requires min 8 cpus cores and 16 GB ram
+vm2('bootstrap.sh',
+    'cicd-ubuntu-16.04-server-cloudimg-amd64',
+    'm1.xlarge',
+    'deploy-osh-aio',
+    'basic',
+    false) {
+
+    sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
+    stage('Setup proxy') {
+        setproxy()
+    }
+    stage('Install docker-ce') {
+        installDockerCE()
+        // work around for yet not identified issue in osh
+        // in case of new deployment if this line is not present
+        // OSH adds '172.17.0.1 localhost', that breaks stuff
+        sh 'sudo bash -c \'echo "127.0.0.1 localhost" > /etc/hosts\''
+        sh 'sudo bash -c \'echo "172.17.0.1 \$(hostname)" >> /etc/hosts\''
+    }
+    stage('Authenticate docker repo') {
+        utils.retrier(NET_RETRY_COUNT) {
+            osh.dockerAuth()
+        }
+    }
+    stage('Clone OpenstackHelm') {
+        osh.cloneOSH()
+        tweakOSH()
+    }
+    stage('Update OSH proxy') {
+        osh.updateProxy()
+    }
+    stage('Override images') {
+        // Override default OSH images from global manifests, RELEASE_OVERRIDES,
+        // latest mos set and OVERRIDE_IMAGES map and creates override yamls
+        // for every component.
+        // Also replaces all mentiones of upstream registries to artifactory cache
+        imageOverrides(overrideImagesMap)
+    }
+    stage('Download precreated kubeadm-aio image') {
+        // Pulls kubeadm image and disables it's build saving ~1h
+        utils.retrier(NET_RETRY_COUNT) {
+            sh "sudo docker pull ${conf.OSH_AIO_KUBEADM_IMAGE}"
+        }
+        sh "sudo docker tag ${conf.OSH_AIO_KUBEADM_IMAGE} openstackhelm/kubeadm-aio:dev"
+        sh "sudo docker rmi ${conf.OSH_AIO_KUBEADM_IMAGE}"
+        sh "echo '' > openstack-helm-infra/roles/build-images/tasks/kubeadm-aio.yaml"
+    }
+    stage('Install OSH AIO') {
+        deploymentEnv = [
+            'OS_REGION_NAME=',
+            'OS_USERNAME=',
+            'OS_PASSWORD=',
+            'OS_PROJECT_NAME=',
+            'OS_PROJECT_DOMAIN_NAME=',
+            'OS_USER_DOMAIN_NAME=',
+            'OS_AUTH_URL=',
+            "OPENSTACK_RELEASE=${RELEASE}",
+            "CONTAINER_DISTRO_VERSION=${DISTRO_VERSION}",
+        ]
+        try {
+            withEnv(deploymentEnv) {
+                osh.installOSHAIO()
+            }
+        } catch (Exception exception) {
+            osh.artifactLogs()
+            error "OSH AIO deployment failed with exception $exception"
+        }
+    }
+    stage('Run Helm tests') {
+        osh.runHelmTests()
+    }
+    stage('Parse test logs for failures') {
+        status = osh.parseTestLogs()
+        if (status != 0) {
+            osh.artifactLogs()
+            error "Helm tests failed... see log $WORKSPACE/artifacts/helm_tests.log"
+        } else { print "Helm tests passed" }
+    }
+}
