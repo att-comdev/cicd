@@ -1,0 +1,39 @@
+import groovy.json.JsonSlurperClassic
+
+projectList = new JsonSlurperClassic().parseText(PROJECT_LIST)
+
+def getRefParamName(String project) {
+    project.toUpperCase().replace('-', '_') + "_REF"
+}
+
+def compileDependencies(Map dependencyMap) {
+    res = []
+    dependencyMap.each { name, ref -> res.add("${name}:${ref}") }
+    res.join(" ")
+}
+
+if (projectList.contains(GERRIT_PROJECT)) {
+    params = [
+        stringParam(name: getRefParamName(GERRIT_PROJECT),
+                    value: GERRIT_REFSPEC),
+    ]
+} else {
+    params = [
+        stringParam(
+            name: 'DEPENDENCY_LIST',
+            value: compileDependencies([(GERRIT_PROJECT): GERRIT_REFSPEC])
+        ),
+    ]
+}
+params.add(stringParam(name: 'EVENT_TYPE', value: GERRIT_EVENT_TYPE))
+
+print "Building Generic Pipeline with ${params}"
+stage("Generic Pipeline") {
+    job = build(
+        job: "${JOB_BASE}/GenericPipeline",
+        wait: true,
+        propagate: true,
+        parameters: params
+    )
+    currentBuild.description = job.getBuildVariables()["IMAGES"]
+}
