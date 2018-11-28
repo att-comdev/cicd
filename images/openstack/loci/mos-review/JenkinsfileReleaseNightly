@@ -1,0 +1,6 @@
+import groovy.json.JsonSlurperClassic
+
+json = new JsonSlurperClassic()
+
+PROJECT_MAP = json.parseText(env.PROJECT_MAP)
+DEPENDENCY_PROJECT_LIST = json.parseText(env.DEPENDENCY_PROJECT_LIST)
