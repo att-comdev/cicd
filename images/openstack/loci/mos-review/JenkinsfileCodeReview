@@ -1,0 +1,46 @@
+import com.att.nccicd.config.conf as config
+import groovy.json.JsonSlurperClassic
+
+conf = config(env).CONF
+
+projectList = new JsonSlurperClassic().parseText(PROJECT_LIST)
+
+if (GERRIT_BRANCH == conf.OCATA_BRANCH) {
+    RELEASE = 'ocata'
+} else if (GERRIT_BRANCH == conf.STEIN_BRANCH) {
+    RELEASE = 'stein'
+} else {
+    error("Unsupported branch: ${GERRIT_BRANCH}")
+}
+
+def getRefParamName(String project) {
+    project.toUpperCase().replace('-', '_') + "_REF"
+}
+
+def compileDependencies(Map dependencyMap) {
+    res = []
+    dependencyMap.each { name, ref -> res.add("${name}:${ref}") }
+    res.join(" ")
+}
+
+if (projectList.contains(GERRIT_PROJECT)) {
+    params = [
+        stringParam(name: getRefParamName(GERRIT_PROJECT),
+                    value: GERRIT_REFSPEC),
+    ]
+} else {
+    params = [
+        stringParam(
+            name: 'DEPENDENCY_LIST',
+            value: compileDependencies([(GERRIT_PROJECT): GERRIT_REFSPEC])
+        ),
+    ]
+}
+params.add(stringParam(name: 'EVENT_TYPE', value: GERRIT_EVENT_TYPE))
+params.add(stringParam(name: 'RELEASE', value: RELEASE))
+
+print "Building Generic Pipeline with ${params}"
+stage("Generic Pipeline") {
+    job = utils.runBuild("${JOB_BASE}/GenericPipeline", params)
+    currentBuild.description = job.getBuildVariables()["IMAGES"]
+}
