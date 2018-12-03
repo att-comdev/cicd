@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1156dcbd_670c6239",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-12-03T17:02:02Z",
+      "side": 1,
+      "message": "Full parameter names, please. So that people reading the code wouldn\u0027t need to read `man curl` to understand what do they mean.",
+      "range": {
+        "startLine": 120,
+        "startChar": 28,
+        "endLine": 120,
+        "endChar": 33
+      },
+      "revId": "22ca09cde2087afc3c6142834617ab4e9d837d18",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
