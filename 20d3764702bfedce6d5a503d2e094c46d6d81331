@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "d85e1dd8_00a3ccfe",
+        "filename": "tools/uplift-components/opt/playbooks/roles/uplift-versions/templates/vars.yaml",
+        "patchSetId": 32
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-12-04T13:12:35Z",
+      "side": 1,
+      "message": "This must not be published.",
+      "range": {
+        "startLine": 1,
+        "startChar": 16,
+        "endLine": 1,
+        "endChar": 54
+      },
+      "revId": "20d3764702bfedce6d5a503d2e094c46d6d81331",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "964a8e76_dc96b89b",
         "filename": "tools/uplift-components/opt/playbooks/roles/uplift-versions/templates/versions.yaml.j2",
         "patchSetId": 32
