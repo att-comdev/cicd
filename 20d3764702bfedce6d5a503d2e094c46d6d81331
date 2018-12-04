@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "964a8e76_dc96b89b",
+        "filename": "tools/uplift-components/opt/playbooks/roles/uplift-versions/templates/versions.yaml.j2",
+        "patchSetId": 32
+      },
+      "lineNbr": 1319,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-12-04T13:09:08Z",
+      "side": 1,
+      "message": "This must not be published anywhere.",
+      "range": {
+        "startLine": 1319,
+        "startChar": 16,
+        "endLine": 1319,
+        "endChar": 54
+      },
+      "revId": "20d3764702bfedce6d5a503d2e094c46d6d81331",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
