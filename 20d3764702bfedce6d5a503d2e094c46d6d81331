@@ -22,6 +22,29 @@
       "revId": "20d3764702bfedce6d5a503d2e094c46d6d81331",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d33448a_9899bbff",
+        "filename": "tools/uplift-components/vars.yaml",
+        "patchSetId": 32
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2018-12-04T13:10:10Z",
+      "side": 1,
+      "message": "This must not be published.",
+      "range": {
+        "startLine": 15,
+        "startChar": 16,
+        "endLine": 15,
+        "endChar": 54
+      },
+      "revId": "20d3764702bfedce6d5a503d2e094c46d6d81331",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
