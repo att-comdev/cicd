@@ -1,0 +1,62 @@
+// pipeline for virtual multi-node gate
+
+ARTF_BASE = "logs/${JOB_NAME}/${BUILD_ID}"
+
+REPO_URL = 'https://git.openstack.org/openstack/airship-in-a-bottle'
+REPO_HOME = '/root/deploy/airship-in-a-bottle'
+
+
+vm(flavor: 'airship.seaworthy',
+        image: 'ubuntu-18.04',
+        artifactoryLogs: false,
+        doNotDeleteNode: false,
+        timeout: 300) {
+
+    stage('Checkout'){
+
+        sh 'sudo mkdir /root/deploy'
+        sh 'sudo setfacl -m u:ubuntu:rwx /root/deploy'
+        sh 'sudo setfacl -m u:ubuntu:rwx /root'
+
+        sh 'sudo groupadd libvirtd'
+        sh 'sudo useradd virtmgr'
+        sh 'sudo usermod -a -G libvirtd virtmgr'
+
+        gerrit.cloneToBranch(REPO_URL, GERRIT_PATCHSET_REVISION, REPO_HOME)
+
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            dir(REPO_HOME) {
+                gerrit.rebase()
+            }
+        }
+        currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+    }
+
+    stage('Setup Gate') {
+        sh 'sudo apt-get update'
+        sh 'sudo apt-get install jq docker.io -y'
+
+        dir("${REPO_HOME}/tools/multi_nodes_gate"){
+            timeout(20){
+                ansiColor('xterm') {
+                    sh 'sudo ./setup_gate.sh'
+                }
+            }
+        }
+    }
+
+    stage('Run Airship') {
+        dir("${REPO_HOME}/tools/multi_nodes_gate"){
+            timeout(240){
+                ansiColor('xterm') {
+                    def opts = ["VIRSH_CPU_OPTS=host-passthrough"]
+
+                    withEnv(opts) {
+                        sh 'sudo -E ./gate.sh'
+                    }
+                }
+            }
+        }
+    }
+}
+
