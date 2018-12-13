@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "538d26c6_5c955e6d",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-12-13T18:28:16Z",
+      "side": 1,
+      "message": "Update command",
+      "revId": "44d522482e0e8ba7e78ad235def95d031c59b995",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26e27e8d_d8b9f96e",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-12-13T18:28:16Z",
+      "side": 1,
+      "message": "This needs to be updated also to use the new pegleg command with repo",
+      "revId": "44d522482e0e8ba7e78ad235def95d031c59b995",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bff096f3_328beb3a",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-12-13T18:28:16Z",
+      "side": 1,
+      "message": "Same here",
+      "revId": "44d522482e0e8ba7e78ad235def95d031c59b995",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e942458_5d45c97e",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 20
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2018-12-13T18:28:16Z",
+      "side": 1,
+      "message": "Same here",
+      "revId": "44d522482e0e8ba7e78ad235def95d031c59b995",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
