@@ -193,7 +193,7 @@ def getVersion(String url, String branch, String creds) {
         // ssh -i $SSH_KEY $@
         def filewrapper = "/usr/bin/git-ssh-wrapper"
         if (!fileExists(filewrapper)) {
-            sh """cat << EOF | sudo tee -a $filewrapper
+            sh """cat < EOF | sudo tee -a $filewrapper
 #!/bin/bash
 ssh -i $SSH_KEY \\\$@
 EOF"""
