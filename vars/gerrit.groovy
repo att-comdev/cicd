@@ -192,13 +192,11 @@ def getVersion(String url, String branch, String creds) {
         // wrapper for custom git ssh key
         // ssh -i $SSH_KEY $@
         def filewrapper = "/usr/bin/git-ssh-wrapper"
-        if (!fileExists(filewrapper)) {
-            sh """cat << EOF | sudo tee -a $filewrapper
+        sh """cat << EOF | sudo tee $filewrapper
 #!/bin/bash
 ssh -i $SSH_KEY \\\$@
 EOF"""
-            sh "sudo chmod a+x $filewrapper"
-        }
+        sh "sudo chmod a+x $filewrapper"
         withEnv(["GIT_SSH=$filewrapper"]) {
             def cmd = "git ls-remote $url $branch | cut -f1"
             return sh(returnStdout: true, script: cmd).trim()
