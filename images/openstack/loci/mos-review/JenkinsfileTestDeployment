@@ -3,13 +3,14 @@ import groovy.json.JsonSlurperClassic
 overrideImagesMap = new JsonSlurperClassic().parseText(OVERRIDE_IMAGES)
 
 // OSH AIO requires min 8 cpus cores and 16 GB ram
-vm2('bootstrap.sh',
-    'cicd-ubuntu-16.04-server-cloudimg-amd64',
-    'm1.xlarge',
-    'deploy-osh-aio',
-    'basic',
-    false) {
-
+//vm2('bootstrap.sh',
+//    'cicd-ubuntu-16.04-server-cloudimg-amd64',
+//    'm1.xlarge',
+//    'deploy-osh-aio',
+//    'basic',
+//    false) {
+node(LOCI_BUILD_SLAVE_LABEL) {
+    cleanWs()
     stage('Setup proxy') {
         vm2.setproxy()
     }
