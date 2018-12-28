@@ -140,6 +140,7 @@ pipelineJob("${JOB_BASE}/GenericImageBuildPipeline") {
     environmentVariables(
         "RESTRICT_EVENT_TYPE": false,
         "UPDATE_TOPIC": UPDATE_TOPIC,
+        "LOCI_BUILD_SLAVE_LABEL": LOCI_BUILD_SLAVE_LABEL,
     )
 }
 
@@ -150,6 +151,9 @@ pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
             sandbox(false)
         }
     }
+    environmentVariables(
+        "LOCI_BUILD_SLAVE_LABEL": LOCI_BUILD_SLAVE_LABEL,
+    )
     parameters {
         stringParam {
             defaultValue('')
