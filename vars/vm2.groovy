@@ -115,7 +115,7 @@ def setproxy(){
 
         // redirection with "<<-" doesnot work well to remove whitespaces/tabs
         sh'''sudo mkdir -p /etc/systemd/system/docker.service.d
-             cat << EOF | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
+             cat << EOF | sudo tee /etc/systemd/system/docker.service.d/http-proxy.conf
 [Service]
 Environment="HTTP_PROXY=${HTTP_PROXY}"
 Environment="HTTPS_PROXY=${HTTP_PROXY}"
