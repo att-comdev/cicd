@@ -101,7 +101,7 @@ parameters = [
 
 // publish all newly created images
 node {
-    label("master")
+    label('loci_generic_review')
     images = ""
     overrideImages.each { k, v -> images += "${k}=${v}\n"}
     if (REQUIREMENTS_LOCI_IMAGE) {
