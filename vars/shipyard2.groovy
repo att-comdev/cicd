@@ -208,11 +208,7 @@ def getState(systep, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
  * @param artfPath Artifactory path for executed pipeline.
  * @param siteName Site name for executed pipeline.
  */
-def createConfigdocs(uuid, token, shipyardUrl, artfPath, siteName) {
-    artifactory.download("${artfPath}/site-config.tar.gz", "")
-    sh "sudo rm -rf ${siteName} || true"
-    sh "tar xzf site-config.tar.gz"
-
+def createConfigdocs(uuid, token, shipyardUrl, siteName) {
     def manifests = ""
     files = findFiles(glob: "${siteName}/*.yaml")
     files.each {
@@ -287,10 +283,10 @@ def _waitAction(action, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true
  * @param artfPath Artifactory path for executed pipeline.
  * @param siteName Site name for executed pipeline.
  */
-def uploadConfig(uuid, token, shipyardUrl, artfPath, siteName) {
+def uploadConfig(uuid, token, shipyardUrl, siteName) {
 
     stage('Shipyard Config Create') {
-        createConfigdocs(uuid, token, shipyardUrl, artfPath, siteName)
+        createConfigdocs(uuid, token, shipyardUrl, siteName)
     }
 
     stage('Shipyard Config Commit') {
