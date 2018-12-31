@@ -209,7 +209,7 @@ def getState(systep, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
  * @param siteName Site name for executed pipeline.
  */
 def createConfigdocs(uuid, token, shipyardUrl, artfPath, siteName) {
-    artifactory.download("${artfPath}/site-config.tar.gz", "")
+    // artifactory.download("${artfPath}/site-config.tar.gz", "")
     sh "sudo rm -rf ${siteName} || true"
     sh "tar xzf site-config.tar.gz"
 
