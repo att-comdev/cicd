@@ -29,7 +29,7 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
     def res = null
     retry(3) {
         try {
-            res = httpRequest (url: shipyardUrl + "/configdocs/${bucketName}?buffermode=${bufferMode}",
+            res = httpRequest (url: shipyardUrl + "/configdocs/${bucketName}",
                                   httpMode: "POST",
                                   customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
                                                   [name: "X-Auth-Token", value: token],
@@ -209,7 +209,7 @@ def getState(systep, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true) {
  * @param siteName Site name for executed pipeline.
  */
 def createConfigdocs(uuid, token, shipyardUrl, artfPath, siteName) {
-    artifactory.download("${artfPath}/site-config.tar.gz", "")
+    // artifactory.download("${artfPath}/site-config.tar.gz", "")
     sh "sudo rm -rf ${siteName} || true"
     sh "tar xzf site-config.tar.gz"
 
