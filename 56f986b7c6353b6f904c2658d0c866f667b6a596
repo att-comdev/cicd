@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0a9bbb52_9179fdcd",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 30
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-01-03T15:32:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a4fe642_0b2223e5",
+      "revId": "56f986b7c6353b6f904c2658d0c866f667b6a596",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1272419d_fa51e892",
         "filename": "vars/pegleg2.groovy",
         "patchSetId": 30
@@ -30,6 +48,24 @@
       "writtenOn": "2019-01-02T21:11:18Z",
       "side": 1,
       "message": "This changes, we don\u0027t want to specify a folder for the globals, the site repository should point to the globals that it needs to collect.  If this is to override, change the description to say that globalRepo is the global repository + commit/branch/tag to checkout.",
+      "revId": "56f986b7c6353b6f904c2658d0c866f667b6a596",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4567a4a4_6e7e4baf",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 30
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-01-03T15:32:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1272419d_fa51e892",
       "revId": "56f986b7c6353b6f904c2658d0c866f667b6a596",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "56eb7ff3_dded180b",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 30
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-01-03T15:32:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b2f8851_5dc0dc73",
+      "revId": "56f986b7c6353b6f904c2658d0c866f667b6a596",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce2d87ec_d1e0203d",
         "filename": "vars/pegleg2.groovy",
         "patchSetId": 30
@@ -64,6 +118,24 @@
       "writtenOn": "2019-01-02T21:11:18Z",
       "side": 1,
       "message": "Name this the same collectWithinContainer, it will just have a different set of parameters.",
+      "revId": "56f986b7c6353b6f904c2658d0c866f667b6a596",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f06c9314_14ee04e9",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 30
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-01-03T15:32:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce2d87ec_d1e0203d",
       "revId": "56f986b7c6353b6f904c2658d0c866f667b6a596",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "92287d87_88c70747",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 30
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-01-03T15:32:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5fa97391_cd5fd3bb",
+      "revId": "56f986b7c6353b6f904c2658d0c866f667b6a596",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc4a7106_b15d62c5",
         "filename": "vars/pegleg2.groovy",
         "patchSetId": 30
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "4ba7fac1_5998170e",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 30
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-01-03T15:32:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc4a7106_b15d62c5",
+      "revId": "56f986b7c6353b6f904c2658d0c866f667b6a596",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f67505b_71a6d90c",
         "filename": "vars/pegleg2.groovy",
         "patchSetId": 30
@@ -115,6 +223,24 @@
       "writtenOn": "2019-01-02T21:11:18Z",
       "side": 1,
       "message": "Same as above",
+      "revId": "56f986b7c6353b6f904c2658d0c866f667b6a596",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "20acd32a_03176745",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 30
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-01-03T15:32:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f67505b_71a6d90c",
       "revId": "56f986b7c6353b6f904c2658d0c866f667b6a596",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
