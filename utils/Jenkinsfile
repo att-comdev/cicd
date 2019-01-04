@@ -1,0 +1,83 @@
+import com.att.nccicd.config.conf
+import groovy.json.JsonSlurperClassic
+
+def label = "worker-${UUID.randomUUID().toString()}"
+
+// Ref to grab PS/commits
+def PS_REF = "refs/changes/*:refs/changes/*"
+
+def cloneToBranch(String url, String refspec, String targetDirectory, String creds){
+    checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: refspec]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'LocalBranch',
+                                localBranch: 'jenkins'],
+                               [$class: 'RelativeTargetDirectory',
+                                relativeTargetDir: targetDirectory]],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
+                                       url: url,
+                                       credentialsId: creds ]]]
+}
+
+podTemplate(label: label, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  securityContext:
+    runAsUser: 0
+  nodeSelector:
+    jenkins-node: enabled
+""", containers: [
+        containerTemplate(name: "pegleg",
+                image: "docker-open-nc.mtn29.cci.att.com/slfletch/pegleg:patchset",
+                command: "cat",
+                ttyEnabled: true)]) {
+
+    node(label) {
+
+        stage("Checkout") {
+            cloneToBranch("ssh://$conf.SSH_REPO_USER@$conf.GERRIT_URL/$conf.SECRETS_REPO", "master", "aic-clcp-security-manifests", conf.JENKINS_GERRIT_MTN5_CRED_ID)
+            cloneToBranch("ssh://$conf.SSH_REPO_USER@$conf.GERRIT_URL/$conf.SITE_REPO", "refs/changes/41/53741/4", "aic-clcp-site-manifests", conf.JENKINS_GERRIT_MTN5_CRED_ID)
+        }
+
+        stage("Pegleg Generate Certs") {
+
+            container("pegleg") {
+                withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-gerrit-mtn5-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'USERNAME')]) {
+                    pegleg2.generatePkiWithinContainer("../aic-clcp-site-manifests/", "${USERNAME}", "${SSH_KEY}", "${ATTUID}", "${PROJECT_SITE}","${PASSPHRASE}", "Vau2ahPdax2FCNsj8GqdqIPrN29JEZ")
+                }
+            }
+        }
+
+        stage("Pegleg Encrypt") {
+
+            container("pegleg") {
+                withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-gerrit-mtn5-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'USERNAME')]) {
+                    pegleg2.encryptWithinContainer(conf.SITE_REPO, "${ATTUID}", "${PROJECT_SITE}", "${PASSPHRASE}", "Vau2ahPdax2FCNsj8GqdqIPrN29JEZ")
+                }
+            }
+        }
+
+        stage("Upload Patchset") {
+
+            sshagent(credentials: [conf.JENKINS_GERRIT_MTN5_CRED_ID]) {
+                dir(conf.SECRETS_REPO) {
+                    sh """
+                                pwd
+                                git config user.email '${ATTUID}@att.com'
+                                git config user.name 'Jenkins'
+                                git add .
+                                git commit -m "New certs"
+                                git push
+                            """
+                }
+            }
+        }
+    }
+}
