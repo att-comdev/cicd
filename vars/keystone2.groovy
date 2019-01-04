@@ -5,22 +5,31 @@ import groovy.json.JsonSlurperClassic
 /**
  * Retrieve Kystone token
  * Usage:
- *     keystone.token(keystoneUrl: 'http://keystone',
- *                    keystoneCreds: 'keystone-user-pass-creds')
+ *     keystone.token(url: 'http://keystone',
+ *                    creds: 'keystone-user-pass-creds')
  *
- * @param keystoneUrl
- * @param keystoneCreds
+ * @param url
+ * @param creds
+ * @param project
+ * @param domain
  * @param retryCount
  * @param retryTimeout
  */
 def token(Map map) {
 
-    if (!map.containsKey('keystoneUrl')) {
-        error("Must provide Keystone URL 'keystoneUrl'")
+    if (!map.containsKey('url')) {
+        error("Must provide Keystone URL 'url'")
 
-    } else if (!map.containsKey('keystoneCreds')) {
-        error("Must provide Keystone credentials 'keystoneCreds'")
+    } else if (!map.containsKey('creds')) {
+        error("Must provide Keystone credentials 'creds'")
+
+    } else if (!map.containsKey('project')) {
+        error("Must provide Keystone project 'project'")
+
+    } else if (!map.containsKey('domain')) {
+        error("Must provide Keystone domain 'domain'")
     }
+
 
     // optional with defaults
     def retryCount = map.retryCount ?: 3.toInteger()
@@ -28,26 +37,29 @@ def token(Map map) {
 
 
     withCredentials([[$class: "UsernamePasswordMultiBinding",
-                      credentialsId: map.keystoneCreds,
+                      credentialsId: map.creds,
                       usernameVariable: "USER",
                       passwordVariable: "PASS"]]) {
-        map.keystoneUser = USER
-        map.keystonePassword = PASS
+        map.user = USER
+        map.password = PASS
     }
 
     def req = ["auth": [
                "identity": [
                  "methods": ["password"],
                  "password": [
-                   "user": ["name": map.keystoneUser,
+                   "user": ["name": map.user,
                             "domain": ["id": "default"],
-                            "password": map.keystonePassword ]]]]]
+                            "password": map.password ]]],
+               "scope": ["project":
+                          ["name": map.project,
+                           "domain": ["id": map.domain]]]]]
 
     def jreq = new JsonOutput().toJson(req)
 
     retry (retryCount) {
         try {
-            def res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
+            def res = httpRequest(url: map.url + "/v3/auth/tokens",
                                   contentType: "APPLICATION_JSON",
                                   httpMode: "POST",
                                   quiet: true,
@@ -152,6 +164,7 @@ def _getServiceEndpoint(Map map) {
                                    customHeaders: [[name: "X-Auth-Token", value: map.token]],
                                    quiet: true)
             endpoints = new JsonSlurperClassic().parseText(res.content)
+            print endpoints
             return endpoints.endpoints[0]["url"]
 
         } catch (err) {
