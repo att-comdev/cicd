@@ -99,7 +99,7 @@ def getServiceId(Map map) {
                                    httpMode: "GET",
                                    contentType: "APPLICATION_JSON",
                                    customHeaders: [[name: "X-Auth-Token", value: map.token]],
-                                   quiet: true)
+                                   quiet: false)
             services = new JsonSlurperClassic().parseText(res.content)
             service_id = services.services[0]["id"]
             return service_id
@@ -152,6 +152,7 @@ def _getServiceEndpoint(Map map) {
                                    customHeaders: [[name: "X-Auth-Token", value: map.token]],
                                    quiet: true)
             endpoints = new JsonSlurperClassic().parseText(res.content)
+            print endpoints
             return endpoints.endpoints[0]["url"]
 
         } catch (err) {
