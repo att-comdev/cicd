@@ -1,0 +1,69 @@
+import com.att.nccicd.config.conf
+import groovy.json.JsonSlurperClassic
+
+def label = "worker-${UUID.randomUUID().toString()}"
+def salt = "${UUID.randomUUID().toString()}".replaceAll('-','')
+
+// Ref to grab PS/commits
+def PS_REF = "refs/changes/*:refs/changes/*"
+
+podTemplate(label: label, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  securityContext:
+    runAsUser: 0
+  nodeSelector:
+    jenkins-node: enabled
+""", containers: [
+        containerTemplate(name: "pegleg",
+                image: "${PEGLEG_IMAGE}",
+                command: "cat",
+                ttyEnabled: true)]) {
+
+    node(label) {
+
+        stage("Checkout") {
+            cloneToBranch("ssh://$conf.SSH_REPO_USER@$conf.GERRIT_URL/$conf.SECRETS_REPO", "master", "$conf.SECRETS_REPO", conf.JENKINS_GERRIT_MTN5_CRED_ID, PS_REF)
+            cloneToBranch("ssh://$conf.SSH_REPO_USER@$conf.GERRIT_URL/$conf.SITE_REPO", "refs/changes/41/53741/4", "$conf.SITE_REPO", conf.JENKINS_GERRIT_MTN5_CRED_ID, PS_REF)
+        }
+
+        stage("Pegleg Generate Certs") {
+
+            container("pegleg") {
+                withCredentials([sshUserPrivateKey(credentialsId: conf.JENKINS_GERRIT_MTN5_CRED_ID,
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'USERNAME')]) {
+                    pegleg2.generatePkiWithinContainer("../$conf.SITE_REPO", "${USERNAME}", "${SSH_KEY}", "${BUILD_USER_ID}", "${PROJECT_SITE}","${PASSPHRASE}", salt)
+                }
+            }
+        }
+
+        stage("Pegleg Encrypt") {
+
+            container("pegleg") {
+                withCredentials([sshUserPrivateKey(credentialsId: conf.JENKINS_GERRIT_MTN5_CRED_ID,
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'USERNAME')]) {
+                    pegleg2.encryptWithinContainer(conf.SITE_REPO, "${BUILD_USER_ID}", "${PROJECT_SITE}", "${PASSPHRASE}", salt)
+                }
+            }
+        }
+
+        stage("Upload Patchset") {
+
+            sshagent(credentials: [conf.JENKINS_GERRIT_MTN5_CRED_ID]) {
+                dir(conf.SECRETS_REPO) {
+                    sh """
+                                pwd
+                                git config user.email '${BUILD_USER_ID}@att.com'
+                                git config user.name 'Jenkins'
+                                git add .
+                                git commit -m "New certs"
+                                git push
+                            """
+                }
+            }
+        }
+    }
+}
