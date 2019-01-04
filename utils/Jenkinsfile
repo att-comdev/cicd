@@ -1,0 +1,129 @@
+import com.att.nccicd.config.conf
+import groovy.json.JsonSlurperClassic
+
+def label = "worker-${UUID.randomUUID().toString()}"
+
+// Ref to grab PS/commits
+def PS_REF = "refs/changes/*:refs/changes/*"
+
+// Default to master for all
+def SITE_BRANCH = "master"
+def SITE_REF = "master"
+def GLOBAL_BRANCH = "master"
+def GLOBAL_REF = "master"
+def SECRET_BRANCH = "master"
+def SECRET_REF = "master"
+
+def checkOnTopic(repo) {
+    // If triggering repo includes a topic
+    if ("${GERRIT_TOPIC}" != null && "${GERRIT_TOPIC}" != "") {
+        def topicJson = sh(script: "ssh -p 29418 $conf.SSH_REPO_USER@gerrit.mtn5.cci.att.com gerrit query --format=JSON topic:${GERRIT_TOPIC} status:open project:${repo}", returnStdout: true).trim()
+        def topicData = new JsonSlurperClassic().parseText(topicJson)
+        def changeId = topicData.id
+        if (changeId != null && changeId != "") {
+            def commitJson = sh(script: "ssh -p 29418 $conf.SSH_REPO_USER@gerrit.mtn5.cci.att.com gerrit query --format=JSON --current-patch-set ${changeId}", returnStdout: true).trim()
+            def commitData = new JsonSlurperClassic().parseText(commitJson)
+            def commitId = commitData.currentPatchSet.revision
+            if (commitId != null && commitId != "") {
+                return commitId
+            }
+        }
+    }
+    return "master"
+}
+
+// If triggered from global repo, use master site/secrets. If triggered from site repo, use master global/secrets. If triggered from secrets repo, use master site/global.
+def manageCheckout = {
+    GLOBAL_BRANCH = checkOnTopic(conf.GLOBAL_REPO)
+    SITE_BRANCH = checkOnTopic(conf.SITE_REPO)
+    if (GLOBAL_BRANCH != "master") {
+        GLOBAL_REF = PS_REF
+    }
+    if (SITE_BRANCH != "master") {
+        SITE_REF = PS_REF
+    }
+    SECRET_BRANCH = "${GERRIT_PATCHSET_REVISION}"
+    SECRET_REF = "${GERRIT_REFSPEC}"
+}
+
+// Checkout util
+def clone(branch, refspec, repo) {
+    checkout poll: false,
+            scm: [$class                           : "GitSCM",
+                  branches                         : [[name: branch]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions                       : [[$class           : "RelativeTargetDirectory",
+                                                       relativeTargetDir: repo]],
+                  submoduleCfg                     : [],
+                  userRemoteConfigs                : [[refspec      : refspec,
+                                                       url          : "ssh://$conf.SSH_REPO_USER@$conf.GERRIT_URL/${repo}",
+                                                       credentialsId: conf.JENKINS_GERRIT_MTN5_CRED_ID]]]
+}
+
+
+node("master") {
+    stage("Prepare for Checkout") {
+        manageCheckout()
+    }
+}
+
+podTemplate(label: label, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  securityContext:
+    runAsUser: 0
+  nodeSelector:
+    jenkins-node: enabled
+""", containers: [
+        containerTemplate(name: "pegleg",
+                image: "docker-open-nc.mtn29.cci.att.com/airship/pegleg@sha256:6421bca617639b0ffc5ed1f157df6a6fdf515598cdefa083a5f0514310611825",
+                command: "cat",
+                ttyEnabled: true)]) {
+
+    node(label) {
+
+        stage("Checkout") {
+            clone(SITE_BRANCH, SITE_REF, conf.SITE_REPO)
+            clone(GLOBAL_BRANCH, GLOBAL_REF, conf.GLOBAL_REPO)
+            clone(SECRET_BRANCH, SECRET_REF, conf.SECRETS_REPO)
+        }
+
+        stage("Pegleg Generate Certs") {
+
+            container("pegleg") {
+                withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-gerrit-mtn5-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'USERNAME')]) {
+                    pegleg2.generatePki(conf.SITE_REPO, conf.GLOBAL_REPO, "${USERNAME}", "${SSH_KEY}", "${ATTUID}", "${PROJECT_SITE}")
+                }
+            }
+        }
+
+        stage("Pegleg Encrypt") {
+
+            container("pegleg") {
+                withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-gerrit-mtn5-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'USERNAME')]) {
+                    pegleg2.encrypt(conf.SITE_REPO, conf.GLOBAL_REPO, "${USERNAME}", "${SSH_KEY}", "${ATTUID}", "${PROJECT_SITE}")
+                }
+            }
+        }
+
+        stage("Upload Patchset") {
+
+            sshagent(credentials: [conf.JENKINS_GERRIT_MTN5_CRED_ID]) {
+                dir(conf.SECRETS_REPO) {
+                    sh """ 
+                                git config user.email '${ATTUID}@att.com' 
+                                git config user.name 'Jenkins' 
+                                git add .
+                                git commit -m "New certs"
+                                git push 
+                            """
+                }
+            }
+        }
+    }
+}
