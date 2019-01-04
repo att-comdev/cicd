@@ -152,6 +152,7 @@ def _getServiceEndpoint(Map map) {
                                    customHeaders: [[name: "X-Auth-Token", value: map.token]],
                                    quiet: true)
             endpoints = new JsonSlurperClassic().parseText(res.content)
+            print endpoints
             return endpoints.endpoints[0]["url"]
 
         } catch (err) {
