@@ -1,0 +1,95 @@
+import com.att.nccicd.config.conf
+import groovy.json.JsonSlurperClassic
+
+def label = "worker-${UUID.randomUUID().toString()}"
+def salt = "${UUID.randomUUID().toString()}".replaceAll('-', '')
+
+// Ref to grab PS/commits
+def PS_REF = "refs/changes/*:refs/changes/*"
+
+def cloneToBranch(String url, String refspec, String targetDirectory, String creds, String gerritRefspec) {
+    checkout poll: false,
+            scm: [$class                           : 'GitSCM',
+                  branches                         : [[name: refspec]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions                       : [[$class     : 'LocalBranch',
+                                                       localBranch: 'jenkins'],
+                                                      [$class           : 'RelativeTargetDirectory',
+                                                       relativeTargetDir: targetDirectory]],
+                  submoduleCfg                     : [],
+                  userRemoteConfigs                : [[refspec      : gerritRefspec,
+                                                       url          : url,
+                                                       credentialsId: creds]]]
+}
+
+podTemplate(label: label, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  securityContext:
+    runAsUser: 0
+  nodeSelector:
+    jenkins-node: enabled
+""", containers: [
+        containerTemplate(name: "pegleg",
+                image: "docker-open-nc.mtn29.cci.att.com/test/airship/pegleg:2a8d2638b3fb760ed50eb0504b39d24e8e39b499",
+                command: "cat",
+                ttyEnabled: true)]) {
+
+    node(label) {
+
+        stage("Checkout") {
+            cloneToBranch("ssh://$conf.SSH_REPO_USER@$conf.GERRIT_URL/$conf.SECRETS_REPO", "master", "aic-clcp-security-manifests", conf.JENKINS_GERRIT_MTN5_CRED_ID, PS_REF)
+            cloneToBranch("ssh://$conf.SSH_REPO_USER@$conf.GERRIT_URL/$conf.SITE_REPO", "refs/changes/41/53741/4", "aic-clcp-site-manifests", conf.JENKINS_GERRIT_MTN5_CRED_ID, PS_REF)
+        }
+
+        stage("Pegleg Generate Certs & Encrypt") {
+
+            def USER = wrap([$class: 'BuildUser']) {
+                return env.BUILD_USER_ID
+            }
+
+            container("pegleg") {
+                withCredentials([sshUserPrivateKey(credentialsId: 'tm0818-temp',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'USERNAME')]) {
+                    pegleg2.generatePkiWithinContainer("./aic-clcp-site-manifests/", "${USERNAME}", "${SSH_KEY}", "${USER}", "${PROJECT_SITE}", "${PASSPHRASE}", salt)
+                    sh """
+                    cd aic-clcp-security-manifests
+                    git status
+                    cd ../aic-clcp-site-manifests/site/${PROJECT_SITE}/secrets
+                    find ./ -type f -readable -writable -exec sed -i "s/cleartext/encrypted/g" {} +;
+                    cd ../../../
+                    pwd
+                    """
+                    pegleg2.encryptWithinContainer(conf.SITE_REPO, "${USERNAME}", "${SSH_KEY}", "${USER}", "${PROJECT_SITE}", "${PASSPHRASE}", salt)
+                }
+            }
+        }
+        stage("Git Push") {
+            def USER = wrap([$class: 'BuildUser']) {
+                return env.BUILD_USER_ID
+            }
+
+            sshagent(credentials: [conf.JENKINS_GERRIT_MTN5_CRED_ID]) {
+                sh """
+                                cd aic-clcp-site-manifests/site/${PROJECT_SITE}/secrets/certificates
+                                cat *.yaml > certificates.yaml
+                                find . ! -name certificates.yaml -delete
+                                cd -
+                                cp -R aic-clcp-site-manifests/site/${PROJECT_SITE}/secrets/ aic-clcp-security-manifests/site/${PROJECT_SITE}/
+                                cd aic-clcp-security-manifests
+                                git config user.email '${USER}'
+                                git config user.name 'Jenkins'
+                                git config --global push.default matching
+                                git status
+                                git add .
+                                git commit -m "[WIP] New certs"
+                                scp -p -P 29418 m92484@gerrit.mtn5.cci.att.com:hooks/commit-msg .git/hooks
+                                git commit --amend --no-edit
+                                git push -v ssh://m92484@gerrit.mtn5.cci.att.com:29418/aic-clcp-security-manifests HEAD:refs/for/rotation-test
+                            """
+            }
+        }
+    }
+}

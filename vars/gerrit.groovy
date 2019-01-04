@@ -74,6 +74,21 @@ def cloneToBranch(String url, String refspec, String targetDirectory, String cre
                                                  credentialsId: creds ]]]
 }
 
+def cloneToBranch(String url, String refspec, String targetDirectory, String creds, String gerritRefspec){
+    checkout poll: false,
+            scm: [$class: 'GitSCM',
+                  branches: [[name: refspec]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'LocalBranch',
+                                localBranch: 'jenkins'],
+                               [$class: 'RelativeTargetDirectory',
+                                relativeTargetDir: targetDirectory]],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: gerritRefspec,
+                                       url: url,
+                                       credentialsId: creds ]]]
+}
+
 def rebase(){
 //This method will rebase the local checkout with master and then continue build, tests, etc
     sh '''git config user.email "airship.jenkins@gmail.com"
