@@ -260,7 +260,7 @@ if (!PROJECT.contains('requirements') && PROJECT_RELEASE == 'ocata') {
             osh.installDockerCE()
         }
         stage('Authenticate docker repo') {
-            osh.dockerAuth()
+            osh.dockerAuth('jenkins-artifactory')
         }
         stage('Clone OpenstackHelm') {
             osh.cloneOSH()

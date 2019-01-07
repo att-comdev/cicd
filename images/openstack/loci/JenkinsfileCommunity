@@ -139,7 +139,7 @@ if (!PROJECT.contains('requirements') &&
             osh.installDockerCE()
         }
         stage('Authenticate docker repo') {
-            osh.dockerAuth()
+            osh.dockerAuth('jenkins-artifactory')
         }
         stage('Clone OpenstackHelm') {
             osh.cloneOSH()

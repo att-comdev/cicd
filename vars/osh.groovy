@@ -24,7 +24,7 @@ def installDockerCE() {
  *
  * @param creds Artifactory credentials ID
  */
-def dockerAuth(String creds = 'jenkins-artifactory') {
+def dockerAuth(String creds) {
     withCredentials([usernamePassword(credentialsId: creds,
                      usernameVariable: 'ARTIFACTORY_USER',
                      passwordVariable: 'ARTIFACTORY_PASSWORD')]) {

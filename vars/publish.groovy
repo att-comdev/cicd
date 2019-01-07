@@ -24,8 +24,7 @@ def nexus_jenkins_log (String org, String project, String repositoryName) {
 
 //This will publish images to respository in repositoryID
 def image (String creds, String url, String src, String dst) {
-  // Usage example: publish.image('jenkins-artifactory',"${ARTF_URL}",${ARMADA_IMAGE}")
-  // Usage example: publish.image('jenkins-quay',"${QUAY_URL}",${QUAY_IMAGE}")
+  // Usage example: publish.image('artf-creds',"${ARTF_URL}",${ARMADA_IMAGE}")
    withCredentials([usernamePassword(credentialsId: creds,
                     usernameVariable: 'REPO_USER',
                     passwordVariable: 'REPO_PASSWORD')]) {
@@ -56,8 +55,7 @@ def secureImage (String creds, String url, String src, String dst) {
  *
  * @param properties "key1=value1;key2=value2" string
  * @param url artifact URL, e.g. "${ARTF_DOCKER_URL}/clcp-manifests"
- * @param creds jenkins credentials ID; 'jenkins-artifactory' or
- *        'secure-artifactory' at the moment
+ * @param creds jenkins credentials ID
  */
 def setProperty (String creds, String url, String properties) {
 // Usage example:
@@ -78,8 +76,7 @@ def setProperty (String creds, String url, String properties) {
  *
  * @param properties [key1: 'value1', key2: 'value2'] map
  * @param url artifact URL, e.g. "${ARTF_DOCKER_URL}/clcp-manifests"
- * @param creds jenkins credentials ID; 'jenkins-artifactory' or
- *        'secure-artifactory' at the moment
+ * @param creds jenkins credentials ID
  */
 def setProperty (String creds, String url, Map properties) {
       def p = properties.collect { it }.join(';')
@@ -109,10 +106,9 @@ def putArtifacts (String file, String repo, Boolean flat = true) {
 /**
  * Delete files (html, logs, xml, etc) artifacts from Artifactory
  *
- * @param creds jenkins credentials ID; 'jenkins-artifactory' or
- *        'secure-artifactory' at the moment
+ * @param creds jenkins credentials ID
  * @param url artifactory URL, e.g. "https://my-artifactory.com/artifactory"
- * @param repo Repository to remove artifact from, e.g. "aqua-docs"
+ * @param repo Repository to remove artifact from
  * @param path Path to the folder to remove from Artifactory without a
           trailing /
  * @param name Name of the file to remove from the given path, if no name is
