@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4810e59e_d6f30270",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011937
+      },
+      "writtenOn": "2019-01-09T20:50:05Z",
+      "side": 1,
+      "message": "nit: image",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 9
+      },
+      "revId": "26ddc551989ec958481b5b174b71a73a39a5d91a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d22519be_ec852a8a",
+        "filename": "images/att-comdev/minimirror/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1011937
+      },
+      "writtenOn": "2019-01-09T20:50:05Z",
+      "side": 1,
+      "message": "This uses a repository that is defunct. The build stage will need to:\n\n1) Generate a passphrase-less keypair.\n2) Upload the public key to artifactory and update a DryDock bootaction with the link to the key.\n3) Export the path to the private key i.e.\n\n  export RELEASE_SIGN_KEY_PATH\u003d/path/to/private/key.gpg\n\n4) Build the image.",
+      "range": {
+        "startLine": 37,
+        "startChar": 12,
+        "endLine": 37,
+        "endChar": 478
+      },
+      "revId": "26ddc551989ec958481b5b174b71a73a39a5d91a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
