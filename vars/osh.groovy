@@ -257,12 +257,16 @@ def serviceVersions(Map images, Boolean mos = false) {
 /**
  * Run Helm tests on all Openstack services and log the results into artifacts/helm_tests.log
   */
-def runHelmTests() {
+def runHelmTests(tests=['keystone', 'heat', 'glance', 'cinder', 'nova', 'neutron'], run_from_root=false) {
     sh 'mkdir -p $WORKSPACE/artifacts'
 
-    for (proj in ['keystone', 'heat', 'glance', 'cinder', 'nova', 'neutron']) {
-        sh """helm test --debug ${proj} >> $WORKSPACE/artifacts/helm_tests.log || \\
-              kubectl logs ${proj}-test --namespace openstack | tee -a $WORKSPACE/artifacts/helm_tests.log"""
+    for (proj in tests) {
+        _sudo = ""
+        if (run_from_root) {
+            _sudo = "sudo"
+        }
+        sh """${_sudo} helm test --debug ${proj} >> $WORKSPACE/artifacts/helm_tests.log || \\
+              ${_sudo} kubectl logs ${proj}-test --namespace openstack | tee -a $WORKSPACE/artifacts/helm_tests.log"""
     }
 }
 
