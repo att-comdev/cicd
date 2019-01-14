@@ -172,7 +172,7 @@ def imageOverrides(Map images, Boolean mos = false) {
           'senlin_engine': 'docker.io/openstackhelm/senlin:ocata',
           'senlin_engine_cleaner': 'docker.io/openstackhelm/senlin:ocata',
           'tempest': 'docker.io/kolla/ubuntu-source-tempest:4.0.3',
-          'test': 'docker.io/kolla/ubuntu-source-rally:4.0.0'
+          'test': 'docker.io/xrally/xrally-openstack:1.3.0'
         ]
       ]
     ]
