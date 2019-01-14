@@ -10,6 +10,6 @@ vm(NODE_NAME, NODE_TMPL) {
    }
    stage('Test getImageDigest'){
       sh "echo " + params.image
-      sh "echo Digest: " + build.getImageDigest(params.image)
+      sh "echo Digest: " + image.getImageDigest(params.image)
    }
 }
