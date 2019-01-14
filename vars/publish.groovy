@@ -61,7 +61,7 @@ def secureImage (String creds, String url, String src, String dst) {
  */
 def setProperty (String creds, String url, String properties) {
 // Usage example:
-//    def imageDigest=build.getImageDigest(IMAGE)
+//    def imageDigest=image.getImageDigest(IMAGE)
 //    publish.setProperty ('jenkins-artifactory', \
 //        'https://artifacts-aic.atlantafoundry.com/artifactory/api/storage/clcp-manifests', \
 //        "${RELEASE_CURRENT_KEY}=${imageDigest}")

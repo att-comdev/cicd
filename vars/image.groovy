@@ -21,7 +21,7 @@ def makeImages(){
  */
 String getImageDigest (String image) {
 // Usage example:
-//    def imageDigest=build.getImageDigest(IMAGE)
+//    def imageDigest=image.getImageDigest(IMAGE)
 //    publish.setProperty ('jenkins-artifactory', \
 //        'https://artifacts-aic.atlantafoundry.com/artifactory/api/storage/clcp-manifests', \
 //        "${RELEASE_CURRENT_KEY}=${imageDigest}")
