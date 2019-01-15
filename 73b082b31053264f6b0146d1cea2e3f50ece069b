@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29feaca0_fd31a8c6",
+        "filename": "utils/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-15T17:52:54Z",
+      "side": 1,
+      "message": "Can you add this to gerrit.groovy",
+      "revId": "73b082b31053264f6b0146d1cea2e3f50ece069b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d44c4f2c_d6426851",
+        "filename": "utils/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-15T17:52:54Z",
+      "side": 1,
+      "message": "Change to call the gerrit.groovy method",
+      "revId": "73b082b31053264f6b0146d1cea2e3f50ece069b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47a70de5_585e6230",
+        "filename": "utils/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-15T17:52:54Z",
+      "side": 1,
+      "message": "Use SALT parameter Deployment Engineer enters",
+      "revId": "73b082b31053264f6b0146d1cea2e3f50ece069b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ade8333b_69ff0028",
+        "filename": "utils/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-15T17:52:54Z",
+      "side": 1,
+      "message": "Update to use User ID of Jenkins User",
+      "revId": "73b082b31053264f6b0146d1cea2e3f50ece069b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9c19423_72678517",
+        "filename": "utils/Jenkinsfile",
+        "patchSetId": 10
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-15T17:52:54Z",
+      "side": 1,
+      "message": "Get User that is building the job and put their ID here",
+      "revId": "73b082b31053264f6b0146d1cea2e3f50ece069b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1689a015_c51e5844",
+        "filename": "utils/seed.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-15T17:52:54Z",
+      "side": 1,
+      "message": "Can we change utils to deployment_engineers",
+      "revId": "73b082b31053264f6b0146d1cea2e3f50ece069b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ee3f00db_b60787f8",
+        "filename": "utils/seed.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-15T17:52:54Z",
+      "side": 1,
+      "message": "Can you add a parameter for a SALT",
+      "revId": "73b082b31053264f6b0146d1cea2e3f50ece069b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "556cb13a_c892e4c6",
+        "filename": "utils/seed.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-15T17:52:54Z",
+      "side": 1,
+      "message": "Can you just set it to an empty site name",
+      "revId": "73b082b31053264f6b0146d1cea2e3f50ece069b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "270b0141_f8bb5ff1",
+        "filename": "utils/seed.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-15T17:52:54Z",
+      "side": 1,
+      "message": "This parameter should be pulled from Jenkins itself.",
+      "revId": "73b082b31053264f6b0146d1cea2e3f50ece069b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d84a9a23_bd572ab8",
+        "filename": "utils/seed.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-15T17:52:54Z",
+      "side": 1,
+      "message": "you can put ${entry.directory} here",
+      "revId": "73b082b31053264f6b0146d1cea2e3f50ece069b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
