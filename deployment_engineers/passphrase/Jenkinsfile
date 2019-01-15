@@ -1,0 +1,65 @@
+import com.att.nccicd.config.conf
+import groovy.json.JsonSlurperClassic
+
+def label = "worker-${UUID.randomUUID().toString()}"
+
+// Ref to grab PS/commits
+def PS_REF = "refs/changes/*:refs/changes/*"
+
+podTemplate(label: label, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  securityContext:
+    runAsUser: 0
+  nodeSelector:
+    jenkins-node: enabled
+""", containers: [
+        containerTemplate(name: "pegleg",
+                image: "docker-open-nc.mtn29.cci.att.com/airship/pegleg@sha256:6421bca617639b0ffc5ed1f157df6a6fdf515598cdefa083a5f0514310611825",
+                command: "cat",
+                ttyEnabled: true)]) {
+
+    node(label) {
+
+        stage("Checkout") {
+            clone(SECRET_BRANCH, SECRET_REF, conf.SECRETS_REPO)
+        }
+
+        stage("Pegleg Generate Certs") {
+            container("pegleg") {
+                withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-gerrit-mtn5-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'USERNAME')]) {
+                    pegleg2.updateme(conf.SITE_REPO, conf.GLOBAL_REPO, "${USERNAME}", "${SSH_KEY}", "${ATTUID}", "${SITE_NAME}")
+                }
+            }
+        }
+
+        stage("Pegleg Encrypt") {
+
+            container("pegleg") {
+                withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-gerrit-mtn5-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'USERNAME')]) {
+                    pegleg2.encrypt(conf.SITE_REPO, conf.GLOBAL_REPO, "${USERNAME}", "${SSH_KEY}", "${ATTUID}", "${SITE_NAME}")
+                }
+            }
+        }
+
+        stage("Upload Patchset") {
+
+		    sshagent(credentials: [conf.JENKINS_GERRIT_MTN5_CRED_ID]){
+                dir(conf.SECRETS_REPO){
+                    sh """
+                        git config user.email '${ATTUID}@att.com'
+                        git config user.name '${ATTUID}'
+                        git add .
+                        git commit -m "Automated: Rotate Passphrase for site ${SITE_NAME}"
+                        git push
+                    """
+                }
+            }
+        }
+    }
+}
