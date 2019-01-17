@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b5d89bc_d4a3da0c",
+        "filename": "charts/airship/airship-deckhand/seed.groovy",
+        "patchSetId": 13
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-01-17T20:10:01Z",
+      "side": 1,
+      "message": "duplicate..?",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 24
+      },
+      "revId": "3239e7d6051a6d6d7148d40ada3682c3f73f58c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44b0d77d_f0dccbf3",
+        "filename": "charts/airship/airship-deckhand/seed.groovy",
+        "patchSetId": 13
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-01-17T20:10:01Z",
+      "side": 1,
+      "message": "can we include file path so that it triggers only on helm-toolkit changes",
+      "range": {
+        "startLine": 43,
+        "startChar": 33,
+        "endLine": 43,
+        "endChar": 62
+      },
+      "revId": "3239e7d6051a6d6d7148d40ada3682c3f73f58c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
