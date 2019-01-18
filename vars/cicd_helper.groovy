@@ -164,3 +164,24 @@ def generateYaml(siteName, sitePath=".") {
     ]
     return res
 }
+
+/**
+ * k8s pod as Jenkins executor helper method for said pod configuration
+ * @param runAsUid UID that is performing actions inside the pod
+ * @param nodeSelectorLabel Determines which node(s) these pods should spin up on
+ * @return pod desription
+ */
+def podExecutorConfig(runAsUid="0", nodeSelectorLabel="jenkins-node: enabled") = {
+    uid = runAsUid.trim()
+    label = nodeSelectorLabel.trim()
+
+    return """
+    apiVersion: v1
+    kind: Pod
+    spec:
+      securityContext:
+        runAsUser: ${uid}
+      nodeSelector:
+        ${label}
+    """
+}
