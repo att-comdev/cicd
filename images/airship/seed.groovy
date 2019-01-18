@@ -100,15 +100,7 @@ for (entry in object.github) {
                     }
                 }
                 triggerOnEvents {
-                    patchsetCreated {
-                       excludeDrafts(false)
-                       excludeTrivialRebase(false)
-                       excludeNoCodeChange(false)
-                    }
                     changeMerged()
-                    commentAddedContains {
-                        commentAddedCommentContains('recheck')
-                    }
                 }
            }
 
