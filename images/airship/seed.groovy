@@ -180,6 +180,7 @@ for (entry in object.github) {
                        excludeTrivialRebase(false)
                        excludeNoCodeChange(false)
                     }
+                    changeMerged()
                     commentAddedContains {
                         commentAddedCommentContains('recheck')
                     }

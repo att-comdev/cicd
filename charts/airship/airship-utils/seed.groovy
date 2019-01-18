@@ -49,15 +49,7 @@ for (entry in object.airship) {
                     }
                 }
                 triggerOnEvents {
-                    patchsetCreated {
-                        excludeDrafts(false)
-                        excludeTrivialRebase(false)
-                        excludeNoCodeChange(false)
-                    }
                     changeMerged()
-                    commentAddedContains {
-                        commentAddedCommentContains('recheck')
-                    }
                 }
             }
             definition {
