@@ -164,3 +164,49 @@ def generateYaml(siteName, sitePath=".") {
     ]
     return res
 }
+
+/**
+ * k8s pod as Jenkins executor helper method for said pod configuration
+ * @param runAsUid UID that is performing actions inside the pod
+ * @param priAffinityKey the primary node(s), if labeled, that pods should spin on
+ * @param secAffinityKey the secondary node(s), if labeled, that pods should spin on
+ * @param jnlpImage Which JNLP image to use and where to source it from
+ * @return pod desription
+ */
+def podExecutorConfig(runAsUid="0", priAffinityKey="jenkins-node-primary",
+        secAffinityKey="jenkins-node-secondary", jnlpImage="jenkins/jnlp-slave:alpine") {
+
+    uid = runAsUid.trim()
+    priLabel = priAffinityKey.trim()
+    secLabel = secAffinityKey.trim()
+    image = jnlpImage.trim()
+
+    return """
+    apiVersion: v1
+    kind: Pod
+    spec:
+      containers:
+      - name: jnlp
+        image: '${image}'
+        args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
+      securityContext:
+        runAsUser: ${uid}
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: ${priLabel}
+                operator: In
+                values:
+                - enabled
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: ${secLabel}
+                operator: In
+                values:
+                - enabled
+    """
+}
