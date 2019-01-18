@@ -100,15 +100,7 @@ for (entry in object.github) {
                     }
                 }
                 triggerOnEvents {
-                    patchsetCreated {
-                       excludeDrafts(false)
-                       excludeTrivialRebase(false)
-                       excludeNoCodeChange(false)
-                    }
                     changeMerged()
-                    commentAddedContains {
-                        commentAddedCommentContains('recheck')
-                    }
                 }
            }
 
@@ -117,7 +109,7 @@ for (entry in object.github) {
                    script(readFileFromWorkspace("images/airship/JenkinsfileMaster"))
                    sandbox(false)
                }
-           }
+           }*/
         }
     }
 }
