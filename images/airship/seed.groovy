@@ -82,7 +82,7 @@ for (entry in object.github) {
                 count '10'
             }
         }
-        triggers {
+        /*triggers {
             gerritTrigger {
                 silentMode(true)
                 serverName('ATT-airship-CI')
@@ -117,7 +117,7 @@ for (entry in object.github) {
                    script(readFileFromWorkspace("images/airship/JenkinsfileMaster"))
                    sandbox(false)
                }
-           }
+           }*/
         }
     }
 }
