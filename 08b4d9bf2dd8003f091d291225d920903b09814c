@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d686f018_afb3acb9",
+        "filename": "utils/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-21T17:23:09Z",
+      "side": 1,
+      "message": "Do we need the secrets repo cloned? Probably just site.  Can you use the same parameters that were used on your other patchset and not hardcoded?",
+      "revId": "08b4d9bf2dd8003f091d291225d920903b09814c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
