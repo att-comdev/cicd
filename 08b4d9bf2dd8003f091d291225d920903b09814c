@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "d34b4960_aeff818f",
+        "filename": "utils/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-21T17:25:45Z",
+      "side": 1,
+      "message": "These are all internal sites, so we don\u0027t want this in gerrithub. Switch this to a string parameter.",
+      "revId": "08b4d9bf2dd8003f091d291225d920903b09814c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "296c4e64_bda3a91d",
         "filename": "vars/pegleg2.groovy",
         "patchSetId": 1
