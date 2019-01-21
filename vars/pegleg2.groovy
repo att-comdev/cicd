@@ -350,3 +350,30 @@ def generatePkiWithinContainer(siteRepo, username, sshKey, author, siteName, peg
 def generatePkiWithinContainer(siteRepo, username, sshKey, secretsRepo, author, siteName, peglegPassphrase, peglegSalt) {
     sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -r ${siteRepo} -e secrets=${secretsRepo} -u ${username} -k ${sshKey} secrets generate-pki -a ${author} ${siteName}"""
 }
+
+/**
+ * Execution of Pegleg "genesis_bundle" against a Pegleg
+ * container.
+ *
+ * @param siteRepo The folder containing your site-level documents (must be at your PWD)
+ * @param username The username for the service account.
+ * @param sshKey The SSH key for the service account.
+ * @param siteName The name of the site you're looking to render. Must match what's in your site repository's site-definition.yaml
+ */
+def generateGenesis(siteRepo, destinationDirectory, encryptionKey, siteName) {
+    sh "docker run --rm -i --net=none --workdir=/workspace -v \$(pwd):/workspace \
+        $conf.PEGLEG_IMAGE pegleg -v site -r ${siteRepo} genesis_bundle -b ${destinationDirectory} -k ${encryptionKey} ${siteName}"
+}
+
+/**
+ * Execution of Pegleg "genesis_bundle" within a Pegleg
+ * container.
+ *
+ * @param siteRepo The folder containing your site-level documents (must be at your PWD)
+ * @param username The username for the service account.
+ * @param sshKey The SSH key for the service account.
+ * @param siteName The name of the site you're looking to render. Must match what's in your site repository's site-definition.yaml
+ */
+def generateGenesisWithinContainer(siteRepo, globalRepo, username, sshKey, destinationDirectory, siteName, peglegPassphrase, peglegSalt) {
+    sh "export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} -e global=${globalRepo} genesis_bundle -b ${destinationDirectory} --validators ${siteName}"
+}
