@@ -1,0 +1,58 @@
+import com.att.nccicd.config.conf
+import groovy.json.JsonSlurperClassic
+
+def label = "worker-${UUID.randomUUID().toString()}"
+def salt = "${UUID.randomUUID().toString()}".replaceAll('-','')
+
+// Ref to grab PS/commits
+def PS_REF = "refs/changes/*:refs/changes/*"
+
+podTemplate(label: label, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  securityContext:
+    runAsUser: 0
+  nodeSelector:
+    jenkins-node: enabled
+""", containers: [
+        containerTemplate(name: "pegleg",
+                image: "docker-open-nc.mtn29.cci.att.com/slfletch/pegleg:patchset",
+                command: "cat",
+                ttyEnabled: true)]) {
+
+    node(label) {
+
+        stage("Checkout") {
+            cloneToBranch("ssh://$conf.SSH_REPO_USER@$conf.GERRIT_URL/$conf.SECRETS_REPO", "master", "aic-clcp-security-manifests", conf.JENKINS_GERRIT_MTN5_CRED_ID, PS_REF)
+            cloneToBranch("ssh://$conf.SSH_REPO_USER@$conf.GERRIT_URL/$conf.SITE_REPO", "refs/changes/41/53741/4", "aic-clcp-site-manifests", conf.JENKINS_GERRIT_MTN5_CRED_ID, PS_REF)
+        }
+
+        stage("Pegleg Generate Genesis") {
+
+            container("pegleg") {
+                withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-gerrit-mtn5-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'USERNAME')]) {
+                    pegleg2.generateGenesisWithinContainer(conf.SITE_REPO, "${DESTINATION_DIR}", "${SSH_KEY}", "${PROJECT_SITE}")
+                }
+            }
+        }
+
+        stage("Upload Patchset") {
+
+            sshagent(credentials: [conf.JENKINS_GERRIT_MTN5_CRED_ID]) {
+                dir(conf.SECRETS_REPO) {
+                    sh """
+                                pwd
+                                git config user.email '${BUILD_USER_ID}@att.com'
+                                git config user.name 'Jenkins'
+                                git add .
+                                git commit -m "New certs"
+                                git push
+                            """
+                }
+            }
+        }
+    }
+}
