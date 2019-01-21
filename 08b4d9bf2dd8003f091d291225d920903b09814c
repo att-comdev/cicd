@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "eb594660_3894aadf",
+        "filename": "utils/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-01-21T19:31:44Z",
+      "side": 1,
+      "message": "No, we shouldn\u0027t need the secrets repo. And changed to use params.",
+      "parentUuid": "d686f018_afb3acb9",
+      "revId": "08b4d9bf2dd8003f091d291225d920903b09814c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d34b4960_aeff818f",
         "filename": "utils/seed.groovy",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "06c1e358_6fc3617f",
+        "filename": "utils/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-01-21T19:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d34b4960_aeff818f",
+      "revId": "08b4d9bf2dd8003f091d291225d920903b09814c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "296c4e64_bda3a91d",
         "filename": "vars/pegleg2.groovy",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2019-01-21T17:24:39Z",
       "side": 1,
       "message": "Library changes have to be a separate Patchset, they can\u0027t be included in job changes.",
+      "revId": "08b4d9bf2dd8003f091d291225d920903b09814c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5032546b_4ec49de7",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-01-21T19:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "296c4e64_bda3a91d",
       "revId": "08b4d9bf2dd8003f091d291225d920903b09814c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
