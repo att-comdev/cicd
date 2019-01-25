@@ -1,0 +1,61 @@
+IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY = "${ARTF_DOCKER_URL}"
+IMAGE_PREFIX = "openstack-helm-images"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+BASE_IMAGE = "ubuntu_xenial"
+VERSION = 1.0
+HELM_IMAGES_URL = "https://git.openstack.org/openstack/openstack-helm-images"
+HELM_IMAGES_HOME = ""
+
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+if(env.GERRIT_NEWREV){
+    echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+    IMAGE_TAG = env.GERRIT_NEWREV
+}
+IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+
+vm() {
+    HELM_IMAGES_HOME = "${WORKSPACE}/openstack-helm-images"
+    currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+
+    stage("Checkout"){
+        if(env.GERRIT_NEWREV){
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            IMAGE_TAG = env.GERRIT_NEWREV
+            IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+        }
+        gerrit.cloneToBranch(HELM_IMAGES_URL,
+                             IMAGE_TAG,
+                             HELM_IMAGES_HOME)
+    }
+
+    stage('Setup environment'){
+        sh "sudo apt-get update"
+        sh "sudo apt-get install make -y"
+        vm2.setproxy()
+    }
+
+    stage('Build') {
+        dir (HELM_IMAGES_HOME) {
+            sh """sudo make IMAGE_NAME=${JOB_BASE_NAME} \
+                  OS_RELEASE=${BASE_IMAGE} \
+                  IMAGE_PREFIX = ${IMAGE_PREFIX}\
+                  DOCKER_REGISTRY = ${ARTF_DOCKER_URL} \
+                  EXTRA_BUILD_ARGS = "--label org.label-schema.vcs-ref=${IMAGE_TAG} \
+                                      --label org.label-schema.vcs-url=${env.GERRIT_CHANGE_URL} \
+                                      --label org.label-schema.version=${VERSION}-${BUILD_NUMBER} \
+                                      --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE} \
+                                      --build-arg http_proxy=${HTTP_PROXY} \
+                                      --build-arg https_proxy=${HTTPS_PROXY}" \
+                                      --build-arg NO_PROXY=${NO_PROXY} \
+                  IMAGE_TAG = ${IMAGE_TAG}.`date +"%Y-%m-%d_%H-%M-%S"`"""
+        }
+    }
+
+    stage('Image Publish'){
+        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            publish.artifactory (IMAGE, IMAGE_LATEST)
+        }
+    }
+}
