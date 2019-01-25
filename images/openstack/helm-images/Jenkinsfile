@@ -1,0 +1,86 @@
+import com.att.nccicd.config.conf
+
+IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
+DOCKER_REGISTRY = "${ARTF_DOCKER_URL}"
+IMAGE_PREFIX = "openstack-helm-images"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+BASE_IMAGE = "ubuntu_xenial"
+VERSION = 1.0
+HELM_IMAGES_URL = "https://git.openstack.org/openstack/openstack-helm-images"
+HELM_IMAGES_HOME = ""
+
+if (GERRIT_EVENT_TYPE != 'change-merged') {
+    IMAGE_PREFIX += "-patchset"
+}
+
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+if(env.GERRIT_NEWREV){
+    echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+    IMAGE_TAG = env.GERRIT_NEWREV
+}
+
+def label = "worker-${UUID.randomUUID().toString()}"
+podTemplate(label: label,
+            yaml: """
+                     apiVersion: v1
+                     kind: Pod
+                     spec:
+                       securityContext:
+                         runAsUser: 0
+                       nodeSelector:
+                         jenkins-node: enabled
+                  """,
+            containers: [containerTemplate(name: "ubuntu",
+                                           image: conf.POD_IMAGE_1804,
+                                           command: "cat",
+                                           ttyEnabled: true)],
+            volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock',
+                                     mountPath: '/var/run/docker.sock')]) {
+    node(label){
+        container("ubuntu"){
+            HELM_IMAGES_HOME = "${WORKSPACE}/openstack-helm-images"
+
+            stage("Checkout"){
+                if(env.GERRIT_NEWREV){
+                    echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+                    IMAGE_TAG = env.GERRIT_NEWREV
+                }
+                gerrit.cloneToBranch(HELM_IMAGES_URL,
+                                    IMAGE_TAG,
+                                    HELM_IMAGES_HOME)
+            }
+
+            stage('Setup environment'){
+                sh "apt-get update"
+                sh "apt-get install make sudo docker.io -y"
+            }
+
+            stage('Build') {
+                dir (HELM_IMAGES_HOME) {
+                    IMAGE_TAG += ".${BUILD_TIMESTAMP}"
+                    IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+
+                    sh """make IMAGE_NAME=${JOB_BASE_NAME} \
+                          OS_RELEASE=${BASE_IMAGE} \
+                          IMAGE_PREFIX=${IMAGE_PREFIX}\
+                          DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
+                          EXTRA_BUILD_ARGS="--label org.label-schema.vcs-ref=${IMAGE_TAG} \
+                                              --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} \
+                                              --label org.label-schema.version=${VERSION}-${BUILD_NUMBER} \
+                                              --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE} \
+                                              --build-arg http_proxy=${HTTP_PROXY} \
+                                              --build-arg https_proxy=${HTTPS_PROXY} \
+                                              --build-arg NO_PROXY=${NO_PROXY}" \
+                          IMAGE_TAG=${IMAGE_TAG}"""
+                }
+            }
+
+            stage('Image Publish'){
+                publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                if (GERRIT_EVENT_TYPE == 'change-merged') {
+                    publish.artifactory (IMAGE, IMAGE_LATEST)
+                }
+            }
+        }
+    }
+}
