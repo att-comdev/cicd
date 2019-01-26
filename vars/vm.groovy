@@ -155,13 +155,11 @@ def call(Map map, Closure body) {
 
     } finally {
         if (!doNotDeleteNode) {
-            stage ('Node Destroy') {
-                node('master') {
-                    jenkins.node_delete(name)
-                }
-                node(launch_node) {
-                   heat.stack_delete(name)
-                }
+            node('master') {
+                jenkins.node_delete(name)
+            }
+            node(launch_node) {
+               heat.stack_delete(name)
             }
         }
 
@@ -171,7 +169,7 @@ def call(Map map, Closure body) {
             node('master'){
                 message ('INFO: PUBLISHING LOGS TO ARTIFACTORY') {}
                 try{
-                    def logBase = "logs/${JOB_NAME}/${BUILD_ID}"
+                    def logBase = "cicd/logs/${JOB_NAME}/${BUILD_ID}"
 
                     sh "curl -s -o console.txt ${BUILD_URL}/consoleText"
                     artifactory.upload ('console.txt', "${logBase}/console.txt")
