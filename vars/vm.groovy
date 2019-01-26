@@ -171,7 +171,7 @@ def call(Map map, Closure body) {
             node('master'){
                 message ('INFO: PUBLISHING LOGS TO ARTIFACTORY') {}
                 try{
-                    def logBase = "logs/${JOB_NAME}/${BUILD_ID}"
+                    def logBase = "cicd/logs/${JOB_NAME}/${BUILD_ID}"
 
                     sh "curl -s -o console.txt ${BUILD_URL}/consoleText"
                     artifactory.upload ('console.txt', "${logBase}/console.txt")
