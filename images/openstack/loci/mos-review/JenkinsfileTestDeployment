@@ -2,61 +2,131 @@ import groovy.json.JsonSlurperClassic
 
 overrideImagesMap = new JsonSlurperClassic().parseText(OVERRIDE_IMAGES)
 
-// OSH AIO requires min 8 cpus cores and 16 GB ram
-vm2('bootstrap.sh',
-    'cicd-ubuntu-16.04-server-cloudimg-amd64',
-    'm1.xlarge',
-    'deploy-osh-aio',
-    'basic',
-    false) {
+STARTED = false
 
-    stage('Setup proxy') {
-        vm2.setproxy()
-    }
-    stage('Install docker-ce') {
-        osh.installDockerCE()
-    }
-    stage('Authenticate docker repo') {
-        osh.dockerAuth()
-    }
-    stage('Clone OpenstackHelm') {
-        osh.cloneOSH()
-    }
-    stage('Update OSH proxy') {
-        osh.updateProxy()
-    }
-    stage('Override images') {
-        print "Overriding default images with newly created ones..."
-        osh.imageOverrides(overrideImagesMap, true)
-    }
-    stage('Install OSH AIO') {
-        try {
-            withEnv(['OS_REGION_NAME=',
-              'OS_USERNAME=',
-              'OS_PASSWORD=',
-              'OS_PROJECT_NAME=',
-              'OS_PROJECT_DOMAIN_NAME=',
-              'OS_USER_DOMAIN_NAME=',
-              'OS_AUTH_URL=',
-              "OSH_EXTRA_HELM_ARGS=--values=./tools/overrides/releases/ocata/loci.yaml"]) {
-                osh.installOSHAIO()
+def multiSlotNode_(String label, int slots = 1, java.util.concurrent.atomic.AtomicInteger nodeAcquired, Closure body) {
+	if (slots == 1) {
+		node(label) { 
+		    nodeAcquired.addAndGet(1)
+		    body() }
+	} else if (slots > 1) {
+		node(label) { 
+		    nodeAcquired.addAndGet(1)
+		    multiSlotNode_(env.NODE_NAME, slots - 1, nodeAcquired, body)
+		}
+	} else {
+		throw new IllegalArgumentException("Number of slots must be greather than zero")
+	}
+}
+
+def multiSlotNode(String label, int slots = 1, Closure body) {
+
+    def nodeAcquired = new java.util.concurrent.atomic.AtomicInteger(0)
+    
+    timestamps {
+        def rerun = true
+        while (rerun) {
+            
+            try {
+                parallel (
+                    failFast: true,
+                    
+                    "timer" : {
+                        timeout(time: 5, unit: 'SECONDS') {
+                            waitUntil {
+                                return nodeAcquired.get() >= slots
+                            }
+                        }
+                    },
+                    
+                    "job" : {
+                        nodeAcquired.set(0)
+                        rerun = false
+                        multiSlotNode_(label, slots, nodeAcquired, body)
+                    }
+                )
+            } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException ex) {
+                if (STARTED) {
+                    throw ex
+                }
+                // Timeout to get available nodes. Trying again later
+                sleep time: 60, unit: 'SECONDS'
+                rerun = true
             }
-        } catch (Exception exception) {
-            osh.artifactLogs()
-            error "OSH AIO deployment failed with exception $exception"
         }
     }
-    stage('Get openstack versions') {
-        osh.serviceVersions(overrideImagesMap, true)
-    }
-    stage('Run Helm tests') {
-        osh.runHelmTests()
-    }
-    stage('Parse test logs for failures') {
-        status = osh.parseTestLogs()
-        if (status != 0) {
-            osh.artifactLogs()
-            error "Helm tests failed... see log $WORKSPACE/artifacts/helm_tests.log"
-        } else { print "Helm tests passed" }
+}
+
+// OSH AIO requires min 8 cpus cores and 16 GB ram
+//vm2('bootstrap.sh',
+//    'cicd-ubuntu-16.04-server-cloudimg-amd64',
+//    'm1.xlarge',
+//    'deploy-osh-aio',
+//    'basic',
+//    false) {
+multiSlotNode(LOCI_BUILD_SLAVE_LABEL, 3) {
+    STARTED = true
+    try {
+        cleanWs()
+        sshagent([INTERNAL_GERRIT_KEY]) {
+            sh "git clone ssh://gerrit.mtn5.cci.att.com:29418/nc-cicd"
+        }
+        sh "sudo ${WORKSPACE}/nc-cicd/tools/cleanup.sh -f > /dev/null"
+        stage('Install docker-ce') {
+            osh.installDockerCE()
+        }
+        stage('Setup proxy') {
+            vm2.setproxy()
+        }
+        stage('Authenticate docker repo') {
+            osh.dockerAuth()
+        }
+        stage('Clone OpenstackHelm') {
+            osh.cloneOSH()
+            sh "sed -i \'/sleep 30/a openstack container create test||:\\nsleep 30\' openstack-helm/tools/deployment/developer/ceph/110-ceph-radosgateway.sh"
+        }
+        stage('Update OSH proxy') {
+            osh.updateProxy()
+        }
+        stage('Override images') {
+            print "Overriding default images with newly created ones..."
+            osh.imageOverrides(overrideImagesMap, true)
+        }
+        stage('Install OSH AIO') {
+            try {
+                withEnv(['OS_REGION_NAME=',
+                  'OS_USERNAME=',
+                  'OS_PASSWORD=',
+                  'OS_PROJECT_NAME=',
+                  'OS_PROJECT_DOMAIN_NAME=',
+                  'OS_USER_DOMAIN_NAME=',
+                  'OS_AUTH_URL=',
+                  "OSH_EXTRA_HELM_ARGS=--values=./tools/overrides/releases/ocata/loci.yaml"]) {
+                    osh.installOSHAIO()
+                }
+            } catch (Exception exception) {
+                osh.artifactLogs()
+                error "OSH AIO deployment failed with exception $exception"
+            }
+        }
+        stage('Get openstack versions') {
+            osh.serviceVersions(overrideImagesMap, true)
+        }
+        stage('Run Helm tests') {
+            osh.runHelmTests()
+        }
+        stage('Parse test logs for failures') {
+            status = osh.parseTestLogs()
+            if (status != 0) {
+                osh.artifactLogs()
+                error "Helm tests failed... see log $WORKSPACE/artifacts/helm_tests.log"
+            } else { print "Helm tests passed" }
+        }
+    } finally {
+        sh "sudo rm -rf /etc/systemd/system/kubelet.service* ||:"
+        try {
+            sh "echo 'sleep 1; sudo reboot;' | at now"
+            sleep 60
+        } catch(error) {}
     }
 }
