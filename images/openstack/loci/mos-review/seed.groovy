@@ -152,6 +152,7 @@ PROJECT_MAP.each { projectName, buildTypes ->
                 "UPDATE_TOPIC":        UPDATE_TOPIC,
                 "PROJECT_NAME":        projectName,
                 "BUILD_TYPE":          buildType,
+                "LOCI_BUILD_SLAVE_LABEL": LOCI_BUILD_SLAVE_LABEL,
             )
         }
     }
@@ -166,6 +167,9 @@ pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
             sandbox(false)
         }
     }
+    environmentVariables(
+        "LOCI_BUILD_SLAVE_LABEL": LOCI_BUILD_SLAVE_LABEL,
+    )
     parameters {
         stringParam {
             defaultValue('')
