@@ -152,58 +152,63 @@ def verifyDepVersions(upperConstraintsVersions, reposVersions) {
 }
 
 
-vm2 ('loci-bootstrap.sh',
-         'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         'm1.medium',
-         '',
-         'loci',
-         false) {
-    stage('Docker Setup') {
-        loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
-                     DIND_CONTAINER, NET_RETRY_COUNT)
-    }
-    stage('Gather projects versions') {
-        reposVersions = getProjectsVersions(
-            PROJECT_MAP.keySet() + DEPENDENCY_PROJECT_LIST as Set
-        )
-        print "Projects versions:\n${reposVersions}"
-    }
-    stage('Gather latest set versions') {
-        imagesVersions = getLatestSetVersions()
-        print "Images versions:\n${imagesVersions}"
-    }
-    stage('Verify images versions') {
-        imagesHasFailures = verifyImagesVersions(imagesVersions, reposVersions)
-    }
-    stage('Verify dependency components versions') {
-        utils.retrier (NET_RETRY_COUNT) {
-            gerrit.cloneToBranch(
-                getProjectRepoUrl(REQ_PROJECT_NAME),
-                BRANCH,
-                REQ_PROJECT_NAME,
-                INTERNAL_GERRIT_KEY,
-                null
+node(LOCI_BUILD_SLAVE_LABEL) {
+    try {
+        cleanWs()
+        stage('Docker Setup') {
+            loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
+                         DIND_CONTAINER, NET_RETRY_COUNT)
+        }
+        stage('Gather projects versions') {
+            reposVersions = getProjectsVersions(
+                PROJECT_MAP.keySet() + DEPENDENCY_PROJECT_LIST as Set
             )
+            print "Projects versions:\n${reposVersions}"
         }
-        requirement_ref = imagesVersions['requirements']['vcsRef']
-        dir(REQ_PROJECT_NAME) {
-            sh "git checkout ${requirement_ref}"
-            upperConstraints = readFile 'upper-constraints.txt'
-            upperConstraintsVersions = [:]
-            depStr = DEPENDENCY_PROJECT_LIST.join('|')
-            (upperConstraints =~ /git\+.+?\/\/.*?\/(${depStr})?@(.*)?#.*/).each {
-                upperConstraintsVersions[it[1]] = ["uc_version": it[2]]
+        stage('Gather latest set versions') {
+            imagesVersions = getLatestSetVersions()
+            print "Images versions:\n${imagesVersions}"
+        }
+        stage('Verify images versions') {
+            imagesHasFailures = verifyImagesVersions(imagesVersions, reposVersions)
+        }
+        stage('Verify dependency components versions') {
+            utils.retrier (NET_RETRY_COUNT) {
+                gerrit.cloneToBranch(
+                    getProjectRepoUrl(REQ_PROJECT_NAME),
+                    BRANCH,
+                    REQ_PROJECT_NAME,
+                    INTERNAL_GERRIT_KEY,
+                    null
+                )
             }
+            requirement_ref = imagesVersions['requirements']['vcsRef']
+            dir(REQ_PROJECT_NAME) {
+                sh "git checkout ${requirement_ref}"
+                upperConstraints = readFile 'upper-constraints.txt'
+                upperConstraintsVersions = [:]
+                depStr = DEPENDENCY_PROJECT_LIST.join('|')
+                (upperConstraints =~ /git\+.+?\/\/.*?\/(${depStr})?@(.*)?#.*/).each {
+                    upperConstraintsVersions[it[1]] = ["uc_version": it[2]]
+                }
+            }
+            depsHasFailures = verifyDepVersions(upperConstraintsVersions,
+                                                reposVersions)
         }
-        depsHasFailures = verifyDepVersions(upperConstraintsVersions,
-                                            reposVersions)
-    }
-    print ("REPORT:\n${imagesVersions}\n${upperConstraintsVersions}")
-    if(imagesHasFailures || depsHasFailures) {
-        error("Failed to validate images integrity. " +
-              "Please check logs for details.")
-    } else {
-        print("Successfully verified integrity of images")
+        print ("REPORT:\n${imagesVersions}\n${upperConstraintsVersions}")
+        if(imagesHasFailures || depsHasFailures) {
+            error("Failed to validate images integrity. " +
+                  "Please check logs for details.")
+        } else {
+            print("Successfully verified integrity of images")
+        }
+    } finally {
+        try {
+            sh "sudo docker stop ${DIND_CONTAINER}"
+        }
+        finally {
+            sh "sudo docker rm -v ${DIND_CONTAINER}"
+        }
     }
 }
 
@@ -237,12 +242,8 @@ stage("Test Deployment") {
 
 currentBuild.description = images
 
-vm2 ('loci-bootstrap.sh',
-         'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         'm1.medium',
-         '',
-         'loci',
-         false) {
+node(LOCI_BUILD_SLAVE_LABEL) {
+    cleanWs()
     stage("Replacing images in versions.yaml") {
         env.GERRIT_TOPIC = TOPIC
         changes = gerrit.getTopicCommitInfo(
