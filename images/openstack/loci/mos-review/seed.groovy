@@ -213,11 +213,12 @@ MERGED_MAP.each { projectName, buildTypes ->
                 }
             }
             environmentVariables(
-                "RESTRICT_EVENT_TYPE": false,
-                "UPDATE_TOPIC":        UPDATE_TOPIC,
-                "PROJECT_NAME":        projectName,
-                "BUILD_TYPE":          buildType,
-                "NET_RETRY_COUNT":     NET_RETRY_COUNT,
+                "RESTRICT_EVENT_TYPE":    false,
+                "UPDATE_TOPIC":           UPDATE_TOPIC,
+                "PROJECT_NAME":           projectName,
+                "BUILD_TYPE":             buildType,
+                "NET_RETRY_COUNT":        NET_RETRY_COUNT,
+                "LOCI_BUILD_SLAVE_LABEL": LOCI_BUILD_SLAVE_LABEL,
             )
         }
     }
@@ -235,6 +236,9 @@ pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
     properties {
         disableResume()
     }
+    environmentVariables(
+        "LOCI_BUILD_SLAVE_LABEL": LOCI_BUILD_SLAVE_LABEL,
+    )
     parameters {
         stringParam {
             defaultValue('')
@@ -338,6 +342,7 @@ SUPPORTED_RELEASES.each { release ->
             "RELEASE":                 "${release}",
             "NET_RETRY_COUNT":         NET_RETRY_COUNT,
             "RETRY_COUNT":             RETRY_COUNT,
+            "LOCI_BUILD_SLAVE_LABEL":  LOCI_BUILD_SLAVE_LABEL,
         )
         properties {
             disableResume()
@@ -369,6 +374,7 @@ pipelineJob("${JOB_BASE}/UpdateMirrors") {
         "JOB_BASE":                JOB_BASE,
         "MIRRORS_PREFIX":          MIRRORS_PREFIX,
         "NET_RETRY_COUNT":         NET_RETRY_COUNT,
+        "LOCI_BUILD_SLAVE_LABEL":  LOCI_BUILD_SLAVE_LABEL,
     )
     properties {
         disableResume()
