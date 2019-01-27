@@ -85,10 +85,6 @@ DEFAULT_ARGS = [
   'PROJECT_REPO': getProjectRepoInternalUrl(PROJECT_NAME),
 ]
 
-// cmd for running Docker in Docker
-DIND_CONTAINER = "locibuildcont"
-DIND = "sudo docker exec ${DIND_CONTAINER}"
-
 // Compile ssh-agent key names and ssh config from SSH_DATA to be used
 // for fetching projects to internal mirror
 (KEY_NAMES, SSH_CONFIG) = compileSshData()
@@ -345,45 +341,78 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     return image_tag
 }
 
-vm2 ('loci-bootstrap.sh',
-         'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         'm1.medium',
-         '',
-         'loci',
-         false) {
-
-    stage('Docker Setup') {
-        loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
-                     DIND_CONTAINER)
+def setKnownHosts() {
+    if (env.KNOWN_HOSTS) {
+        sh "mkdir -p ${HOME}/.ssh; echo \"${KNOWN_HOSTS}\" >> ${HOME}/.ssh/known_hosts"
     }
+}
 
-    stage('Local Repo Setup') {
-        loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT)
-        // Create ssh config on slave to control what login is used for
-        // what resource
-        writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
-        PROJECT_VERSION = getRevision(PROJECT_REPO, PROJECT_REF)
-        PROJECT_URL = getChangeUrl(PROJECT_NAME, PROJECT_VERSION)
-        prepare_local_mirrors()
+DIND_CONTAINER = 'locibuildcont'
+
+def getDindContainerName() {
+    containers = sh (script: 'sudo docker ps --format {{.Names}}', returnStdout: true).split()
+    baseName = DIND_CONTAINER
+    while(true) {
+        name = baseName + "-" + new Random().nextInt(1000)
+        if (!containers.contains(name)) { return name }
     }
+}
 
-    stage ("Build Project") {
-        print "Building ${PROJECT_NAME.capitalize()}"
-        if (PROJECT_NAME.contains('requirements')) {
-            IMAGE_LOCI = buildLociMos()
-        } else {
-            loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
-            WHEELS_ARG = ['WHEELS': "${LOCAL_WEB_URL}/images/wheels.tar"]
-            IMAGE_LOCI = buildLociMos(loci.getDependencies(BUILD_TYPE),
-                                      WHEELS_ARG)
+//vm2 ('loci-bootstrap.sh',
+//         'cicd-ubuntu-16.04-server-cloudimg-amd64',
+//         'm1.medium',
+//         '',
+//         'loci',
+//         false) {
+node(LOCI_BUILD_SLAVE_LABEL) {
+    try {
+        cleanWs()
+        setKnownHosts()
+
+        // cmd for running Docker in Docker
+        DIND_CONTAINER = getDindContainerName()
+        DIND = "sudo docker exec ${DIND_CONTAINER}"
+
+        stage('Docker Setup') {
+            loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
+                         DIND_CONTAINER)
         }
-        env.LOCI_IMAGE_VAR = (
-            "${BUILD_TYPE.replace('-', '_').toUpperCase()}_LOCI")
-        cmd = ("${DIND} docker inspect " +
-               "--format='{{index .RepoDigests 0}}' ${IMAGE_LOCI}")
-        env.IMAGE_SHA = sh(returnStdout: true, script: cmd).trim()
-        sh "mkdir -p ${WORKSPACE}/artifacts"
-        sh "echo $IMAGE_SHA | tee -a ${WORKSPACE}/artifacts/loci_image.txt"
-        archiveArtifacts 'artifacts/*'
+
+        stage('Local Repo Setup') {
+            loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT)
+            // Create ssh config on slave to control what login is used for
+            // what resource
+            writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
+            PROJECT_VERSION = getRevision(PROJECT_REPO, PROJECT_REF)
+            PROJECT_URL = getChangeUrl(PROJECT_NAME, PROJECT_VERSION)
+            prepare_local_mirrors()
+        }
+
+        stage ("Build Project") {
+            print "Building ${PROJECT_NAME.capitalize()}"
+            if (PROJECT_NAME.contains('requirements')) {
+                IMAGE_LOCI = buildLociMos()
+            } else {
+                loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
+                WHEELS_ARG = ['WHEELS': "${LOCAL_WEB_URL}/images/wheels.tar"]
+                IMAGE_LOCI = buildLociMos(loci.getDependencies(BUILD_TYPE),
+                                          WHEELS_ARG)
+            }
+            env.LOCI_IMAGE_VAR = (
+                "${BUILD_TYPE.replace('-', '_').toUpperCase()}_LOCI")
+            cmd = ("${DIND} docker inspect " +
+                   "--format='{{index .RepoDigests 0}}' ${IMAGE_LOCI}")
+            env.IMAGE_SHA = sh(returnStdout: true, script: cmd).trim()
+            sh "mkdir -p ${WORKSPACE}/artifacts"
+            sh "echo $IMAGE_SHA | tee -a ${WORKSPACE}/artifacts/loci_image.txt"
+            archiveArtifacts 'artifacts/*'
+        }
+    } finally {
+        try {
+            sh "sudo docker stop ${DIND_CONTAINER}"
+        }
+        finally {
+            sh "sudo docker rm -v ${DIND_CONTAINER}"
+        }
     }
 }
