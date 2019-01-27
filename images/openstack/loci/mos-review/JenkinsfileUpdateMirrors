@@ -83,13 +83,8 @@ def getProjectsNotes(ucVersions, versions) {
 }
 
 
-vm2 ('loci-bootstrap.sh',
-         'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         'm1.medium',
-         '',
-         'loci',
-         false) {
-
+node(LOCI_BUILD_SLAVE_LABEL) {
+    cleanWs()
     stage("Determining mirrors updates") {
         env.GERRIT_TOPIC = TOPIC
         changes = gerrit.getTopicCommitInfo(
