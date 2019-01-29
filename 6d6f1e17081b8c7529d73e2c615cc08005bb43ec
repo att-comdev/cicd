@@ -16,6 +16,29 @@
       "revId": "6d6f1e17081b8c7529d73e2c615cc08005bb43ec",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8374c2d5_02309ed2",
+        "filename": "vars/cicd_helper.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-01-29T18:40:28Z",
+      "side": 1,
+      "message": "envs may not have access to docker.io",
+      "range": {
+        "startLine": 176,
+        "startChar": 34,
+        "endLine": 176,
+        "endChar": 58
+      },
+      "revId": "6d6f1e17081b8c7529d73e2c615cc08005bb43ec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
