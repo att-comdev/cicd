@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bef01c4c_071be3dc",
+        "filename": "vars/cicd_helper.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2019-01-29T18:11:05Z",
+      "side": 1,
+      "message": "General suggestion when we have lots of variables to use map for parameters, makes things easy to work with/extend.",
+      "revId": "6d6f1e17081b8c7529d73e2c615cc08005bb43ec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
