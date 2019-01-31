@@ -42,6 +42,40 @@
     },
     {
       "key": {
+        "uuid": "bef7c74d_9442b3b6",
+        "filename": "images/openstack/ranger/Jenkinsfile",
+        "patchSetId": 42
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-31T22:46:10Z",
+      "side": 1,
+      "message": "Can we comment the quay logic out.  Line 49, 63, 66.  We will put it back later, but the current Jenkins doesn\u0027t support it.",
+      "revId": "444d2abc42953b274eabe2dc283c133ef71d6529",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fcd18102_41288713",
+        "filename": "images/openstack/ranger/seed.groovy",
+        "patchSetId": 42
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-31T22:46:10Z",
+      "side": 1,
+      "message": "Add a logrotator of 90 days here",
+      "revId": "444d2abc42953b274eabe2dc283c133ef71d6529",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb3fdf4a_ece16f3a",
         "filename": "images/openstack/ranger/seed.groovy",
         "patchSetId": 42
@@ -65,6 +99,30 @@
     },
     {
       "key": {
+        "uuid": "dabd5ae2_84de2f32",
+        "filename": "images/openstack/ranger/seed.groovy",
+        "patchSetId": 42
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-31T22:46:10Z",
+      "side": 1,
+      "message": "I think image works here with the 2nd for loop",
+      "parentUuid": "fb3fdf4a_ece16f3a",
+      "range": {
+        "startLine": 21,
+        "startChar": 38,
+        "endLine": 21,
+        "endChar": 43
+      },
+      "revId": "444d2abc42953b274eabe2dc283c133ef71d6529",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e268165_2f6b5489",
         "filename": "src/att/comdev/cicd/config/conf.groovy",
         "patchSetId": 42
@@ -76,6 +134,30 @@
       "writtenOn": "2019-01-31T22:03:52Z",
       "side": 1,
       "message": "shouldn\u0027t this go to internal config",
+      "range": {
+        "startLine": 27,
+        "startChar": 46,
+        "endLine": 27,
+        "endChar": 52
+      },
+      "revId": "444d2abc42953b274eabe2dc283c133ef71d6529",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d32a4aa_f5530eb2",
+        "filename": "src/att/comdev/cicd/config/conf.groovy",
+        "patchSetId": 42
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-01-31T22:46:10Z",
+      "side": 1,
+      "message": "Yes, remove this and put it in nc-cicd",
+      "parentUuid": "7e268165_2f6b5489",
       "range": {
         "startLine": 27,
         "startChar": 46,
