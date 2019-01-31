@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1c37a25_4c2f602a",
+        "filename": "images/openstack/ranger/Jenkinsfile",
+        "patchSetId": 42
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-01-31T22:03:52Z",
+      "side": 1,
+      "message": "Should import the library before using conf like here -\u003e https://github.com/att-comdev/cicd/blob/314c4486ccd6aa0a39118621b06c3bd357ff76e6/cicd/NodeCleanup/Jenkinsfile#L1",
+      "revId": "444d2abc42953b274eabe2dc283c133ef71d6529",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "647578b1_aa7f73e4",
+        "filename": "images/openstack/ranger/Jenkinsfile",
+        "patchSetId": 42
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-01-31T22:03:52Z",
+      "side": 1,
+      "message": "conf.RANGER_AGENT_USER",
+      "range": {
+        "startLine": 9,
+        "startChar": 21,
+        "endLine": 9,
+        "endChar": 38
+      },
+      "revId": "444d2abc42953b274eabe2dc283c133ef71d6529",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fb3fdf4a_ece16f3a",
+        "filename": "images/openstack/ranger/seed.groovy",
+        "patchSetId": 42
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-01-31T22:03:52Z",
+      "side": 1,
+      "message": "entry.image",
+      "range": {
+        "startLine": 21,
+        "startChar": 38,
+        "endLine": 21,
+        "endChar": 43
+      },
+      "revId": "444d2abc42953b274eabe2dc283c133ef71d6529",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e268165_2f6b5489",
+        "filename": "src/att/comdev/cicd/config/conf.groovy",
+        "patchSetId": 42
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-01-31T22:03:52Z",
+      "side": 1,
+      "message": "shouldn\u0027t this go to internal config",
+      "range": {
+        "startLine": 27,
+        "startChar": 46,
+        "endLine": 27,
+        "endChar": 52
+      },
+      "revId": "444d2abc42953b274eabe2dc283c133ef71d6529",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
