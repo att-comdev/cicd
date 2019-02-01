@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "e738b7f2_d99cc3db",
+        "filename": "images/openstack/ranger/Jenkinsfile",
+        "patchSetId": 44
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-02-01T20:19:37Z",
+      "side": 1,
+      "message": "\" not needed",
+      "range": {
+        "startLine": 50,
+        "startChar": 301,
+        "endLine": 50,
+        "endChar": 303
+      },
+      "revId": "9637a6f64bfb6a3dafc30228af36a078671cdbee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21faf10e_53675748",
+        "filename": "images/openstack/ranger/Jenkinsfile",
+        "patchSetId": 44
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-02-01T20:19:37Z",
+      "side": 1,
+      "message": "\" not neede",
+      "range": {
+        "startLine": 50,
+        "startChar": 329,
+        "endLine": 50,
+        "endChar": 331
+      },
+      "revId": "9637a6f64bfb6a3dafc30228af36a078671cdbee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4894970e_e1b5a92c",
         "filename": "images/openstack/ranger/seed.groovy",
         "patchSetId": 44
