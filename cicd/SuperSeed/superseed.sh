@@ -63,6 +63,26 @@ get_seed(){
     get_seed ${up_dir}
 }
 
+create_seed_list(){
+    # Create a list of seeds from AQUA release file
+
+    local release_file=$1
+
+    if [ ! -f ${release_file} ]; then
+        echo "ERROR: Release file not found!"
+    exit 1
+    fi
+    while read -r line || [[ -n "$line" ]]; do
+        line+=","
+        release_list=$release_list$line
+        echo "INFO: Text read from release file: $line"
+    done < ${release_file}
+
+    export RELEASE_LIST=$release_list
+    echo "INFO: RELEASE_LIST is [${RELEASE_LIST}]"
+
+}
+
 copy_seed(){
     # Split comma separated seed list
     # copy all seed.groovy files with prefixed dir name
@@ -179,23 +199,27 @@ lint_whitespaces(){
 
 ######MAIN#####
 git_clone ${GERRIT_PROJECT} ${WORKSPACE} ${GERRIT_REFSPEC}
-lint_whitespaces
-lint_jenkins_files
-find_seed
-check_sandbox_parameter
-set +x
-
-# Skip applying the seed files for patchsets
-if [[ ${GERRIT_EVENT_TYPE} == "patchset-created" ]]; then
-    echo "INFO: Not applying seeds for patchsets, Seeds are applied only after merge"
-    exit 0
-fi
-
-if [[ ! ${SEED_PATH} =~ ^tests/ ]]; then
-    copy_seed ${SEED_PATH}
+if [[ ! -z ${RELEASE_FILE_PATH} ]]; then
+    create_seed_list ${RELEASE_FILE_PATH}
+    copy_seed ${RELEASE_LIST}
 else
-    echo "Not copying seed(s), because it is in tests/ directory"
-fi
+    lint_whitespaces
+    lint_jenkins_files
+    find_seed
+    check_sandbox_parameter
+    set +x
 
+    # Skip applying the seed files for patchsets
+    if [[ ${GERRIT_EVENT_TYPE} == "patchset-created" ]]; then
+        echo "INFO: Not applying seeds for patchsets, Seeds are applied only after merge"
+        exit 0
+    fi
+
+    if [[ ! ${SEED_PATH} =~ ^tests/ ]]; then
+        copy_seed ${SEED_PATH}
+    else
+        echo "Not copying seed(s), because it is in tests/ directory"
+    fi
+fi
 # Empty space for DSL script debug information:
 echo -e "=================================================\n"
