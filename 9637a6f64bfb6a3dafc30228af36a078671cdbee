@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4894970e_e1b5a92c",
+        "filename": "images/openstack/ranger/seed.groovy",
+        "patchSetId": 44
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-02-01T20:10:36Z",
+      "side": 1,
+      "message": "this should go under pipelineJob for example refer here -\u003e \nhttps://github.com/att-comdev/cicd/blob/master/charts/att-comdev/seed.groovy#L14..L16",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 1
+      },
+      "revId": "9637a6f64bfb6a3dafc30228af36a078671cdbee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
