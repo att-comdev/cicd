@@ -14,6 +14,11 @@ freeStyleJob("${job_path}") {
             description('Comma delimited Seed path \n' +
                         'Example: cicd/SuperSeed/seed.groovy,cicd/NodeCleanup/seed.groovy')
         }
+        stringParam{
+            name ('RELEASE_FILE_PATH')
+            defaultValue('')
+            desription('Path to the Aqua release file')
+        }
         stringParam {
             name ('GERRIT_REFSPEC')
             defaultValue('origin/master')
