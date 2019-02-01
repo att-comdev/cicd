@@ -14,6 +14,11 @@ freeStyleJob("${job_path}") {
             description('Comma delimited Seed path \n' +
                         'Example: cicd/SuperSeed/seed.groovy,cicd/NodeCleanup/seed.groovy')
         }
+        stringParam{
+            name ('RELEASE_FILE_PATH')
+            defaultValue('')
+            desription("File that points to a list of seed.groovy's to execute for a Cloudharbor site")
+        }
         stringParam {
             name ('GERRIT_REFSPEC')
             defaultValue('origin/master')
