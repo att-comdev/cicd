@@ -49,6 +49,21 @@ def cloneToBranch(String url, String refspec, String targetDirectory){
                                                  url: url ]]]
 }
 
+def cloneToBranch(String url, String refspec, String targetDirectory, String creds, String gerritRefspec) {
+    checkout poll: false,
+            scm: [$class                           : 'GitSCM',
+                  branches                         : [[name: refspec]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions                       : [[$class     : 'LocalBranch',
+                                                       localBranch: 'jenkins'],
+                                                      [$class           : 'RelativeTargetDirectory',
+                                                       relativeTargetDir: targetDirectory]],
+                  submoduleCfg                     : [],
+                  userRemoteConfigs                : [[refspec      : gerritRefspec,
+                                                       url          : url,
+                                                       credentialsId: creds]]]
+}
+
 /**
  * Given Jenkins credentials, clones Git repository via SSH to the
  * target directory to local branch and then rebase it locally with
@@ -203,5 +218,27 @@ EOF"""
             def cmd = "git ls-remote $url $branch | cut -f1"
             return sh(returnStdout: true, script: cmd).trim()
         }
+    }
+}
+
+def submitCertificatesPatchset(credentials, projectSite, userEmail, userName, commitMessage, gerritUrl, gerritPort) {
+    sshagent(credentials: [credentials]) {
+        sh """
+                                cd aic-clcp-site-manifests/site/${projectSite}/secrets/certificates
+                                cat *.yaml > certificates.yaml
+                                find . ! -name certificates.yaml -delete
+                                cd -
+                                cp -R aic-clcp-site-manifests/site/${projectSite}/secrets/ aic-clcp-security-manifests/site/${projectSite}/
+                                cd aic-clcp-security-manifests
+                                git config user.email '${userEmail}'
+                                git config user.name '${userName}'
+                                git config --global push.default matching
+                                git status
+                                git add .
+                                git commit -m "${commitMessage}"
+                                scp -p -P ${gerritPort} ${gerritUrl}:hooks/commit-msg .git/hooks
+                                git commit --amend --no-edit
+                                git push -v ssh://${gerritUrl}:${gerritPort}/aic-clcp-security-manifests HEAD:refs/for/master
+                            """
     }
 }
