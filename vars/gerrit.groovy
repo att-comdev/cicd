@@ -51,6 +51,32 @@ def cloneToBranch(String url, String refspec, String targetDirectory){
 
 /**
  * Given Jenkins credentials, clones Git repository via SSH to the
+ * target directory to local branch using a specified refs spec instead of
+ * the value passed from the Gerrit Trigger.
+ *
+ * @param url "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
+ * @param refspec "xxxx/master" or other refspec
+ * @param targetDirectory local directory where to clone repo
+ * @param creds jenkins SSH credentials ID
+ * @param gerritRefspec Overridden refspec value
+*/
+def cloneToBranch(String url, String refspec, String targetDirectory, String creds, String gerritRefspec) {
+    checkout poll: false,
+            scm: [$class                           : 'GitSCM',
+                  branches                         : [[name: refspec]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions                       : [[$class     : 'LocalBranch',
+                                                       localBranch: 'jenkins'],
+                                                      [$class           : 'RelativeTargetDirectory',
+                                                       relativeTargetDir: targetDirectory]],
+                  submoduleCfg                     : [],
+                  userRemoteConfigs                : [[refspec      : gerritRefspec,
+                                                       url          : url,
+                                                       credentialsId: creds]]]
+}
+
+/**
+ * Given Jenkins credentials, clones Git repository via SSH to the
  * target directory to local branch and then rebase it locally with
  * the current master before we build and test
  *
@@ -203,5 +229,30 @@ EOF"""
             def cmd = "git ls-remote $url $branch | cut -f1"
             return sh(returnStdout: true, script: cmd).trim()
         }
+    }
+}
+
+/**
+ * Submit a patchset into the master branch.
+ *
+ * @param credentials Gerrit credentials to submit a patchset
+ * @param userEmail Email of Jenkins user that triggered the job
+ * @param userName BUILD_USER that triggered the Jenkins job
+ * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
+ * @param refspec "xxxx/master" or other refspec
+*/
+def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName) {
+    sshagent(credentials: [credentials]) {
+        sh """
+             git config user.email '${userEmail}'
+             git config user.name '${userName}'
+             git config --global push.default matching
+             git status
+             git add .
+             git commit -m "${commitMessage}"
+             scp -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks
+             git commit --amend --no-edit
+             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:refs/for/master
+           """
     }
 }
