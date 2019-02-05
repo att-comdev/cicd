@@ -49,6 +49,21 @@ def cloneToBranch(String url, String refspec, String targetDirectory){
                                                  url: url ]]]
 }
 
+def cloneToBranch(String url, String refspec, String targetDirectory, String creds, String gerritRefspec) {
+    checkout poll: false,
+            scm: [$class                           : 'GitSCM',
+                  branches                         : [[name: refspec]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions                       : [[$class     : 'LocalBranch',
+                                                       localBranch: 'jenkins'],
+                                                      [$class           : 'RelativeTargetDirectory',
+                                                       relativeTargetDir: targetDirectory]],
+                  submoduleCfg                     : [],
+                  userRemoteConfigs                : [[refspec      : gerritRefspec,
+                                                       url          : url,
+                                                       credentialsId: creds]]]
+}
+
 /**
  * Given Jenkins credentials, clones Git repository via SSH to the
  * target directory to local branch and then rebase it locally with
@@ -203,5 +218,26 @@ EOF"""
             def cmd = "git ls-remote $url $branch | cut -f1"
             return sh(returnStdout: true, script: cmd).trim()
         }
+    }
+}
+
+/**
+ * This patchset requires that the Build User be available in order to set that user as the
+ * committer of the patchset.
+ *
+ */
+def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, gerritPort) {
+    sshagent(credentials: [credentials]) {
+        sh """
+             git config user.email '${userEmail}'
+             git config user.name '${userName}'
+             git config --global push.default matching
+             git status
+             git add .
+             git commit -m "${commitMessage}"
+             scp -p -P ${gerritPort} ${gerritUrl}:hooks/commit-msg .git/hooks
+             git commit --amend --no-edit
+             git push -v ssh://${gerritUrl}:${gerritPort}/aic-clcp-security-manifests HEAD:refs/for/master
+           """
     }
 }
