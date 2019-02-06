@@ -16,6 +16,24 @@
       "revId": "84abbec25695f669d752fab25384b9f8cf843695",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8524a37_3c025f2e",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2019-02-06T19:29:48Z",
+      "side": 1,
+      "message": "Fixed that.\n\nI tested with this https://gerrit.mtn5.cci.att.com/#/c/55019/2/src/dummy_release_file\n\nit\u0027s working correctly. it creates the jobs\n\nhttps://jenkins-nc.mtn13b2.cci.att.com/job/cloud-harbor/job/on-demand/job/nc/job/aqua/job/api/",
+      "parentUuid": "04b667e3_cf0352d7",
+      "revId": "84abbec25695f669d752fab25384b9f8cf843695",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
