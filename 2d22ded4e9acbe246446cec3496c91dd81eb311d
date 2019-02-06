@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f3030028_19453518",
+        "filename": "images/att-comdev/minimirror/Jenkinsfile",
+        "patchSetId": 12
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-02-06T17:55:47Z",
+      "side": 1,
+      "message": "yes will fix once you PS was merged. Thanks",
+      "parentUuid": "a1132477_3a785cb8",
+      "range": {
+        "startLine": 30,
+        "startChar": 42,
+        "endLine": 30,
+        "endChar": 180
+      },
+      "revId": "2d22ded4e9acbe246446cec3496c91dd81eb311d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4481f118_889135ce",
         "filename": "images/att-comdev/minimirror/Jenkinsfile",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2019-02-06T17:53:10Z",
       "side": 1,
       "message": "already defined earlier",
+      "range": {
+        "startLine": 36,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 74
+      },
+      "revId": "2d22ded4e9acbe246446cec3496c91dd81eb311d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d41b9e9_02e5894b",
+        "filename": "images/att-comdev/minimirror/Jenkinsfile",
+        "patchSetId": 12
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-02-06T17:55:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4481f118_889135ce",
       "range": {
         "startLine": 36,
         "startChar": 8,
