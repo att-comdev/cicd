@@ -39,3 +39,4 @@ def upload(file, target) {
 def download(file, target) {
     Artifactory.server(conf.ARTF_SERVER_ID).download(spec(file, target))
 }
+
