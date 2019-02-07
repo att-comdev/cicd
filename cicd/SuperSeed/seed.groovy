@@ -3,9 +3,6 @@ job_path = "${base_path}/SuperSeed"
 folder("${base_path}")
 
 freeStyleJob("${job_path}") {
-    logRotator{
-        daysToKeep(90)
-    }
     label('master')
     parameters {
         stringParam {
@@ -45,31 +42,36 @@ freeStyleJob("${job_path}") {
                     branches {
                         branch {
                             compareType('ANT')
-                            pattern("**/master")
+                            pattern("**")
+                        }
+                    }
+                    forbiddenFilePaths {
+                        filePath {
+                            compareType('ANT')
+                            pattern("**/charts/**")
                         }
                     }
                     disableStrictForbiddenFileVerification(false)
                 }
                 gerritProject {
-                    compareType('REG_EXP')
-                    pattern("^nc-cicd\$")
+                    compareType('PLAIN')
+                    pattern("nc-cicd")
                     branches {
                         branch {
                             compareType('ANT')
-                            pattern("**/master")
+                            pattern("**")
+                        }
+                    }
+                    forbiddenFilePaths {
+                        filePath {
+                            compareType('ANT')
+                            pattern("**/charts/**")
                         }
                     }
                     disableStrictForbiddenFileVerification(false)
                 }
             }
             triggerOnEvents {
-/// PatchsetCreated trigger should be manually enabled on staging:
-                patchsetCreated {
-                   excludeDrafts(true)
-                   excludeTrivialRebase(false)
-                   excludeNoCodeChange(false)
-                }
-
 /// changeMerged trigger for production:
                 changeMerged()
             }
@@ -80,14 +82,14 @@ freeStyleJob("${job_path}") {
         wrappers {
             preBuildCleanup()
             credentialsBinding {
-                usernamePassword('JENKINS_USER', 'JENKINS_TOKEN', 'jenkins-token')
+                usernamePassword('JENKINS_USER', 'JENKINS_TOKEN', 'm92484-jenkins-token')
             }
         }
         shell(readFileFromWorkspace("${job_path}/superseed.sh"))
         jobDsl {
             targets('${BUILD_NUMBER}/**/seed*.groovy')
             // Add ignoreMissingFiles to ignore when seeds are not copied for patchsets
-            ignoreMissingFiles(true)
+            //ignoreMissingFiles(true)
             //ignoreExisting(true)
             //removeAction('DISABLE')
         }
