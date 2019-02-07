@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2c2889b_39531ff3",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2019-02-07T20:50:33Z",
+      "side": 0,
+      "message": "May want to keep this, I think it\u0027s just good practice to rotate logs and prevent them stacking up.",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 5
+      },
+      "revId": "13e1f2f45cd152f8a220ed3f9ede4abcead26553",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
