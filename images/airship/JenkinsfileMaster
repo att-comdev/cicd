@@ -6,17 +6,17 @@ PIP_TRUSTED_HOST="foo.com"
 PIP_INDEX_URL="https://pypi.org/simple"
 QUAY_IMAGE_LATEST="${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}"
-PYTHON_BASE_IMAGES = [ "shipyard" : "att-comdev/python:3.6",
-                       "armada" : "att-comdev/python:3.6" ,
-                       "pegleg" : "att-comdev/python:3.6" ,
+PYTHON_BASE_IMAGES = [ "pegleg" : "att-comdev/python:3.6" ,
                        "promenade" : "att-comdev/python:3.6" ]
 
 UBUNTU_BASE_IMAGES = [ "airflow" : "att-comdev/ubuntu:xenial",
-                       "sstream-cache" : "att-comdev/ubuntu:xenial",
+                       "armada" : "att-comdev/ubuntu:xenial",
+                       "deckhand" : "att-comdev/ubuntu:xenial",
+                       "drydock" : "att-comdev/ubuntu:xenial",
                        "maas-region-controller" : "att-comdev/ubuntu:xenial",
                        "maas-rack-controller" : "att-comdev/ubuntu:xenial",
-                       "drydock" : "att-comdev/ubuntu:xenial",
-                       "deckhand" : "att-comdev/ubuntu:xenial" ]
+                       "shipyard" : "att-comdev/ubuntu:xenial",
+                       "sstream-cache" : "att-comdev/ubuntu:xenial" ]
 SEMANTIC_RELEASE_VERSION = "0.1.0"
 
 vm2('bootstrap.sh','cicd-ubuntu-18.04-server-cloudimg-amd64') {
