@@ -35,6 +35,7 @@ def image (String creds, String url, String src, String dst) {
 
        sh "sudo docker tag ${src} ${dst}"
        sh "sudo docker push ${dst}"
+       sh "sudo docker rmi ${src}"
    }
 }
 
