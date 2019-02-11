@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2c6494af_18259a6d",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2019-02-11T22:16:59Z",
+      "side": 1,
+      "message": "Yes we need this because we do not want to change the pipeline chart configuration that we have currently in mtn29. They have some problems with the chart pipelines in mtn29 and they do some manual changes there. Stacey orders :). We will peobably revert that PS when evreything is ok",
+      "parentUuid": "f00c086b_87e90607",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 51
+      },
+      "revId": "b81613ba882e9759fe421ffeee6527720a19bc2c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8378055e_b9dc2e89",
         "filename": "cicd/SuperSeed/seed.groovy",
         "patchSetId": 8
