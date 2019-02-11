@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f00c086b_87e90607",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-02-11T22:14:23Z",
+      "side": 1,
+      "message": "any reason for this..?",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 51
+      },
+      "revId": "b81613ba882e9759fe421ffeee6527720a19bc2c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8378055e_b9dc2e89",
+        "filename": "cicd/SuperSeed/seed.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-02-11T22:14:23Z",
+      "side": 1,
+      "message": "Ditto",
+      "range": {
+        "startLine": 68,
+        "startChar": 20,
+        "endLine": 71,
+        "endChar": 51
+      },
+      "revId": "b81613ba882e9759fe421ffeee6527720a19bc2c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
