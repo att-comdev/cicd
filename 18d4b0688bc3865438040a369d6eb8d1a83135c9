@@ -22,6 +22,30 @@
       "revId": "18d4b0688bc3865438040a369d6eb8d1a83135c9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dfcb159a_e57bed69",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-02-11T19:12:15Z",
+      "side": 1,
+      "message": "thanks for the pointers to latest label naming standards. \nMade the changes",
+      "parentUuid": "4eb09277_e778beb2",
+      "range": {
+        "startLine": 67,
+        "startChar": 44,
+        "endLine": 70,
+        "endChar": 80
+      },
+      "revId": "18d4b0688bc3865438040a369d6eb8d1a83135c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
