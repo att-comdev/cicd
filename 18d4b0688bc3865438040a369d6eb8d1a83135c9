@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4eb09277_e778beb2",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-02-11T16:52:03Z",
+      "side": 1,
+      "message": "This label-schema labels should no longer be used. Please, use something like this: https://github.com/openstack/airship-armada/blob/master/Dockerfile#L4-L9\n\nStandard is described here: https://github.com/opencontainers/image-spec/blob/master/annotations.md#annotations\n\nDeprecation notice: https://github.com/label-schema/label-schema.org/blob/gh-pages/README.md#label-schemaorg",
+      "range": {
+        "startLine": 67,
+        "startChar": 44,
+        "endLine": 70,
+        "endChar": 80
+      },
+      "revId": "18d4b0688bc3865438040a369d6eb8d1a83135c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
