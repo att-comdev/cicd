@@ -22,7 +22,7 @@ def nexus_jenkins_log (String org, String project, String repositoryName) {
 }
 
 
-//This will publish images to respository in repositoryID
+//This will publish images to repository in repositoryID
 def image (String creds, String url, String src, String dst) {
   // Usage example: publish.image('jenkins-artifactory',"${ARTF_URL}",${ARMADA_IMAGE}")
   // Usage example: publish.image('jenkins-quay',"${QUAY_URL}",${QUAY_IMAGE}")
@@ -38,17 +38,41 @@ def image (String creds, String url, String src, String dst) {
    }
 }
 
+//delete the image from the local repository
+//To be called multiple times with all tags to be able to delete the image
+//Intentional to not allow for force delete all tags at once to avoid misuse
+//For image with no tag - delete the image from local
+//    1 or more tagged image - untagged the image
+def imageDelete (String Imageurl) {
+  // Usage example: publish.imageDelete("${ARTF_URL}:${ARMADA_IMAGE}")
+  // Usage example: publish.imageDelete("${QUAY_URL}:${QUAY_IMAGE}")
+
+    def status = sh(returnStatus: true, script: "sudo docker rmi ${Imageurl}")
+    if (status != 0) {
+        print "Could not delete image ${Imageurl} from local repo"
+    }
+}
+
 def artifactory (String src, String dst) {
     image('jenkins-artifactory', ARTF_DOCKER_URL, src,
           "${ARTF_DOCKER_URL}/${dst}")
+    // remove image from local repository after publish
+    imageDelete("${ARTF_DOCKER_URL}/${dst}")
+    imageDelete(src)
 }
 
 def quay (String src, String dst) {
     image('jenkins-quay', QUAY_URL, src, "${QUAY_URL}/${dst}")
+    // remove image from local repository after publish
+    imageDelete("${ARTF_DOCKER_URL}/${dst}")
+    imageDelete(src)
 }
 
 def secureImage (String creds, String url, String src, String dst) {
     image('secure-artifactory', ARTF_SECURE_DOCKER_URL, src, dst)
+    // remove image from local repository after publish
+    imageDelete(dst)
+    imageDelete(src)
 }
 
 /**
