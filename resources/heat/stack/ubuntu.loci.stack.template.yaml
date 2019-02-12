@@ -3,6 +3,9 @@ heat_template_version: newton
 description: This template brings up a stack, setting flavor, size of VM, port & floating IP
 
 parameters:
+  public_net:
+    type: string
+    default: public
   image:
     type: string
     default: cicd-ubuntu-16.04-server-cloudimg-amd64
@@ -35,7 +38,8 @@ resources:
   server_floating_ip:
     type: OS::Neutron::FloatingIP
     properties:
-      floating_network_id: public
+      floating_network:
+        get_param: public_net
       port_id: { get_resource: server_port }
 
 outputs:

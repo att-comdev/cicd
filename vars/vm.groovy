@@ -75,9 +75,13 @@ def call(Map map, Closure body) {
     // useful to prevent forever hanging pipelines consuming resources
     def globalTimeout = map.timeout ?: 120
 
+    // Name of public network that is used to allocate floating IPs
+    def publicNet = map.publicNet ?: 'public'
+
     // resolve args to heat parameters
     def parameters = " --parameter image=${image}" +
-                     " --parameter flavor=${flavor}"
+                     " --parameter flavor=${flavor}" +
+                     " --parameter public_net=${publicNet}"
 
     // node used for launching VMs
     def launch_node = 'jenkins-node-launch'
