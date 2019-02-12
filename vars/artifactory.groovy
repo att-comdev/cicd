@@ -26,7 +26,6 @@ private def spec(file, target) {
  */
 def upload(file, target) {
     info = Artifactory.server(conf.ARTF_SERVER_ID).upload(spec(file, target))
-    Artifactory.server(conf.ARTF_SERVER_ID).publishBuildInfo(info)
 }
 
 /**
