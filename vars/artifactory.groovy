@@ -25,7 +25,19 @@ private def spec(file, target) {
  * @param target Where, in Artifactory, we want to place this file
  */
 def upload(file, target) {
+    Artifactory.server(conf.ARTF_SERVER_ID).upload(spec(file, target))
+}
+
+/**
+ * Perform the upload to Artifactory, given the file and
+ * target/path, as well as publish the build info.
+ *
+ * @param file The file we're interested in uploading
+ * @param target Where, in Artifactory, we want to place this file
+ */
+def uploadWithBuildInfo(file, target) {
     info = Artifactory.server(conf.ARTF_SERVER_ID).upload(spec(file, target))
+    Artifactory.server(conf.ARTF_SERVER_ID).publishBuildInfo(info)
 }
 
 /**
