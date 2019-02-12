@@ -46,7 +46,7 @@ pipelineJob("${JOB_BASE}/airship-in-a-bottle") {
         definition {
             cps {
                 script(readFileFromWorkspace("${JOB_BASE}/airship-in-a-bottle/Jenkinsfile"))
-                sandbox()
+                sandbox(false)
             }
         }
     }
