@@ -41,7 +41,7 @@ pipelineJob("${JOB_FOLDER}/${JOB_NAME}") {
 
     definition {
         cps {
-            sandbox()
+            sandbox(false)
             script(readFileFromWorkspace("${JOB_FOLDER}/Jenkinsfile"))
         }
     }

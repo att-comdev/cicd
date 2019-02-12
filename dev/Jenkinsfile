@@ -1,5 +1,10 @@
 
-def fip = vm2(NODE_DATA, NODE_IMAGE, NODE_FLAVOR, NODE_POSTFIX, 'basic', true) {
+def fip = vm(initScript: NODE_DATA,
+             image: NODE_IMAGE,
+             flavor: NODE_FLAVOR,
+             nodePostfix: NODE_POSTFIX,
+             doNotDeleteNode: true) {
+
   sh ('hostname')
   sh("echo ${SSH_KEY} >> /home/ubuntu/.ssh/authorized_keys")
 }
