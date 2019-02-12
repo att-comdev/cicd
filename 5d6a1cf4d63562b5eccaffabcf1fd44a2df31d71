@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e9a1da7_6858bfa7",
+        "filename": "images/openstack/helm-images/seed.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-02-12T16:13:32Z",
+      "side": 1,
+      "message": "We don\u0027t want to restrict to a specific folder.  If any commit occurs on this repository, it needs to build a new image.  This will allow the uplift job to work properly, unless developers want to always manually uplift this component.",
+      "revId": "5d6a1cf4d63562b5eccaffabcf1fd44a2df31d71",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
