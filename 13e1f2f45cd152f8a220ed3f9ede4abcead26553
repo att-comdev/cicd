@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a858c9e_084d632e",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2019-02-12T19:57:26Z",
+      "side": 0,
+      "message": "Why do we remove that ?",
+      "range": {
+        "startLine": 211,
+        "startChar": 47,
+        "endLine": 214,
+        "endChar": 35
+      },
+      "revId": "13e1f2f45cd152f8a220ed3f9ede4abcead26553",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
