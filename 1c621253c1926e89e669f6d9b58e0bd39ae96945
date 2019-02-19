@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae49aeb1_00bcd019",
+        "filename": "resources/heat/stack/ubuntu.basic.stack.template.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2019-02-19T17:34:32Z",
+      "side": 1,
+      "message": "when we are using  config driver we should provide a driver right ? Like an a cloud-init iso or something similar. Do we provide that ?",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 18
+      },
+      "revId": "1c621253c1926e89e669f6d9b58e0bd39ae96945",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
