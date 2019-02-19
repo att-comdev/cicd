@@ -17,6 +17,7 @@ resources:
   server:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: image }
       flavor: { get_param: flavor }
       key_name: jenkins-slave-keypair
