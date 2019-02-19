@@ -22,6 +22,30 @@
       "revId": "088bed0ff710eee30eb4ade8e1d832b3146e60f3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "35f0d01c_381a2768",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1015890
+      },
+      "writtenOn": "2019-02-19T20:04:11Z",
+      "side": 1,
+      "message": "In upstream lab we are. These changes are compatible with older Jenkins, trim option existed before, at some point they were removed from jobs definitions [1], now it is a mandatory field.\n\n[1] e.g. see https://review.gerrithub.io/c/att-comdev/cicd/+/426157/21/cicd/SuperSeed/seed.groovy",
+      "parentUuid": "ac642c01_071282e4",
+      "range": {
+        "startLine": 10,
+        "startChar": 2,
+        "endLine": 10,
+        "endChar": 20
+      },
+      "revId": "088bed0ff710eee30eb4ade8e1d832b3146e60f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
