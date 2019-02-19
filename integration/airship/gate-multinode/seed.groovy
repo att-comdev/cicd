@@ -1,7 +1,7 @@
 JOB_BASE = 'integration/airship'
 folder('integration/airship')
 
-pipelineJob("${JOB_BASE}/airship-in-a-bottle") {
+pipelineJob("${JOB_BASE}/airship-multinode") {
 
     logRotator{
         daysToKeep(90)
@@ -45,8 +45,8 @@ pipelineJob("${JOB_BASE}/airship-in-a-bottle") {
 
         definition {
             cps {
-                script(readFileFromWorkspace("${JOB_BASE}/airship-in-a-bottle/Jenkinsfile"))
-                sandbox()
+                script(readFileFromWorkspace("${JOB_BASE}/gate-multinode/Jenkinsfile"))
+                sandbox(false)
             }
         }
     }
