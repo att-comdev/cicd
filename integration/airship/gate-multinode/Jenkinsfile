@@ -5,12 +5,22 @@ ARTF_BASE = "logs/${JOB_NAME}/${BUILD_ID}"
 REPO_URL = 'https://git.openstack.org/openstack/airship-in-a-bottle'
 REPO_HOME = '/root/deploy/airship-in-a-bottle'
 
+publicNet = 'public'
+if (env.AIRSHIP_VM_PUBLIC_NET) {
+    publicNet = env.AIRSHIP_VM_PUBLIC_NET
+}
+
+image = 'ubuntu-18.04'
+if (env.AIRSHIP_MULTINODE_VM_IMAGE) {
+    image = env.AIRSHIP_MULTINODE_VM_IMAGE
+}
 
 vm(flavor: 'airship.seaworthy',
-        image: 'ubuntu-18.04',
+        image: image,
         artifactoryLogs: true,
         doNotDeleteNode: false,
-        timeout: 300) {
+        timeout: 300,
+        publicNet: publicNet) {
 
     stage('Checkout'){
 
