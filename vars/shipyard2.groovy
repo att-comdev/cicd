@@ -83,10 +83,14 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
  * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
  * @param shipyardUrl The Shipyard FQDN of the site you are creating documents against.
  * @param action The action to perform - see: https://shipyard.readthedocs.io/en/latest/API_action_commands.html?highlight=action for further details.
+ * @param parameters Optional map of parameters needed to create action
  */
-def createAction(uuid, token, shipyardUrl, action) {
+def createAction(uuid, token, shipyardUrl, action, parameters = null) {
 
     def req = ["name": action]
+    if (parameters) {
+        req = req.plus("parameters": parameters)
+    }
     def jreq = new JsonOutput().toJson(req)
     def res = null
 
