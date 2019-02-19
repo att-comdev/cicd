@@ -6,8 +6,12 @@ ARTF_BASE = "logs/${JOB_NAME}/${BUILD_ID}"
 REPO_URL = 'https://git.openstack.org/openstack/airship-in-a-bottle'
 REPO_HOME = '/root/deploy/airship-in-a-bottle'
 
+publicNet = 'public'
+if (env.INTEGRATION_AIAB_PUBLIC_NET) {
+    publicNet = env.INTEGRATION_AIAB_PUBLIC_NET
+}
 
-vm(flavor: 'm1.xxlarge', artifactoryLogs: true) {
+vm(flavor: 'm1.xxlarge', artifactoryLogs: true, publicNet: publicNet) {
 
     stage('Checkout'){
 
