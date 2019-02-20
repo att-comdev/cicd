@@ -94,6 +94,30 @@
       "revId": "1c621253c1926e89e669f6d9b58e0bd39ae96945",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9775f41_9c1002a3",
+        "filename": "resources/heat/stack/ubuntu.basic.stack.template.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2019-02-20T21:56:20Z",
+      "side": 1,
+      "message": "ok I thought that when we use the config_drive option we should also add a actual iso for cloud_init. But if we only use it to by pass the metadata server then is ok.",
+      "parentUuid": "2c7f482c_01e60748",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 18
+      },
+      "revId": "1c621253c1926e89e669f6d9b58e0bd39ae96945",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
