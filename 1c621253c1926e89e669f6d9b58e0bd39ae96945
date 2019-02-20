@@ -46,6 +46,30 @@
       "revId": "1c621253c1926e89e669f6d9b58e0bd39ae96945",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c590f38d_7da1dc45",
+        "filename": "resources/heat/stack/ubuntu.basic.stack.template.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2019-02-20T21:52:07Z",
+      "side": 1,
+      "message": "the only reason to add the config_drive is because we want to bypass the metadata server ?",
+      "parentUuid": "4d888dbe_5299c7b7",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 18
+      },
+      "revId": "1c621253c1926e89e669f6d9b58e0bd39ae96945",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
