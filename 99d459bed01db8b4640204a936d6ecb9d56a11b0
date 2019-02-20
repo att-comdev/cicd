@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbdc8027_56b65ac1",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 11
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2019-02-20T17:12:29Z",
+      "side": 1,
+      "message": "Let\u0027s add `\\n` (endline) for each step..",
+      "revId": "99d459bed01db8b4640204a936d6ecb9d56a11b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
