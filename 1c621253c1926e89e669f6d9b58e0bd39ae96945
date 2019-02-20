@@ -22,6 +22,30 @@
       "revId": "1c621253c1926e89e669f6d9b58e0bd39ae96945",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4d888dbe_5299c7b7",
+        "filename": "resources/heat/stack/ubuntu.basic.stack.template.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2019-02-20T21:26:53Z",
+      "side": 1,
+      "message": "Not sure what you mean/. This worked just fine in my tests.",
+      "parentUuid": "ae49aeb1_00bcd019",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 18
+      },
+      "revId": "1c621253c1926e89e669f6d9b58e0bd39ae96945",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
