@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "655c3c62_297979e7",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-02-20T13:59:34Z",
+      "side": 1,
+      "message": "nit: method",
+      "range": {
+        "startLine": 314,
+        "startChar": 10,
+        "endLine": 314,
+        "endChar": 15
+      },
+      "revId": "ca9efed0fe8cc58611d0c69294b2de2355abd3ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d21e31a7_09adcbe3",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-02-20T13:59:34Z",
+      "side": 1,
+      "message": "This is not correct and a bit confusing. It waits for each action to become Failed/Paused/Complete.",
+      "range": {
+        "startLine": 328,
+        "startChar": 3,
+        "endLine": 328,
+        "endChar": 58
+      },
+      "revId": "ca9efed0fe8cc58611d0c69294b2de2355abd3ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "962f807c_264458b8",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-02-20T13:59:34Z",
+      "side": 1,
+      "message": "`is complete` (or `is completed`)",
+      "range": {
+        "startLine": 355,
+        "startChar": 33,
+        "endLine": 355,
+        "endChar": 50
+      },
+      "revId": "ca9efed0fe8cc58611d0c69294b2de2355abd3ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d683f96b_8434b975",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 10
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-02-20T13:59:34Z",
+      "side": 1,
+      "message": "May be add info on which action did it fail.",
+      "range": {
+        "startLine": 360,
+        "startChar": 24,
+        "endLine": 360,
+        "endChar": 30
+      },
+      "revId": "ca9efed0fe8cc58611d0c69294b2de2355abd3ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
