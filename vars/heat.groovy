@@ -50,7 +50,10 @@ def stack_create(String name, String tmpl, String parameters) {
                     print "Stack ${name} created!"
                     return
                 } else if (ret != "CREATE_IN_PROGRESS") {
-                    print "Failed to create stack ${name}"
+                    cmd = openstack_cmd("openstack stack show ${name}")
+                    ret = sh (script: cmd, returnStdout: true)
+                    print "Stack status:\n${ret}"
+                    print "Heat stack error ${name}"
                     sh "exit 1"
                 }
             }
