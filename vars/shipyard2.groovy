@@ -319,16 +319,19 @@ def _printActionSteps(action) {
     def steps = action.steps
     def status = []
     def failed = []
+    def running = []
     steps.each() {
         status += "${it.id}(${it.index}): ${it.state} state"
         if (it.state == "failed") {
             failed += "${it.id}"
         }
+        if (it.state == "running") {
+            running += "${it.id}"
+        }
     }
     print status.join("\n")
-    return failed
+    return [failed, running]
 }
-
 
 /**
  * Helper method for waiting shipyard action in one of the finished states (Failed, Paused, Complete).
@@ -354,6 +357,8 @@ def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds
     action = _getAction(actionId, shipyardUrl, keystoneCredId, keystoneUrl, withCreds)
     def String status = action.action_lifecycle
     def failedSteps = []
+    def runningSteps = []
+    def stages = []
 
     while (status == "Pending" || status == "Processing") {
         sleep 240
@@ -361,10 +366,22 @@ def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds
         action = _getAction(actionId, shipyardUrl, keystoneCredId, keystoneUrl, withCreds)
         status = action.action_lifecycle
         print "Wait until action is complete. Currently in ${status} state."
-        failedSteps = _printActionSteps(action)
+        (failedSteps, runningSteps) = _printActionSteps(action)
+        if (failedSteps) {
+            stageName = failedSteps.join(",")
+            stage(stageName) {
+                error("Step ${failedSteps} failed")
+            }
+        }
+        runningSteps.each() {
+            if ( !(it in stages) ) {
+                stages += it
+                stage "Step ${it}"
+            }
+        }
     }
 
-    if (status != "Complete" || failedSteps) {
-        error("Shipyard action finished with status ${status} instead of complete. (${failedSteps})")
+    if (status != "Complete") {
+        error("Shipyard action finished with status ${status} instead of complete.")
     }
 }
