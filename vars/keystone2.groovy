@@ -26,7 +26,6 @@ def token(Map map) {
     def retryCount = map.retryCount ?: 3.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
 
-
     withCredentials([[$class: "UsernamePasswordMultiBinding",
                       credentialsId: map.keystoneCreds,
                       usernameVariable: "USER",
@@ -59,7 +58,7 @@ def token(Map map) {
         } catch (err) {
             print "Keystone token request failed: ${err}"
             sleep retryTimeout
-            error(err)
+            throw err
         }
     }
 }
