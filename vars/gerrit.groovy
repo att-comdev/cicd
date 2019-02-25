@@ -170,24 +170,79 @@ def cloneProject(String url, String branch, String refspec, String targetDirecto
  * @param repo The repository to search for an "open" patchset with a given topic
  * @param url The url of the Gerrit to check against; ssh user included - e.g. "abc123@gerrit.foo.bar"
  * @param port The port Gerrit is running on
+ * @param creds The Jenkins SSH credentials ID
  * @return commit The commitId of the "open" patchset with a given topic. If said PS doesn't exist, "master".
  */
-def getTopicCommitId(repo, url, port) {
-    // If triggering repo includes a topic
-    if("${GERRIT_TOPIC}" != null && "${GERRIT_TOPIC}" != "") {
-        def topicJson = sh(script: "ssh -p ${port} ${url} gerrit query --format=JSON topic:${GERRIT_TOPIC} status:open project:${repo}", returnStdout: true).trim()
-        def topicData = new JsonSlurperClassic().parseText(topicJson)
-        def changeId = topicData.id
-        if(changeId != null && changeId != "") {
-            def commitJson = sh(script: "ssh -p ${port} ${url} gerrit query --format=JSON --current-patch-set ${changeId}", returnStdout: true).trim()
-            def commitData = new JsonSlurperClassic().parseText(commitJson)
-            def commitId = commitData.currentPatchSet.revision
-            if(commitId != null && commitId != "") {
-                return commitId
+def getTopicCommitId(repo, url, port, creds) {
+    def revision = "master"
+    withCredentials([sshUserPrivateKey(credentialsId: creds,
+                                       keyFileVariable: 'SSH_KEY')]) {
+        // If triggering repo includes a topic
+        if(GERRIT_TOPIC != null && GERRIT_TOPIC != "") {
+            def topicJson = sh(script: "ssh -i ${SSH_KEY} -p ${port} ${url} gerrit query --format=JSON topic:${GERRIT_TOPIC} status:open project:${repo}", returnStdout: true).trim()
+            def topicData = new JsonSlurperClassic().parseText(topicJson)
+            def changeId = topicData.id
+            if(changeId != null && changeId != "") {
+                def commitJson = sh(script: "ssh -i ${SSH_KEY} -p ${port} ${url} gerrit query --format=JSON --current-patch-set ${changeId}", returnStdout: true).trim()
+                def commitData = new JsonSlurperClassic().parseText(commitJson)
+                def commitId = commitData.currentPatchSet.revision
+                if(commitId != null && commitId != "") {
+                    revision = commitId
+                }
             }
         }
     }
-    return "master"
+    return revision
+}
+
+/**
+ * Retrieves the commit details of an "open" Gerrit patchset,
+ * with a given topic set. Especially useful to get cross-repo
+ * dependencies
+ *
+ * @param repo The repository to search for an "open" patchset with a given topic
+ * @param url The url of the Gerrit to check against; ssh user included - e.g. "abc123@gerrit.foo.bar"
+ * @param port The port Gerrit is running on
+ * @param creds The Jenkins SSH credentials ID
+ *
+ * @return the list of commits of the "open" patchset with a given topic. If said PS doesn't exist, empty list "[]".
+ */
+def getTopicCommitInfo(repo, url, port, creds) {
+    def commits = []
+    def jsonList = []
+    withCredentials([sshUserPrivateKey(credentialsId: creds,
+                                       keyFileVariable: 'SSH_KEY')]) {
+        // If triggering repo includes a topic
+        if(GERRIT_TOPIC != null && GERRIT_TOPIC != "") {
+            def topicJson = sh(script: "ssh -i ${SSH_KEY} -p ${port} ${url} gerrit query \
+                                        --format=JSON topic:${GERRIT_TOPIC} \
+                                        status:open project:${repo}", returnStdout: true).trim()
+            jsonList = topicJson.tokenize("\n")
+
+            // Return empty list if no commits for topic
+            if (jsonList.isEmpty()) {
+                return commits
+            }
+
+            jsonList.each({
+                def topicData = new JsonSlurperClassic().parseText(it)
+                // skip stats from result
+                if (topicData.type != 'stats') {
+                    def changeId = topicData.id
+                    if(changeId != null && changeId != "") {
+                        def commitJson = sh(script: "ssh -i ${SSH_KEY} -p ${port} ${url} \
+                                            gerrit query --format=JSON --current-patch-set \
+                                            ${changeId}", returnStdout: true).trim()
+                        def commitData = new JsonSlurperClassic().parseText(commitJson)
+                        def commitId = commitData.currentPatchSet.revision
+                        topicData['commitId'] = commitId
+                        commits.push(topicData)
+                    }
+                }
+            })
+        }
+    }
+    return commits
 }
 
 /**
@@ -255,4 +310,18 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
              git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:refs/for/master
            """
     }
+}
+
+/**
+ * Given Jenkins credentials, Retrieve commit details for a given repo path
+ *
+ * @param repo_path diretory where git repo is cloned
+ * @return latestCommitInfo
+ */
+def getLocalRepoVersion(repo_path) {
+    // get git log information from the given directory path
+    // H => commit hash, %d => ref names, %s => subject , %ce => committer email
+    def cmd = "cd  ${repo_path} && git log -1  --pretty=format:%H::::%d::::%s::::%ce"
+    def git_log =  sh(returnStdout: true, script: cmd).trim()
+    return git_log.split('::::')
 }
