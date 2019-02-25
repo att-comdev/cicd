@@ -148,7 +148,7 @@ def cloneProject(String url, String branch, String refspec, String targetDirecto
  */
 def getTopicCommitId(repo, url, port) {
     // If triggering repo includes a topic
-    if("${GERRIT_TOPIC}" != null && "${GERRIT_TOPIC}" != "") {
+    if(GERRIT_TOPIC != null && GERRIT_TOPIC != "") {
         def topicJson = sh(script: "ssh -p ${port} ${url} gerrit query --format=JSON topic:${GERRIT_TOPIC} status:open project:${repo}", returnStdout: true).trim()
         def topicData = new JsonSlurperClassic().parseText(topicJson)
         def changeId = topicData.id
@@ -162,6 +162,55 @@ def getTopicCommitId(repo, url, port) {
         }
     }
     return "master"
+}
+
+/**
+ * Retrieves the commit details of an "open" Gerrit patchset,
+ * with a given topic set. Especially useful to get cross-repo
+ * dependencies
+ *
+ * @param repo The repository to search for an "open" patchset with a given topic
+ * @param url The url of the Gerrit to check against; ssh user included - e.g. "abc123@gerrit.foo.bar"
+ * @param port The port Gerrit is running on
+ * @param creds The Jenkins SSH credentials ID
+ *
+ * @return the list of commits of the "open" patchset with a given topic. If said PS doesn't exist, empty list "[]".
+ */
+def getTopicCommitInfo(repo, url, port, creds) {
+    def commitList = []
+    def jsonList = []
+    withCredentials([sshUserPrivateKey(credentialsId: creds,
+                                       keyFileVariable: 'SSH_KEY')]) {
+        // If triggering repo includes a topic
+        if(GERRIT_TOPIC != null && GERRIT_TOPIC != "") {
+            def topicJson = sh(script: "ssh -i ${SSH_KEY} -p ${port} ${url} gerrit query \
+                                        --format=JSON topic:${GERRIT_TOPIC} \
+                                        status:open project:${repo}", returnStdout: true).trim()
+            jsonList = topicJson.tokenize("\n")
+
+            // Return empty list if no commits for topic
+            if (jsonList.size() == 0) {
+                return commitList;
+            }
+
+            // Remove the last entry which is stats
+            jsonList.pop()
+            jsonList.each({
+                def topicData = new JsonSlurperClassic().parseText(it)
+                def changeId = topicData.id
+                if(changeId != null && changeId != "") {
+                    def commitJson = sh(script: "ssh -i ${ssh_key} -p ${port} ${url} \
+                                        gerrit query --format=JSON --current-patch-set \
+                                        ${changeId}", returnStdout: true).trim()
+                    def commitData = new JsonSlurperClassic().parseText(commitJson)
+                    def commitId = commitData.currentPatchSet.revision
+                    topicData['commitId'] = commitId
+                    commitList.push(topicData)
+                }
+            })
+        }
+    }
+    return commitList
 }
 
 /**
