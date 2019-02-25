@@ -25,7 +25,7 @@ def token(Map map) {
     // optional with defaults
     def retryCount = map.retryCount ?: 3.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
-
+    def rotating = map.rotatePassphrases ?: false
 
     withCredentials([[$class: "UsernamePasswordMultiBinding",
                       credentialsId: map.keystoneCreds,
@@ -44,10 +44,11 @@ def token(Map map) {
                             "password": map.keystonePassword ]]]]]
 
     def jreq = new JsonOutput().toJson(req)
+    def res = null
 
     retry (retryCount) {
         try {
-            def res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
+            res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
                                   contentType: "APPLICATION_JSON",
                                   httpMode: "POST",
                                   quiet: true,
@@ -58,6 +59,9 @@ def token(Map map) {
 
         } catch (err) {
             print "Keystone token request failed: ${err}"
+            if(rotating && res != null && res.getStatus() == 401) {
+                throw err
+            }
             sleep retryTimeout
             error(err)
         }
