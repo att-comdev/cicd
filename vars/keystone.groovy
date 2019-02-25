@@ -45,7 +45,7 @@ def retrieveToken(keystoneCredId, keystoneUrl, withCreds=true, username='shipyar
 
         } catch (err) {
             sleep 120
-            error(err)
+            error(err.getMessage())
         }
     }
     return res
