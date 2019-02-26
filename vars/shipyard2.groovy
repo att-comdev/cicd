@@ -356,15 +356,15 @@ def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds
     def failedSteps = []
 
     while (status == "Pending" || status == "Processing") {
+        print "Wait until action is finished. Currently in '${status}' state."
         sleep 240
 
         action = _getAction(actionId, shipyardUrl, keystoneCredId, keystoneUrl, withCreds)
         status = action.action_lifecycle
-        print "Wait until action is complete. Currently in ${status} state."
         failedSteps = _printActionSteps(action)
     }
 
     if (status != "Complete" || failedSteps) {
-        error("Shipyard action finished with status ${status} instead of complete. (${failedSteps})")
+        error("Shipyard action finished with status '${status}'. Failed steps: ${failedSteps}")
     }
 }
