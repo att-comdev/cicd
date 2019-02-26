@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f804d1b_6639a502",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1016071
+      },
+      "writtenOn": "2019-02-26T17:37:11Z",
+      "side": 1,
+      "message": "instead of random string can we do something like this\nfilename_only\u003d\"$(basename ${seed} | cut -d. -f1)\"",
+      "range": {
+        "startLine": 102,
+        "startChar": 9,
+        "endLine": 102,
+        "endChar": 74
+      },
+      "revId": "a0256d3b2233f4f40f8bec0dbea01b87b8d38e24",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ef02d3f_13730518",
+        "filename": "cicd/SuperSeed/superseed.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1016071
+      },
+      "writtenOn": "2019-02-26T17:37:11Z",
+      "side": 1,
+      "message": "and this \ncp -a ${seed_file} ${WORKSPACE}/${BUILD_NUMBER}/seed_${filename_only}.groovy",
+      "range": {
+        "startLine": 106,
+        "startChar": 12,
+        "endLine": 107,
+        "endChar": 0
+      },
+      "revId": "a0256d3b2233f4f40f8bec0dbea01b87b8d38e24",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
