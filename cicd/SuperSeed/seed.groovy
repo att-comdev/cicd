@@ -13,31 +13,26 @@ freeStyleJob("${job_path}") {
             defaultValue('')
             description('Comma delimited Seed path \n' +
                         'Example: cicd/SuperSeed/seed.groovy,cicd/NodeCleanup/seed.groovy')
-            trim(true)
         }
         stringParam{
             name ('RELEASE_FILE_PATH')
             defaultValue('')
             description("File that points to a list of seed.groovy's to execute for a Cloudharbor site")
-            trim(true)
         }
         stringParam {
             name ('GERRIT_REFSPEC')
             defaultValue('origin/master')
             description('Gerrit refspec')
-            trim(true)
         }
         stringParam {
             name ('GERRIT_HOST')
             defaultValue('review.gerrithub.io')
             description('Gerrit host')
-            trim(true)
         }
         stringParam {
             name ('GERRIT_PROJECT')
             defaultValue('att-comdev/cicd')
             description('Project on Gerrit')
-            trim(true)
         }
     }
 
