@@ -99,10 +99,11 @@ copy_seed(){
     for seed in $seed_list; do
         seed_file="${WORKSPACE}/${seed}"
         if [ -f ${seed_file} ]; then
+            random_string=$(head /dev/urandom | tr -dc A-Za-z | head -c 6)
             # suffix directory name to seed to identify multiple seeds
             # convert '-' to '_' to avoid dsl script name error
             seed_dir=$(dirname ${seed} | awk -F '/' '{print $NF}' | tr '-' '_')
-            cp -a ${seed_file} ${WORKSPACE}/${BUILD_NUMBER}/seed_${seed_dir}.groovy
+            cp -a ${seed_file} ${WORKSPACE}/${BUILD_NUMBER}/seed_${random_string}_${seed_dir}.groovy
         else
             # Fail the build if file doesn't exists:
             echo "ERROR: ${seed_file} not found"
