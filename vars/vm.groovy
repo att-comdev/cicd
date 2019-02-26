@@ -78,10 +78,14 @@ def call(Map map, Closure body) {
     // Name of public network that is used to allocate floating IPs
     def publicNet = map.publicNet ?: 'public'
 
+    // Name of private network for the VM
+    def privateNet = map.privateNet ?: 'private'
+
     // resolve args to heat parameters
     def parameters = " --parameter image=${image}" +
                      " --parameter flavor=${flavor}" +
                      " --parameter public_net=${publicNet}"
+                     " --parameter private_net=${privateNet}"
 
     // node used for launching VMs
     def launch_node = 'jenkins-node-launch'
