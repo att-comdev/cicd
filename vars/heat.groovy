@@ -33,30 +33,22 @@ def openstack_cmd(String cmd, String mount = "") {
 //example of parameters --parameter 'cloudImage=${cloudImage}' --parameter ...
 def stack_create(String name, String tmpl, String parameters) {
 
-  withCredentials([usernamePassword(credentialsId: 'jenkins-openstack-18',
+    withCredentials([usernamePassword(credentialsId: 'jenkins-openstack-18',
                                           usernameVariable: 'OS_USERNAME',
                                           passwordVariable: 'OS_PASSWORD')]) {
 
-        cmd = openstack_cmd("openstack stack create -t /target/\$(basename ${tmpl}) ${name} ${parameters}", "\$(dirname ${tmpl})")
-        code = sh (script: cmd, returnStatus: true)
-        if (!code) {
-            // todo: improve timeouts to more user friendly look
-            timeout = 300
-            for (i = 0; i < timeout; i=i+10) {
+
+        // note: occasionally stack may fail to create (likely OpenStack issue)
+        retry (3) {
+            try {
+                sh openstack_cmd("openstack stack create --wait -t /target/\$(basename ${tmpl}) ${name} ${parameters}", "\$(dirname ${tmpl})")
+            } catch (err) {
+                print "Failed to create stack ${name} -> ${err.getMessage()}"
+                stack_delete(name)
                 sleep 30
-                cmd = openstack_cmd("openstack stack show -f value -c stack_status ${name}")
-                ret = sh (script: cmd, returnStdout: true).trim()
-                if (ret == "CREATE_COMPLETE") {
-                    print "Stack ${name} created!"
-                    return
-                } else if (ret != "CREATE_IN_PROGRESS") {
-                    print "Failed to create stack ${name}"
-                    sh "exit 1"
-                }
+                throw err
             }
         }
-        print "Failed to create stack ${name}"
-        sh "exit 1"
     }
 }
 
@@ -66,19 +58,22 @@ def stack_delete(String name) {
                                           usernameVariable: 'OS_USERNAME',
                                           passwordVariable: 'OS_PASSWORD')]) {
 
-      cmd = openstack_cmd("openstack stack delete --wait --yes ${name}")
-        code = sh (script: cmd, returnStatus: true)
-        if (!code) {
-            cmd = openstack_cmd("openstack stack list")
-            ret = sh (script: cmd, returnStdout: true)
-            if (!ret.contains(name)) {
-                print "Stack ${name} deleted!"
-                return
+        cmd = openstack_cmd("openstack stack list")
+        ret = sh (script: cmd, returnStdout: true)
+        if (!ret.contains(name)) {
+            print "Stack ${name} is already deleted, skipping!"
+            return
+        }
+
+        // note: occasionally stack may fail to delete (likely OpenStack issue)
+        retry (3) {
+            try {
+                sh openstack_cmd("openstack stack delete --wait --yes ${name}")
+            } catch (err) {
+                print "Failed to delete stack ${name} -> ${err.getMessage()}"
+                sleep 10
+                throw err
             }
-            print "Failed to delete stack ${name}"
-            sh "exit 1" //
-        } else {
-            print "Likely stack ${name} did not exist! It's OK."
         }
     }
 }
