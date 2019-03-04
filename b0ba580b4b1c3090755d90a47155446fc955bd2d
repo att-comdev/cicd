@@ -16,6 +16,24 @@
       "revId": "b0ba580b4b1c3090755d90a47155446fc955bd2d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "557ee120_f7d20877",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2019-03-04T18:00:56Z",
+      "side": 1,
+      "message": "Unless these are specific parameters for Shipyard itself..",
+      "parentUuid": "9d3e5865_539ee17e",
+      "revId": "b0ba580b4b1c3090755d90a47155446fc955bd2d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
