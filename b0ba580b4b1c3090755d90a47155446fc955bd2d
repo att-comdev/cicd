@@ -34,6 +34,24 @@
       "revId": "b0ba580b4b1c3090755d90a47155446fc955bd2d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0be68ab7_ea9a003d",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1015904
+      },
+      "writtenOn": "2019-03-04T18:04:26Z",
+      "side": 1,
+      "message": "parameters are specific to Shipyard as part of creating the action.\n\nI\u0027m hesitant to change the function signature to take a single Map because that would be a breaking change. I might be misunderstanding.",
+      "parentUuid": "557ee120_f7d20877",
+      "revId": "b0ba580b4b1c3090755d90a47155446fc955bd2d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
