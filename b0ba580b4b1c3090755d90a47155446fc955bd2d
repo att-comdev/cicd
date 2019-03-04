@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d3e5865_539ee17e",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2019-03-04T18:00:21Z",
+      "side": 1,
+      "message": "I believe whole method should be a map similar to\nhttps://github.com/att-comdev/cicd/blob/master/vars/keystone2.groovy#L16\n\nThis will give us flexibility to further extend the function.",
+      "revId": "b0ba580b4b1c3090755d90a47155446fc955bd2d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
