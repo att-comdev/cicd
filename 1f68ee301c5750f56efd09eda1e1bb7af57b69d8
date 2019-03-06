@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3548d810_4a3205d2",
+        "filename": "tools/uplift-components/opt/playbooks/roles/uplift-versions/templates/vars.yaml",
+        "patchSetId": 39
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1012026
+      },
+      "writtenOn": "2019-03-06T19:32:20Z",
+      "side": 1,
+      "message": "should this be parameterized?",
+      "revId": "1f68ee301c5750f56efd09eda1e1bb7af57b69d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ddcf8f7_8a28529d",
+        "filename": "tools/uplift-components/opt/playbooks/roles/uplift-versions/templates/versions.yaml.j2",
+        "patchSetId": 39
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 1012026
+      },
+      "writtenOn": "2019-03-06T19:32:20Z",
+      "side": 1,
+      "message": "Can we establish a set of rules for pinning? Example: provide upstream defect and ETA (if known)",
+      "revId": "1f68ee301c5750f56efd09eda1e1bb7af57b69d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3131c97_b141793d",
+        "filename": "tools/uplift-components/opt/playbooks/roles/uplift-versions/templates/versions.yaml.j2",
+        "patchSetId": 39
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 1012026
+      },
+      "writtenOn": "2019-03-06T19:32:20Z",
+      "side": 1,
+      "message": "we shouldn\u0027t be using proxy anymore. also will these charts be sourced from the vendor or from upstream development?",
+      "revId": "1f68ee301c5750f56efd09eda1e1bb7af57b69d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aa722f0_a3c180c6",
+        "filename": "tools/uplift-components/opt/playbooks/roles/uplift-versions/templates/versions.yaml.j2",
+        "patchSetId": 39
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 1012026
+      },
+      "writtenOn": "2019-03-06T19:32:20Z",
+      "side": 1,
+      "message": "Is there a better way to source this information?",
+      "revId": "1f68ee301c5750f56efd09eda1e1bb7af57b69d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba384d63_34ed344c",
+        "filename": "tools/uplift-components/vars.yaml",
+        "patchSetId": 39
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1012026
+      },
+      "writtenOn": "2019-03-06T19:32:20Z",
+      "side": 1,
+      "message": "Should this be parameterized?",
+      "revId": "1f68ee301c5750f56efd09eda1e1bb7af57b69d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
