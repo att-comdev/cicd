@@ -28,7 +28,7 @@ podTemplate(label: label,
                        securityContext:
                          runAsUser: 0
                        nodeSelector:
-                         jenkins-node: enabled
+                         dind-node: enabled
                   """,
             containers: [containerTemplate(name: "ubuntu",
                                            image: conf.POD_IMAGE_1804,
