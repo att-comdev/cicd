@@ -1,7 +1,8 @@
 JOB_FOLDER="images/openstack/helm-images"
 folder(JOB_FOLDER)
 
-def projects = ['ceph-daemon']
+def projects = ['ceph-daemon',
+                'ceph-utility']
 
 projects.each { project_name ->
     JOB_BASE_NAME=project_name
