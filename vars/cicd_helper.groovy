@@ -210,3 +210,30 @@ def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0", priAf
                 - enabled
     """
 }
+
+/**
+ * Helper for critical step approval request
+ *
+ * @param actionName Action name that is used in message in console output
+ * @param submitter String or null for list of users/group for approval.
+ *     Default value is null.
+ *     If SUBMITTER variable is presented in environment it will be used.
+ *     If null any authenticated users can approve the action.
+ *     To restrict access list of users separate by comma may be provided.
+ *     Spaces are not allowed.
+ *     Examples:
+ *         "bob,authenticated,someGroup" (permited for user bob, authenticated users,
+ *                                        users in someGroup)
+ *         "authenticated, bob" (permited for authenticated users,
+ *                               bob user will be rejected because of space)
+ */
+
+def approveAction(actionName, submitter=null) {
+    if (env.SUBMITTER) {
+        submitter = submitter ? submitter: SUBMITTER
+    }
+    message = "\n\n\n\nPlease approve the action '${actionName}'."
+    ok = "Start '${actionName}'"
+
+    input(message: message, ok:ok, submitter: submitter)
+}
