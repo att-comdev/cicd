@@ -1,7 +1,7 @@
 // pipeline for airship-in-a-bottle, more info at
 // http://www.airshipit.org/
 
-ARTF_BASE = "logs/${JOB_NAME}/${BUILD_ID}"
+ARTF_BASE = "cicd/logs/${JOB_NAME}/${BUILD_ID}"
 
 REPO_URL = 'https://git.openstack.org/openstack/airship-in-a-bottle'
 REPO_HOME = '/root/deploy/airship-in-a-bottle'
