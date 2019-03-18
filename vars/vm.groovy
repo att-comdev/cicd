@@ -150,6 +150,7 @@ def call(Map map, Closure body) {
                           'Likely gate reports failure.\n'
                 }
                 currentBuild.result = 'FAILURE'
+                throw err
             }
         }
 
@@ -160,6 +161,7 @@ def call(Map map, Closure body) {
                   "Error message: ${err}"
         }
         currentBuild.result = 'FAILURE'
+        throw err
 
     } finally {
         if (!doNotDeleteNode) {
