@@ -146,6 +146,7 @@ def call(Map map, Closure body) {
                           'Likely gate reports failure.\n'
                 }
                 currentBuild.result = 'FAILURE'
+                throw err
             }
         }
 
@@ -156,6 +157,7 @@ def call(Map map, Closure body) {
                   "Error message: ${err}"
         }
         currentBuild.result = 'FAILURE'
+        throw err
 
     } finally {
         if (!doNotDeleteNode) {
@@ -184,6 +186,7 @@ def call(Map map, Closure body) {
                 } catch (error){
                     // gracefully handle failures to publish
                     print "Failed to publish logs to Artifactory: ${err}"
+                    throw error
                 }
             }
         }
