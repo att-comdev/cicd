@@ -71,6 +71,31 @@ for (entry in object.github) {
                 name ('GIT_REPO')
             }
             stringParam {
+                defaultValue("")
+                description('Only for manual builds')
+                name ('GERRIT_PATCHSET_REVISION')
+            }
+            stringParam {
+                defaultValue("")
+                description('Only for manual builds')
+                name ('GERRIT_NEWREV')
+            }
+            stringParam {
+                defaultValue("")
+                description('Only for manual builds')
+                name ('GERRIT_CHANGE_URL')
+            }
+            stringParam {
+                defaultValue("")
+                description('Only for manual builds')
+                name ('GERRIT_CHANGE_EVENT')
+            }
+            stringParam {
+                defaultValue("")
+                description('Only for manual builds')
+                name ('GERRIT_REFSPEC')
+            }
+            stringParam {
                 defaultValue("1.0.0")
                 description('Put RC version here')
                 name('VERSION')
@@ -100,11 +125,6 @@ for (entry in object.github) {
                     }
                 }
                 triggerOnEvents {
-                    patchsetCreated {
-                       excludeDrafts(false)
-                       excludeTrivialRebase(false)
-                       excludeNoCodeChange(false)
-                    }
                     changeMerged()
                     commentAddedContains {
                         commentAddedCommentContains('recheck')
@@ -175,11 +195,6 @@ for (entry in object.github) {
                     }
                 }
                 triggerOnEvents {
-                    patchsetCreated {
-                       excludeDrafts(false)
-                       excludeTrivialRebase(false)
-                       excludeNoCodeChange(false)
-                    }
                     commentAddedContains {
                         commentAddedCommentContains('recheck')
                     }
