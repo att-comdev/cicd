@@ -364,6 +364,9 @@ def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds
     def failedSteps = []
     def runningSteps = []
     def stages = []
+    // We would like to skip stage creation for some steps since they have subtusks
+    // and stages will be created for them.
+    def skipSteps = ['drydock_build', 'armada_build']
 
     while (status == "Pending" || status == "Processing") {
         sleep 240
@@ -379,9 +382,14 @@ def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds
             }
         }
         runningSteps.each() {
-            if ( !(it in stages) ) {
+            if ( !(it in stages) & !(it.toString() in skipSteps)) {
                 stages += it
                 stage "Step ${it}"
+                // In case of few steps in running state we may get a situation when few
+                // stages were created at the same time and only last will be closed for next
+                //stage creation. All other stages will be in running state until job is finished.
+                // Add sleep to fix this issue with hanging stages.
+                sleep 5
             }
         }
     }
