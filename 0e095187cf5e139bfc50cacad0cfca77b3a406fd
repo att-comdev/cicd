@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "381bb4c1_ab93ff61",
+        "filename": "vars/vm.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1011936
+      },
+      "writtenOn": "2019-03-18T22:48:49Z",
+      "side": 1,
+      "message": "I think this one is OK.. we can make this silence as it\u0027s only publishing logs..",
+      "revId": "0e095187cf5e139bfc50cacad0cfca77b3a406fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
