@@ -234,8 +234,7 @@ def getTopicCommitInfo(repo, url, port, creds) {
                                             gerrit query --format=JSON --current-patch-set \
                                             ${changeId}", returnStdout: true).trim()
                         def commitData = new JsonSlurperClassic().parseText(commitJson)
-                        def commitId = commitData.currentPatchSet.revision
-                        topicData['commitId'] = commitId
+                        topicData['commitInfo'] = commitData
                         commits.push(topicData)
                     }
                 }
