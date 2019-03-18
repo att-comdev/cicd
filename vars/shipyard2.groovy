@@ -377,6 +377,11 @@ def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds
             if ( !(it in stages) ) {
                 stages += it
                 stage "Step ${it}"
+                // In case of few steps in running state we may get a situation when few
+                // stages were created at the same time and only last will be closed for next
+                //stage creation. All other stages will be in running state until job is finished.
+                // Add sleep to fix this issue with hanging stages.
+                sleep 5
             }
         }
     }
