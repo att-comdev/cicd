@@ -52,6 +52,24 @@
       "revId": "b0ba580b4b1c3090755d90a47155446fc955bd2d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c604c520_21131fd0",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-03-19T09:17:36Z",
+      "side": 1,
+      "message": "You can overload methods, and have one with Map and another one like this one.\nhttps://github.com/att-comdev/cicd/blob/master/vars/publish.groovy#L54-L87",
+      "parentUuid": "0be68ab7_ea9a003d",
+      "revId": "b0ba580b4b1c3090755d90a47155446fc955bd2d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
