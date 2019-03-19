@@ -39,8 +39,8 @@ vm(flavor: 'm1.xxlarge', artifactoryLogs: true, publicNet: publicNet) {
                 try {
                     sh 'sudo debug-report.sh'
                     def hostname =  sh (script: 'hostname', returnStdout: true).trim()
-                    artifactory.upload("debug-${hostname}.tgz",
-                                   "${ARTF_BASE}/debug-${hostname}.tgz")
+                    artifactory.upload("debug-${hostname}",
+                                   "${ARTF_BASE}/debug-${hostname}")
                 } catch (lerr){
                     // pipeline may not yet deployed basic k8s
                     // cause of the issue will be found in Jenkins console log
