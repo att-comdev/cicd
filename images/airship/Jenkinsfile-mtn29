@@ -53,13 +53,13 @@ EOF"""
 }
 
 node("slave03"){
-    stage('Setup environment'){ 
-        sh 'env' 
-        sh "echo ${HTTP_PROXY}" 
-        sh "echo ${HTTPS_PROXY}" 
-        sh "echo ${NO_PROXY}" 
-        sh "export test_proxy=${HTTP_PROXY}" 
-        setproxy() 
+    stage('Setup environment'){
+        sh 'env'
+        sh "echo ${HTTP_PROXY}"
+        sh "echo ${HTTPS_PROXY}"
+        sh "echo ${NO_PROXY}"
+        sh "export test_proxy=${HTTP_PROXY}"
+        setproxy()
     }
     cleanWs()
     stage('Build & Checkout'){
