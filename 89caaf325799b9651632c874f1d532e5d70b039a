@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5985055c_312431ae",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-03-19T08:47:27Z",
+      "side": 1,
+      "message": "I tried to understand, but didn\u0027t get neither the problem, not how `sleep 5` would solve it, sorry.",
+      "range": {
+        "startLine": 380,
+        "startChar": 16,
+        "endLine": 383,
+        "endChar": 67
+      },
+      "revId": "89caaf325799b9651632c874f1d532e5d70b039a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
