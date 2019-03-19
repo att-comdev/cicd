@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "597932d2_b762a424",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-03-19T09:09:10Z",
+      "side": 1,
+      "message": "One of the params is missing, can we add it here, please?",
+      "range": {
+        "startLine": 27,
+        "startChar": 34,
+        "endLine": 27,
+        "endChar": 86
+      },
+      "revId": "44977546300e81258403fbcdd8db75c444bb4e5d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c4193dd_1aac3028",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-03-19T09:09:10Z",
+      "side": 1,
+      "message": "One of the params is missing, can we add it here, please?",
+      "range": {
+        "startLine": 28,
+        "startChar": 34,
+        "endLine": 28,
+        "endChar": 77
+      },
+      "revId": "44977546300e81258403fbcdd8db75c444bb4e5d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98d18b27_2cec1f7b",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-03-19T09:09:10Z",
+      "side": 1,
+      "message": "ARTF",
+      "range": {
+        "startLine": 47,
+        "startChar": 55,
+        "endLine": 47,
+        "endChar": 61
+      },
+      "revId": "44977546300e81258403fbcdd8db75c444bb4e5d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "46037ea0_a5d8ebc5",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-03-19T09:09:10Z",
+      "side": 1,
+      "message": "If we publish to multiple repos, then after pubilishing to artifactory, publishing to quay would not work.",
+      "range": {
+        "startLine": 61,
+        "startChar": 4,
+        "endLine": 61,
+        "endChar": 20
+      },
+      "revId": "44977546300e81258403fbcdd8db75c444bb4e5d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c783c1cd_ddfdfda0",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-03-19T09:09:10Z",
+      "side": 1,
+      "message": "QUAY_URL",
+      "range": {
+        "startLine": 67,
+        "startChar": 19,
+        "endLine": 67,
+        "endChar": 34
+      },
+      "revId": "44977546300e81258403fbcdd8db75c444bb4e5d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c412236c_88d070c9",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-03-19T09:09:10Z",
+      "side": 1,
+      "message": "If we publish to multiple repos, then after pubilishing to artifactory, publishing to quay would not work.",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 20
+      },
+      "revId": "44977546300e81258403fbcdd8db75c444bb4e5d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "653789b6_fde85d2e",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-03-19T09:09:10Z",
+      "side": 1,
+      "message": "Same here.",
+      "range": {
+        "startLine": 75,
+        "startChar": 4,
+        "endLine": 75,
+        "endChar": 20
+      },
+      "revId": "44977546300e81258403fbcdd8db75c444bb4e5d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
