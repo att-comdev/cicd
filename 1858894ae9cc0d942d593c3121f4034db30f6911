@@ -22,6 +22,30 @@
       "revId": "1858894ae9cc0d942d593c3121f4034db30f6911",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69495dd9_956f14ec",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-03-20T15:04:47Z",
+      "side": 1,
+      "message": "sure i added it as its enable currently on mtn29. It sure will work on mtn52e. I will revert this change",
+      "parentUuid": "81be09e4_02269786",
+      "range": {
+        "startLine": 31,
+        "startChar": 25,
+        "endLine": 31,
+        "endChar": 29
+      },
+      "revId": "1858894ae9cc0d942d593c3121f4034db30f6911",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
