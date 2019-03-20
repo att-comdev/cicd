@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81be09e4_02269786",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-03-20T14:58:55Z",
+      "side": 1,
+      "message": "this is only temporary in mtn29 i don\u0027t see a point of merging this. Also any reason to not run it in mtn52e jenkins..?",
+      "range": {
+        "startLine": 31,
+        "startChar": 25,
+        "endLine": 31,
+        "endChar": 29
+      },
+      "revId": "1858894ae9cc0d942d593c3121f4034db30f6911",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
