@@ -6,7 +6,10 @@ import groovy.json.JsonSlurperClassic
  * Retrieve Kystone token
  * Usage:
  *     keystone.token(keystoneUrl: 'http://keystone',
- *                    keystoneCreds: 'keystone-user-pass-creds')
+                      keystoneCreds: 'keystone-user-pass-creds')
+ *     or
+ *     keystone.token(keystoneUrl: 'http://keystone',
+ *                    keystoneCreds: ['keystone-user-pass-creds', 'keystone-user-pass-creds2'])
  *
  * @param keystoneUrl
  * @param keystoneCreds
@@ -22,45 +25,73 @@ def token(Map map) {
         error("Must provide Keystone credentials 'keystoneCreds'")
     }
 
+    if( !(map.keystoneCreds instanceof List)) {
+        map.keystoneCreds = [map.keystoneCreds]
+    }
+
     // optional with defaults
     def retryCount = map.retryCount ?: 3.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
+    def res
 
-    withCredentials([[$class: "UsernamePasswordMultiBinding",
-                      credentialsId: map.keystoneCreds,
-                      usernameVariable: "USER",
-                      passwordVariable: "PASS"]]) {
-        map.keystoneUser = USER
-        map.keystonePassword = PASS
-    }
+    map.keystoneCreds.any {
+        withCredentials([[$class: "UsernamePasswordMultiBinding",
+                          credentialsId: it,
+                          usernameVariable: "USER",
+                          passwordVariable: "PASS"]]) {
+            map.keystoneUser = USER
+            map.keystonePassword = PASS
+        }
 
-    def req = ["auth": [
-               "identity": [
-                 "methods": ["password"],
-                 "password": [
-                   "user": ["name": map.keystoneUser,
-                            "domain": ["id": "default"],
-                            "password": map.keystonePassword ]]]]]
+        def req = ["auth": [
+                     "identity": [
+                       "methods": ["password"],
+                       "password": [
+                         "user": ["name": map.keystoneUser,
+                                  "domain": ["id": "default"],
+                                  "password": map.keystonePassword ]]]]]
 
-    def jreq = new JsonOutput().toJson(req)
+        def jreq = new JsonOutput().toJson(req)
 
-    retry (retryCount) {
-        try {
-            def res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
-                                  contentType: "APPLICATION_JSON",
-                                  httpMode: "POST",
-                                  quiet: true,
-                                  requestBody: jreq)
 
-            print "Keystone token request succeesful: ${res.status}"
-            return res.getHeaders()["X-Subject-Token"][0]
+        res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
+                              contentType: "APPLICATION_JSON",
+                              httpMode: "POST",
+                              quiet: true,
+                              validResponseCodes: '200:503',
+                              requestBody: jreq)
 
-        } catch (err) {
-            print "Keystone token request failed: ${err}"
-            sleep retryTimeout
-            throw err
+        if(res) {
+            if(res.status == 201) {
+                print "Keystone token request succeesful: ${res.status}"
+                // this is like a for loop "break", get out of collection iterating
+                true
+            } else if(res.status == 401 && it != map.keystoneCreds.last()) {
+                // this is like a for loop "continue", move to the next item in the collection
+                return
+            } else {
+                retry(retryCount-1) {
+                    try {
+                        res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
+                              contentType: "APPLICATION_JSON",
+                              httpMode: "POST",
+                              quiet: true,
+                              requestBody: jreq)
+
+                        print "Keystone token request succeesful: ${res.status}"
+                        // this is like a for loop "break", get out of collection iterating
+                        true
+                    } catch(error) {
+                        print "Keystone token request failed: ${error}"
+                        sleep retryTimeout
+                        throw error
+                    }
+                }
+            }
         }
     }
+
+    return res.getHeaders()["X-Subject-Token"][0]
 }
 
 
