@@ -26,39 +26,58 @@ def token(Map map) {
     def retryCount = map.retryCount ?: 3.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
 
-    withCredentials([[$class: "UsernamePasswordMultiBinding",
-                      credentialsId: map.keystoneCreds,
-                      usernameVariable: "USER",
-                      passwordVariable: "PASS"]]) {
-        map.keystoneUser = USER
-        map.keystonePassword = PASS
-    }
+    map.keystoneCreds.any {
+        withCredentials([[$class: "UsernamePasswordMultiBinding",
+                          credentialsId: it,
+                          usernameVariable: "USER",
+                          passwordVariable: "PASS"]]) {
+            map.keystoneUser = USER
+            map.keystonePassword = PASS
+        }
 
-    def req = ["auth": [
-               "identity": [
-                 "methods": ["password"],
-                 "password": [
-                   "user": ["name": map.keystoneUser,
-                            "domain": ["id": "default"],
-                            "password": map.keystonePassword ]]]]]
+        def req = ["auth": [
+                     "identity": [
+                       "methods": ["password"],
+                       "password": [
+                         "user": ["name": map.keystoneUser,
+                                  "domain": ["id": "default"],
+                                  "password": map.keystonePassword ]]]]]
 
-    def jreq = new JsonOutput().toJson(req)
+        def jreq = new JsonOutput().toJson(req)
 
-    retry (retryCount) {
-        try {
-            def res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
-                                  contentType: "APPLICATION_JSON",
-                                  httpMode: "POST",
-                                  quiet: true,
-                                  requestBody: jreq)
+        def res
+        res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
+                              contentType: "APPLICATION_JSON",
+                              httpMode: "POST",
+                              quiet: true,
+                              validResponseCodes: '200:503',
+                              requestBody: jreq)
 
-            print "Keystone token request succeesful: ${res.status}"
-            return res.getHeaders()["X-Subject-Token"][0]
+        if(res) {
+            if(res.status == 201) {
+                print "Keystone token request succeesful: ${res.status}"
+                return res.getHeaders()["X-Subject-Token"][0]
+            } else if(res.status == 401 && it != map.keystoneCreds.last()) {
+                // this is like a for loop "continue", move to the next item in the collection
+                return
+            } else {
+                retry(retryCount-1) {
+                    try {
+                        res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
+                              contentType: "APPLICATION_JSON",
+                              httpMode: "POST",
+                              quiet: true,
+                              requestBody: jreq)
 
-        } catch (err) {
-            print "Keystone token request failed: ${err}"
-            sleep retryTimeout
-            throw err
+                        print "Keystone token request succeesful: ${res.status}"
+                        return res.getHeaders()["X-Subject-Token"][0]
+                    } catch(error) {
+                        print "Keystone token request failed: ${error}"
+                        sleep retryTimeout
+                        throw error
+                    }
+                }
+            }
         }
     }
 }
