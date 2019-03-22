@@ -26,39 +26,46 @@ def token(Map map) {
     def retryCount = map.retryCount ?: 3.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
 
-    withCredentials([[$class: "UsernamePasswordMultiBinding",
-                      credentialsId: map.keystoneCreds,
-                      usernameVariable: "USER",
-                      passwordVariable: "PASS"]]) {
-        map.keystoneUser = USER
-        map.keystonePassword = PASS
-    }
+    map.keystoneCreds.each {
+        withCredentials([[$class: "UsernamePasswordMultiBinding",
+                        credentialsId: it,
+                        usernameVariable: "USER",
+                        passwordVariable: "PASS"]]) {
+            map.keystoneUser = USER
+            map.keystonePassword = PASS
+        }
 
-    def req = ["auth": [
-               "identity": [
-                 "methods": ["password"],
-                 "password": [
-                   "user": ["name": map.keystoneUser,
-                            "domain": ["id": "default"],
-                            "password": map.keystonePassword ]]]]]
+        def req = ["auth": [
+                "identity": [
+                    "methods": ["password"],
+                    "password": [
+                    "user": ["name": map.keystoneUser,
+                                "domain": ["id": "default"],
+                                "password": map.keystonePassword ]]]]]
 
-    def jreq = new JsonOutput().toJson(req)
+        def jreq = new JsonOutput().toJson(req)
 
-    retry (retryCount) {
-        try {
-            def res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
+        def res
+        retry (retryCount) {
+            try {
+                res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
                                   contentType: "APPLICATION_JSON",
                                   httpMode: "POST",
                                   quiet: true,
                                   requestBody: jreq)
 
-            print "Keystone token request succeesful: ${res.status}"
-            return res.getHeaders()["X-Subject-Token"][0]
+                print "Keystone token request succeesful: ${res.status}"
+                return res.getHeaders()["X-Subject-Token"][0]
 
-        } catch (err) {
-            print "Keystone token request failed: ${err}"
-            sleep retryTimeout
-            throw err
+            } catch (err) {
+                print "Keystone token request failed: ${err}"
+                if(res.getStatus() != 401) {
+                    sleep retryTimeout
+                } else {
+                    sleep 5
+                }
+                throw err
+            }
         }
     }
 }
