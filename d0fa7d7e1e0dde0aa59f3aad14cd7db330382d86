@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aad4c958_74896983",
+        "filename": "vars/heat.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2019-03-26T14:38:38Z",
+      "side": 1,
+      "message": "I am not sure how this throw err works here. I think that if we throw it we should catch it somehow or the execution will fail. no ?",
+      "range": {
+        "startLine": 48,
+        "startChar": 16,
+        "endLine": 48,
+        "endChar": 25
+      },
+      "revId": "d0fa7d7e1e0dde0aa59f3aad14cd7db330382d86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
