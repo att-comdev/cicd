@@ -22,6 +22,30 @@
       "revId": "c899a81bcbdac28542e632dc579b1a56360d4012",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5df80455_92f22185",
+        "filename": "cicd/CH-SuperSeed/superseed.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-03-26T11:09:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0788a615_16f40c96",
+      "range": {
+        "startLine": 81,
+        "startChar": 12,
+        "endLine": 82,
+        "endChar": 83
+      },
+      "revId": "c899a81bcbdac28542e632dc579b1a56360d4012",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
