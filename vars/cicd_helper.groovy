@@ -215,6 +215,7 @@ def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0", priAf
  * Helper for critical step approval request
  *
  * @param actionName Action name that is used in message in console output
+ * @param comment   String
  * @param submitter String or null for list of users/group for approval.
  *     Default value is null.
  *     If SUBMITTER variable is presented in environment it will be used.
@@ -228,11 +229,11 @@ def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0", priAf
  *                               bob user will be rejected because of space)
  */
 
-def approveAction(actionName, submitter=null) {
+def approveAction(actionName, comment="", submitter=null) {
     if (env.SUBMITTER) {
         submitter = submitter ? submitter: SUBMITTER
     }
-    message = "\n\n\n\nPlease approve the action '${actionName}'."
+    message = "\n\n\n\nPlease approve the action '${actionName}'. ${comment}"
     ok = "Start '${actionName}'"
 
     input(message: message, ok:ok, submitter: submitter)
