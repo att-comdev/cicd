@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "422834c4_fe6ae687",
+        "filename": "vars/keystone.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-03-28T15:12:47Z",
+      "side": 1,
+      "message": "lets add check if keystonecreds is a string and convert it to list. In that case we will not brake anything.",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 17
+      },
+      "revId": "65684ea60091124e4215c7fc0582f8b75fa3d4b6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
