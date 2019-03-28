@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32bfcdf6_f2dd8a6a",
+        "filename": "cicd/CH-SuperSeed/seed.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-03-28T17:12:30Z",
+      "side": 1,
+      "message": "This should be pipelineJob",
+      "revId": "7dc7553bf3e857ba094fa1883474c6592f58d68a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9996e447_bd364e06",
+        "filename": "cicd/CH-SuperSeed/seed.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-03-28T17:12:30Z",
+      "side": 1,
+      "message": "This should be configurable to a specific branch",
+      "revId": "7dc7553bf3e857ba094fa1883474c6592f58d68a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4ce2109_cf9d63c8",
+        "filename": "cicd/CH-SuperSeed/seed.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-03-28T17:12:30Z",
+      "side": 1,
+      "message": "This should be configurable to a specific branch",
+      "revId": "7dc7553bf3e857ba094fa1883474c6592f58d68a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fdfba55f_5908fa78",
+        "filename": "cicd/CH-SuperSeed/seed.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-03-28T17:12:30Z",
+      "side": 1,
+      "message": "Comment out this trigger.",
+      "revId": "7dc7553bf3e857ba094fa1883474c6592f58d68a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
