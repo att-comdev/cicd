@@ -348,14 +348,16 @@ def _printActionSteps(action) {
  * @param keystoneUrl The IAM URL of the site you are authenticating against.
  * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  * @param parameters Optional map of parameters needed to create action
+ * @param genesisCreds Jenkins creds name for debug kubectl command execution during action check
+ * @param genesisIp IP address of genesis node for debug kubectl command execution
  */
-def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true, parameters = null) {
+def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true, parameters = null, genesisCreds=null, genesisIp=null) {
 
     def actionId
     stage('Action create') {
-        def req = keystone.retrieveToken(keystoneCredId, keystoneUrl, withCreds, parameters)
+        def req = keystone.retrieveToken(keystoneCredId, keystoneUrl, withCreds)
         def token = req.getHeaders()["X-Subject-Token"][0]
-        def res = createAction(uuid, token, shipyardUrl, action)
+        def res = createAction(uuid, token, shipyardUrl, action, parameters)
         def cont = new JsonSlurperClassic().parseText(res.content)
         actionId = cont.id
     }
@@ -381,15 +383,26 @@ def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds
                 error("Step ${failedSteps} failed")
             }
         }
+        def runningStepsNames = []
         runningSteps.each() {
             if ( !(it in stages) & !(it.toString() in skipSteps)) {
                 stages += it
+                runningStepsNames += it.toString()
                 stage "Step ${it}"
                 // In case of few steps in running state we may get a situation when few
                 // stages were created at the same time and only last will be closed for next
                 //stage creation. All other stages will be in running state until job is finished.
                 // Add sleep to fix this issue with hanging stages.
                 sleep 5
+            }
+        }
+        // Execute kubectl debug command only once for all running steps for each action check.
+        // For drydock_build step check nodes state. For all other check pods state.
+        if (genesisCreds && genesisIp && debug) {
+            if ('drydock_build' in runningStepsNames) {
+                ssh.cmd (genesisCreds, genesisIp, 'sudo kubectl get nodes')
+            } else {
+                ssh.cmd (genesisCreds, genesisIp, 'sudo kubectl get pods --all-namespaces | grep -vE "Completed|Running"')
             }
         }
     }
