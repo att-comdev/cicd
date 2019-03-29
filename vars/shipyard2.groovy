@@ -349,13 +349,13 @@ def _printActionSteps(action) {
  * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  * @param parameters Optional map of parameters needed to create action
  */
-def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true, parameters = null) {
+def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds=true, parameters = null, genesisCreds=null, genesisIp=null) {
 
     def actionId
     stage('Action create') {
-        def req = keystone.retrieveToken(keystoneCredId, keystoneUrl, withCreds, parameters)
+        def req = keystone.retrieveToken(keystoneCredId, keystoneUrl, withCreds)
         def token = req.getHeaders()["X-Subject-Token"][0]
-        def res = createAction(uuid, token, shipyardUrl, action)
+        def res = createAction(uuid, token, shipyardUrl, action, parameters)
         def cont = new JsonSlurperClassic().parseText(res.content)
         actionId = cont.id
     }
@@ -390,6 +390,13 @@ def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds
                 //stage creation. All other stages will be in running state until job is finished.
                 // Add sleep to fix this issue with hanging stages.
                 sleep 5
+            }
+            if (genesisCreds && genesisIp) {
+                if (it.toString() == 'drydock_build') {
+                    ssh.cmd (genesisCreds, genesisIp, 'sudo kubectl get nodes')
+                } else {
+                    ssh.cmd (genesisCreds, genesisIp, 'sudo kubectl get pods --all-namespaces')
+                }
             }
         }
     }
