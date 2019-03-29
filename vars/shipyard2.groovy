@@ -327,10 +327,10 @@ def _printActionSteps(action) {
     steps.each() {
         status += "${it.id}(${it.index}): ${it.state} state"
         if (it.state == "failed") {
-            failed += "${it.id}"
+            failed += it.id.toString()
         }
         if (it.state == "running") {
-            running += "${it.id}"
+            running += it.id.toString()
         }
     }
     print status.join("\n")
@@ -348,18 +348,40 @@ def _printActionSteps(action) {
  * @param keystoneUrl The IAM URL of the site you are authenticating against.
  * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  * @param parameters Optional map of parameters needed to create action
+ * @param genesisCreds Jenkins creds name for debug kubectl command execution during action check
+ * @param genesisIp IP address of genesis node for debug kubectl command execution
+ * Usage:
+ *        shipyard2.waitAction(action: 'deploy_site',
+ *                             uuid: 'some_uuid',
+ *                             shipyardUrl: 'http://shipyard',
+ *                             keystoneCreds: 'keystone-user-pass-creds',
+ *                             keystoneUrl: 'http://keystone',
+ *                             withCreds: true,              // optional. Default: true.
+ *                             genesisCreds: 'genesis-creds, // optional. Default: null.
+ *                             genesisIp: true)              // optional. Default: null.
  */
-def waitAction(action, uuid, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true, parameters = null) {
+def waitAction(Map map) {
 
+    mandatoryArgs = ["action", "uuid", "shipyardUrl", "keystoneCreds", "keystoneUrl"]
+    missingArgs = []
+    mandatoryArgs.each() {
+        if (!map.containsKey(it)) {
+            missingArgs += it
+        }
+    }
+    if (missingArgs) {
+        error("Must provide argumnets: ${missingArgs}")
+    }
+    def withCreds = map.withCreds ?: true
     def actionId
     stage('Action create') {
-        def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds, parameters)
+        def req = keystone.retrieveToken(map.keystoneCreds, map.keystoneUrl, withCreds)
         def token = req.getHeaders()["X-Subject-Token"][0]
-        def res = createAction(uuid, token, shipyardUrl, action)
+        def res = createAction(map.uuid, token, map.shipyardUrl, map.action, map.parameters)
         def cont = new JsonSlurperClassic().parseText(res.content)
         actionId = cont.id
     }
-    action = _getAction(actionId, shipyardUrl, keystoneCreds, keystoneUrl, withCreds)
+    action = _getAction(actionId, map.shipyardUrl, map.keystoneCreds, map.keystoneUrl, withCreds)
     def String status = action.action_lifecycle
     def failedSteps = []
     def runningSteps = []
@@ -371,10 +393,18 @@ def waitAction(action, uuid, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=
     while (status == "Pending" || status == "Processing") {
         sleep 240
 
-        action = _getAction(actionId, shipyardUrl, keystoneCreds, keystoneUrl, withCreds)
+        action = _getAction(actionId, map.shipyardUrl, map.keystoneCreds, map.keystoneUrl, withCreds)
         status = action.action_lifecycle
         print "Wait until action is complete. Currently in ${status} state."
         (failedSteps, runningSteps) = _printActionSteps(action)
+        // For drydock_build step check nodes state. For all other check pods state.
+        if (map.genesisCreds && map.genesisIp) {
+            if ('drydock_build' in failedSteps || 'drydock_build' in runningSteps) {
+                ssh.cmd (map.genesisCreds, map.genesisIp, 'sudo kubectl get nodes')
+            } else {
+                ssh.cmd (map.genesisCreds, map.genesisIp, 'sudo kubectl get pods --all-namespaces | grep -vE "Completed|Running"')
+            }
+        }
         if (failedSteps) {
             stageName = failedSteps.join(",")
             stage(stageName) {
@@ -382,7 +412,7 @@ def waitAction(action, uuid, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=
             }
         }
         runningSteps.each() {
-            if ( !(it in stages) & !(it.toString() in skipSteps)) {
+            if ( !(it in stages) & !(it in skipSteps)) {
                 stages += it
                 stage "Step ${it}"
                 // In case of few steps in running state we may get a situation when few
