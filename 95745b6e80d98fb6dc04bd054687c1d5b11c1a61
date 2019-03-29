@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49e6e72d_a33550e1",
+        "filename": "cicd/CH-SuperSeed/seed.groovy",
+        "patchSetId": 9
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1014829
+      },
+      "writtenOn": "2019-03-29T20:04:38Z",
+      "side": 1,
+      "message": "I am not seeing any related code to this parameter in the superseed.sh. Why ?",
+      "range": {
+        "startLine": 11,
+        "startChar": 3,
+        "endLine": 17,
+        "endChar": 9
+      },
+      "revId": "95745b6e80d98fb6dc04bd054687c1d5b11c1a61",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
