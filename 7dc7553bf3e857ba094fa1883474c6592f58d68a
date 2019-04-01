@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "44e7ce34_2a18ec6a",
+        "filename": "cicd/CH-SuperSeed/seed.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-04-01T14:40:41Z",
+      "side": 1,
+      "message": "there is a limitation to use pipeline job as it does not support processing DSLs. Hence using free style job instead similar to our primary superseed/seed.groovy \nI have added a comment for readability.",
+      "parentUuid": "6eea1ea4_4d44aca7",
+      "revId": "7dc7553bf3e857ba094fa1883474c6592f58d68a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9996e447_bd364e06",
         "filename": "cicd/CH-SuperSeed/seed.groovy",
         "patchSetId": 8
