@@ -353,9 +353,9 @@ def waitAction(action, uuid, shipyardUrl, keystoneCredId, keystoneUrl, withCreds
 
     def actionId
     stage('Action create') {
-        def req = keystone.retrieveToken(keystoneCredId, keystoneUrl, withCreds, parameters)
+        def req = keystone.retrieveToken(keystoneCredId, keystoneUrl, withCreds)
         def token = req.getHeaders()["X-Subject-Token"][0]
-        def res = createAction(uuid, token, shipyardUrl, action)
+        def res = createAction(uuid, token, shipyardUrl, action, parameters)
         def cont = new JsonSlurperClassic().parseText(res.content)
         actionId = cont.id
     }
