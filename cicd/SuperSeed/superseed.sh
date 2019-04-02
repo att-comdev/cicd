@@ -209,7 +209,8 @@ if [[ ! -z ${RELEASE_FILE_PATH} ]]; then
     copy_seed ${RELEASE_LIST}
 else
     lint_whitespaces
-    lint_jenkins_files
+    # temporarily disable declarative linter check as its failing on jenkins v2.107.3
+    #lint_jenkins_files
     find_seed
     check_sandbox_parameter
 

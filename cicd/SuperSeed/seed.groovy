@@ -43,6 +43,7 @@ freeStyleJob("${job_path}") {
 
     triggers {
         gerritTrigger {
+            silentMode(true)
             gerritProjects {
                 gerritProject {
                     compareType('PLAIN')
