@@ -1,5 +1,8 @@
 import att.comdev.cicd.config.conf
 
+def dockerExecLint(siteRepo, username, sshKey, siteName) {
+  sh """sudo docker exec -i pegleg pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} lint ${siteName} -x P001 -x P003"""
+}
 
 /**
  * Execution of Pegleg "lint" against a Pegleg
