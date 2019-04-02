@@ -391,3 +391,27 @@ def generateGenesis(siteRepo, username, sshKey, destinationDirectory, siteName, 
 def generateGenesisWithinContainer(siteRepo, globalRepo, username, sshKey, destinationDirectory, siteName, peglegPassphrase, peglegSalt) {
     sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -u ${username} -k ${sshKey} -r ${siteRepo} -e global=${globalRepo} genesis_bundle -b ${destinationDirectory} ${siteName}"""
 }
+
+def dockerExecLint(siteRepo, username, sshKey, siteName) {
+  sh """sudo docker exec -i pegleg pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} lint ${siteName} -x P001 -x P003"""
+}
+
+def dockerExecCollect(siteRepo, username, sshKey, siteName) {
+  sh """sudo docker exec -i pegleg pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} collect ${siteName} -s ${siteName}"""
+}
+
+def dockerExecRender(siteRepo, username, sshKey, siteName) {
+  sh """sudo docker exec -i pegleg pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} render ${siteName} -o ${siteName}.yaml"""
+}
+
+def dockerExecEncrypt(peglegPassphrase, peglegSalt, siteRepo, username, sshKey, siteName) {
+  sh """
+  sudo docker exec -i pegleg /bin/bash -c "export PEGLEG_PASSPHRASE="${peglegPassphrase}" && export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} secrets encrypt -a ${username} ${siteName}"
+  """
+}
+
+def dockerExecDecrypt(peglegPassphrase, peglegSalt, siteRepo, username, sshKey, siteName, securityRepo) {
+  sh """
+  sudo docker exec -i pegleg /bin/bash -c "export PEGLEG_PASSPHRASE="${peglegPassphrase}" && export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} secrets decrypt ${siteName} -f ${securityRepo}"
+  """
+}
