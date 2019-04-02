@@ -391,3 +391,7 @@ def generateGenesis(siteRepo, username, sshKey, destinationDirectory, siteName, 
 def generateGenesisWithinContainer(siteRepo, globalRepo, username, sshKey, destinationDirectory, siteName, peglegPassphrase, peglegSalt) {
     sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -u ${username} -k ${sshKey} -r ${siteRepo} -e global=${globalRepo} genesis_bundle -b ${destinationDirectory} ${siteName}"""
 }
+
+def dockerExecLint(siteRepo, username, sshKey, siteName) {
+  sh """sudo docker exec -i pegleg pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} lint ${siteName} -x P001 -x P003"""
+}
