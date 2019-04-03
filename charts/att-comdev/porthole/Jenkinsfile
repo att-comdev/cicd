@@ -1,0 +1,127 @@
+import att.comdev.cicd.config.conf
+
+currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+
+ARTF_REPO="att-comdev-helm-local/porthole"
+CHARTS_URL = "https://review.gerrithub.io/att-comdev/porthole"
+HELM_REPO = conf.HELM_REPO
+GIT_COMMIT = ""
+HELM_TOOLKIT_COMMIT = ""
+CHARTS_HOME = ""
+
+FLAVOR = 'm1.xlarge'
+
+def setproxy(){
+    if (HTTP_PROXY){
+
+        // redirection with "<<-" doesnot work well to remove whitespaces/tabs
+        sh"""sudo mkdir -p /etc/systemd/system/docker.service.d
+             cat << EOF | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
+[Service]
+Environment="HTTP_PROXY=${HTTP_PROXY}"
+Environment="HTTPS_PROXY=${HTTP_PROXY}"
+Environment="NO_PROXY=${NO_PROXY}"
+EOF"""
+
+        sh"""cat << EOF | sudo tee -a /etc/environment
+http_proxy=${HTTP_PROXY}
+https_proxy=${HTTP_PROXY}
+no_proxy=${NO_PROXY}
+HTTP_PROXY=${HTTP_PROXY}
+HTTPS_PROXY=${HTTP_PROXY}
+NO_PROXY=${NO_PROXY}
+EOF"""
+
+        sh "sudo systemctl daemon-reload"
+        sh "sudo systemctl restart docker"
+        sh "export http_proxy=${HTTP_PROXY}"
+        sh "export https_proxy=$HTTP_PROXY"
+        sh "export no_proxy=${NO_PROXY}"
+        sh "export HTTP_PROXY=${HTTP_PROXY}"
+        sh "export HTTPS_PROXY=${HTTP_PROXY}"
+        sh "export NO_PROXY=${NO_PROXY}"
+    }
+}
+
+node("xray-15"){
+    cleanWs()
+    sh ('hostname')
+    stage('Setup environment'){
+        sh 'env'
+        sh "echo ${HTTP_PROXY}"
+        sh "echo ${HTTPS_PROXY}"
+        sh "echo ${NO_PROXY}"
+        sh "export test_proxy=${HTTP_PROXY}"
+        setproxy()
+        // sh "sudo apt-get install make"
+    }
+    stage('Infra Helm Checkout'){
+
+        if ("${GERRIT_PROJECT}" == "${INFRA_PROJECT}" && "${GERRIT_EVENT_TYPE}" == "change-merged"){
+            sh 'echo Openstack-helm-infra ${GERRIT_NEWREV} just merged'
+            gerrit.cloneToBranch("https://git.openstack.org/${INFRA_PROJECT}", "${GERRIT_NEWREV}","openstack-helm-infra")
+            dir("${WORKSPACE}/openstack-helm-infra"){
+                HELM_TOOLKIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+            }
+        }else {
+            sh 'mkdir -p openstack-helm-infra'
+            dir("${WORKSPACE}/openstack-helm-infra") {
+                git branch: "master", url: "https://git.openstack.org/${INFRA_PROJECT}"
+                sh "git checkout ${OPENSTACK_HELM_INFRA_COMMIT}"
+                HELM_TOOLKIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+            }
+        }
+
+    }
+
+    stage('Project Checkout'){
+        if (GERRIT_PROJECT == "openstack/openstack-helm-infra"){
+            gerrit.cloneProject(CHARTS_URL,
+                                GERRIT_BRANCH,
+                                "refs/heads/${GERRIT_BRANCH}",
+                                CHARTS_HOME)
+        } else if (GERRIT_PROJECT != "openstack/openstack-helm-infra" &&
+                  (GERRIT_EVENT_TYPE == "patchset-created" ||
+                   GERRIT_EVENT_TYPE == "comment-added")){
+            gerrit.cloneToBranch(CHARTS_URL,
+                                 GERRIT_PATCHSET_REVISION,
+                                 CHARTS_HOME)
+        } else {
+            gerrit.cloneToBranch(CHARTS_URL,
+                                 GERRIT_NEWREV,
+                                 CHARTS_HOME)
+        }
+        dir(CHARTS_HOME){
+            GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
+        }
+    }
+
+    dir(CHARTS_HOME){
+        stage('Build & Package'){
+           // HELM_REPO.each { entry -> sh "helm repo add $entry.key $entry.value" }
+
+            // build all charts for openstack-helm-infra
+            def cmd = (JOB_BASE_NAME == "openstack-helm-infra") ? "make all" : "make ceph-utility calicoctl-utility"
+            def status = sh(returnStatus: true, script: cmd)
+            if (status != 0) {
+                currentBuild.result = 'FAILED'
+                error "Charts build failed for ${GIT_COMMIT}!"
+            }else{
+                print "Charts were built for ${GIT_COMMIT}"
+            }
+        }
+
+        stage('Rename tarballs'){
+            def cmd = 'rename "s/[0-9].[0-9].[0-9]/'+GIT_COMMIT+'.'+HELM_TOOLKIT_COMMIT+'/g" *.tgz'
+            echo (cmd)
+            sh(returnStatus:false, script: cmd)
+        }
+
+        stage('Publish'){
+            if("${GERRIT_EVENT_TYPE}" != "change-merged"){
+                ARTF_REPO="${ARTF_REPO}/test"
+            }
+            publish.putArtifacts("*${GIT_COMMIT}.*.tgz", "${ARTF_REPO}/")
+        }
+    }
+}
