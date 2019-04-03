@@ -238,3 +238,20 @@ def approveAction(actionName, comment="", submitter=null) {
 
     input(message: message, ok:ok, submitter: submitter)
 }
+
+/**
+ * Helper function to determine if a specific Jenkins executor exists or not
+ *
+ * @param nodeName name of the node/executor you're searching for
+ * @return true if node exists, false otherwise
+ */
+def executorExists(nodeName) {
+    Jenkins jenkins = Jenkins.instance
+    def jenkinsNodes = jenkins.nodes
+
+    if(nodeName in jenkinsNodes.name) {
+        return true
+    } else {
+        return false
+    }
+}
