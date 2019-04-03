@@ -30,17 +30,17 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
     retry(3) {
         try {
             res = httpRequest (url: shipyardUrl + "/configdocs/${bucketName}?buffermode=${bufferMode}",
-                                  httpMode: "POST",
-                                  customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
-                                                  [name: "X-Auth-Token", value: token],
-                                                  [name: "X-Context-Marker", value: uuid]],
-                                  quiet: true,
-                                  requestBody: filePath,
-                                  validResponseCodes: '200:503')
+                               httpMode: "POST",
+                               customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
+                                               [name: "X-Auth-Token", value: token],
+                                               [name: "X-Context-Marker", value: uuid]],
+                               quiet: true,
+                               requestBody: filePath,
+                               validResponseCodes: '200:503')
             _printError(201, res)
         } catch (err) {
-                sleep 120
-                error(err.getMessage())
+            sleep 120
+            error(err.getMessage())
         }
     }
     return res
@@ -67,8 +67,8 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
                               validResponseCodes: '200:503')
             _printError(200, res)
         } catch (err) {
-                sleep 120
-                error(err.getMessage())
+            sleep 120
+            error(err.getMessage())
         }
     }
     return res
@@ -79,13 +79,13 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
  * The creation of a Shipyard, utilizing its API,
  * against a site.
  *
+ * @param action The action to perform - see: https://shipyard.readthedocs.io/en/latest/API_action_commands.html?highlight=action for further details.
  * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
  * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
  * @param shipyardUrl The Shipyard FQDN of the site you are creating documents against.
- * @param action The action to perform - see: https://shipyard.readthedocs.io/en/latest/API_action_commands.html?highlight=action for further details.
  * @param parameters Optional map of parameters needed to create action
  */
-def createAction(uuid, token, shipyardUrl, action, parameters = null) {
+def createAction(action, uuid, token, shipyardUrl, parameters = null) {
 
     def req = ["name": action]
     if (parameters) {
@@ -106,8 +106,8 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
                               validResponseCodes: '200:503')
             _printError(201, res)
         } catch (err) {
-                sleep 120
-                error(err.getMessage())
+            sleep 120
+            error(err.getMessage())
         }
     }
     return res
@@ -120,12 +120,13 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
  * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
  * @param keystoneCreds Credentials (user+pass) established within Jenkins to authenticate against a site's Keystone.
  * @param keystoneUrl The IAM URL of the site you are authenticating against.
- * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  * @return List of steps for given shipyard action.
  */
-def _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
-    def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds)
-    def token = req.getHeaders()["X-Subject-Token"][0]
+def _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl) {
+
+    def token = keystone3.retrieveToken(keystoneCreds: keystoneCreds,
+                                       keystoneUrl: keystoneUrl)
+
     def res = null
     retry(3) {
         try {
@@ -158,11 +159,10 @@ def _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) 
  * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
  * @param keystoneCreds Credentials (user+pass) established within Jenkins to authenticate against a site's Keystone.
  * @param keystoneUrl The IAM URL of the site you are authenticating against.
- * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  * @return List of steps for given shipyard action.
  */
-def getSteps(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
-    action = _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true)
+def getSteps(action, shipyardUrl, keystoneCreds, keystoneUrl) {
+    action = _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl)
     return action.steps
 }
 
@@ -171,15 +171,16 @@ def getSteps(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
  * Gets state for given step.
  *
  * @param systep Step from shipyard action.
- * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
- * @param keystoneCreds Credentials (user+pass) established within Jenkins to authenticate against a site's Keystone.
+ * @param keystoneAuth Credentials (user+pass) established within Jenkins to authenticate against a site's Keystone.
  * @param keystoneUrl The IAM URL of the site you are authenticating against.
- * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
  * @return state State of the step (such as null, "success", "skipped", "running", "queued", "scheduled")
  */
-def getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
-    def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds)
-    def token = req.getHeaders()["X-Subject-Token"][0]
+def getState(systep, keystoneCreds, shipyardUrl, keystoneUrl) {
+
+    def token = keystone3.retrieveToken(keystoneCreds: keystoneCreds,
+                                       keystoneUrl: keystoneUrl)
+
     def res = null
     retry(3) {
         try {
@@ -246,9 +247,9 @@ def createConfigdocs(uuid, token, shipyardUrl, siteName) {
  * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
  * @param keystoneCreds Credentials (user+pass) established within Jenkins to authenticate against a site's Keystone.
  * @param keystoneUrl The IAM URL of the site you are authenticating against.
- * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
+ * @param withToken Boolean. Flag for if an already retrieved Keystone token is being passed with the request.
  */
-def waitStep(systep, interval, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
+def waitStep(systep, interval, shipyardUrl, keystoneCreds, keystoneUrl) {
 
     print ">> Waiting on Shipyard step: ${systep}"
 
@@ -258,7 +259,7 @@ def waitStep(systep, interval, shipyardUrl, keystoneCreds, keystoneUrl, withCred
         sleep interval
 
         retry (3) {
-            state = getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds)
+            state = getState(systep, shipyardUrl, keystoneCreds, keystoneUrl)
         }
     }
 
@@ -267,40 +268,12 @@ def waitStep(systep, interval, shipyardUrl, keystoneCreds, keystoneUrl, withCred
     }
 }
 
-
-/**
- * Helper method for waiting steps for given shipyard action.
- * Waits each step to become in success or skipped status.
- *
- * @param action Shipyard action id.
- * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
- * @param keystoneCreds Credentials (user+pass) established within Jenkins to authenticate against a site's Keystone.
- * @param keystoneUrl The IAM URL of the site you are authenticating against.
- * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
- */
-def waitActionSteps(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
-
-    def systeps = getSteps(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds)
-
-    systeps.each() {
-        if (it.id == "drydock_build" || it.id == "armada_build") {
-            stage ("Shipyard (${it.id})") {
-                waitStep(it, 240, shipyardUrl, keystoneCreds, keystoneUrl, withCreds)
-            }
-        } else {
-            waitStep(it, 4, shipyardUrl, keystoneCreds, keystoneUrl, withCreds)
-        }
-    }
-}
-
-
 /**
  * Upload config
  *
  * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
  * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
  * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
- * @param artfPath Artifactory path for executed pipeline.
  * @param siteName Site name for executed pipeline.
  */
 def uploadConfig(uuid, token, shipyardUrl, siteName) {
@@ -344,22 +317,19 @@ def _printActionSteps(action) {
  * @param action Shipyard action.
  * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
  * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ * @param token
  * @param keystoneCreds Credentials (user+pass) established within Jenkins to authenticate against a site's Keystone.
  * @param keystoneUrl The IAM URL of the site you are authenticating against.
- * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
- * @param parameters Optional map of parameters needed to create action
  */
-def waitAction(action, uuid, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true, parameters = null) {
+def waitAction(action, uuid, shipyardUrl, token, keystoneCreds, keystoneUrl) {
 
     def actionId
     stage('Action create') {
-        def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds, parameters)
-        def token = req.getHeaders()["X-Subject-Token"][0]
         def res = createAction(uuid, token, shipyardUrl, action)
         def cont = new JsonSlurperClassic().parseText(res.content)
         actionId = cont.id
     }
-    action = _getAction(actionId, shipyardUrl, keystoneCreds, keystoneUrl, withCreds)
+    action = _getAction(actionId, keystoneCreds, shipyardUrl, keystoneUrl)
     def String status = action.action_lifecycle
     def failedSteps = []
     def runningSteps = []
@@ -371,7 +341,7 @@ def waitAction(action, uuid, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=
     while (status == "Pending" || status == "Processing") {
         sleep 240
 
-        action = _getAction(actionId, shipyardUrl, keystoneCreds, keystoneUrl, withCreds)
+        action = _getAction(actionId, shipyardUrl, keystoneCreds, keystoneUrl)
         status = action.action_lifecycle
         print "Wait until action is complete. Currently in ${status} state."
         (failedSteps, runningSteps) = _printActionSteps(action)
