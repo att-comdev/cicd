@@ -14,19 +14,19 @@ freeStyleJob(job_path) {
             name ('RELEASE_FILE_PATH')
             defaultValue('src/release_file')
             description("File that points to a list of seed.groovy's to execute for a Cloudharbor site")
-            //trim(true)
+            trim(true)
         }
         stringParam {
             name ('GERRIT_REFSPEC')
             defaultValue('origin/master')
             description('Gerrit refspec')
-            //trim(true)
+            trim(true)
         }
         stringParam {
             name ('GERRIT_PROJECT')
             defaultValue('nc-cicd')
             description('Project on Gerrit')
-            //trim(true)
+            trim(true)
         }
     }
 
