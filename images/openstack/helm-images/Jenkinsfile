@@ -9,6 +9,11 @@ VERSION = 1.0
 HELM_IMAGES_URL = "https://git.openstack.org/openstack/openstack-helm-images"
 HELM_IMAGES_HOME = ""
 
+if (${JOB_BASE_NAME} == 'calicoctl-utility') {
+    BASE_IMAGE = "alpine"
+    IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${CALICOCTL_VERSION}-latest"
+}
+
 if (GERRIT_EVENT_TYPE != 'change-merged') {
     IMAGE_PREFIX += "-patchset"
 }
@@ -64,10 +69,12 @@ podTemplate(label: label,
                           OS_RELEASE=${BASE_IMAGE} \
                           IMAGE_PREFIX=${IMAGE_PREFIX}\
                           DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
+                          CALICOCTL_VERSION=${CALICOCTL_VERSION} \
                           EXTRA_BUILD_ARGS="--label org.opencontainers.image.revision=${IMAGE_TAG} \
                                             --label org.opencontainers.image.source=${GERRIT_CHANGE_URL} \
                                             --label org.opencontainers.image.revision=${VERSION}-${BUILD_NUMBER} \
                                             --label org.opencontainers.image.event=${GERRIT_EVENT_TYPE} \
+                                            --label calicoctl.version='${CALICOCTL_VERSION}' \
                                             --build-arg http_proxy=${HTTP_PROXY} \
                                             --build-arg https_proxy=${HTTPS_PROXY} \
                                             --build-arg NO_PROXY=${NO_PROXY}" \
@@ -76,7 +83,13 @@ podTemplate(label: label,
             }
 
             stage('Image Publish'){
-                publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                if (${JOB_BASE_NAME} == 'calicoctl-utility') {
+                    publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${CALICOCTL_VERSION}-${IMAGE_TAG}")
+                }
+                else {
+                    publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                }
+
                 if (GERRIT_EVENT_TYPE == 'change-merged') {
                     publish.artifactory (IMAGE, IMAGE_LATEST)
                 }
