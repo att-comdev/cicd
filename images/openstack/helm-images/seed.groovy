@@ -3,7 +3,8 @@ folder(JOB_FOLDER)
 
 def projects = ['ceph-daemon',
                 'ceph-utility',
-                'ceph-config-helper']
+                'ceph-config-helper',
+                'calicoctl-utility']
 
 projects.each { project_name ->
     JOB_BASE_NAME=project_name
@@ -37,6 +38,11 @@ projects.each { project_name ->
                 name ('GERRIT_CHANGE_URL')
                 defaultValue('manual')
                 description('Change URL')
+            }
+            stringParam {
+                name ('CALICOCTL_VERSION')
+                defaultValue('v3.4.0')
+                description('Calicoctl base image version')
             }
         }
         triggers {
