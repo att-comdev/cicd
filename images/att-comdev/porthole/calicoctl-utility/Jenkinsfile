@@ -1,0 +1,91 @@
+currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+IMAGE_PREFIX="att-comdev"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+PIP_TRUSTED_HOST="foo.com"
+PIP_INDEX_URL="https://pypi.org/simple"
+QUAY_IMAGE_LATEST="${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}"
+
+UBUNTU_BASE_IMAGES = [
+                       "calicoctl-utility" : "upstream-local/calico/ctl/v3.4.0.2019-02-05_13-02-37"
+                     ]
+SEMANTIC_RELEASE_VERSION = "1.5.0"
+
+def label = "worker-${UUID.randomUUID().toString()}"
+podTemplate(label: label,yaml: """
+           apiVersion: v1
+           kind: Pod
+           spec:
+             securityContext:
+               runAsUser: 0
+             nodeSelector:
+               jenkins-node: enabled
+           """, containers: [
+               containerTemplate(name: "ubuntu",
+                                 image: "docker-open-nc.mtn29.cci.att.com/ubuntu_copy/18.04/nc-ubuntu-18.04@sha256:a08437dd42b2d095cef653d485414fe351401c55b480f16908d5911e4ba75c0f",
+                                 command: "cat",
+                                 ttyEnabled: true)],
+               volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock', mountPath: '/var/run/docker.sock')]) {
+   node(label){
+       container("ubuntu"){
+
+          sh "apt-get install sudo make -y"
+          stage('Build & Checkout'){
+              if (GERRIT_EVENT_TYPE == 'change-merged') {
+                  echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+                  IMAGE_TAG="${GERRIT_NEWREV}"
+              }
+              gerrit.cloneToBranch("https://review.gerrithub.io/att-comdev/porthole", IMAGE_TAG,"")
+              if(GERRIT_EVENT_TYPE != 'change-merged') {
+                  gerrit.rebase()
+              }
+
+              // Either one of those images is used as a base image
+              UBUNTU_BASE_IMAGE = UBUNTU_BASE_IMAGES."${JOB_BASE_NAME}"
+              echo ("Base images: UBUNTU ${UBUNTU_BASE_IMAGE}")
+
+              withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                                                usernameVariable: 'ARTIFACTORY_USER',
+                                                passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+                  opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+                  sh "docker login ${opts} ${ARTF_SECURE_DOCKER_URL}"
+              }
+
+              // Let's try to add meta data in the image for future tracing
+              def base_sha256 = null
+              if (UBUNTU_BASE_IMAGE != null) {
+                  sh "docker pull ${ARTF_DOCKER_URL}/${UBUNTU_BASE_IMAGE}"
+                  def cmd="docker inspect --format='{{index .RepoDigests 0}}' ${ARTF_DOCKER_URL}/${UBUNTU_BASE_IMAGE}"
+                  base_sha256 = sh(returnStdout: true, script: cmd).trim()
+              }
+
+              //Add labels
+              def LABELS = "'org.label-schema.vcs-ref=${IMAGE_TAG}\
+                --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL}\
+                --label org.label-schema.base-image=${base_sha256}\
+                --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
+
+              if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+                 LABELS += " --label org.label-schema.vcs-event=${GERRIT_EVENT_TYPE}'"
+              } else {
+                 LABELS += "'"
+              }
+              dir("${WORKSPACE}/Dockerfiles/calicoctl-utility"){
+                  sh "sudo make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} \
+                                   IMAGE_NAME=${JOB_BASE_NAME} \
+                                   DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL=${LABELS} IMAGE_TAG=${IMAGE_TAG} UBUNTU_REPO=${ARTF_UBUNTU_REPO}"
+              }
+
+          }
+          stage('Publish'){
+              publish.artifactory("${IMAGE}:${IMAGE_TAG}","test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+              if (GERRIT_EVENT_TYPE == 'change-merged') {
+                  //Only going to store images on merged into this directory
+                  publish.artifactory("${IMAGE}:${IMAGE_TAG}","${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+              }
+          }
+       }
+    }
+}
