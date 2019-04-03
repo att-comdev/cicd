@@ -4,10 +4,16 @@ IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
 DOCKER_REGISTRY = "${ARTF_DOCKER_URL}"
 IMAGE_PREFIX = "openstack-helm-images"
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
-BASE_IMAGE = "ubuntu_xenial"
+BASE_IMAGE = "ubuntu:xenial"
+OS_RELEASE = "ubuntu_xenial"
 VERSION = 1.0
 HELM_IMAGES_URL = "https://git.openstack.org/openstack/openstack-helm-images"
 HELM_IMAGES_HOME = ""
+
+if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
+    BASE_IMAGE = "calico/ctl:${CALICOCTL_VERSION}"
+    OS_RELEASE = "alpine"
+}
 
 if (GERRIT_EVENT_TYPE != 'change-merged') {
     IMAGE_PREFIX += "-patchset"
@@ -58,16 +64,25 @@ podTemplate(label: label,
             stage('Build') {
                 dir (HELM_IMAGES_HOME) {
                     IMAGE_TAG += ".${BUILD_TIMESTAMP}"
-                    IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+                    if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
+                        IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${CALICOCTL_VERSION}-${IMAGE_TAG}"
+                    }
+                    else {
+                        IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+                    }
 
                     sh """make IMAGE_NAME=${JOB_BASE_NAME} \
-                          OS_RELEASE=${BASE_IMAGE} \
+                          OS_RELEASE=${OS_RELEASE} \
                           IMAGE_PREFIX=${IMAGE_PREFIX}\
                           DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
+                          CALICOCTL_VERSION=${CALICOCTL_VERSION} \
                           EXTRA_BUILD_ARGS="--label org.opencontainers.image.revision=${IMAGE_TAG} \
                                             --label org.opencontainers.image.source=${GERRIT_CHANGE_URL} \
                                             --label org.opencontainers.image.revision=${VERSION}-${BUILD_NUMBER} \
                                             --label org.opencontainers.image.event=${GERRIT_EVENT_TYPE} \
+                                            --label calicoctl.version='${CALICOCTL_VERSION}' \
+                                            --build-arg FROM=${BASE_IMAGE} \
+                                            --build-arg CALICOCTL_VERSION=${CALICOCTL_VERSION} \
                                             --build-arg http_proxy=${HTTP_PROXY} \
                                             --build-arg https_proxy=${HTTPS_PROXY} \
                                             --build-arg NO_PROXY=${NO_PROXY}" \
@@ -77,6 +92,7 @@ podTemplate(label: label,
 
             stage('Image Publish'){
                 publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+
                 if (GERRIT_EVENT_TYPE == 'change-merged') {
                     publish.artifactory (IMAGE, IMAGE_LATEST)
                 }
