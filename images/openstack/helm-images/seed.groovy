@@ -7,7 +7,8 @@ def projects = ['ceph-daemon',
                 'ceph-rbd-provisioner',
                 'ceph-cephfs-provisioner',
                 'mysql-client-utility',
-                'openstack-utility']
+                'openstack-utility',
+                'calicoctl-utility']
 
 projects.each { project_name ->
     JOB_BASE_NAME=project_name
@@ -22,6 +23,7 @@ projects.each { project_name ->
             stringParam('GERRIT_PATCHSET_REVISION','0','patchset revision')
             stringParam('GERRIT_EVENT_TYPE','patchset-created','patchset-created or change-merged')
             stringParam('GERRIT_CHANGE_URL','manual','Change URL')
+            stringParam('CALICOCTL_VERSION','v3.4.0','Calicoctl base image version')
         }
         triggers {
             gerritTrigger {
@@ -42,11 +44,6 @@ projects.each { project_name ->
                 }
                 triggerOnEvents {
                     changeMerged()
-                    patchsetCreated {
-                        excludeDrafts(true)
-                        excludeTrivialRebase(false)
-                        excludeNoCodeChange(false)
-                    }
                     commentAddedContains {
                         commentAddedCommentContains('recheck')
                     }
