@@ -1,5 +1,8 @@
 import groovy.json.JsonSlurper
 //This will change once all images/airship/xxx are deprecated
+folder("images")
+folder("images/airship")
+folder("images/airship/update")
 folder("images/airship/update/airship-shipyard")
 folder("images/airship/update/airship-maas")
 folder("images/airship/patchset")
@@ -69,11 +72,13 @@ for (entry in object.github) {
                 defaultValue("${entry.repo}")
                 description('Name of repo in airship to build')
                 name ('GIT_REPO')
+                trim(true)
             }
             stringParam {
                 defaultValue("1.0.0")
                 description('Put RC version here')
                 name('VERSION')
+                trim(true)
             }
         }
         configure {
@@ -144,11 +149,13 @@ for (entry in object.github) {
                 defaultValue("${entry.repo}")
                 description('Name of repo in airship to build')
                 name ('GIT_REPO')
+                trim(true)
             }
             stringParam {
                 defaultValue("1.0.0")
                 description('Put RC version here')
                 name('VERSION')
+                trim(true)
             }
         }
         configure {
