@@ -1,7 +1,7 @@
 currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
 ARMADA_COMMIT=""
 
-vm(flavor: "m1.large"){
+vm2(flavor: "m1.large"){
     sh ('hostname')
     stage('Setup environment'){
         vm2.setproxy()
@@ -49,6 +49,7 @@ vm(flavor: "m1.large"){
     }
     dir("${WORKSPACE}/${JOB_BASE_NAME}"){
         stage('Build & Package'){
+            sh 'sudo apt update'
             sh 'sudo apt-get install -y make'
             def status = sh(returnStatus: true, script: "sudo make charts")
             if (status != 0) {
