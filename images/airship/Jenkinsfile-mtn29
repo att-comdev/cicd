@@ -68,7 +68,7 @@ node("slave03"){
             IMAGE_TAG="${GERRIT_NEWREV}"
         }
         sh "sudo apt-get update -y"
-        sh "sudo apt-get install python3-setuptools ssh curl"
+        sh "sudo apt-get install -y python3-setuptools ssh curl"
         gerrit.cloneToBranch("${GIT_REPO}", IMAGE_TAG,"")
 
         if(GERRIT_EVENT_TYPE != 'change-merged') {
