@@ -69,11 +69,13 @@ for (entry in object.github) {
                 defaultValue("${entry.repo}")
                 description('Name of repo in airship to build')
                 name ('GIT_REPO')
+                trim(true)
             }
             stringParam {
                 defaultValue("1.0.0")
                 description('Put RC version here')
                 name('VERSION')
+                trim(true)
             }
         }
         configure {
@@ -144,11 +146,13 @@ for (entry in object.github) {
                 defaultValue("${entry.repo}")
                 description('Name of repo in airship to build')
                 name ('GIT_REPO')
+                trim(true)
             }
             stringParam {
                 defaultValue("1.0.0")
                 description('Put RC version here')
                 name('VERSION')
+                trim(true)
             }
         }
         configure {
