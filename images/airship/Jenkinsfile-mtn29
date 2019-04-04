@@ -128,7 +128,7 @@ node("slave03"){
         //         Hence we need on JenkinsJob per image
         sh "sudo make images SSTREAM_IMAGE=https://${ARTF_WEB_URL}/simplestream USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} \
                              PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE} UBUNTU_BASE_IMAGE=${UBUNTU_BASE_IMAGE} IMAGE_NAME=${JOB_BASE_NAME} \
-                             DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL=${LABELS} IMAGE_TAG=${IMAGE_TAG} UBUNTU_REPO=${ARTF_UBUNTU_REPO} \
+                             DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL=${LABELS} IMAGE_TAG=${IMAGE_TAG} \
                              PIP_TRUSTED_HOST=${PIP_TRUSTED_HOST} PIP_INDEX_URL=${PIP_INDEX_URL}"
 
     }

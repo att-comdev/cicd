@@ -45,6 +45,7 @@ vm(flavor: "m1.large"){
     }
     dir("${WORKSPACE}/${JOB_BASE_NAME}"){
         stage('Build & Package'){
+            sh 'sudo apt update'
             sh 'sudo apt-get install -y make'
             def status = sh(returnStatus: true, script: "sudo make charts HTK_COMMIT=${HELM_TOOLKIT_COMMIT}")
             if (status != 0) {
