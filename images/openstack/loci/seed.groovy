@@ -1,5 +1,6 @@
 
 JOB_BASE='images/openstack/loci'
+folder("${JOB_BASE}")
 folder("${JOB_BASE}/community")
 folder("${JOB_BASE}/mos")
 // { project: 'ref' }
@@ -41,6 +42,7 @@ COMMUNITY_PROJECTS.each { project, ref ->
                 description('Default branch for manual build.\n\n' +
                             'Currently master, stable/<branch>, and newton-eol are supported')
                 name ('PROJECT_REF')
+                trim(true)
             }
         }
         triggers {
@@ -105,18 +107,21 @@ MOS_PROJECTS.each { project, ref ->
                 description('Default reference for manual build.\n\n' +
                             'Branch or gerrit refspec is supported.')
                 name ('PROJECT_REF')
+                trim(true)
             }
             stringParam {
                 defaultValue(ref)
                 description('Default branch for manual build.\n\n' +
                             'Currently master is supported.')
                 name ('PROJECT_BRANCH')
+                trim(true)
             }
             stringParam {
                 defaultValue('')
                 description('Url to requirements loci image.\n\n' +
                             'If empty, default one is used.')
                 name ('REQUIREMENTS_LOCI_IMAGE')
+                trim(true)
             }
         }
         triggers {
