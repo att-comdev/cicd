@@ -64,7 +64,7 @@ def retrieveToken(keystoneCreds, keystoneUrl, withCreds=true, username='shipyard
                                           requestBody: jreq)
                     } catch(err) {
                         sleep 120
-                        error(err)
+                        error(err.getMessage())
                     }
                 }
             }
