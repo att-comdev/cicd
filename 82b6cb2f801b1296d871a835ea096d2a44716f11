@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5e88682_9dfe660f",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 14
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2019-04-08T22:10:45Z",
+      "side": 1,
+      "message": "does this return false if it\u0027s empty, true if not?",
+      "range": {
+        "startLine": 372,
+        "startChar": 8,
+        "endLine": 372,
+        "endChar": 19
+      },
+      "revId": "82b6cb2f801b1296d871a835ea096d2a44716f11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0df3f224_89234cb8",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 14
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2019-04-08T22:10:45Z",
+      "side": 1,
+      "message": "arguments*",
+      "range": {
+        "startLine": 373,
+        "startChar": 28,
+        "endLine": 373,
+        "endChar": 37
+      },
+      "revId": "82b6cb2f801b1296d871a835ea096d2a44716f11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
