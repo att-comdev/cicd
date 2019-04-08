@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "446a3a5d_a2c4e45b",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 12
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2019-04-08T17:53:54Z",
+      "side": 1,
+      "message": "Would it be beneficial here to look at passing in a Map of params, like we do with the keystone lib? The list of required vars to pass in isn\u0027t necessarily growing, since we use defaults, but the level of confusion if these are used may be increasing.",
+      "range": {
+        "startLine": 354,
+        "startChar": 0,
+        "endLine": 354,
+        "endChar": 141
+      },
+      "revId": "d16f4b87ace9fe5c3645327cb70ebfca97c2c713",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
