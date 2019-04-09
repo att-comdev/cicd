@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2f7e120f_ab16c0b8",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1014586
+      },
+      "writtenOn": "2019-04-09T21:30:07Z",
+      "side": 1,
+      "message": "Yes, this is one extra parameter we are passing. Its harmless for other containers",
+      "parentUuid": "87b31dad_d0676474",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 1
+      },
+      "revId": "edac78637c680d6e260e458b825ccb324d97602c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "61157b46_340604fb",
         "filename": "images/openstack/helm-images/Jenkinsfile",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "edac78637c680d6e260e458b825ccb324d97602c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44cc7346_63899183",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1014586
+      },
+      "writtenOn": "2019-04-09T21:30:07Z",
+      "side": 1,
+      "message": "Yes, thats correct. I was waiting for comments in upstream patchset to change this. Anyways now I shall update it as there is no reply to my comments",
+      "parentUuid": "61157b46_340604fb",
+      "range": {
+        "startLine": 86,
+        "startChar": 82,
+        "endLine": 86,
+        "endChar": 91
+      },
+      "revId": "edac78637c680d6e260e458b825ccb324d97602c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
