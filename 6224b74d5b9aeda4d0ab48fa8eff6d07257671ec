@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58b9eec9_28210827",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 15
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-04-10T18:11:54Z",
+      "side": 1,
+      "message": "If error is going to exit out, why not put the error above and not continue looping, with a message saying what arguments are required?",
+      "revId": "6224b74d5b9aeda4d0ab48fa8eff6d07257671ec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
