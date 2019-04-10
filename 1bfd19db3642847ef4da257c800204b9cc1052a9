@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf72b156_935c98d5",
+        "filename": "images/openstack/helm-images/seed.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1015234
+      },
+      "writtenOn": "2019-04-10T15:03:32Z",
+      "side": 1,
+      "message": "Due to newer jenkins, please add the following line for each stringParam, example\n           stringParam { \n                name (\u0027GERRIT_CHANGE_URL\u0027) \n                defaultValue(\u0027manual\u0027) \n                description(\u0027Change URL\u0027) \n                trim(true) \n            }",
+      "range": {
+        "startLine": 45,
+        "startChar": 16,
+        "endLine": 45,
+        "endChar": 27
+      },
+      "revId": "1bfd19db3642847ef4da257c800204b9cc1052a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
