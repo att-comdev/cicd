@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddeb0778_9e3f90e8",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-04-10T21:34:48Z",
+      "side": 1,
+      "message": "ubuntu:xenial ?",
+      "revId": "6bddd3c80715ca65e1ca655611535206fa3492c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "750eb081_b835d935",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-04-10T21:34:48Z",
+      "side": 1,
+      "message": "can you surround \"${JOB_BASE_NAME}\"",
+      "revId": "6bddd3c80715ca65e1ca655611535206fa3492c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
