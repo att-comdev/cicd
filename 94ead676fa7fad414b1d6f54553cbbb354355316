@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f911035_2bbeaacc",
+        "filename": "charts/airship/airship-divingbell/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1013049
+      },
+      "writtenOn": "2019-04-12T19:43:50Z",
+      "side": 1,
+      "message": "Should this be \u0027apt-get\u0027 instead of apt?  When I did the Divingbell apt update Craig mentioned apt-get was better for scripts (I\u0027m not sure why, both worked in my testing).",
+      "range": {
+        "startLine": 48,
+        "startChar": 21,
+        "endLine": 48,
+        "endChar": 24
+      },
+      "revId": "94ead676fa7fad414b1d6f54553cbbb354355316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83c8de72_1f06ed4f",
+        "filename": "charts/airship/airship-drydock/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1013049
+      },
+      "writtenOn": "2019-04-12T19:43:50Z",
+      "side": 1,
+      "message": "Ditto.  (Not going to ditto all of them).",
+      "range": {
+        "startLine": 48,
+        "startChar": 21,
+        "endLine": 48,
+        "endChar": 24
+      },
+      "revId": "94ead676fa7fad414b1d6f54553cbbb354355316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
