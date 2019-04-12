@@ -173,12 +173,9 @@ def generateYaml(siteName, sitePath=".") {
  * @param jnlpImage Which JNLP image to use and where to source it from
  * @return pod desription
  */
-def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0", priAffinityKey="jenkins-node-primary",
-        secAffinityKey="jenkins-node-secondary") {
+def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0") {
 
     uid = runAsUid.trim()
-    priLabel = priAffinityKey.trim()
-    secLabel = secAffinityKey.trim()
     image = jnlpImage.trim()
 
     return """
@@ -191,23 +188,8 @@ def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0", priAf
         args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
       securityContext:
         runAsUser: ${uid}
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-              - key: ${priLabel}
-                operator: In
-                values:
-                - enabled
-          - weight: 1
-            preference:
-              matchExpressions:
-              - key: ${secLabel}
-                operator: In
-                values:
-                - enabled
+      nodeSelector:
+        jenkins-node: enabled
     """
 }
 
