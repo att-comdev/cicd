@@ -1,0 +1,89 @@
+import com.att.nccicd.config.conf
+
+IMAGE_TAG = BUILD_TIMESTAMP
+DOCKER_REGISTRY = ARTF_DOCKER_URL
+IMAGE_PREFIX = "code-review-image"
+BASE_IMAGE = (env.BASE_IMAGE) ? BASE_IMAGE : conf.POD_IMAGE_1604
+IMAGE_NAME = BASE_IMAGE.split('/')[-1].split('@|:')[0]
+IMAGE_PATH = "${IMAGE_PREFIX}/${IMAGE_NAME}-addons:${IMAGE_TAG}"
+IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PATH}"
+VERSION = 1.0
+
+currentBuild.displayName = "#${BUILD_NUMBER} - MANUAL"
+
+def label = "worker-${UUID.randomUUID().toString()}"
+podTemplate(label: label,
+            yaml: """
+                     apiVersion: v1
+                     kind: Pod
+                     spec:
+                       securityContext:
+                         runAsUser: 0
+                       nodeSelector:
+                         jenkins-node: enabled
+                  """,
+            containers: [containerTemplate(name: "ubuntu",
+                                           image: BASE_IMAGE,
+                                           command: "cat",
+                                           ttyEnabled: true)],
+            volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock',
+                                     mountPath: '/var/run/docker.sock')]) {
+    node(label){
+        container("ubuntu"){
+
+            stage('Setup environment'){
+                sh "apt-get update"
+                sh "apt-get install sudo docker.io -y"
+            }
+
+            stage('Create Dockerfile') {
+                sh """cat << EOF | sudo tee -a Dockerfile-code-review
+FROM ${BASE_IMAGE}
+RUN apt-get update && \\
+    apt-get install -y \\
+            sudo \\
+            git \\
+            make \\
+            gcc \\
+            python \\
+            build-essential \\
+            python3-minimal \\
+            python3-setuptools \\
+            python-pip \\
+            python-dev \\
+            python-flake8 \\
+            python3-pip \\
+            libffi-dev \\
+            gettext \\
+            bandit \\
+            mongodb \\
+            libpq-dev \\
+            libldap2-dev \\
+            libsasl2-dev \\
+            libssl-dev \\
+            libcurl4-openssl-dev
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir tox
+EOF"""
+                sh 'cat  Dockerfile-code-review'
+            }
+            stage('Build image'){
+                sh "sudo docker pull ${BASE_IMAGE}"
+                def cmd="sudo docker inspect --format='{{index .RepoDigests 0}}' ${BASE_IMAGE}"
+                def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+                sh """sudo docker build --force-rm --no-cache \
+                      --build-arg http_proxy=${HTTP_PROXY} \
+                      --build-arg https_proxy=${HTTPS_PROXY} \
+                      --build-arg NO_PROXY=${NO_PROXY} \
+                      --label org.opencontainers.image.base-image=${base_sha256} \
+                      --label org.opencontainers.image.revision=${VERSION}-${BUILD_NUMBER} \
+                      --label org.opencontainers.image.event="MANUAL" \
+                      -f ./Dockerfile-code-review \
+                      -t ${IMAGE} ."""
+            }
+            stage('Image Publish'){
+                publish.artifactory(IMAGE, IMAGE_PATH)
+            }
+        }
+    }
+}
