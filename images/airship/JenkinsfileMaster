@@ -19,7 +19,7 @@ UBUNTU_BASE_IMAGES = [ "airflow" : "att-comdev/ubuntu:xenial",
                        "sstream-cache" : "att-comdev/ubuntu:xenial" ]
 SEMANTIC_RELEASE_VERSION = "0.1.0"
 
-vm(flavor: "m1.large") {
+vm(flavor: "m1.large", image:'cicd-ubuntu-18.04-server-cloudimg-amd64') {
 
     stage('Build & Checkout'){
         vm2.setproxy()
