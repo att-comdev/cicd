@@ -10,7 +10,8 @@ import att.comdev.cicd.config.conf
  */
 def runDind(String artifactoryURL, String artifactoryCred, String containerName) {
     def opts = "--privileged --name ${containerName}" +
-               " -e HTTP_PROXY=${HTTP_PROXY} -e HTTPS_PROXY=${HTTP_PROXY} "
+               " -e HTTP_PROXY=${HTTP_PROXY} -e HTTPS_PROXY=${HTTP_PROXY}" +
+               " -e NO_PROXY=${NO_PROXY} "
     def mounts = '-v /var/lib/docker' +
                  ' -v $(pwd):/opt/loci'
 
