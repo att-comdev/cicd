@@ -18,7 +18,7 @@ vm(NODE_NAME, NODE_TMPL) {
             IMAGE_TAG=env.GERRIT_NEWREV
             IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
         }
-        gerrit.cloneToBranch("https://git.openstack.org/openstack/airship-pegleg", IMAGE_TAG,"")
+        gerrit.cloneToBranch("https://review.opendev.org/airship/pegleg", IMAGE_TAG,"")
         if(GERRIT_EVENT_TYPE != 'change-merged') {
               gerrit.rebase()
         }
