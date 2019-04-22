@@ -1,56 +1,56 @@
 import groovy.json.JsonSlurper
 //This will change once all images/airship/xxx are deprecated
-folder("images/airship/mtn29/airship-shipyard")
-folder("images/airship/mtn29/airship-maas")
+folder("images/airship/mtn29/shipyard")
+folder("images/airship/mtn29/maas")
 folder("images/airship/patchset")
 def imagesJson = '''{ "github":[{
-                               "repo":"https://git.openstack.org/openstack/airship-shipyard",
-                               "directory":"images/airship/mtn29/airship-shipyard/shipyard",
+                               "repo":"https://review.opendev.org/airship/shipyard",
+                               "directory":"images/airship/mtn29/shipyard/shipyard",
                                "image":"shipyard",
                                "name":"shipyard"
                             },{
-                               "repo":"https://git.openstack.org/openstack/airship-shipyard",
-                                "directory":"images/airship/mtn29/airship-shipyard/airflow",
+                               "repo":"https://review.opendev.org/airship/shipyard",
+                                "directory":"images/airship/mtn29/shipyard/airflow",
                                 "image":"airflow",
                                 "name":"shipyard"
                             },{
-                               "repo":"https://git.openstack.org/openstack/airship-drydock",
-                                "directory":"images/airship/mtn29/airship-drydock",
+                               "repo":"https://review.opendev.org/airship/drydock",
+                                "directory":"images/airship/mtn29/drydock",
                                 "image":"drydock",
                                 "name":"drydock"
                             },{
-                                "repo":"https://git.openstack.org/openstack/airship-maas",
-                                "directory":"images/airship/mtn29/airship-maas/maas-region-controller",
+                                "repo":"https://review.opendev.org/airship/maas",
+                                "directory":"images/airship/mtn29/maas/maas-region-controller",
                                 "image":"maas-region-controller",
                                 "name":"maas"
                             },{
-                                "repo":"https://git.openstack.org/openstack/airship-maas",
-                                "directory":"images/airship/mtn29/airship-maas/maas-rack-controller",
+                                "repo":"https://review.opendev.org/airship/maas",
+                                "directory":"images/airship/mtn29/maas/maas-rack-controller",
                                 "image":"maas-rack-controller",
                                 "name":"maas"
                             },{
-                                "repo":"https://git.openstack.org/openstack/airship-maas",
-                                "directory":"images/airship/mtn29/airship-maas/sstream-cache",
+                                "repo":"https://review.opendev.org/airship/maas",
+                                "directory":"images/airship/mtn29/maas/sstream-cache",
                                 "image":"sstream-cache",
                                 "name":"maas"
                             },{
-                                "repo":"https://git.openstack.org/openstack/airship-deckhand",
-                                "directory":"images/airship/mtn29/airship-deckhand",
+                                "repo":"https://review.opendev.org/airship/deckhand",
+                                "directory":"images/airship/mtn29/deckhand",
                                 "image":"deckhand",
                                 "name":"deckhand"
                             },{
-                                "repo":"https://git.openstack.org/openstack/airship-armada",
-                                "directory":"images/airship/mtn29/airship-armada",
+                                "repo":"https://review.opendev.org/airship/armada",
+                                "directory":"images/airship/mtn29/armada",
                                 "image":"armada",
                                 "name":"armada"
                             },{
-                                "repo":"https://git.openstack.org/openstack/airship-pegleg",
-                                "directory":"images/airship/mtn29/airship-pegleg",
+                                "repo":"https://review.opendev.org/airship/pegleg",
+                                "directory":"images/airship/mtn29/pegleg",
                                 "image":"pegleg",
                                 "name":"pegleg"
                             },{
-                                "repo":"https://git.openstack.org/openstack/airship-promenade",
-                                "directory":"images/airship/mtn29/airship-promenade",
+                                "repo":"https://review.opendev.org/airship/promenade",
+                                "directory":"images/airship/mtn29/promenade",
                                 "image":"promenade",
                                 "name":"promenade"
                             }]}'''
@@ -114,7 +114,7 @@ for (entry in object.github) {
                 gerritProjects {
                     gerritProject {
                         compareType('PLAIN')
-                        pattern("openstack/airship-${entry.name}")
+                        pattern("airship/${entry.name}")
                         branches {
                             branch {
                                 compareType("ANT")
@@ -143,8 +143,8 @@ for (entry in object.github) {
 }
 
 imagesJson = '''{ "github":[{
-                                "repo":"https://git.openstack.org/openstack/airship-promenade",
-                                "directory":"images/airship/patchset/airship-promenade",
+                                "repo":"https://review.opendev.org/airship/promenade",
+                                "directory":"images/airship/patchset/promenade",
                                 "image":"multi-node-promenade",
                                 "name":"promenade",
                                 "jenkinsfile_loc":"JenkinsfilePromenade"
@@ -184,7 +184,7 @@ for (entry in object.github) {
                 gerritProjects {
                     gerritProject {
                         compareType('PLAIN')
-                        pattern("openstack/airship-${entry.name}")
+                        pattern("airship/${entry.name}")
                         branches {
                             branch {
                                 compareType("ANT")
