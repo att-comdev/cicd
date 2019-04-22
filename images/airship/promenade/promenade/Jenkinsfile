@@ -92,7 +92,7 @@ vms {
                             relativeTargetDir: ""]],
                             submoduleCfg: [],
                             userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-                                                 url: "https://git.openstack.org/openstack/airship-${JOB_BASE_NAME}"]]]
+                                                 url: "https://opendev.org/airship/${JOB_BASE_NAME}"]]]
             if(GERRIT_EVENT_TYPE != 'change-merged') {
                 sh '''git config user.email "attcomdev.jenkins@gmail.com"
                     git config user.name "Jenkins"
