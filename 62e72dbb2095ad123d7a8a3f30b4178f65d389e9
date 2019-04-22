@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d72acdc_03c59212",
+        "filename": "images/airship/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-04-22T19:59:58Z",
+      "side": 1,
+      "message": "Looks like this is not working for refs. We might need review.opendev.org",
+      "range": {
+        "startLine": 10,
+        "startChar": 47,
+        "endLine": 10,
+        "endChar": 58
+      },
+      "revId": "62e72dbb2095ad123d7a8a3f30b4178f65d389e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
