@@ -54,7 +54,7 @@ def promenade_stage = { item ->
 vm(NODE_NAME, NODE_TMPL) {
 
     stage('Prepare') {
-        gerrit.clone("https://git.openstack.org/openstack/airship-promenade", GERRIT_REFSPEC)
+        gerrit.clone("https://opendev.org/airship/promenade", GERRIT_REFSPEC)
 
         ansiColor('xterm') {
             sh "${WORKSPACE}/tools/setup_gate.sh"
