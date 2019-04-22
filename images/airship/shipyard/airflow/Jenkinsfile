@@ -18,7 +18,7 @@ vm(NODE_NAME, NODE_TMPL) {
             IMAGE_TAG=env.GERRIT_NEWREV
             IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
         }
-        gerrit.cloneToBranch("https://git.openstack.org/openstack/airship-shipyard", IMAGE_TAG,"")
+        gerrit.cloneToBranch("https://opendev.org/airship/shipyard", IMAGE_TAG,"")
         if(GERRIT_EVENT_TYPE != 'change-merged') {
             sh '''git config user.email "airship.jenkins@gmail.com"
                   git config user.name "Jenkins"
