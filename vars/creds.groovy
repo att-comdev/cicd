@@ -1,3 +1,4 @@
+import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
 import com.cloudbees.plugins.credentials.impl.*;
 import com.cloudbees.plugins.credentials.*;
 import com.cloudbees.plugins.credentials.domains.*;
@@ -32,6 +33,20 @@ def getGlobalCredIds() {
 def createGlobalCred(id, description, user, pass) {
     Credentials c = (Credentials) new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, id, description, user, pass)
     SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), c)
+}
+
+/**
+ * Create a Global SSH user/key credential within Jenkins
+ *
+ * @param id the ID you wish the global credential to have
+ * @param description the description you wish the global credential to have
+ * @param user the username of the global credential you're creating
+ * @param key the private key of the global credential you're creating
+*/
+def createGlobalSshCred(id, description, user, key) {
+    def privateKeySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(key)
+    def secret = new BasicSSHUserPrivateKey(CredentialsScope.GLOBAL, id, user, privateKeySource, "", id)
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), secret)
 }
 
 /**
