@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1830207_e3916ab3",
+        "filename": "vars/creds.groovy",
+        "patchSetId": 13
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-04-22T16:29:36Z",
+      "side": 1,
+      "message": "I think this method is not required, when we pass create credentials it will replace if there is an existing creds with same id",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 1
+      },
+      "revId": "2c638cf28beb9795b0a85b2717cd3a97127db55e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
