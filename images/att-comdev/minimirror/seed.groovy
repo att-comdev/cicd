@@ -13,6 +13,8 @@ pipelineJob("${JOB_FOLDER}/minimirror") {
     }
     parameters {
         stringParam('MINIMIRROR_PROJECT',"openstack/openstack-helm-images")
+        /* TODO(drewwalters96): Make reference to master once mini-mirror sources
+           merged. */
         stringParam('CLCP_MANIFESTS',"refs/changes/47/53947/48")
     }
     triggers {

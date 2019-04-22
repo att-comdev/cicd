@@ -40,15 +40,15 @@ podTemplate(label: label,yaml: """
             stage("checkout"){
                 if("${GERRIT_PROJECT}" == "${MINIMIRROR_PROJECT}" && env.GERRIT_NEWREV){
                     echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
-                    gerrit.cloneToBranch("https://git.openstack.org/openstack/openstack-helm-images",  "${GERRIT_NEWREV}", "${JOB_BASE_NAME}")
+                    gerrit.cloneToBranch("https://opendev.org/openstack/openstack-helm-images",  "${GERRIT_NEWREV}", "${JOB_BASE_NAME}")
                 }
                 else if("${GERRIT_PROJECT}" == "${MINIMIRROR_PROJECT}" && GERRIT_EVENT_TYPE != 'change-merged') {
-                    gerrit.cloneToBranch("https://git.openstack.org/openstack/openstack-helm-images", "${GERRIT_PATCHSET_REVISION}", "${JOB_BASE_NAME}")
+                    gerrit.cloneToBranch("https://opendev.org/openstack/openstack-helm-images", "${GERRIT_PATCHSET_REVISION}", "${JOB_BASE_NAME}")
                 }
                 else {
                     sh "mkdir -p  ${JOB_BASE_NAME}"
                     dir("${WORKSPACE}/${JOB_BASE_NAME}") {
-                        git "https://git.openstack.org/openstack/openstack-helm-images"
+                        git "https://opendev.org/openstack/openstack-helm-images"
                         sh "git checkout master"
                     }
                 }
