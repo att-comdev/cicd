@@ -1,3 +1,5 @@
+import hudson.plugins.sshslaves.*;
+import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
 import com.cloudbees.plugins.credentials.impl.*;
 import com.cloudbees.plugins.credentials.*;
 import com.cloudbees.plugins.credentials.domains.*;
@@ -35,6 +37,33 @@ def createGlobalCred(id, description, user, pass) {
 }
 
 /**
+ * Create a Global SSH user/key credential within Jenkins
+ *
+ * @param id the ID you wish the global credential to have
+ * @param description the description you wish the global credential to have
+ * @param user the username of the global credential you're creating
+ * @param key the private key of the global credential you're creating
+*/
+def createGlobalSshCred(id, description, user, key) {
+    def privateKeySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(key)
+    def secret = new BasicSSHUserPrivateKey(CredentialsScope.GLOBAL, id, user, privateKeySource, "", id)
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), secret)
+}
+
+/**
+ * Delete a Global SSH user/key credential within Jenkins
+ *
+ * @param id the ID you wish the global credential to have
+*/
+def deleteGlobalSshCred(id) {
+    def globalCreds = getGlobalCreds()
+    def c = globalCreds.findResult { it.id == id ? it : null }
+    if (c) {
+        SystemCredentialsProvider.getInstance().getStore().removeCredentials(Domain.global(), c)
+    }
+}
+
+/**
  * Delete a Global user/password credential within Jenkins
  *
  * @param id the ID of the established global credential
@@ -59,4 +88,15 @@ def deleteGlobalCred(id, description, user, pass) {
 def recreateGlobalCred(id, description, user, pass) {
     deleteGlobalCred(id, description, user, pass)
     createGlobalCred(id, description, user, pass)
+}
+
+/** Helper for update ssh key for jenkins slave
+ *
+ * @param node String Slave's name
+ * @param key String New cred id
+ */
+def updateSshKeySlave(node, key) {
+    def slave = Hudson.instance.slaves.find({it.name == node});
+    def slaveLauncher = slave.getLauncher()
+    slaveLauncher.credentialsId = key
 }
