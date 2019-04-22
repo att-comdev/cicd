@@ -22,6 +22,30 @@
       "revId": "2c638cf28beb9795b0a85b2717cd3a97127db55e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2b774bd_54a9b7cb",
+        "filename": "vars/creds.groovy",
+        "patchSetId": 13
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2019-04-22T17:53:21Z",
+      "side": 1,
+      "message": "Thanks for the heads-up, Sai. Since this has already been tested downstream, I\u0027ll follow-up with a change in a separate PS.",
+      "parentUuid": "a1830207_e3916ab3",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 1
+      },
+      "revId": "2c638cf28beb9795b0a85b2717cd3a97127db55e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
