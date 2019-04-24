@@ -81,7 +81,7 @@ podTemplate(label: label,
                                             --build-arg CALICOCTL_VERSION=${CALICOCTL_VERSION} \
                                             --build-arg http_proxy=${HTTP_PROXY} \
                                             --build-arg https_proxy=${HTTPS_PROXY} \
-                                            --build-arg NO_PROXY=${NO_PROXY}" \
+                                            --build-arg NO_PROXY=${NO_PROXY} \
                           IMAGE_TAG=${IMAGE_TAG}"""
                 }
             }
