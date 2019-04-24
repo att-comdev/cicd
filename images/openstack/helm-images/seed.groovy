@@ -4,7 +4,8 @@ folder(JOB_FOLDER)
 def projects = ['ceph-daemon',
                 'ceph-utility',
                 'ceph-config-helper',
-                'calicoctl-utility']
+                'calicoctl-utility',
+                'openvswitch']
 
 projects.each { project_name ->
     JOB_BASE_NAME=project_name
@@ -48,6 +49,18 @@ projects.each { project_name ->
                 name ('CALICOCTL_VERSION')
                 defaultValue('v3.4.0')
                 description('Calicoctl base image version')
+                trim(true)
+            }
+            stringParam {
+                name ('OVS_VERSION')
+                defaultValue('2.10.1')
+                description('openvswitch version')
+                trim(true)
+            }
+            stringParam {
+                name ('DPDK_VERSION')
+                defaultValue('17.11.5')
+                description('DPDK version')
                 trim(true)
             }
         }
