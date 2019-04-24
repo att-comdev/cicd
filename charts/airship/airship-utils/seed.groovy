@@ -2,7 +2,7 @@ import groovy.json.JsonSlurper
 
 def chartsJson = '''{ "airship":[{
                         "repo_name":"airship-utils",
-                        "git_repo":"openstack/airship-utils",
+                        "git_repo":"airship/utils",
                         "ref":"master"
                     }]}'''
 

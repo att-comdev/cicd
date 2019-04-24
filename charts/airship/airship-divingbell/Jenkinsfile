@@ -11,14 +11,14 @@ vm(flavor: "m1.large"){
 
         if ("${GERRIT_PROJECT}" == "${INFRA_PROJECT}" && "${GERRIT_EVENT_TYPE}" == "change-merged"){
             sh 'echo Openstack-helm-infra ${GERRIT_NEWREV} just merged'
-            gerrit.cloneToBranch("https://git.openstack.org/${INFRA_PROJECT}", "${GERRIT_NEWREV}","openstack-helm-infra")
+            gerrit.cloneToBranch("https://review.opendev.org/${INFRA_PROJECT}", "${GERRIT_NEWREV}","openstack-helm-infra")
             dir("${WORKSPACE}/openstack-helm-infra"){
                 HELM_TOOLKIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
             }
         }else {
             sh 'mkdir -p openstack-helm-infra'
             dir("${WORKSPACE}/openstack-helm-infra") {
-                git branch: "master", url: "https://git.openstack.org/${INFRA_PROJECT}"
+                git branch: "master", url: "https://review.opendev.org/${INFRA_PROJECT}"
                 sh "git checkout ${OPENSTACK_HELM_INFRA_COMMIT}"
                 HELM_TOOLKIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse --short=12 HEAD').trim()
             }
@@ -27,14 +27,14 @@ vm(flavor: "m1.large"){
     stage('Divingbell Checkout'){
         if ("${GERRIT_PROJECT}" == "${DIVINGBELL_PROJECT}" && "${GERRIT_EVENT_TYPE}" != "change-merged") {
             sh 'echo Divingbell commit SHA: ${GERRIT_PATCHSET_REVISION}'
-            gerrit.cloneToBranch("https://git.openstack.org/${DIVINGBELL_PROJECT}", "${GERRIT_PATCHSET_REVISION}", "${JOB_BASE_NAME}")
+            gerrit.cloneToBranch("https://review.opendev.org/${DIVINGBELL_PROJECT}", "${GERRIT_PATCHSET_REVISION}", "${JOB_BASE_NAME}")
         }else if ("${GERRIT_PROJECT}" == "${DIVINGBELL_PROJECT}" && "${GERRIT_EVENT_TYPE}" == "change-merged"){
             sh 'echo Divingbell commit SHA: ${GERRIT_NEWREV}'
-            gerrit.cloneToBranch("https://git.openstack.org/${DIVINGBELL_PROJECT}", "${GERRIT_NEWREV}", "${JOB_BASE_NAME}")
+            gerrit.cloneToBranch("https://review.opendev.org/${DIVINGBELL_PROJECT}", "${GERRIT_NEWREV}", "${JOB_BASE_NAME}")
         }else{
             sh 'mkdir -p ${JOB_BASE_NAME}'
             dir("${WORKSPACE}/${JOB_BASE_NAME}") {
-                git "https://git.openstack.org/${DIVINGBELL_PROJECT}"
+                git "https://review.opendev.org/${DIVINGBELL_PROJECT}"
                 sh "git checkout master"
             }
         }
