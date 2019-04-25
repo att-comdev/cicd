@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10b42e8c_1e3ccb40",
+        "filename": "images/code-review-image-build/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1015330
+      },
+      "writtenOn": "2019-04-25T15:33:56Z",
+      "side": 1,
+      "message": "providing comments would be really helpful.",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 0
+      },
+      "revId": "a8c20072a3d673e45a5f91db8e5c566233470470",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
