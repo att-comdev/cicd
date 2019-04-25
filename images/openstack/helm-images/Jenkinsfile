@@ -8,6 +8,8 @@ BASE_IMAGE = "ubuntu_xenial"
 VERSION = 1.0
 HELM_IMAGES_URL = "https://git.openstack.org/openstack/openstack-helm-images"
 HELM_IMAGES_HOME = ""
+CEPH_REPO = "https://${ARTF_WEB_URL}/mirantis-dev-ceph/xenial/"
+CEPH_KEY = "https://${ARTF_WEB_URL}/mirantis-dev-ceph/xenial/archive-ceph-mimic.key"
 
 if (GERRIT_EVENT_TYPE != 'change-merged') {
     IMAGE_PREFIX += "-patchset"
@@ -70,7 +72,9 @@ podTemplate(label: label,
                                             --label org.opencontainers.image.event=${GERRIT_EVENT_TYPE} \
                                             --build-arg http_proxy=${HTTP_PROXY} \
                                             --build-arg https_proxy=${HTTPS_PROXY} \
-                                            --build-arg NO_PROXY=${NO_PROXY}" \
+                                            --build-arg NO_PROXY=${NO_PROXY} \
+                                            --build-arg CEPH_REPO=${CEPH_REPO} \
+                                            --build-arg CEPH_KEY=${CEPH_KEY}" \
                           IMAGE_TAG=${IMAGE_TAG}"""
                 }
             }
