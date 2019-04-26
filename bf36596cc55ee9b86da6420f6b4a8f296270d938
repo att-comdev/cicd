@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c98e98f6_9a1587db",
+        "filename": "images/airship/JenkinsfilePromenade",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1015017
+      },
+      "writtenOn": "2019-04-26T16:55:06Z",
+      "side": 1,
+      "message": "should not this be review.opendev.org.. i see some GERRIT_ vars to override refset ?",
+      "revId": "bf36596cc55ee9b86da6420f6b4a8f296270d938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
