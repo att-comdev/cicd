@@ -16,6 +16,24 @@
       "revId": "bf36596cc55ee9b86da6420f6b4a8f296270d938",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cba5403e_80700f05",
+        "filename": "images/airship/JenkinsfilePromenade",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1011939
+      },
+      "writtenOn": "2019-04-26T17:11:36Z",
+      "side": 1,
+      "message": "I think this Jenkinsfile is actually not used as this point.",
+      "parentUuid": "c98e98f6_9a1587db",
+      "revId": "bf36596cc55ee9b86da6420f6b4a8f296270d938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
