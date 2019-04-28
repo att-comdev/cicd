@@ -1,0 +1,68 @@
+currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
+GIT_REPO="att-comdev/dockerfiles"
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+IMAGE_PREFIX="jenkins"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}"
+DEFAULT_NAMESPACE="${ARTF_DOCKER_URL}"
+SEMANTIC_RELEASE_VERSION="0.1.0"
+
+vm(flavor: "m1.large", image:'cicd-ubuntu-18.04-server-cloudimg-amd64') {
+    stage('Build & Checkout'){
+        vm2.setproxy()
+        sh "printenv"
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+            IMAGE_TAG="${GERRIT_NEWREV}"
+        }
+        gerrithub.cloneToBranch("${GIT_REPO}", "${IMAGE_TAG}","")
+
+        if(GERRIT_EVENT_TYPE != 'change-merged') {
+            gerrit.rebase()
+        }
+
+        withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                                          usernameVariable: 'ARTIFACTORY_USER',
+                                          passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+
+            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+            sh "docker login ${opts} ${ARTF_SECURE_DOCKER_URL}"
+        }
+
+        sh "docker pull docker.io/${IMAGE_LATEST}"
+        def cmd="docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE_LATEST}"
+        def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+
+        def LABELS = " --label org.opencontainers.image.revision=${IMAGE_TAG} \
+                       --label org.opencontainers.image.source=${GERRIT_CHANGE_URL} \
+                       --label org.opencontainers.image.base-image=${base_sha256} \
+                       --label org.opencontainers.image.revision=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
+ 
+        def PROXY = " --build-arg http_proxy=$HTTP_PROXY \
+                      --build-arg https_proxy=$HTTPS_PROXY \
+                      --build-arg no_proxy=$NO_PROXY"
+
+        if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+           LABELS += " --label org.opencontainers.image.event=${GERRIT_EVENT_TYPE}'"
+        }
+
+        // Note : docker-ce is supposed to be installed on the build machine.
+        sh "sudo apt-get update -y"
+        sh "sudo apt-get install -y make"
+
+        def EXTRA_BUILD_ARGS = "--build-arg FROM=${IMAGE_PREFIX}/${IMAGE_PREFIX}:${DEFAULT_TAG}"
+        EXTRA_BUILD_ARGS += "$LABELS"
+        EXTRA_BUILD_ARGS += "$PROXY"
+        
+        def BUILD_STRING = "${IMAGE_PREFIX}:${DEFAULT_TAG} DEFAULT_NAMESPACE=${DEFAULT_NAMESPACE} \
+                            DEFAULT_TAG=${DEFAULT_TAG} EXTRA_BUILD_ARGS=${EXTRA_BUILD_ARGS}"
+        sh "sudo make build:${BUILD_STRING}"
+    }
+    stage('Publish'){
+        publish.artifactory("${IMAGE}:${DEFAULT_TAG}","test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${DEFAULT_TAG}")
+        if (GERRIT_EVENT_TYPE == 'change-merged') {
+            //Only going to store images on merged into this directory
+            publish.artifactory ("${IMAGE}:${DEFAULT_TAG}", IMAGE_LATEST)
+        }
+    }
+}
