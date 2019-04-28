@@ -1,0 +1,82 @@
+import com.att.nccicd.config.conf
+
+currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
+GIT_REPO="att-comdev/dockerfiles"
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+IMAGE_PREFIX="jenkins"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${DEFAULT_TAG}"
+IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}"
+DEFAULT_NAMESPACE="${ARTF_DOCKER_URL}"
+
+def label = "worker-${UUID.randomUUID().toString()}"
+podTemplate(label: label,
+       yaml: """
+                apiVersion: v1
+                kind: Pod
+                spec:
+                  securityContext:
+                    runAsUser: 0
+                  nodeSelector:
+                    jenkins-node: enabled
+             """,
+       containers: [containerTemplate(name: "ubuntu",
+                                      image: conf.POD_IMAGE_1804,
+                                      command: "cat",
+                                      ttyEnabled: true)],
+       volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock',
+                mountPath: '/var/run/docker.sock')]) {
+                 node(label){
+                  container("ubuntu"){
+                    stage('Build & Checkout'){
+                      if (env.GERRIT_NEWREV) {
+                        echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+                          IMAGE_TAG="${GERRIT_NEWREV}"
+                      }
+
+                      gerrithub.cloneToBranch("${GIT_REPO}", "${IMAGE_TAG}","")
+                      if(GERRIT_EVENT_TYPE != 'change-merged') {
+                          gerrit.rebase()
+                      }
+
+                      sh "apt-get update -y"
+                      sh "apt-get install make sudo docker.io -y"
+
+                      withCredentials([usernamePassword(credentialsId: 'jenkins-artifactory',
+                        usernameVariable: 'ARTIFACTORY_USER',
+                        passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                            opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+                            sh "docker login ${opts} ${ARTF_SECURE_DOCKER_URL}"
+                      }
+
+                      sh "docker pull docker.io/${IMAGE_LATEST}"
+                      def cmd="docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE_LATEST}"
+                      def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+
+                      sh "sudo make build:${IMAGE_PREFIX}:${DEFAULT_TAG} \
+                          DEFAULT_NAMESPACE=${DEFAULT_NAMESPACE} \
+                          EXTRA_BUILD_ARGS=\"--build-arg FROM=${IMAGE_PREFIX}/${IMAGE_PREFIX}:${DEFAULT_TAG} \
+                             --label org.opencontainers.image.revision=${IMAGE_TAG} \
+                             --label org.opencontainers.image.source=${GERRIT_CHANGE_URL} \
+                             --label org.opencontainers.image.base-image=${base_sha256} \
+                             --label org.opencontainers.image.revision=${DEFAULT_TAG}.${BUILD_NUMBER} \
+                             --label org.opencontainers.image.event=${GERRIT_EVENT_TYPE} \
+                             --build-arg http_proxy=$HTTP_PROXY \
+                             --build-arg https_proxy=$HTTPS_PROXY \
+                             --build-arg no_proxy=$NO_PROXY \
+                             --force-rm \
+                             --no-cache\" \
+                          DEFAULT_TAG=${DEFAULT_TAG}"
+                      }
+
+                      stage('Publish'){
+                        if (GERRIT_EVENT_TYPE == 'change-merged') {
+                          //Only going to store images on merged into this directory
+                          publish.artifactory ("${IMAGE}:${DEFAULT_TAG}", IMAGE_LATEST)
+                        }
+                        else {
+                          publish.artifactory("${IMAGE}:${DEFAULT_TAG}","test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${DEFAULT_TAG}")
+                        }
+                  }
+                 }
+                }
+}
