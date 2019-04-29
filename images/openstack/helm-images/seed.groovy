@@ -3,7 +3,8 @@ folder(JOB_FOLDER)
 
 def projects = ['ceph-daemon',
                 'ceph-utility',
-                'ceph-config-helper']
+                'ceph-config-helper',
+                'ceph-rbd-provisioner']
 
 projects.each { project_name ->
     JOB_BASE_NAME=project_name
