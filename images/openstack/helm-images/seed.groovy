@@ -17,31 +17,11 @@ projects.each { project_name ->
             daysToKeep(90)
         }
         parameters {
-            stringParam {
-                name ('GERRIT_PROJECT')
-                defaultValue("openstack/openstack-helm-images")
-                description('Gerrit refspec or branch')
-            }
-            stringParam {
-                name ('GERRIT_REFSPEC')
-                defaultValue('master')
-                description('Gerrit refspec or branch')
-            }
-            stringParam {
-                name ('GERRIT_PATCHSET_REVISION')
-                defaultValue('0')
-                description('patchset revision')
-            }
-            stringParam {
-                name ('GERRIT_EVENT_TYPE')
-                defaultValue('patchset-created')
-                description('patchset-created or change-merged')
-            }
-            stringParam {
-                name ('GERRIT_CHANGE_URL')
-                defaultValue('manual')
-                description('Change URL')
-            }
+            stringParam('GERRIT_PROJECT', "openstack/openstack-helm-images","Gerrit refspec or branch")
+            stringParam('GERRIT_REFSPEC','master',"Gerrit refspec or branch")
+            stringParam('GERRIT_PATCHSET_REVISION','0','patchset revision')
+            stringParam('GERRIT_EVENT_TYPE','patchset-created','patchset-created or change-merged')
+            stringParam('GERRIT_CHANGE_URL','manual','Change URL')
         }
         triggers {
             gerritTrigger {
