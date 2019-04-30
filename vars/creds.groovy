@@ -1,8 +1,36 @@
-import hudson.plugins.sshslaves.*;
 import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
 import com.cloudbees.plugins.credentials.impl.*;
 import com.cloudbees.plugins.credentials.*;
 import com.cloudbees.plugins.credentials.domains.*;
+
+import hudson.slaves.*
+import hudson.plugins.sshslaves.verifiers.*
+import hudson.plugins.sshslaves.SSHConnector
+import hudson.plugins.sshslaves.SSHLauncher
+
+def addSlave(ip, creds, name, port=22, timeout=null, retries=null, waitRetry=null) {
+    def serverKeyVerificationStrategy = new NonVerifyingKeyVerificationStrategy()
+    ComputerLauncher launcher = new SSHLauncher(
+        ip,
+        port,
+        creds,
+        (String)null, // jvmOptions
+        (String)null, // javaPath
+        (String)null, // prefixStartSlaveCmd
+        (String)null, // suffixStartSlaveCmd
+        (Integer) timeout, // launchTimeoutSeconds,
+        (Integer) retries, //maxNumRetries
+        (Integer) waitRetry, // retryWaitTime
+        serverKeyVerificationStrategy // Host Key Verification Strategy
+    )
+
+    Slave agent = new DumbSlave(name, "/home/jenkins", launcher)
+    agent.nodeDescription = name
+    agent.numExecutors = 1
+    Jenkins.instance.addNode(agent)
+}
+
+
 
 /**
  * Return a collection of Global credentials defined within Jenkins
