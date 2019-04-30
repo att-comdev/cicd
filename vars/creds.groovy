@@ -1,8 +1,42 @@
-import hudson.plugins.sshslaves.*;
 import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
 import com.cloudbees.plugins.credentials.impl.*;
 import com.cloudbees.plugins.credentials.*;
 import com.cloudbees.plugins.credentials.domains.*;
+
+import hudson.slaves.*
+import hudson.plugins.sshslaves.verifiers.*
+import hudson.plugins.sshslaves.SSHConnector
+import hudson.plugins.sshslaves.SSHLauncher
+
+
+/**
+ * Create a permanent agent in jenkins
+ * @param ip Ip address
+ * @param creds Jenkin's ssh cred id for agent connection
+ * @param name Agent's name
+*/
+def addSlave(ip, creds, name, port=22, timeout=null, retries=null, waitRetry=null) {
+    def serverKeyVerificationStrategy = new NonVerifyingKeyVerificationStrategy()
+    ComputerLauncher launcher = new SSHLauncher(
+        ip,
+        port,
+        creds,
+        (String)null, // jvmOptions
+        (String)null, // javaPath
+        (String)null, // prefixStartSlaveCmd
+        (String)null, // suffixStartSlaveCmd
+        (Integer) timeout, // launchTimeoutSeconds,
+        (Integer) retries, //maxNumRetries
+        (Integer) waitRetry, // retryWaitTime
+        serverKeyVerificationStrategy // Host Key Verification Strategy
+    )
+
+    Slave agent = new DumbSlave(name, "/home/jenkins", launcher)
+    agent.nodeDescription = name
+    agent.numExecutors = 1
+    Jenkins.instance.addNode(agent)
+}
+
 
 /**
  * Return a collection of Global credentials defined within Jenkins
@@ -98,5 +132,10 @@ def recreateGlobalCred(id, description, user, pass) {
 def updateSshKeySlave(node, key) {
     def slave = Hudson.instance.slaves.find({it.name == node});
     def slaveLauncher = slave.getLauncher()
-    slaveLauncher.credentialsId = key
+    def updated = false
+    if (slaveLauncher.credentialsId != key) {
+        slaveLauncher.credentialsId = key
+        updated = true
+    }
+    return updated
 }
