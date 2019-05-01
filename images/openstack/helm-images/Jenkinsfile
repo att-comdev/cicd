@@ -17,6 +17,11 @@ if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
     OS_RELEASE = "alpine"
 }
 
+if ("${JOB_BASE_NAME}" == 'openvswitch') {
+    BASE_IMAGE = "k8s.gcr.io/debian-iptables-amd64:v10"
+    IMAGE_PREFIX = "openstackhelm"
+}
+
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 if(env.GERRIT_NEWREV){
     echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
@@ -62,31 +67,49 @@ podTemplate(label: label,
             stage('Build') {
                 dir (HELM_IMAGES_HOME) {
                     IMAGE_TAG += ".${BUILD_TIMESTAMP}"
+                    IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+
                     if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
                         IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${CALICOCTL_VERSION}-${IMAGE_TAG}"
                     }
-                    else {
-                        IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
-                    }
 
-                    sh """make IMAGE_NAME=${JOB_BASE_NAME} \
-                          OS_RELEASE=${OS_RELEASE} \
-                          IMAGE_PREFIX=${IMAGE_PREFIX}\
-                          DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
-                          CALICOCTL_VERSION=${CALICOCTL_VERSION} \
-                          EXTRA_BUILD_ARGS="--label org.opencontainers.image.revision=${IMAGE_TAG} \
-                                            --label org.opencontainers.image.source=${GERRIT_CHANGE_URL} \
-                                            --label org.opencontainers.image.revision=${VERSION}-${BUILD_NUMBER} \
-                                            --label org.opencontainers.image.event=${GERRIT_EVENT_TYPE} \
-                                            --label calicoctl.version='${CALICOCTL_VERSION}' \
-                                            --build-arg FROM=${BASE_IMAGE} \
-                                            --build-arg CALICOCTL_VERSION=${CALICOCTL_VERSION} \
-                                            --build-arg http_proxy=${HTTP_PROXY} \
-                                            --build-arg https_proxy=${HTTPS_PROXY} \
-                                            --build-arg NO_PROXY=${NO_PROXY} \
-                                            --build-arg CEPH_REPO=${CEPH_REPO} \
-                                            --build-arg CEPH_KEY=${CEPH_KEY}" \
-                          IMAGE_TAG=${IMAGE_TAG}"""
+                    if ("${JOB_BASE_NAME}" == 'openvswitch') {
+                        sh """openvswitch/build.sh \
+                              REGISTRY_URI=${ARTF_DOCKER_URL}/${IMAGE_PREFIX} \
+                              VERSION=${OVS_VERSION} \
+                              extra_build_args="--label org.opencontainers.image.revision=${IMAGE_TAG} \
+                                                --label org.opencontainers.image.source=${GERRIT_CHANGE_URL} \
+                                                --label org.opencontainers.image.revision=${VERSION}-${BUILD_NUMBER} \
+                                                --label org.opencontainers.image.event=${GERRIT_EVENT_TYPE} \
+                                                --label ovs.version='${OVS_VERSION}' \
+                                                --label dpdk.version='${DPDK_VERSION}' \
+                                                --build-arg FROM=${BASE_IMAGE} \
+                                                --build-arg DPDK_VERSION=${DPDK_VERSION} \
+                                                --build-arg http_proxy=${HTTP_PROXY} \
+                                                --build-arg https_proxy=${HTTPS_PROXY} \
+                                                --build-arg NO_PROXY=${NO_PROXY}" \
+                              """
+                    }
+                    else {
+                        sh """make IMAGE_NAME=${JOB_BASE_NAME} \
+                              OS_RELEASE=${OS_RELEASE} \
+                              IMAGE_PREFIX=${IMAGE_PREFIX}\
+                              DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
+                              CALICOCTL_VERSION=${CALICOCTL_VERSION} \
+                              EXTRA_BUILD_ARGS="--label org.opencontainers.image.revision=${IMAGE_TAG} \
+                                                --label org.opencontainers.image.source=${GERRIT_CHANGE_URL} \
+                                                --label org.opencontainers.image.revision=${VERSION}-${BUILD_NUMBER} \
+                                                --label org.opencontainers.image.event=${GERRIT_EVENT_TYPE} \
+                                                --label calicoctl.version='${CALICOCTL_VERSION}' \
+                                                --build-arg FROM=${BASE_IMAGE} \
+                                                --build-arg CALICOCTL_VERSION=${CALICOCTL_VERSION} \
+                                                --build-arg http_proxy=${HTTP_PROXY} \
+                                                --build-arg https_proxy=${HTTPS_PROXY} \
+                                                --build-arg NO_PROXY=${NO_PROXY} \
+                                                --build-arg CEPH_REPO=${CEPH_REPO} \
+                                                --build-arg CEPH_KEY=${CEPH_KEY}" \
+                              IMAGE_TAG=${IMAGE_TAG}"""
+                    }
                 }
             }
 
