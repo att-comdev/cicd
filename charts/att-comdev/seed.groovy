@@ -19,21 +19,25 @@ projects.each { project_name ->
                 name ('GERRIT_PROJECT')
                 defaultValue("att-comdev/charts")
                 description('Gerrit refspec or branch')
+                trim (true)
             }
             stringParam {
                 name ('GERRIT_REFSPEC')
                 defaultValue('master')
                 description('Gerrit refspec or branch')
+                trim (true)
             }
             stringParam {
                 name ('GERRIT_CHANGE_NUMBER')
                 defaultValue('0')
                 description('patchset number')
+                trim (true)
             }
             stringParam {
                 name ('GERRIT_EVENT_TYPE')
                 defaultValue('patchset-created')
                 description('patchset-created or change-merged')
+                trim (true)
             }
         }
         triggers {
