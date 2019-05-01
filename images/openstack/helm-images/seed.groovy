@@ -8,7 +8,8 @@ def projects = ['ceph-daemon',
                 'ceph-cephfs-provisioner',
                 'mysql-client-utility',
                 'openstack-utility',
-                'calicoctl-utility']
+                'calicoctl-utility',
+                'openvswitch']
 
 projects.each { project_name ->
     JOB_BASE_NAME=project_name
@@ -24,6 +25,8 @@ projects.each { project_name ->
             stringParam('GERRIT_EVENT_TYPE','patchset-created','patchset-created or change-merged')
             stringParam('GERRIT_CHANGE_URL','manual','Change URL')
             stringParam('CALICOCTL_VERSION','v3.4.0','Calicoctl base image version')
+            stringParam('OVS_VERSION','2.10.1','openvswitch version')
+            stringParam('DPDK_VERSION','17.11.5','DPDK version')
         }
         triggers {
             gerritTrigger {
