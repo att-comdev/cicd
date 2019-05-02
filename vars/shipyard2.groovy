@@ -14,6 +14,31 @@ def _printError(code, res) {
 }
 
 /**
+ * removes all colections from deckhand
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @param uuid A pre-generated uuid that helps to tie a series of requests together across software components.
+ * deckhandUrl The Deckhand URL of the site you are creating documents against.
+ */
+def removeConfigdocs(token, deckhandUrl, uuid) {
+    def res
+    retry(3) {
+        res = httpRequest (url: "${deckhandUrl}/revisions",
+                              httpMode: "DELETE",
+                              customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
+                                              [name: "X-Auth-Token", value: token],
+                                              [name: "X-Context-Marker", value: uuid]],
+                              quiet: true,
+                              validResponseCodes: '200:503')
+        _printError(204, res)
+    } catch (err) {
+                sleep 120
+                error(err.getMessage())
+        }
+    }
+    return res
+}
+
+/**
  * Creation of "configdocs" against a site's Deckhand,
  * utilizing the Shipyard API, that will be used to deploy the
  * rest of the site.
