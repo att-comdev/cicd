@@ -20,7 +20,7 @@ pipelineJob("${JOB_BASE}/airship-in-a-bottle") {
             gerritProjects {
                 gerritProject {
                     compareType('PLAIN')
-                    pattern("openstack/airship-in-a-bottle")
+                    pattern("airship/in-a-bottle")
                     branches {
                         branch {
                             compareType("ANT")
@@ -45,7 +45,7 @@ pipelineJob("${JOB_BASE}/airship-in-a-bottle") {
 
         definition {
             cps {
-                script(readFileFromWorkspace("${JOB_BASE}/airship-in-a-bottle/Jenkinsfile"))
+                script(readFileFromWorkspace("${JOB_BASE}/in-a-bottle/Jenkinsfile"))
                 sandbox(false)
             }
         }
