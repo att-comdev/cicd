@@ -13,7 +13,7 @@ freeStyleJob("${job_path}") {
         stringParam('RELEASE_FILE_PATH', '', 'File that points to a list of seed.groovy to execute for a Cloudharbor site')
         stringParam('GERRIT_REFSPEC', 'origin/master', "Gerrit Refspec")
         stringParam('GERRIT_HOST', 'review.gerrithub.io', 'Gerrit Host')
-        stringParam('GERRIT_PROJECTT', 'att-comdev/cicd', 'Project on Gerrit')
+        stringParam('GERRIT_PROJECT', 'att-comdev/cicd', 'Project on Gerrit')
     }
 
     triggers {
