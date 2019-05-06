@@ -212,7 +212,9 @@ else
     lint_whitespaces
     lint_jenkins_files
     find_seed
-    check_sandbox_parameter
+    if [[ "${GERRIT_HOST}" =~ review ]]; then
+        check_sandbox_parameter
+    fi
 
     # Skip applying the seed files for patchsets
     if [[ ${GERRIT_EVENT_TYPE} == "patchset-created" ]]; then
