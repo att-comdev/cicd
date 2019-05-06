@@ -8,37 +8,12 @@ freeStyleJob("${job_path}") {
     }
     label('master')
     parameters {
-        stringParam {
-            name ('SEED_PATH')
-            defaultValue('')
-            description('Comma delimited Seed path \n' +
+        stringParam('SEED_PATH', '', 'Comma delimited Seed path \n' +
                         'Example: cicd/SuperSeed/seed.groovy,cicd/NodeCleanup/seed.groovy')
-            trim(true)
-        }
-        stringParam{
-            name ('RELEASE_FILE_PATH')
-            defaultValue('')
-            description("File that points to a list of seed.groovy's to execute for a Cloudharbor site")
-            trim(true)
-        }
-        stringParam {
-            name ('GERRIT_REFSPEC')
-            defaultValue('origin/master')
-            description('Gerrit refspec')
-            trim(true)
-        }
-        stringParam {
-            name ('GERRIT_HOST')
-            defaultValue('review.gerrithub.io')
-            description('Gerrit host')
-            trim(true)
-        }
-        stringParam {
-            name ('GERRIT_PROJECT')
-            defaultValue('att-comdev/cicd')
-            description('Project on Gerrit')
-            trim(true)
-        }
+        stringParam('RELEASE_FILE_PATH', '', 'File that points to a list of seed.groovy to execute for a Cloudharbor site')
+        stringParam('GERRIT_REFSPEC', 'origin/master', "Gerrit Refspec")
+        stringParam('GERRIT_HOST', 'review.gerrithub.io', 'Gerrit Host')
+        stringParam('GERRIT_PROJECTT', 'att-comdev/cicd', 'Project on Gerrit')
     }
 
     triggers {
