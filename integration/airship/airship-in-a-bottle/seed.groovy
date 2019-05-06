@@ -20,7 +20,7 @@ pipelineJob("${JOB_BASE}/airship-in-a-bottle") {
             gerritProjects {
                 gerritProject {
                     compareType('PLAIN')
-                    pattern("openstack/airship-in-a-bottle")
+                    pattern("airship/in-a-bottle")
                     branches {
                         branch {
                             compareType("ANT")
