@@ -1,0 +1,26 @@
+import com.att.nccicd.config.conf
+
+DOCKER_REGISTRY = "${ARTF_SECURE_DOCKER_URL}"
+Ubuntu_Repo = "${ARTF_UBUNTU_REPO}"
+IMAGE_TAG = "xenial"
+VERSION = 1.0
+
+currentBuild.displayName = "#${BUILD_NUMBER} Build on ${BUILD_TIMESTAMP}"
+
+vm2() {
+    cleanWs()
+    sh ('hostname')
+    stage('Setup environment') {
+        sh "sudo apt-get update"
+        sh "sudo apt-get install -y debootstrap"
+    }
+    stage('Build') {
+        sh "sudo debootstrap --arch=amd64 ${IMAGE_TAG} ubuntu_xenial ${Ubuntu_Repo}"
+        sh "sudo tar -C ubuntu_xenial -c . | sudo docker import - ubuntu:xenial"
+        IMAGE = "${DOCKER_REGISTRY}/ubuntu:${IMAGE_TAG}-${BUILD_TIMESTAMP}"
+        sh "sudo docker tag ubuntu:xenial ${IMAGE}"
+    }
+    stage('Image Publish') {
+        publish.artifactory (IMAGE, "${JOB_BASE_NAME}:${IMAGE_TAG}-${BUILD_TIMESTAMP}")
+    }
+}
