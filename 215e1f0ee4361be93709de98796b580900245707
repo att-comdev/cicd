@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07c9a006_7398b708",
+        "filename": "images/x/ranger/Jenkinsfile",
+        "patchSetId": 50
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-05-09T15:34:32Z",
+      "side": 1,
+      "message": "Global Variable",
+      "range": {
+        "startLine": 25,
+        "startChar": 40,
+        "endLine": 25,
+        "endChar": 72
+      },
+      "revId": "215e1f0ee4361be93709de98796b580900245707",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
