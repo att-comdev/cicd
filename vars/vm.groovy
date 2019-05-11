@@ -123,7 +123,7 @@ def call(Map map, Closure body) {
 
                 timeout (14) {
                     node(name) {
-                        sh 'hostname'
+                        sh 'cloud-init status --wait'
                     }
                 }
             }
