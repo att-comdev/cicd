@@ -1,4 +1,5 @@
-import com.att.nccicd.config.conf
+import com.att.nccicd.config.conf as config
+conf = new config(env).CONF
 
 LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
 
