@@ -1,4 +1,5 @@
-import com.att.nccicd.config.conf
+import com.att.nccicd.config.conf as config
+conf = new config(env).CONF
 
 import groovy.json.JsonSlurperClassic
 import groovy.json.JsonOutput

@@ -1,4 +1,5 @@
-import com.att.nccicd.config.conf
+import com.att.nccicd.config.conf as config
+conf = new config(env).CONF
 
 IMAGE_TAG = "${GERRIT_PATCHSET_REVISION}"
 DOCKER_REGISTRY = "${ARTF_DOCKER_URL}"
