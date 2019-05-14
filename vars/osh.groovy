@@ -1,4 +1,5 @@
-import com.att.nccicd.config.conf as ncconf
+import com.att.nccicd.config.conf as config
+conf = new config(env).CONF as ncconf
 
 /**
  * Install Docker ce

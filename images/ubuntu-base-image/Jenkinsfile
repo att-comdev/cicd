@@ -1,4 +1,5 @@
-import com.att.nccicd.config.conf
+import com.att.nccicd.config.conf as config
+conf = new config(env).CONF
 
 DOCKER_REGISTRY = "${ARTF_SECURE_DOCKER_URL}"
 Ubuntu_Repo = "${ARTF_UBUNTU_REPO}"
