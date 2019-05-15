@@ -27,7 +27,7 @@ def _printError(code, res) {
  */
 def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode) {
     def res = null
-    retry(3) {
+    retry(5) {
         try {
             res = httpRequest (url: shipyardUrl + "/configdocs/${bucketName}?buffermode=${bufferMode}",
                                   httpMode: "POST",
@@ -57,7 +57,7 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
  */
 def commitConfigdocs(uuid, token, shipyardUrl) {
     def res = null
-    retry(3) {
+    retry(5) {
         try {
             res = httpRequest(url: shipyardUrl + "/commitconfigdocs",
                               httpMode: "POST",
@@ -94,7 +94,7 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
     def jreq = new JsonOutput().toJson(req)
     def res = null
 
-    retry(3) {
+    retry(5) {
         try {
             res = httpRequest(url: shipyardUrl + "/actions?allow-intermediate-commits=true",
                               httpMode: "POST",
@@ -127,7 +127,7 @@ def _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) 
     def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds)
     def token = req.getHeaders()["X-Subject-Token"][0]
     def res = null
-    retry(3) {
+    retry(5) {
         try {
             res = httpRequest (url: shipyardUrl + "/actions/${action}",
                                contentType: "APPLICATION_JSON",
@@ -181,7 +181,7 @@ def getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
     def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds)
     def token = req.getHeaders()["X-Subject-Token"][0]
     def res = null
-    retry(3) {
+    retry(5) {
         try {
             res = httpRequest (url: shipyardUrl + "${systep.url}",
                                    contentType: "APPLICATION_JSON",
@@ -257,7 +257,7 @@ def waitStep(systep, interval, shipyardUrl, keystoneCreds, keystoneUrl, withCred
     while (state == null || state == "running" || state == "queued" || state == "scheduled" || state == "up_for_retry") {
         sleep interval
 
-        retry (3) {
+        retry (5) {
             state = getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds)
         }
     }

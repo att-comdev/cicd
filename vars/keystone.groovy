@@ -55,7 +55,7 @@ def retrieveToken(keystoneCreds, keystoneUrl, withCreds=true, username='shipyard
                 // this is like a for loop "continue", move to the next item in the collection
                 return
             } else {
-                retry(2) {
+                retry(4) {
                     try {
                         res = httpRequest(url: keystoneUrl + "/v3/auth/tokens",
                                           contentType: "APPLICATION_JSON",
