@@ -2,6 +2,29 @@ import com.att.nccicd.config.conf
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
 
+def compileSshData() {
+    sshConfig = ""
+    keys = []
+    parseSshData().each { entry ->
+        sshConfig += "Host $entry.value.resource\n" +
+                     "User $entry.value.user\n"
+        keys.add(entry.key)
+    }
+    return [keys, sshConfig]
+}
+
+// Parse json containing
+// {'<credential_name>': {'user': '<user>', 'resource': '<resource>'}}, ...}
+// The source of data what credentials to use in ssh-agent with what user
+// to what resource
+def parseSshData() {
+    return new groovy.json.JsonSlurper().parseText(SSH_DATA)
+}
+
+// Compile ssh-agent key names and ssh config from SSH_DATA to be used
+// for fetching projects to internal mirror
+(KEY_NAMES, SSH_CONFIG) = compileSshData()
+
 def label = "worker-${UUID.randomUUID().toString()}"
 podTemplate(label: label,yaml: """
             apiVersion: v1
@@ -17,13 +40,13 @@ podTemplate(label: label,yaml: """
                                   command: "cat",
                                   ttyEnabled: true,
                                   envVars: [
-                                    envVar(key: "http_proxy", value: HTTP_PROXY),
-                                    envVar(key: "https_proxy", value: HTTP_PROXY),
-                                    envVar(key: "HTTP_PROXY", value: HTTP_PROXY),
-                                    envVar(key: "HTTPS_PROXY", value: HTTP_PROXY),
-                                    envVar(key: "no_proxy", value: NO_PROXY),
-                                    envVar(key: "NO_PROXY", value: NO_PROXY)
-                ])],
+          envVar(key: "http_proxy", value: HTTP_PROXY),
+          envVar(key: "https_proxy", value: HTTP_PROXY),
+          envVar(key: "HTTP_PROXY", value: HTTP_PROXY),
+          envVar(key: "HTTPS_PROXY", value: HTTP_PROXY),
+          envVar(key: "no_proxy", value: NO_PROXY),
+          envVar(key: "NO_PROXY", value: NO_PROXY)
+])],
                 volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock', mountPath: '/var/run/docker.sock')]) {
     node(label){
         container("ubuntu"){
@@ -63,18 +86,31 @@ podTemplate(label: label,yaml: """
                                          INTERNAL_GERRIT_KEY)
                     sh "cp ${WORKSPACE}/${requirements}/upper-constraints.txt ${WORKSPACE}/jenkins/upper-constraints.txt"
                     sh "rm -rf ${WORKSPACE}/${requirements}"
+
+                    // pod runs as root user, adding ssh config into root's default directory
+                    def ssh_dir = "/root/.ssh"
+                    if (env.KNOWN_HOSTS) {
+                        sh "mkdir -p ${ssh_dir}; echo \"${KNOWN_HOSTS}\" >> ${ssh_dir}/known_hosts"
+                    }
+                    // Create ssh config on slave to control what login is used for
+                    // what resource
+                    // writeFile works only within workspace, so copying into root ssh dir
+                    writeFile file: "/home/jenkins/config", text: SSH_CONFIG
+                    sh "cp /home/jenkins/config ${ssh_dir}/config"
                 }
             }
             dir("${WORKSPACE}/jenkins"){
                 stage('Code-Review'){
                     withEnv(["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/jenkins/upper-constraints.txt"]) {
-                cmd = (!fileExists('Makefile')) ? "tox -e pep8,py27" : "make tests"
-                        def status = sh(returnStatus: true, script: cmd)
-                        if (status != 0) {
-                            currentBuild.result = 'FAILED'
-                            notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
-                        }else{
-                            notify.msg("Code Review successful for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}")
+                        cmd = (!fileExists('Makefile')) ? "tox -e pep8,py27" : "make tests"
+                        sshagent([INTERNAL_GERRIT_KEY]) {
+                            def status = sh(returnStatus: true, script: cmd)
+                            if (status != 0) {
+                                currentBuild.result = 'FAILED'
+                                notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
+                            }else{
+                                notify.msg("Code Review successful for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}")
+                            }
                         }
                     }
                 }
