@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ff044a7_01633d24",
+        "filename": "images/jenkins/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-05-15T17:38:51Z",
+      "side": 1,
+      "message": "if(env.GERRIT_NEWREV){",
+      "range": {
+        "startLine": 31,
+        "startChar": 22,
+        "endLine": 31,
+        "endChar": 65
+      },
+      "revId": "3bb1ffcad33ca66e40ac45baf5911fc2e595dd21",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f49dd0a1_2f88af63",
+        "filename": "images/jenkins/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-05-15T17:38:51Z",
+      "side": 1,
+      "message": "shouldnt this be the base image used for the build?",
+      "range": {
+        "startLine": 51,
+        "startChar": 38,
+        "endLine": 51,
+        "endChar": 63
+      },
+      "revId": "3bb1ffcad33ca66e40ac45baf5911fc2e595dd21",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21538486_1f708639",
+        "filename": "images/jenkins/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-05-15T17:38:51Z",
+      "side": 1,
+      "message": "shouldnt this be the base image used for the build?",
+      "range": {
+        "startLine": 52,
+        "startChar": 82,
+        "endLine": 52,
+        "endChar": 97
+      },
+      "revId": "3bb1ffcad33ca66e40ac45baf5911fc2e595dd21",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bde742c8_7af403d7",
+        "filename": "images/jenkins/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-05-15T17:38:51Z",
+      "side": 1,
+      "message": "realign for readability",
+      "range": {
+        "startLine": 68,
+        "startChar": 26,
+        "endLine": 68,
+        "endChar": 29
+      },
+      "revId": "3bb1ffcad33ca66e40ac45baf5911fc2e595dd21",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcc13197_ea10ec6e",
+        "filename": "images/jenkins/Jenkinsfile",
+        "patchSetId": 25
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-05-15T17:38:51Z",
+      "side": 1,
+      "message": "could you change this to have the image pushed into test folder only for non change-merge event.",
+      "range": {
+        "startLine": 72,
+        "startChar": 71,
+        "endLine": 72,
+        "endChar": 75
+      },
+      "revId": "3bb1ffcad33ca66e40ac45baf5911fc2e595dd21",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
