@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "979805b7_aeeae151",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-05-16T15:48:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c2a7b49_3b983bd3",
+      "revId": "f9a77f97b624da615c42cbe6833c60f8c15ba0bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "21afd043_11402ca2",
         "filename": "vars/pegleg2.groovy",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2019-05-16T15:44:29Z",
       "side": 1,
       "message": "Can we add a if/else that if globalRepo is not set then we do not pass the -e globalRepo to the command?  We usually want to have Pegleg use the site-definition.yaml",
+      "revId": "f9a77f97b624da615c42cbe6833c60f8c15ba0bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a4f46b2_3115fd24",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 1015397
+      },
+      "writtenOn": "2019-05-16T15:48:34Z",
+      "side": 1,
+      "message": "Will add a second method with a different signature.",
+      "parentUuid": "21afd043_11402ca2",
       "revId": "f9a77f97b624da615c42cbe6833c60f8c15ba0bd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
