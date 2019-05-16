@@ -389,5 +389,5 @@ def generateGenesis(siteRepo, username, sshKey, destinationDirectory, siteName, 
  * @param siteName The name of the site you're looking to generate scripts for. Must match what's in your site repository's site-definition.yaml
  */
 def generateGenesisWithinContainer(siteRepo, globalRepo, username, sshKey, destinationDirectory, siteName, peglegPassphrase, peglegSalt) {
-    sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -u ${username} -k ${sshKey} -r ${siteRepo} -e global=${globalRepo} genesis_bundle -b ${destinationDirectory} ${siteName}"""
+    sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -u ${username} -k ${sshKey} -r ${siteRepo} -e global=${globalRepo} genesis_bundle -b ${destinationDirectory} ${siteName} --include-validators"""
 }
