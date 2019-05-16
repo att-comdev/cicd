@@ -44,9 +44,6 @@ projects.each { project_name ->
                 }
                 triggerOnEvents {
                     changeMerged()
-                    commentAddedContains {
-                        commentAddedCommentContains('recheck')
-                    }
                 }
             }
             definition {
