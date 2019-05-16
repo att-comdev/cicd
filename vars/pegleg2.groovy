@@ -375,7 +375,7 @@ def generatePkiWithinContainer(siteRepo, username, sshKey, secretsRepo, author, 
  */
 def generateGenesis(siteRepo, username, sshKey, destinationDirectory, siteName, peglegPassphrase, peglegSalt) {
     sh "docker run --rm -i --net=none --workdir=/workspace -v \$(pwd):/workspace \
-        -e PEGLEG_PASSPHRASE=${peglegPassphrase} -e PEGLEG_SALT=${peglegSalt} $conf.PEGLEG_IMAGE pegleg -v site -u ${username} -k ${sshKey} -r ${siteRepo} genesis_bundle -b ${destinationDirectory} ${siteName}"
+        -e PEGLEG_PASSPHRASE=${peglegPassphrase} -e PEGLEG_SALT=${peglegSalt} $conf.PEGLEG_IMAGE pegleg -v site -u ${username} -k ${sshKey} -r ${siteRepo} genesis_bundle -b ${destinationDirectory} ${siteName} --include-validators"
 }
 
 /**
@@ -388,6 +388,25 @@ def generateGenesis(siteRepo, username, sshKey, destinationDirectory, siteName, 
  * @param destinationDirectory The directory where the script(s) will be generated in
  * @param siteName The name of the site you're looking to generate scripts for. Must match what's in your site repository's site-definition.yaml
  */
+def generateGenesisWithinContainer(siteRepo, username, sshKey, destinationDirectory, siteName, peglegPassphrase, peglegSalt) {
+    sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -u ${username} -k ${sshKey} -r ${siteRepo} genesis_bundle -b ${destinationDirectory} ${siteName} --include-validators"""
+}
+
+/**
+ * Execution of Pegleg "genesis_bundle" within a Pegleg
+ * container.
+ *
+ * @param siteRepo The folder containing your site-level documents (must be at your PWD)
+ * @param globalRepo The folder containing your global-level documents (must be at your PWD)
+ * @param username The username for the service account.
+ * @param sshKey The SSH key for the service account.
+ * @param destinationDirectory The directory where the script(s) will be generated in
+ * @param siteName The name of the site you're looking to generate scripts for. Must match what's in your site repository's site-definition.yaml
+ */
 def generateGenesisWithinContainer(siteRepo, globalRepo, username, sshKey, destinationDirectory, siteName, peglegPassphrase, peglegSalt) {
-    sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -u ${username} -k ${sshKey} -r ${siteRepo} -e global=${globalRepo} genesis_bundle -b ${destinationDirectory} ${siteName}"""
+	if (globalRepo == null)	{
+		sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -u ${username} -k ${sshKey} -r ${siteRepo} genesis_bundle -b ${destinationDirectory} ${siteName} --include-validators"""
+	} else {
+		sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -u ${username} -k ${sshKey} -r ${siteRepo} -e global=${globalRepo} genesis_bundle -b ${destinationDirectory} ${siteName} --include-validators"""
+	}
 }
