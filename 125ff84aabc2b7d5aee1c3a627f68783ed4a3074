@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1483c15_384e46cd",
+        "filename": "vars/keystone3.groovy",
+        "patchSetId": 29
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-05-16T03:04:16Z",
+      "side": 1,
+      "message": "According to usage description it may be a list. Should we fix description? Or use each here?",
+      "range": {
+        "startLine": 34,
+        "startChar": 41,
+        "endLine": 34,
+        "endChar": 54
+      },
+      "revId": "125ff84aabc2b7d5aee1c3a627f68783ed4a3074",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4600e64_d750fe01",
+        "filename": "vars/keystone3.groovy",
+        "patchSetId": 29
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-05-16T03:04:16Z",
+      "side": 1,
+      "message": "May we just add scope into declared before req?",
+      "range": {
+        "startLine": 57,
+        "startChar": 20,
+        "endLine": 58,
+        "endChar": 61
+      },
+      "revId": "125ff84aabc2b7d5aee1c3a627f68783ed4a3074",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
