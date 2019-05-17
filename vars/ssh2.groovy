@@ -1,4 +1,3 @@
-
 // wrapper for https://jenkins.io/doc/pipeline/steps/ssh-steps/
 // requires 'SSH Steps Plugin' to be installed in Jenkins
 
@@ -35,8 +34,9 @@ def cmd (String creds, String ip, String cmd, attempts = 3, timeout = 60) {
             sshCommand remote: remote, command: cmd
         } catch (err) {
             print "SSH 'command' failed."
+            print err.getMessage()
             sleep timeout
-            error(err)
+            throw err
         }
     }
 }
