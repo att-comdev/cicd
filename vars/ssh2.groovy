@@ -1,4 +1,3 @@
-
 // wrapper for https://jenkins.io/doc/pipeline/steps/ssh-steps/
 // requires 'SSH Steps Plugin' to be installed in Jenkins
 
