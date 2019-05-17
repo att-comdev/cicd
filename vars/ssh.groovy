@@ -28,9 +28,18 @@ def getRemote (String creds, String ip) {
     }
 }
 
-def cmd (String creds, String ip, String cmd) {
+def cmd (String creds, String ip, String cmd, attempts = 3, timeout = 60) {
     def remote = getRemote(creds, ip)
-    sshCommand remote: remote, command: cmd
+    retry(attempts) {
+        try {
+            sshCommand remote: remote, command: cmd
+        } catch (err) {
+            print "ERROR: SSH 'command' failed."
+            print "ERROR: " + err.getMessage()
+            sleep timeout
+            throw err
+        }
+    }
 }
 
 
@@ -43,24 +52,52 @@ def wait (String creds, String ip, String command, attempts = 12, timeout = 60) 
         try {
             cmd (creds, ip, command)
         } catch (err) {
+            print "ERROR: SSH 'wait' failed."
+            print "ERROR: " + err.getMessage()
             sleep timeout
-            error(err)
+            throw err
         }
     }
 }
 
-def get (String creds, String ip, String src, String dst) {
+def get (String creds, String ip, String src, String dst, attempts = 3, timeout = 60) {
     def remote = getRemote(creds, ip)
-    sshGet remote: remote, from: src, into: dst, override: true
+    retry(attempts) {
+        try {
+            sshGet remote: remote, from: src, into: dst, override: true
+        } catch (err) {
+            print "ERROR: SSH 'get' failed."
+            print "ERROR: " + err.getMessage()
+            sleep timeout
+            throw err
+        }
+    }
 }
 
-def put (String creds, String ip, String src, String dst) {
+def put (String creds, String ip, String src, String dst, attempts = 3, timeout = 60) {
     def remote = getRemote(creds, ip)
-    sshPut remote: remote, from: src, into: dst
+    retry(attempts) {
+        try {
+            sshPut remote: remote, from: src, into: dst
+        } catch (err) {
+            print "ERROR: SSH 'put' failed."
+            print "ERROR: " + err.getMessage()
+            sleep timeout
+            throw err
+        }
+    }
 }
 
-def script (String creds, String ip, String script) {
+def script (String creds, String ip, String script, attempts = 3, timeout = 60) {
     def remote = getRemote(creds, ip)
-    sshScript remote: remote, script: script
+    retry(attempts) {
+        try {
+            sshScript remote: remote, script: script
+        } catch (err) {
+            print "ERROR: SSH 'script' failed."
+            print "ERROR: " + err.getMessage()
+            sleep timeout
+            throw err
+        }
+    }
 }
-
