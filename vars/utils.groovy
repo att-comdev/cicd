@@ -11,7 +11,7 @@ def retrier(int retries, Closure body) {
         try {
             body.call()
             break
-        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException fie) {
+        } catch (hudson.AbortException | org.jenkinsci.plugins.workflow.steps.FlowInterruptedException fie) {
             throw fie
         } catch (Exception e) {
             echo "${e}"
