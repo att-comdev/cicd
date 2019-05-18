@@ -1,21 +1,48 @@
-/* Handy method to use instead of retry before workflow-basic-steps 2.7
-   Currently native retry does not throw up FlowInterruptedException
-   that makes job abortion messy.
-   Usage:
-       retrier(3) {
-           ...
-       }
+ABORT_MESSAGE = "Job was aborted."
+ABORT_ON = ["Aborted by", "Calling pipeline was cancelled", ABORT_MESSAGE]
+
+/* Method to run downstream jobs to be used in combination with retrier. */
+def runBuild(name, parameters, retries=2) {
+    retrier (retries) {
+        job = build(
+            job: name,
+            wait: true,
+            propagate: false,
+            parameters: parameters
+        )
+        if (job.result == 'SUCCESS') { return job }
+        else if (job.result == 'ABORTED') { throw new Exception("'${name}': ${ABORT_MESSAGE}.")  }
+        else { throw new Exception("'${name}': Job failed.") }
+    }
+}
+
+
+/* Method that allows to retry enclosed body that respects job abort,
+   including upstream and downstream ones
+      Usage:
+         retrier(3) {
+             ...
+         }
 */
 def retrier(int retries, Closure body) {
+    def lastError
     for(int i=0; i<retries; i++) {
+        lastError = null
         try {
-            body.call()
+            result = body.call()
             break
-        } catch (hudson.AbortException | org.jenkinsci.plugins.workflow.steps.FlowInterruptedException fie) {
-            throw fie
-        } catch (Exception e) {
-            echo "${e}"
+        } catch (err) {
+            lastLog = currentBuild.rawBuild.getLog(20).join()
+            if (lastLog.matches(ABORT_ON.join("|"))) {
+                throw err
+            }
+            lastError = err
+            echo "${err}"
             continue
         }
     }
+    if (lastError) {
+        throw lastError
+    }
+    return result
 }
