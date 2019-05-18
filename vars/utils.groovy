@@ -7,15 +7,17 @@
        }
 */
 def retrier(int retries, Closure body) {
+    def lastException
     for(int i=0; i<retries; i++) {
         try {
-            body.call()
-            break
+            return body.call()
         } catch (hudson.AbortException | org.jenkinsci.plugins.workflow.steps.FlowInterruptedException fie) {
             throw fie
         } catch (Exception e) {
+            lastException = e
             echo "${e}"
             continue
         }
     }
+    throw lastException
 }
