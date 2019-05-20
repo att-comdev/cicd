@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ed707a10_867583c9",
+        "filename": "vars/keystone3.groovy",
+        "patchSetId": 29
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2019-05-20T19:00:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1483c15_384e46cd",
+      "range": {
+        "startLine": 34,
+        "startChar": 41,
+        "endLine": 34,
+        "endChar": 54
+      },
+      "revId": "125ff84aabc2b7d5aee1c3a627f68783ed4a3074",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f4600e64_d750fe01",
         "filename": "vars/keystone3.groovy",
         "patchSetId": 29
@@ -36,6 +60,30 @@
       "writtenOn": "2019-05-16T03:04:16Z",
       "side": 1,
       "message": "May we just add scope into declared before req?",
+      "range": {
+        "startLine": 57,
+        "startChar": 20,
+        "endLine": 58,
+        "endChar": 61
+      },
+      "revId": "125ff84aabc2b7d5aee1c3a627f68783ed4a3074",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b54138e2_dc0b6118",
+        "filename": "vars/keystone3.groovy",
+        "patchSetId": 29
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1013122
+      },
+      "writtenOn": "2019-05-20T19:00:11Z",
+      "side": 1,
+      "message": "Added comment to explain why it was done this way. Would need expanded out if we ever divert from 2 request types.",
+      "parentUuid": "f4600e64_d750fe01",
       "range": {
         "startLine": 57,
         "startChar": 20,
