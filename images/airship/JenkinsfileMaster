@@ -1,10 +1,11 @@
 currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
+// Armada now supports multiple distros and adds suffix to image tag
+DISTRO_SUFFIX = (JOB_BASE_NAME == "armada") ? "-ubuntu_bionic" : ""
 IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
 IMAGE_PREFIX="airship"
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 PIP_TRUSTED_HOST="foo.com"
 PIP_INDEX_URL="https://pypi.org/simple"
-QUAY_IMAGE_LATEST="${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}"
 PYTHON_BASE_IMAGES = [ "pegleg" : "att-comdev/python:3.6" ,
                        "promenade" : "att-comdev/python:3.6" ]
@@ -91,11 +92,12 @@ vm(flavor: "m1.large", image:'cicd-ubuntu-18.04-server-cloudimg-amd64') {
 
     }
     stage('Publish'){
-        publish.artifactory("${IMAGE}:${IMAGE_TAG}","test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
         if (GERRIT_EVENT_TYPE == 'change-merged') {
             //Only going to store images on merged into this directory
-            publish.artifactory("${IMAGE}:${IMAGE_TAG}","${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
-            publish.artifactory ("${IMAGE}:${IMAGE_TAG}", IMAGE_LATEST)
+            publish.artifactory("${IMAGE}:${IMAGE_TAG}${DISTRO_SUFFIX}","${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+            publish.artifactory ("${IMAGE}:${IMAGE_TAG}${DISTRO_SUFFIX}", IMAGE_LATEST)
+        } else {
+            publish.artifactory("${IMAGE}:${IMAGE_TAG}${DISTRO_SUFFIX}","test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
         }
     }
 }
