@@ -1,3 +1,52 @@
+ABORT_MESSAGE = "Job was aborted."
+ABORT_ON = ["Aborted by", "Calling pipeline was cancelled", ABORT_MESSAGE]
+
+/* Method to run downstream jobs to be used in combination with retrier. */
+def runBuild(name, parameters, retries=1) {
+    retrier (retries) {
+        job = build(
+            job: name,
+            wait: true,
+            propagate: false,
+            parameters: parameters
+        )
+        if (job.result == 'SUCCESS') { return job }
+        else if (job.result == 'ABORTED') { throw new Exception("'${name}': ${ABORT_MESSAGE}.")  }
+        else { throw new Exception("'${name}': Job failed.") }
+    }
+}
+
+/* Method that allows to retry enclosed body that respects jobs aborts,
+   including upstream and downstream ones
+      Usage:
+         retrier(3) {
+             ...
+         }
+*/
+def retrier(int retries, Closure body) {
+    def lastError
+    for(int i=0; i<retries; i++) {
+        lastError = null
+        try {
+            result = body.call()
+            break
+        } catch (err) {
+            lastLog = currentBuild.rawBuild.getLog(20).join()
+            if (lastLog.find(ABORT_ON.join("|"))) {
+                throw err
+            }
+            lastError = err
+            echo "${err}"
+            continue
+        }
+    }
+    if (lastError) {
+        throw lastError
+    }
+    return result
+}
+
+
 import groovy.json.JsonSlurperClassic
 import groovy.json.JsonOutput
 
@@ -36,7 +85,7 @@ def getProjectRepoUrl(prj) {
 
 def getImageVersions(url) {
     versions = [:]
-    utils.retrier(NET_RETRY_COUNT) {
+    retrier(NET_RETRY_COUNT) {
         sh "${DIND} docker pull ${url}"
     }
 
@@ -81,7 +130,7 @@ def getProjectsVersions(projectList) {
     projectsVersions = [:]
     projectList.each { projectName ->
         projectRepo = getProjectRepoUrl(projectName)
-        utils.retrier (NET_RETRY_COUNT) {
+        retrier (NET_RETRY_COUNT) {
             revision = gerrit.getVersion(projectRepo, BRANCH, INTERNAL_GERRIT_KEY)
             if (!revision) {
                 error("Failed to get project version")
@@ -166,7 +215,7 @@ node(LOCI_BUILD_SLAVE_LABEL) {
             imagesHasFailures = verifyImagesVersions(imagesVersions, reposVersions)
         }
         stage('Verify dependency components versions') {
-            utils.retrier (NET_RETRY_COUNT) {
+            retrier (NET_RETRY_COUNT) {
                 gerrit.cloneToBranch(
                     getProjectRepoUrl(REQ_PROJECT_NAME),
                     BRANCH,
@@ -220,7 +269,7 @@ overrideImages.each { k, v -> images += "${k}=${v}\n"}
 stage("Test Deployment") {
     if (params.RUN_DEPLOYMENT) {
         print ("Starting test deployment with latest set:\n${images}")
-        utils.runBuild(
+        runBuild(
             "${JOB_BASE}/TestDeploymentPipeline",
             parameters,
             RETRY_COUNT
@@ -252,7 +301,7 @@ node(LOCI_BUILD_SLAVE_LABEL) {
             changeId = changes[0]["id"]
         }
 
-        utils.retrier (NET_RETRY_COUNT) {
+        retrier (NET_RETRY_COUNT) {
             gerrit.cloneToBranch(
                 getProjectRepoUrl(MANIFESTS_PROJECT_NAME),
                 BRANCH,
