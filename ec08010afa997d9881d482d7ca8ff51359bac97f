@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37edab04_394f8684",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-05-21T17:55:08Z",
+      "side": 1,
+      "message": "any reason why you chose to move it from else statement?",
+      "range": {
+        "startLine": 70,
+        "startChar": 20,
+        "endLine": 70,
+        "endChar": 94
+      },
+      "revId": "ec08010afa997d9881d482d7ca8ff51359bac97f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04cf174c_68c70f81",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-05-21T17:55:08Z",
+      "side": 1,
+      "message": "why cant we build image with make for openvswitch as well?",
+      "range": {
+        "startLine": 77,
+        "startChar": 24,
+        "endLine": 91,
+        "endChar": 33
+      },
+      "revId": "ec08010afa997d9881d482d7ca8ff51359bac97f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "060f3671_d4575c7d",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-05-21T17:55:08Z",
+      "side": 1,
+      "message": "could we restrict this label only to calicoctl builds",
+      "range": {
+        "startLine": 103,
+        "startChar": 48,
+        "endLine": 103,
+        "endChar": 98
+      },
+      "revId": "ec08010afa997d9881d482d7ca8ff51359bac97f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
