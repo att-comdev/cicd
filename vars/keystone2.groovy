@@ -30,7 +30,7 @@ def token(Map map) {
     }
 
     // optional with defaults
-    def retryCount = map.retryCount ?: 5.toInteger()
+    def retryCount = map.retryCount ?: 3.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
     def res
 
@@ -120,7 +120,7 @@ def getServiceId(Map map) {
     }
 
     // optional with defaults
-    def retryCount = map.retryCount ?: 5.toInteger()
+    def retryCount = map.retryCount ?: 3.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
     retry (retryCount) {
         try {
@@ -170,7 +170,7 @@ def _getServiceEndpoint(Map map) {
     }
 
     // optional with defaults
-    def retryCount = map.retryCount ?: 5.toInteger()
+    def retryCount = map.retryCount ?: 3.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
     def serviceInterface = map.serviceInterface ?: "public"
     retry (retryCount) {
