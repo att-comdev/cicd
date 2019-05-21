@@ -63,7 +63,6 @@ def retrieveToken(keystoneCreds, keystoneUrl, withCreds=true, username='shipyard
                                           quiet: true,
                                           requestBody: jreq)
                     } catch(err) {
-                        print "Keystone token request failed: ${err}"
                         sleep 120
                         error(err.getMessage())
                     }

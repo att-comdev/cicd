@@ -39,7 +39,6 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
                                   validResponseCodes: '200:503')
             _printError(201, res)
         } catch (err) {
-                print "Shipyard 'create configdocs' failed: ${err}"
                 sleep 120
                 error(err.getMessage())
         }
@@ -68,7 +67,6 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
                               validResponseCodes: '200:503')
             _printError(200, res)
         } catch (err) {
-                print "Shipyard 'commit configdocs' failed: ${err}"
                 sleep 120
                 error(err.getMessage())
         }
@@ -108,7 +106,6 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
                               validResponseCodes: '200:503')
             _printError(201, res)
         } catch (err) {
-                print "Shipyard 'create action' failed: ${err}"
                 sleep 120
                 error(err.getMessage())
         }
@@ -140,7 +137,6 @@ def _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) 
                                validResponseCodes: '200:503')
             _printError(200, res)
         } catch (err) {
-            print "Shipyard 'get action' failed: ${err}"
             sleep 120
             error(err.getMessage())
         }
@@ -195,7 +191,6 @@ def getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
                                    validResponseCodes: '200:503')
             _printError(200, res)
         } catch (err) {
-                print "Shipyard 'get state' failed: ${err}"
                 sleep 120
                 error(err.getMessage())
         }
