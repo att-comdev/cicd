@@ -1,0 +1,10 @@
+Verified+1: Jenkins <attcomdev.jenkins@gmail.com>
+Workflow+1: <sb464f@att.com>
+Code-Review+2: <sb464f@att.com>
+Code-Review+1: Andrii Ostapenko <aostapenko@mirantis.com>
+Code-Review+2: <narendra.choudhary@ericsson.com>
+Submitted-by: <sb464f@att.com>
+Submitted-at: Wed, 22 May 2019 15:19:08 +0000
+Reviewed-on: https://review.gerrithub.io/c/att-comdev/cicd/+/454601
+Project: att-comdev/cicd
+Branch: refs/heads/master
