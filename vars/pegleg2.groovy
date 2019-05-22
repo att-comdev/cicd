@@ -234,7 +234,7 @@ def encryptWithinContainer(siteRepo, globalRepo, username, sshKey, author, siteN
  * @param sshKey The SSH key for the service account.
  * @param siteName The name of the site you're looking to render. Must match what's in your site repository's site-definition.yaml
  */
-def encryptWithinContainer(siteRepo,  username, sshKey, author, siteName, peglegPassphrase, peglegSalt) {
+def encryptWithinContainer(siteRepo, username, sshKey, author, siteName, peglegPassphrase, peglegSalt) {
     sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} secrets encrypt -a ${author} ${siteName}"""
 }
 
@@ -262,6 +262,19 @@ def encrypt(siteRepo, author, siteName, peglegPassphrase, peglegSalt) {
  */
 def encryptWithinContainer(siteRepo, author, siteName, peglegPassphrase, peglegSalt) {
     sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -r ${siteRepo} secrets encrypt -a ${author} ${siteName}"""
+}
+
+/**
+ * Execution of Pegleg "decrypt" within a Pegleg
+ * container.
+ *
+ * @param siteRepo The folder containing your site-level documents (must be at your PWD)
+ * @param username The username for the service account.
+ * @param sshKey The SSH key for the service account.
+ * @param siteName The name of the site you're looking to render. Must match what's in your site repository's site-definition.yaml
+ */
+def decryptWithinContainer(siteRepo, username, sshKey, siteName, peglegPassphrase, peglegSalt) {
+    sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} secrets decrypt ${siteName} -p aic-clcp-site-manifests/site/${siteName}/secrets/passphrases -o"""
 }
 
 /**
