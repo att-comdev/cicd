@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc75d477_1e46ab3f",
+        "filename": "images/jenkins/Jenkinsfile",
+        "patchSetId": 29
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-05-22T20:20:23Z",
+      "side": 1,
+      "message": "why login in to artf secure docker url required..?",
+      "range": {
+        "startLine": 44,
+        "startChar": 22,
+        "endLine": 48,
+        "endChar": 79
+      },
+      "revId": "440db2e5099a7d6c8f61b79938048a078e51d6c1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
