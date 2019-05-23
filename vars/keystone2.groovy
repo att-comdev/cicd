@@ -58,7 +58,7 @@ def token(Map map) {
                               contentType: "APPLICATION_JSON",
                               httpMode: "POST",
                               quiet: true,
-                              validResponseCodes: '200:503',
+                              validResponseCodes: '200:504',
                               requestBody: jreq)
 
         if(res) {
@@ -76,11 +76,18 @@ def token(Map map) {
                               contentType: "APPLICATION_JSON",
                               httpMode: "POST",
                               quiet: true,
+                              validResponseCodes: '200:504',
                               requestBody: jreq)
 
-                        print "Keystone token request succeesful: ${res.status}"
-                        // this is like a for loop "break", get out of collection iterating
-                        true
+                        if(res.status == 201) {
+                            print "Keystone token request succeesful: ${res.status}"
+                            true
+                        } else if(res.status == 401 && it != keystoneCreds.last()) {
+                            // this is like a for loop "continue", move to the next item in the collection
+                            print "Unauthorized exception. Check next creds."
+                            return
+                        }
+                        error("Unexpected return code for token request ${res.status}.")
                     } catch(error) {
                         print "Keystone token request failed: ${error}"
                         sleep retryTimeout
