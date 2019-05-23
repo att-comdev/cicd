@@ -86,18 +86,18 @@ podTemplate(label: label,yaml: """
                                          INTERNAL_GERRIT_KEY)
                     sh "cp ${WORKSPACE}/${requirements}/upper-constraints.txt ${WORKSPACE}/jenkins/upper-constraints.txt"
                     sh "rm -rf ${WORKSPACE}/${requirements}"
-
-                    // pod runs as root user, adding ssh config into root's default directory
-                    def ssh_dir = "/root/.ssh"
-                    if (env.KNOWN_HOSTS) {
-                        sh "mkdir -p ${ssh_dir}; echo \"${KNOWN_HOSTS}\" >> ${ssh_dir}/known_hosts"
-                    }
-                    // Create ssh config on slave to control what login is used for
-                    // what resource
-                    // writeFile works only within workspace, so copying into root ssh dir
-                    writeFile file: "/home/jenkins/config", text: SSH_CONFIG
-                    sh "cp /home/jenkins/config ${ssh_dir}/config"
                 }
+
+                // pod runs as root user, adding ssh config into root's default directory
+                def ssh_dir = "/root/.ssh"
+                if (env.KNOWN_HOSTS) {
+                    sh "mkdir -p ${ssh_dir}; echo \"${KNOWN_HOSTS}\" >> ${ssh_dir}/known_hosts"
+                }
+                // Create ssh config on slave to control what login is used for
+                // what resource
+                // writeFile works only within workspace, so copying into root ssh dir
+                writeFile file: "/home/jenkins/config", text: SSH_CONFIG
+                sh "cp /home/jenkins/config ${ssh_dir}/config"
             }
             dir("${WORKSPACE}/jenkins"){
                 stage('Code-Review'){
