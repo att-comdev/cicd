@@ -50,18 +50,31 @@ def retrieveToken(keystoneCreds, keystoneUrl, withCreds=true, username='shipyard
         if(res) {
             if(res.status == 201) {
                 // this is like a for loop "break", get out of collection iterating
+                print "Keystone token request succeesful: ${res.status}"
                 true
             } else if(res.status == 401 && it != keystoneCreds.last()) {
                 // this is like a for loop "continue", move to the next item in the collection
+                print "Unauthorized exception. Check next creds."
                 return
+            // In case of keystone is not accessible or has some issues repeat with the same creds
             } else {
-                retry(4) {
+                retry(6) {
                     try {
                         res = httpRequest(url: keystoneUrl + "/v3/auth/tokens",
                                           contentType: "APPLICATION_JSON",
                                           httpMode: "POST",
                                           quiet: true,
+                                          validResponseCodes: '200:503',
                                           requestBody: jreq)
+                        if(res.status == 201) {
+                            print "Keystone token request succeesful: ${res.status}"
+                            true
+                        } else if(res.status == 401 && it != keystoneCreds.last()) {
+                            // this is like a for loop "continue", move to the next item in the collection
+                            print "Unauthorized exception. Check next creds."
+                            return
+                        }
+                        error("Unexpected return code for token request ${res.status}.")
                     } catch(err) {
                         sleep 120
                         error(err.getMessage())
