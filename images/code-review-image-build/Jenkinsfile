@@ -2,7 +2,8 @@ import com.att.nccicd.config.conf
 
 IMAGE_TAG = BUILD_TIMESTAMP
 DOCKER_REGISTRY = ARTF_DOCKER_URL
-IMAGE_PREFIX = "code-review-image"
+REPO_PREFIX = "nc-images"
+IMAGE_PREFIX = "${REPO_PREFIX}/code-review-image"
 BASE_IMAGE = (env.BASE_IMAGE) ? BASE_IMAGE : conf.POD_IMAGE_1604
 IMAGE_NAME = BASE_IMAGE.split('/')[-1].split('@|:')[0]
 IMAGE_PATH = "${IMAGE_PREFIX}/${IMAGE_NAME}-addons:${IMAGE_TAG}"

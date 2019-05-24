@@ -1,6 +1,5 @@
-// import com.att.nccicd.config.conf as config
-//conf = new config(env).CONF
-IMAGE_PREFIX="att-comdev"
+REPO_PREFIX = "nc-images"
+IMAGE_PREFIX="${REPO_PREFIX}/att-comdev"
 IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
 SEMANTIC_RELEASE_VERSION = "0.1.0"
 

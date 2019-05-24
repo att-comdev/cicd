@@ -5,6 +5,7 @@ DOCKER_REGISTRY = "${ARTF_SECURE_DOCKER_URL}"
 Ubuntu_Repo = "${ARTF_UBUNTU_REPO}"
 IMAGE_TAG = "xenial"
 VERSION = 1.0
+REPO_PREFIX = "nc-images"
 
 currentBuild.displayName = "#${BUILD_NUMBER} Build on ${BUILD_TIMESTAMP}"
 
@@ -22,6 +23,6 @@ vm2() {
         sh "sudo docker tag ubuntu:xenial ${IMAGE}"
     }
     stage('Image Publish') {
-        publish.artifactory (IMAGE, "${JOB_BASE_NAME}:${IMAGE_TAG}-${BUILD_TIMESTAMP}")
+        publish.artifactory (IMAGE, "${REPO_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}-${BUILD_TIMESTAMP}")
     }
 }
