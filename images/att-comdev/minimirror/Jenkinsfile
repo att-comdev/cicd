@@ -3,7 +3,8 @@ import com.att.nccicd.config.conf
 import groovy.json.JsonSlurperClassic
 import groovy.json.JsonOutput
 
-IMAGE_PREFIX="att-comdev"
+REPO_PREFIX = "nc-images"
+IMAGE_PREFIX="${REPO_PREFIX}/att-comdev"
 VERSION=1.0
 GERRIT_CLONE_URL = "ssh://" + conf.SSH_REPO_USER + "@" + conf.GERRIT_URL
 REFSPEC = "refs/changes/*:refs/changes/*"
