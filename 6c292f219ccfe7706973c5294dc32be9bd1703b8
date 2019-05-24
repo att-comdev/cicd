@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86b73f8b_505377cf",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-05-24T16:20:09Z",
+      "side": 1,
+      "message": "I wonder if it works, because permissions to .ssh/ must be set to 700 and .ssh/config should be with permissions 600.",
+      "range": {
+        "startLine": 101,
+        "startChar": 44,
+        "endLine": 101,
+        "endChar": 61
+      },
+      "revId": "6c292f219ccfe7706973c5294dc32be9bd1703b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
