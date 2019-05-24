@@ -8,7 +8,7 @@ import att.comdev.cicd.config.conf
  * @param artifactoryCred Credentialsid for authenticating the docker repository
  * @param containerName Name of the running Dind Container
  */
-def runDind(String artifactoryURL, String artifactoryCred, String containerName) {
+def runDind(String artifactoryURL, String artifactoryCred, String containerName, Integer retry_count=3) {
     def opts = "--privileged --name ${containerName}" +
                " -e HTTP_PROXY=${HTTP_PROXY} -e HTTPS_PROXY=${HTTP_PROXY}" +
                " -e NO_PROXY=${NO_PROXY} "
@@ -18,14 +18,18 @@ def runDind(String artifactoryURL, String artifactoryCred, String containerName)
     // cmd for running Docker in Docker
     dind = "sudo docker exec ${containerName}"
 
-    sh "sudo docker run -d ${opts} ${mounts} ${ARTF_DOCKER_URL}/${conf.DIND_IMAGE}"
+    utils.retrier(retry_count) {
+        sh "sudo docker run -d ${opts} ${mounts} ${ARTF_DOCKER_URL}/${conf.DIND_IMAGE}"
+    }
     sh "${dind} sh -cx 'apk update; apk add git'"
 
     withCredentials([usernamePassword(credentialsId: artifactoryCred,
             usernameVariable: 'ARTIFACTORY_USER',
             passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
         opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
-        sh "${dind} docker login ${opts} ${artifactoryURL}"
+        utils.retrier(retry_count) {
+            sh "${dind} docker login ${opts} ${artifactoryURL}"
+        }
     }
 }
 
@@ -38,7 +42,7 @@ def runDind(String artifactoryURL, String artifactoryCred, String containerName)
  * @param containerName Name of the running Dind Container
  * @param port Local port for the ngnix service
  */
-def runNginx(String containerName, String localPort) {
+def runNginx(String containerName, String localPort, Integer retry_count=3) {
     sh "mkdir -p web"
 
     // cmd for running Docker in Docker
@@ -46,7 +50,9 @@ def runNginx(String containerName, String localPort) {
 
     def opts = '-d -v /opt/loci/web:/usr/share/nginx/html:ro'
     def port = "-p ${localPort}:80"
-    sh "${dind} docker run ${opts} ${port} ${ARTF_DOCKER_URL}/${conf.NGINX_IMAGE}"
+    utils.retrier(retry_count) {
+        sh "${dind} docker run ${opts} ${port} ${ARTF_DOCKER_URL}/${conf.NGINX_IMAGE}"
+    }
 }
 
 /**
