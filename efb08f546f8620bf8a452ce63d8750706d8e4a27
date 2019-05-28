@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d02eb5af_a559fe64",
+        "filename": "images/x/ranger/Jenkinsfile",
+        "patchSetId": 52
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-05-28T22:45:42Z",
+      "side": 1,
+      "message": "} is missing here",
+      "range": {
+        "startLine": 27,
+        "startChar": 43,
+        "endLine": 27,
+        "endChar": 58
+      },
+      "revId": "efb08f546f8620bf8a452ce63d8750706d8e4a27",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9be9e30c_c5525439",
+        "filename": "images/x/ranger/Jenkinsfile",
+        "patchSetId": 52
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-05-28T22:45:42Z",
+      "side": 1,
+      "message": "why is sudo here? you have runAsUser: 0 in podTemplate (root user)",
+      "range": {
+        "startLine": 34,
+        "startChar": 54,
+        "endLine": 34,
+        "endChar": 58
+      },
+      "revId": "efb08f546f8620bf8a452ce63d8750706d8e4a27",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7201b5fb_a7e68f4c",
+        "filename": "images/x/ranger/seed.groovy",
+        "patchSetId": 52
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-05-28T22:45:42Z",
+      "side": 1,
+      "message": "will it create folder with name x? If so probably we may have a better name that will give us more understanding what is inside.",
+      "range": {
+        "startLine": 16,
+        "startChar": 15,
+        "endLine": 16,
+        "endChar": 16
+      },
+      "revId": "efb08f546f8620bf8a452ce63d8750706d8e4a27",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
