@@ -22,6 +22,30 @@
       "revId": "6c292f219ccfe7706973c5294dc32be9bd1703b8",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c1065da_8b5857a8",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-05-28T12:33:56Z",
+      "side": 1,
+      "message": "it works with the current permissions for .ssh/ is 755 and .ssh/config is 644.",
+      "parentUuid": "86b73f8b_505377cf",
+      "range": {
+        "startLine": 101,
+        "startChar": 44,
+        "endLine": 101,
+        "endChar": 61
+      },
+      "revId": "6c292f219ccfe7706973c5294dc32be9bd1703b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
