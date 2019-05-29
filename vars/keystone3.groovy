@@ -69,7 +69,7 @@ def token(Map map) {
                                   httpMode: "POST",
                                   quiet: true,
                                   requestBody: jreq)
-            print "Keystone token request succeesful: ${res.status}"
+            print "Keystone token request successful: ${res.status}"
             return res.getHeaders()["X-Subject-Token"][0]
         } catch(error) {
             print "Keystone token request failed: ${error}"

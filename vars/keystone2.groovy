@@ -63,7 +63,7 @@ def token(Map map) {
 
         if(res) {
             if(res.status == 201) {
-                print "Keystone token request succeesful: ${res.status}"
+                print "Keystone token request successful: ${res.status}"
                 // this is like a for loop "break", get out of collection iterating
                 true
             } else if(res.status == 401 && it != map.keystoneCreds.last()) {
@@ -80,7 +80,7 @@ def token(Map map) {
                               requestBody: jreq)
 
                         if(res.status == 201) {
-                            print "Keystone token request succeesful: ${res.status}"
+                            print "Keystone token request successful: ${res.status}"
                             true
                         } else if(res.status == 401 && it != keystoneCreds.last()) {
                             // this is like a for loop "continue", move to the next item in the collection

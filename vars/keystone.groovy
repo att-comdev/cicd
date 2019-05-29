@@ -50,7 +50,7 @@ def retrieveToken(keystoneCreds, keystoneUrl, withCreds=true, username='shipyard
         if(res) {
             if(res.status == 201) {
                 // this is like a for loop "break", get out of collection iterating
-                print "Keystone token request succeesful: ${res.status}"
+                print "Keystone token request successful: ${res.status}"
                 true
             } else if(res.status == 401 && it != keystoneCreds.last()) {
                 // this is like a for loop "continue", move to the next item in the collection
@@ -67,7 +67,7 @@ def retrieveToken(keystoneCreds, keystoneUrl, withCreds=true, username='shipyard
                                           validResponseCodes: '200:504',
                                           requestBody: jreq)
                         if(res.status == 201) {
-                            print "Keystone token request succeesful: ${res.status}"
+                            print "Keystone token request successful: ${res.status}"
                             true
                         } else if(res.status == 401 && it != keystoneCreds.last()) {
                             // this is like a for loop "continue", move to the next item in the collection
