@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0f17a9f4_dfcd4a28",
+        "filename": "images/x/ranger/Jenkinsfile",
+        "patchSetId": 52
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1016457
+      },
+      "writtenOn": "2019-05-29T18:58:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d02eb5af_a559fe64",
+      "range": {
+        "startLine": 27,
+        "startChar": 43,
+        "endLine": 27,
+        "endChar": 58
+      },
+      "revId": "efb08f546f8620bf8a452ce63d8750706d8e4a27",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9be9e30c_c5525439",
         "filename": "images/x/ranger/Jenkinsfile",
         "patchSetId": 52
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d1edfd44_1ea6f3df",
+        "filename": "images/x/ranger/Jenkinsfile",
+        "patchSetId": 52
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1016457
+      },
+      "writtenOn": "2019-05-29T18:58:36Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "9be9e30c_c5525439",
+      "range": {
+        "startLine": 34,
+        "startChar": 54,
+        "endLine": 34,
+        "endChar": 58
+      },
+      "revId": "efb08f546f8620bf8a452ce63d8750706d8e4a27",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7201b5fb_a7e68f4c",
         "filename": "images/x/ranger/seed.groovy",
         "patchSetId": 52
@@ -68,6 +116,30 @@
       "revId": "efb08f546f8620bf8a452ce63d8750706d8e4a27",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85b8f009_51f454c2",
+        "filename": "images/x/ranger/seed.groovy",
+        "patchSetId": 52
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1016457
+      },
+      "writtenOn": "2019-05-29T18:58:36Z",
+      "side": 1,
+      "message": "Done. Changed to putting it into the more appropriate images/openstack/ranger directory",
+      "parentUuid": "7201b5fb_a7e68f4c",
+      "range": {
+        "startLine": 16,
+        "startChar": 15,
+        "endLine": 16,
+        "endChar": 16
+      },
+      "revId": "efb08f546f8620bf8a452ce63d8750706d8e4a27",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
