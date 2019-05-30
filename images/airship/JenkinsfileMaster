@@ -17,6 +17,18 @@ UBUNTU_BASE_IMAGES = [ "airflow" : "att-comdev/ubuntu:xenial",
                        "maas-rack-controller" : "att-comdev/ubuntu:xenial",
                        "shipyard" : "att-comdev/ubuntu:xenial",
                        "sstream-cache" : "att-comdev/ubuntu:xenial" ]
+
+DISTRO_LIST = [ "airflow" : "-ubuntu_xenial",
+                "armada" : "-ubuntu_bionic",
+                "deckhand" : "-ubuntu_xenial",
+                "drydock" : "",
+                "maas-region-controller" : "",
+                "maas-rack-controller" : "",
+                "pegleg" : "-ubuntu_xenial" ,
+                "promenade" : "",
+                "shipyard" : "-ubuntu_xenial",
+                "sstream-cache" : "" ]
+
 SEMANTIC_RELEASE_VERSION = "0.1.0"
 
 vm(flavor: "m1.large", image:'cicd-ubuntu-18.04-server-cloudimg-amd64') {
@@ -91,11 +103,12 @@ vm(flavor: "m1.large", image:'cicd-ubuntu-18.04-server-cloudimg-amd64') {
 
     }
     stage('Publish'){
-        publish.artifactory("${IMAGE}:${IMAGE_TAG}","test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+        DISTRO = DISTRO_LIST."${JOB_BASE_NAME}"
+        publish.artifactory("${IMAGE}:${IMAGE_TAG}${DISTRO}","test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}${DISTRO}")
         if (GERRIT_EVENT_TYPE == 'change-merged') {
             //Only going to store images on merged into this directory
-            publish.artifactory("${IMAGE}:${IMAGE_TAG}","${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
-            publish.artifactory ("${IMAGE}:${IMAGE_TAG}", IMAGE_LATEST)
+            publish.artifactory("${IMAGE}:${IMAGE_TAG}${DISTRO}","${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}${DISTRO}.${BUILD_TIMESTAMP}")
+            publish.artifactory ("${IMAGE}:${IMAGE_TAG}${DISTRO}", "${IMAGE_LATEST}${DISTRO}")
         }
     }
 }
