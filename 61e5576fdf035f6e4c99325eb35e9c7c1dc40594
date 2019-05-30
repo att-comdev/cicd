@@ -22,6 +22,30 @@
       "revId": "61e5576fdf035f6e4c99325eb35e9c7c1dc40594",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "734988bd_5b24f1c5",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2019-05-30T13:00:56Z",
+      "side": 1,
+      "message": "That would be ideal, but as i know it determines amount of workers per core.",
+      "parentUuid": "ff11c153_9eaf95c5",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 25
+      },
+      "revId": "61e5576fdf035f6e4c99325eb35e9c7c1dc40594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
