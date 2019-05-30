@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be7579a1_82eef5b0",
+        "filename": "images/airship/JenkinsfileMaster",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-05-30T14:44:37Z",
+      "side": 1,
+      "message": "Do we need job_base_name here..?",
+      "range": {
+        "startLine": 106,
+        "startChar": 32,
+        "endLine": 106,
+        "endChar": 45
+      },
+      "revId": "5bba3151c0eb4f0cbf06f0cc015d35ca8cff467a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
