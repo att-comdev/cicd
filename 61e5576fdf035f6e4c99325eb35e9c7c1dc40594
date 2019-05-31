@@ -46,6 +46,30 @@
       "revId": "61e5576fdf035f6e4c99325eb35e9c7c1dc40594",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a91b2a1d_dcdbb0a5",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-05-31T07:57:30Z",
+      "side": 1,
+      "message": "agree, could we also have projects using make to run the py27 tests also have restricted workers",
+      "parentUuid": "734988bd_5b24f1c5",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 25
+      },
+      "revId": "61e5576fdf035f6e4c99325eb35e9c7c1dc40594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
