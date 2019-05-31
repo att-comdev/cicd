@@ -1,4 +1,4 @@
-JOB_FOLDER="images/att-comdev/minimirror"
+JOB_FOLDER = "images/att-comdev/minimirror"
 folder("images/att-comdev")
 folder("images/att-comdev/minimirror")
 pipelineJob("${JOB_FOLDER}/minimirror") {
@@ -6,16 +6,21 @@ pipelineJob("${JOB_FOLDER}/minimirror") {
         daysToKeep(90)
     }
     configure {
-                node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
-                    durationName 'hour'
-                    count '3'
-                }
+        // Limit pipeline to three jobs per hour
+        node -> node / 'properties' / 'jenkins.branch.RateLimitBranchProperty_-JobPropertyImpl'{
+            durationName 'hour'
+            count '3'
+        }
     }
     parameters {
-        stringParam('MINIMIRROR_PROJECT',"openstack/openstack-helm-images")
-        /* TODO(drewwalters96): Make reference to master once mini-mirror sources
-           merged. */
-        stringParam('CLCP_MANIFESTS',"refs/changes/47/53947/48")
+        stringParam("CLCP_MANIFESTS_REF") {
+            defaultValue("origin/master")
+            description("Git refspec for aic-clcp-manifests repo")
+        }
+        stringParam("OSH_IMAGES_REF") {
+            defaultValue("origin/master")
+            description("Git refspec for openstack/openstack-helm-images repo")
+        }
     }
     triggers {
         gerritTrigger {
