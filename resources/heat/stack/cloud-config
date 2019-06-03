@@ -1,0 +1,38 @@
+#cloud-config
+
+package_update: false
+apt_preserve_sources_list: true
+
+manage_resolv_conf: true
+resolv_conf:
+  nameservers:
+    - '8.8.8.8'
+    - '8.8.4.4'
+
+ntp:
+  enabled: true
+  ntp_client: ntp
+  servers:
+    - 0.ubuntu.pool.ntp.org
+    - 1.ubuntu.pool.ntp.org
+
+packages:
+  - fio
+  - htop
+  - default-jre-headless
+
+users:
+  - ubuntu:
+    groups: [docker, libvirt]
+  - name: virtmgr
+    groups: [libvirt, libvirtd]
+
+groups:
+  - libvirt
+  - libvirtd
+  - docker
+
+runcmd:
+  - chmod 644 /etc/cron.daily/apt-compat
+  - systemctl disable apt-daily-upgrade.timer apt-daily.timer
+  - systemctl stop apt-daily-upgrade.timer apt-daily.timer
