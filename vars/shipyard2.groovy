@@ -36,7 +36,7 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
                                                   [name: "X-Context-Marker", value: uuid]],
                                   quiet: true,
                                   requestBody: filePath,
-                                  validResponseCodes: '200:503')
+                                  validResponseCodes: '200:504')
             _printError(201, res)
         } catch (err) {
                 print "Shipyard 'create configdocs' failed: ${err}"
@@ -65,7 +65,7 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
                               customHeaders: [[name: "X-Auth-Token", value: token],
                                               [name: "X-Context-Marker", value: uuid]],
                               quiet: true,
-                              validResponseCodes: '200:503')
+                              validResponseCodes: '200:504')
             _printError(200, res)
         } catch (err) {
                 print "Shipyard 'commit configdocs' failed: ${err}"
@@ -105,7 +105,7 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
                                               [name: "X-Context-Marker", value: uuid]],
                               quiet: true,
                               requestBody: jreq,
-                              validResponseCodes: '200:503')
+                              validResponseCodes: '200:504')
             _printError(201, res)
         } catch (err) {
                 print "Shipyard 'create action' failed: ${err}"
@@ -137,7 +137,7 @@ def _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) 
                                httpMode: "GET",
                                quiet: true,
                                customHeaders: [[name: "X-Auth-Token", value: token]],
-                               validResponseCodes: '200:503')
+                               validResponseCodes: '200:504')
             _printError(200, res)
         } catch (err) {
             print "Shipyard 'get action' failed: ${err}"
@@ -192,7 +192,7 @@ def getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
                                    httpMode: "GET",
                                    quiet: true,
                                    customHeaders: [[name: "X-Auth-Token", value: token]],
-                                   validResponseCodes: '200:503')
+                                   validResponseCodes: '200:504')
             _printError(200, res)
         } catch (err) {
                 print "Shipyard 'get state' failed: ${err}"
