@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97515017_13dd504c",
+        "filename": "images/airship/JenkinsfileMaster",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-06-04T12:18:40Z",
+      "side": 1,
+      "message": "defined earlier",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 47
+      },
+      "revId": "9c494c215e6dfa199c493c7988c13436dabc4199",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
