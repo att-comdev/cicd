@@ -22,6 +22,15 @@ for (entry in object.os) {
             logRotator{
               daysToKeep(90)
             }
+            parameters {
+                stringParam("REPO_NAME", entry.repo, "Upstream repository")
+                choiceParam('GERRIT_EVENT_TYPE',
+                            ['manual', 'patchset-created', 'replace-latest'],
+                            'Never choose replace-latest unless you have explicit permission to do so')
+                stringParam("GERRIT_PATCHSET_REVISION", "latest", "Commit ID, do not change unless building off patchset")
+                stringParam("GERRIT_CHANGE_URL", "", "Optional opendev URL if building off patchset")
+            }
+
             triggers {
                 gerritTrigger {
                     serverName('OS-CommunityGerrit')
