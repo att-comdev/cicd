@@ -38,7 +38,7 @@ podTemplate(label: label,yaml: """
                     QUAY_IMAGE="attcomdev/${JOB_BASE_NAME}:${IMAGE_TAG}"
                 }
 
-                gerrit.cloneToBranch("https://review.opendev.org/x/${JOB_BASE_NAME}","${IMAGE_TAG}","")
+                gerrit.cloneToBranch("https://review.opendev.org/${REPO_NAME}","${IMAGE_TAG}","")
 
                 if (GERRIT_EVENT_TYPE == 'change-merged') {
                     gerrit.rebase()
@@ -61,10 +61,10 @@ podTemplate(label: label,yaml: """
 
             stage('Publish'){
                 if (GERRIT_EVENT_TYPE == 'change-merged') {
-                    artifactory.upload (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
-                    artifactory.upload (IMAGE, IMAGE_LATEST)
+                    publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}", useSudo=false)
+                    publish.artifactory (IMAGE, IMAGE_LATEST, useSudo=false)
                 } else {
-                    artifactory.upload (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                    publish.artifactory (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}", useSudo=false)
                 }
             }
         }
