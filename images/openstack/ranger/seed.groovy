@@ -22,6 +22,10 @@ for (entry in object.os) {
             logRotator{
               daysToKeep(90)
             }
+            parameters {
+                stringParam("REPO_NAME", entry.repo, "Repo name")
+            }
+
             triggers {
                 gerritTrigger {
                     serverName('OS-CommunityGerrit')
