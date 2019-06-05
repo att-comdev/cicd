@@ -14,10 +14,11 @@ def jsonSlurper = new JsonSlurper()
 def object = jsonSlurper.parseText(imagesJson)
 folder("images")
 folder("images/openstack")
+folder("images/openstack/ranger")
 
 for (entry in object.os) {
     for (image in entry.images) {
-      pipelineJob("images/openstack/${image}") {
+      pipelineJob("images/openstack/ranger/${image}") {
             logRotator{
               daysToKeep(90)
             }
