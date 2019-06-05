@@ -61,12 +61,23 @@ podTemplate(label: label,yaml: """
 
             stage('Publish'){
                 if (GERRIT_EVENT_TYPE == 'change-merged') {
-                    artifactory.upload (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
-                    artifactory.upload (IMAGE, IMAGE_LATEST)
+                    _publish (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+                    _publish (IMAGE, IMAGE_LATEST)
                 } else {
-                    artifactory.upload (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                    _publish (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
                 }
             }
         }
+    }
+}
+
+def _publish(src, dst) {
+    withCredentials([usernamePassword(credentialsId: "jenkins-artifactory",
+                       usernameVariable: 'REPO_USER',
+                       passwordVariable: 'REPO_PASSWORD')]) {
+                     opts = '-u $REPO_USER -p $REPO_PASSWORD'
+                     sh "docker login ${opts} ${ARTF_DOCKER_URL}"
+                     sh "docker tag ${src} ${dst}"
+                     sh "docker push ${dst}"
     }
 }
