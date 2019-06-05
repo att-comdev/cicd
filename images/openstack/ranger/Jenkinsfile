@@ -61,10 +61,10 @@ podTemplate(label: label,yaml: """
 
             stage('Publish'){
                 if (GERRIT_EVENT_TYPE == 'change-merged') {
-                    artifactory.upload (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
-                    artifactory.upload (IMAGE, IMAGE_LATEST)
+                    publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+                    publish.artifactory (IMAGE, IMAGE_LATEST)
                 } else {
-                    artifactory.upload (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                    publish.artifactory (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
                 }
             }
         }
