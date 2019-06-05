@@ -23,32 +23,36 @@ def nexus_jenkins_log (String org, String project, String repositoryName) {
 
 
 //This will publish images to respository in repositoryID
-def image (String creds, String url, String src, String dst) {
+def image (String creds, String url, String src, String dst, useSudo=true) {
   // Usage example: publish.image('jenkins-artifactory',"${ARTF_URL}",${ARMADA_IMAGE}")
   // Usage example: publish.image('jenkins-quay',"${QUAY_URL}",${QUAY_IMAGE}")
    withCredentials([usernamePassword(credentialsId: creds,
                     usernameVariable: 'REPO_USER',
                     passwordVariable: 'REPO_PASSWORD')]) {
 
+       sudo = ""
+       if (useSudo) {
+           sudo = "sudo"
+       }
        opts = '-u $REPO_USER -p $REPO_PASSWORD'
-       sh "sudo docker login ${opts} ${url}"
+       sh "${sudo} docker login ${opts} ${url}"
 
-       sh "sudo docker tag ${src} ${dst}"
-       sh "sudo docker push ${dst}"
+       sh "${sudo} docker tag ${src} ${dst}"
+       sh "${sudo} docker push ${dst}"
    }
 }
 
-def artifactory (String src, String dst) {
+def artifactory (String src, String dst, useSudo=true) {
     image('jenkins-artifactory', ARTF_DOCKER_URL, src,
-          "${ARTF_DOCKER_URL}/${dst}")
+          "${ARTF_DOCKER_URL}/${dst}", useSudo=useSudo)
 }
 
-def quay (String src, String dst) {
-    image('jenkins-quay', QUAY_URL, src, "${QUAY_URL}/${dst}")
+def quay (String src, String dst, useSudo=true) {
+    image('jenkins-quay', QUAY_URL, src, "${QUAY_URL}/${dst}", useSudo=useSudo)
 }
 
-def secureImage (String creds, String url, String src, String dst) {
-    image('secure-artifactory', ARTF_SECURE_DOCKER_URL, src, dst)
+def secureImage (String creds, String url, String src, String dst, useSudo=true) {
+    image('secure-artifactory', ARTF_SECURE_DOCKER_URL, src, dst, useSudo=useSudo)
 }
 
 /**
