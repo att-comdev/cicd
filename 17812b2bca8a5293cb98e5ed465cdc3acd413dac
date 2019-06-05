@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa72f6bd_e7c406a0",
+        "filename": "vars/jenkins.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1015017
+      },
+      "writtenOn": "2019-06-05T18:48:43Z",
+      "side": 1,
+      "message": "we can define some var/constant for these values so that it will be more readable. Otherwise everything else looks fine",
+      "revId": "17812b2bca8a5293cb98e5ed465cdc3acd413dac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
