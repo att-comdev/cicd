@@ -1,16 +1,26 @@
 //This groovy file is used for Jenkins node methods.
+import hudson.model.Node.Mode
+import hudson.slaves.*
+import jenkins.model.Jenkins
+import hudson.plugins.sshslaves.SSHLauncher
+import hudson.plugins.sshslaves.verifiers.*
 
-def node_create(String name, String host, String key = 'jenkins-slave-ssh', Number numOfExecutors = 2) {
-    config = node_config(name, host, key, numOfExecutors)
-    withCredentials([usernamePassword(credentialsId: 'jenkins-token',
-                                      usernameVariable: 'JENKINS_USER',
-                                      passwordVariable: 'JENKINS_TOKEN')]) {
+def node_create(String name, String host, String key = 'jenkins-slave-ssh', Number numOfExecutors = 1){
+   String agentHome = '/home/ubuntu/jenkins'
+   String agentDescription = 'Jenkins slave'
+   SshHostKeyVerificationStrategy hostKeyVerificationStrategy = new NonVerifyingKeyVerificationStrategy()
+   DumbSlave dumb = new DumbSlave(name,
+       agentDescription,
+       agentHome,
+       numOfExecutors,
+       Mode.EXCLUSIVE,
+       name,
+       new SSHLauncher(host, 22, SSHLauncher.lookupSystemCredentials(key), "", null, null, "", "", 60, 3, 15,hostKeyVerificationStrategy),
+       RetentionStrategy.INSTANCE)
 
-        opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
-        cmd = "echo '${config}' | java -jar \$JENKINS_CLI ${opts} create-node ${name}"
-        sh (script: cmd, returnStatus: true)
-    }
+   Jenkins.instance.addNode(dumb)
 }
+
 
 
 def node_delete(String name) {
@@ -23,28 +33,4 @@ def node_delete(String name) {
         code = sh (script: cmd , returnStatus: true)
         // todo: handle exit code properly
     }
-}
-
-//jenkins-slave-ssh is already in use for the foundry.  We need to standardize to something not in use.
-def node_config(String name, String host, String key, Number numOfExecutors) {
-    config = """<slave>
-        <name>${name}</name>
-        <description></description>
-        <remoteFS>/home/ubuntu/jenkins</remoteFS>
-        <numExecutors>${numOfExecutors}</numExecutors>
-        <mode>EXCLUSIVE</mode>
-        <retentionStrategy class=\"hudson.slaves.RetentionStrategy\$Always\"/>
-        <launcher class=\"hudson.plugins.sshslaves.SSHLauncher\" plugin=\"ssh-slaves@1.5\">
-        <host>${host}</host>
-        <port>22</port>
-        <credentialsId>${key}</credentialsId>
-        <maxNumRetries>0</maxNumRetries>
-        <retryWaitTime>0</retryWaitTime>
-        </launcher>
-        <label>${name}</label>
-        <nodeProperties/>
-        <sshHostKeyVerificationStrategy class="hudson.plugins.sshslaves.verifiers.NonVerifyingKeyVerificationStrategy"/>
-        <userId>ubuntu</userId>
-        </slave>"""
-    return config
 }
