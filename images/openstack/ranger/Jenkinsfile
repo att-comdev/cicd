@@ -5,7 +5,6 @@ ncconf = new ncconfig(env).CONF
 DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
 IMAGE_TAG= "${GERRIT_PATCHSET_REVISION}"
 IMAGE_PREFIX="openstack"
-IMAGE_NAME="${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
 QUAY_IMAGE="quay.io/attcomdev/${JOB_BASE_NAME}:${IMAGE_TAG}"
@@ -38,7 +37,7 @@ podTemplate(label: label,yaml: """
                     QUAY_IMAGE="attcomdev/${JOB_BASE_NAME}:${IMAGE_TAG}"
                 }
 
-                gerrit.cloneToBranch("https://review.opendev.org/x/${JOB_BASE_NAME}","${IMAGE_TAG}","")
+                gerrit.cloneToBranch("https://review.opendev.org/${REPO_NAME}","${IMAGE_TAG}","")
 
                 if (GERRIT_EVENT_TYPE == 'change-merged') {
                     gerrit.rebase()
@@ -49,7 +48,7 @@ podTemplate(label: label,yaml: """
 
             stage('Docker Build') {
                 timeout(20){
-                     sh "make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0' IMAGE_TAG=${IMAGE_TAG} RANGER_USER=${RANGER_USER} RANGER_AGENT_USER=${RANGER_AGENT_USER}"
+                     sh "make images IMAGE_NAME=${JOB_BASE_NAME} USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0' IMAGE_TAG=${IMAGE_TAG} RANGER_USER=${RANGER_USER} RANGER_AGENT_USER=${RANGER_AGENT_USER}"
                 }
             }
 
@@ -61,10 +60,10 @@ podTemplate(label: label,yaml: """
 
             stage('Publish'){
                 if (GERRIT_EVENT_TYPE == 'change-merged') {
-                    artifactory.upload (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
-                    artifactory.upload (IMAGE, IMAGE_LATEST)
+                    publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}", useSudo=false)
+                    publish.artifactory (IMAGE, IMAGE_LATEST, useSudo=false)
                 } else {
-                    artifactory.upload (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                    publish.artifactory (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}", useSudo=false)
                 }
             }
         }
