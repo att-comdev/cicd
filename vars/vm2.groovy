@@ -55,6 +55,7 @@ def call(udata = 'bootstrap.sh',
             }
 
             node('master') {
+                sleep 120
                 jenkins.node_create (name, ip, 'jenkins-slave-ssh', numOfExecutors)
             }
 
