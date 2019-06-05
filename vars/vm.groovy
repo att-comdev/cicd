@@ -119,6 +119,7 @@ def call(Map map, Closure body) {
             }
 
             node('master') {
+                sleep 180
                 jenkins.node_create (name, ip)
 
                 timeout (14) {
