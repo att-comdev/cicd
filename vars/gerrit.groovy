@@ -324,3 +324,16 @@ def getLocalRepoVersion(repo_path) {
     def git_log =  sh(returnStdout: true, script: cmd).trim()
     return git_log.split('::::')
 }
+
+
+/**
+  * Get Commit diff for a given repo path and commit ID
+  *
+  * @param repo_path directory where git repo is cloned
+  * @param commit_id to get diff
+  */
+def getCommitDiff(repo_path, commit_id) {
+    def cmd = "cd  ${repo_path} && git show --format='%H' ${commit_id} | grep -E '^\+|^\-'"
+    def git_diff =  sh(returnStdout: true, script: cmd).trim()
+    return git_diff
+}
