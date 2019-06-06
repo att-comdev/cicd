@@ -150,7 +150,6 @@ def imageOverrides(Map images, Boolean mos = false) {
           'nova_scheduler': NOVA_LOCI,
           'nova_spiceproxy': NOVA_LOCI,
           'nova_spiceproxy_assets': NOVA_LOCI,
-          'scripted_test': HEAT_LOCI,
           'barbican_api': 'docker.io/openstackhelm/barbican:ocata',
           'barbican_db_sync': 'docker.io/openstackhelm/barbican:ocata',
           'congress_api': 'docker.io/openstackhelm/congress:ocata',
@@ -173,7 +172,6 @@ def imageOverrides(Map images, Boolean mos = false) {
           'senlin_engine': 'docker.io/openstackhelm/senlin:ocata',
           'senlin_engine_cleaner': 'docker.io/openstackhelm/senlin:ocata',
           'tempest': 'docker.io/kolla/ubuntu-source-tempest:4.0.3',
-          'test': 'docker.io/xrally/xrally-openstack:1.3.0'
         ]
       ]
     ]
