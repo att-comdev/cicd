@@ -81,13 +81,14 @@ def token(Map map) {
 
                         if(res.status == 201) {
                             print "Keystone token request succeesful: ${res.status}"
-                            true
+                            return true
                         } else if(res.status == 401 && it != keystoneCreds.last()) {
                             // this is like a for loop "continue", move to the next item in the collection
                             print "Unauthorized exception. Check next creds."
                             return
+                        } else {
+                            error("Unexpected return code for token request ${res.status}.")
                         }
-                        error("Unexpected return code for token request ${res.status}.")
                     } catch(error) {
                         print "Keystone token request failed: ${error}"
                         sleep retryTimeout
