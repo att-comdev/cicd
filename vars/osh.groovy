@@ -150,7 +150,7 @@ def imageOverrides(Map images, Boolean mos = false) {
           'nova_scheduler': NOVA_LOCI,
           'nova_spiceproxy': NOVA_LOCI,
           'nova_spiceproxy_assets': NOVA_LOCI,
-          'scripted_test': HEAT_LOCI,
+          'scripted_test': 'docker.io/rabbitmq:3.7.13-management',
           'barbican_api': 'docker.io/openstackhelm/barbican:ocata',
           'barbican_db_sync': 'docker.io/openstackhelm/barbican:ocata',
           'congress_api': 'docker.io/openstackhelm/congress:ocata',
