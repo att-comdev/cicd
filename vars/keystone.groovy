@@ -73,8 +73,9 @@ def retrieveToken(keystoneCreds, keystoneUrl, withCreds=true, username='shipyard
                             // this is like a for loop "continue", move to the next item in the collection
                             print "Unauthorized exception. Check next creds."
                             return
+                        } else {
+                            error("Unexpected return code for token request ${res.status}.")
                         }
-                        error("Unexpected return code for token request ${res.status}.")
                     } catch(err) {
                         sleep 120
                         error(err.getMessage())
