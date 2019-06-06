@@ -23,7 +23,7 @@ def nexus_jenkins_log (String org, String project, String repositoryName) {
 
 
 //This will publish images to respository in repositoryID
-def image (String creds, String url, String src, String dst, useSudo=true) {
+def image (String creds, String url, String src, String dst, useSudo=true, useDebug=false) {
   // Usage example: publish.image('jenkins-artifactory',"${ARTF_URL}",${ARMADA_IMAGE}")
   // Usage example: publish.image('jenkins-quay',"${QUAY_URL}",${QUAY_IMAGE}")
    withCredentials([usernamePassword(credentialsId: creds,
@@ -34,25 +34,29 @@ def image (String creds, String url, String src, String dst, useSudo=true) {
        if (useSudo) {
            sudo = "sudo"
        }
+       def debug = ""
+       if (useDebug) {
+           debug = "--debug"
+       }
        opts = '-u $REPO_USER -p $REPO_PASSWORD'
-       sh "${sudo} docker login ${opts} ${url}"
+       sh "${sudo} docker ${debug} login ${opts} ${url}"
 
-       sh "${sudo} docker tag ${src} ${dst}"
-       sh "${sudo} docker push ${dst}"
+       sh "${sudo} docker ${debug} tag ${src} ${dst}"
+       sh "${sudo} docker ${debug} push ${dst}"
    }
 }
 
-def artifactory (String src, String dst, useSudo=true) {
+def artifactory (String src, String dst, useSudo=true, useDebug=false) {
     image('jenkins-artifactory', ARTF_DOCKER_URL, src,
-          "${ARTF_DOCKER_URL}/${dst}", useSudo=useSudo)
+          "${ARTF_DOCKER_URL}/${dst}", useSudo=useSudo, useDebug)
 }
 
-def quay (String src, String dst, useSudo=true) {
-    image('jenkins-quay', QUAY_URL, src, "${QUAY_URL}/${dst}", useSudo=useSudo)
+def quay (String src, String dst, useSudo=true, useDebug) {
+    image('jenkins-quay', QUAY_URL, src, "${QUAY_URL}/${dst}", useSudo=useSudo, useDebug=useDebug)
 }
 
-def secureImage (String creds, String url, String src, String dst, useSudo=true) {
-    image('secure-artifactory', ARTF_SECURE_DOCKER_URL, src, dst, useSudo=useSudo)
+def secureImage (String creds, String url, String src, String dst, useSudo=true, useDebug=false) {
+    image('secure-artifactory', ARTF_SECURE_DOCKER_URL, src, dst, useSudo=useSudo, useDebug=false)
 }
 
 /**
