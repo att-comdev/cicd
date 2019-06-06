@@ -1,5 +1,4 @@
 import com.att.nccicd.config.conf as config
-conf = new config(env).CONF as ncconf
 
 /**
  * Install Docker ce
@@ -76,6 +75,7 @@ def updateProxy() {
  */
 def imageOverrides(Map images, Boolean mos = false) {
 
+    ncconf = new config(env).CONF
     // safe way to check for ps image, or set to default
     KEYSTONE_LOCI = images.find{ it.key == "KEYSTONE_LOCI" }?.value ?: (mos ? ncconf.MOS_KEYSTONE_LOCI : ncconf.KEYSTONE_LOCI)
     HEAT_LOCI = images.find{ it.key == "HEAT_LOCI" }?.value ?: (mos ? ncconf.MOS_HEAT_LOCI : ncconf.HEAT_LOCI)
@@ -232,6 +232,7 @@ def installOSHAIO() {
 def serviceVersions(Map images, Boolean mos = false) {
     sh 'mkdir -p $WORKSPACE/artifacts'
 
+    ncconf = new config(env).CONF
     // safe way to check for ps image, or set to default
     KEYSTONE_LOCI = images.find{ it.key == "KEYSTONE_LOCI" }?.value ?: (mos ? ncconf.MOS_KEYSTONE_LOCI : ncconf.KEYSTONE_LOCI)
     HEAT_LOCI = images.find{ it.key == "HEAT_LOCI" }?.value ?: (mos ? ncconf.MOS_HEAT_LOCI : ncconf.HEAT_LOCI)
