@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee9548d6_d260e000",
+        "filename": "resources/heat/stack/cloud-config",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-06-06T16:14:34Z",
+      "side": 1,
+      "message": "Time consuming. And I don\u0027t think we did that previously.",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 20
+      },
+      "revId": "a1239bddf38ce3359a7ac9348b0850c8c91c36ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
