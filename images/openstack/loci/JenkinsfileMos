@@ -1,7 +1,7 @@
 import com.att.nccicd.config.conf as config
 conf = new config(env).CONF
 
-LOCI_REPO = 'https://git.openstack.org/openstack/loci.git'
+LOCI_REPO = 'https://opendev.org/openstack/loci.git'
 
 LOCAL_WEB_PORT = '8080'
 LOCAL_WEB_URL = "http://172.18.0.1:${LOCAL_WEB_PORT}"

@@ -39,7 +39,7 @@ vm (NODE_NAME, NODE_TMPL) {
                                  url: "ssh://jenkins-attcomdev@10.24.20.18:29418/mos-${JOB_BASE_NAME}",
                                       credentialsId:'jenkins-stage-master']]]
         } else {
-            sh "git clone https://git.openstack.org/openstack/${JOB_BASE_NAME}"
+            sh "git clone https://opendev.org/openstack/${JOB_BASE_NAME}"
             dir(JOB_BASE_NAME) {
                 sh "git checkout ${PROJECT_REF}"
             }

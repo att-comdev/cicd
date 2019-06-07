@@ -3,7 +3,7 @@ ENV KOLLA_VERSION="3.0.3" \
     KOLLA_IMAGE_TAG="newton" \
     KOLLA_IMAGE_MAINTAINER="Pete Birley (pete@port.direct)" \
     OPENSTACK_SOURCE="git" \
-    OPENSTACK_SOURCE_ROOT="https://git.openstack.org/openstack" \
+    OPENSTACK_SOURCE_ROOT="https://opendev.org/openstack" \
     OPENSTACK_VERSION="stable/newton"
 RUN set -x \
     && apt-get update \
@@ -21,7 +21,7 @@ RUN set -x \
     && pip install -U pip \
     && pip install -U wheel setuptools \
     && pip install tox \
-    && git clone http://git.openstack.org/openstack/kolla.git /opt/kolla \
+    && git clone http://opendev.org/openstack/kolla.git /opt/kolla \
     && cd /opt/kolla \
     && git checkout tags/$KOLLA_VERSION \
     && tox -egenconfig \
