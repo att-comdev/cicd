@@ -18,10 +18,10 @@ cleanup(){
 }
 
 prepare_env(){
-    git clone -q --depth 1 https://git.openstack.org/openstack/openstack-helm.git
+    git clone -q --depth 1 https://opendev.org/openstack/openstack-helm.git
     cd openstack-helm
     if [ ! ${GERRIT_REFSPEC} = "master" ]; then
-        git fetch https://git.openstack.org/openstack/openstack-helm.git ${GERRIT_REFSPEC}
+        git fetch https://opendev.org/openstack/openstack-helm.git ${GERRIT_REFSPEC}
         git checkout FETCH_HEAD
     fi
     source tools/gate/vars.sh

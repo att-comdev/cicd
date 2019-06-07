@@ -38,19 +38,19 @@ parameters:
     default: osh-node-flavor
   promenade_repo_location:
     type: string
-    default: https://git.openstack.org/openstack/airship-promenade
+    default: https://opendev.org/openstack/airship-promenade
   promenade_repo_ref:
     type: string
     default: master
   osh_repo_location:
     type: string
-    default: https://git.openstack.org/openstack/openstack-helm
+    default: https://opendev.org/openstack/openstack-helm
   osh_repo_ref:
     type: string
     default: master
   osh_infra_repo_location:
     type: string
-    default: https://git.openstack.org/openstack/openstack-helm-infra
+    default: https://opendev.org/openstack/openstack-helm-infra
   osh_infra_repo_ref:
     type: string
     default: master

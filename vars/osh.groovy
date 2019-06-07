@@ -44,7 +44,7 @@ def cloneOSH() {
     sh 'mkdir -p $WORKSPACE/artifacts'
 
     for (proj in ['openstack-helm', 'openstack-helm-infra']) {
-        git_url = "https://git.openstack.org/openstack/${proj}.git"
+        git_url = "https://opendev.org/openstack/${proj}.git"
         branch = "master"
         gerrit.cloneProject(git_url, branch, "", "${WORKSPACE}/${proj}")
         version = gerrit.getVersion(git_url, branch)
