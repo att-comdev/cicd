@@ -44,15 +44,15 @@ def image (String creds, String url, String src, String dst, useSudo=true) {
 
 def artifactory (String src, String dst, useSudo=true) {
     image('jenkins-artifactory', ARTF_DOCKER_URL, src,
-          "${ARTF_DOCKER_URL}/${dst}", useSudo=useSudo)
+          "${ARTF_DOCKER_URL}/${dst}", useSudo)
 }
 
 def quay (String src, String dst, useSudo=true) {
-    image('jenkins-quay', QUAY_URL, src, "${QUAY_URL}/${dst}", useSudo=useSudo)
+    image('jenkins-quay', QUAY_URL, src, "${QUAY_URL}/${dst}", useSudo)
 }
 
 def secureImage (String creds, String url, String src, String dst, useSudo=true) {
-    image('secure-artifactory', ARTF_SECURE_DOCKER_URL, src, dst, useSudo=useSudo)
+    image('secure-artifactory', ARTF_SECURE_DOCKER_URL, src, dst, useSudo)
 }
 
 /**
