@@ -248,3 +248,16 @@ def approveAction(actionName, comment="", submitter=null) {
 def executorExists(nodeName) {
     return (nodeName in Jenkins.instance.nodes.name) ?: false
 }
+
+/**
+ * Helper function to get default version for given lib
+ * @build currentBuild
+ * @param LibName Lib name
+ * @return default version of lib in case of exists
+ */
+
+def getLibVersion(build, libName) {
+    currentLogs = build.rawBuild.getLog()
+    version = currentLogs.find("(?<=Loading library ${libName}@).*")
+    return version
+}
