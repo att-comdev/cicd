@@ -4,7 +4,6 @@ IMAGE_PREFIX="airship"
 IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 PIP_TRUSTED_HOST="foo.com"
 PIP_INDEX_URL="https://pypi.org/simple"
-QUAY_IMAGE_LATEST="${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}"
 PYTHON_BASE_IMAGES = [ "pegleg" : "att-comdev/python:3.6" ,
                        "promenade" : "att-comdev/python:3.6" ]
