@@ -12,6 +12,8 @@ freeStyleJob("${job_path}") {
                         'Example: cicd/SuperSeed/seed.groovy,cicd/NodeCleanup/seed.groovy')
         stringParam('RELEASE_FILE_PATH', '', 'File that points to a list of seed.groovy to execute for a Cloudharbor site')
         stringParam('GERRIT_REFSPEC', 'origin/master', "Gerrit Refspec")
+        stringParam('GERRIT_BRANCH', 'master',"Branch for provided GERRIT_REFSPEC")
+        stringParam('SITES_TO_UPDATE', '',"List of sites to update generic pipeline. In case of empty all sites with cicdRef==GERRIT_BRANCH will be updated.")
         stringParam('GERRIT_HOST', 'review.gerrithub.io', 'Gerrit Host')
         stringParam('GERRIT_PROJECT', 'att-comdev/cicd', 'Project on Gerrit')
     }
