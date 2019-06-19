@@ -61,7 +61,8 @@ RUN apt-get update && \\
             libldap2-dev \\
             libsasl2-dev \\
             libssl-dev \\
-            libcurl4-openssl-dev
+            libcurl4-openssl-dev \\
+            strace
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir tox
 EOF"""
