@@ -431,6 +431,6 @@ def dockerExecEncrypt(peglegPassphrase, peglegSalt, siteRepo, username, sshKey, 
 
 def dockerExecDecrypt(peglegPassphrase, peglegSalt, siteRepo, username, sshKey, siteName, securityRepo) {
   sh """
-  sudo docker exec -i pegleg /bin/bash -c "export PEGLEG_PASSPHRASE="${peglegPassphrase}" && export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} secrets decrypt ${siteName} -f ${securityRepo}"
+  sudo docker exec -i pegleg /bin/bash -c "export PEGLEG_PASSPHRASE="${peglegPassphrase}" && export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -r ${siteRepo} -u ${username} -k ${sshKey} secrets decrypt ${siteName} --path ${securityRepo}"
   """
 }
