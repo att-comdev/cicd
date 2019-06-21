@@ -32,6 +32,7 @@ def token(Map map) {
     // optional with defaults
     def retryCount = map.retryCount ?: 5.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
+    def proxy = map.proxy ?: ""
     def res
 
     map.keystoneCreds.any {
@@ -59,6 +60,7 @@ def token(Map map) {
                               httpMode: "POST",
                               quiet: true,
                               validResponseCodes: '200:504',
+                              httpProxy: proxy,
                               requestBody: jreq)
 
         if(res) {
@@ -77,6 +79,7 @@ def token(Map map) {
                               httpMode: "POST",
                               quiet: true,
                               validResponseCodes: '200:504',
+                              httpProxy: proxy,
                               requestBody: jreq)
 
                         if(res.status == 201) {
@@ -129,6 +132,8 @@ def getServiceId(Map map) {
     // optional with defaults
     def retryCount = map.retryCount ?: 5.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
+    def proxy = map.proxy ?: ""
+
     retry (retryCount) {
         try {
 
@@ -136,7 +141,8 @@ def getServiceId(Map map) {
                                    httpMode: "GET",
                                    contentType: "APPLICATION_JSON",
                                    customHeaders: [[name: "X-Auth-Token", value: map.token]],
-                                   quiet: true)
+                                   quiet: true,
+                                   httpProxy: proxy)
             services = new JsonSlurperClassic().parseText(res.content)
             service_id = services.services[0]["id"]
             return service_id
@@ -180,6 +186,8 @@ def _getServiceEndpoint(Map map) {
     def retryCount = map.retryCount ?: 5.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
     def serviceInterface = map.serviceInterface ?: "public"
+    def proxy = map.proxy ?: ""
+
     retry (retryCount) {
         try {
 
@@ -187,7 +195,8 @@ def _getServiceEndpoint(Map map) {
                                    httpMode: "GET",
                                    contentType: "APPLICATION_JSON",
                                    customHeaders: [[name: "X-Auth-Token", value: map.token]],
-                                   quiet: true)
+                                   quiet: true,
+                                   httpProxy: proxy)
             endpoints = new JsonSlurperClassic().parseText(res.content)
             return endpoints.endpoints[0]["url"]
 
@@ -227,10 +236,12 @@ def getServiceEndpoint(Map map) {
 
     service_id = getServiceId(keystoneUrl: map.keystoneUrl,
                               token: map.token,
-                              serviceType: map.serviceType)
+                              serviceType: map.serviceType,
+                              proxy: map.proxy)
     endpoint = _getServiceEndpoint(keystoneUrl: map.keystoneUrl,
                               token: map.token,
                               serviceId: service_id,
-                              serviceInterface: serviceInterface)
+                              serviceInterface: serviceInterface,
+                              proxy: map.proxy)
     return endpoint
 }
