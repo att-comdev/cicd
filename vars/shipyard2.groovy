@@ -25,7 +25,7 @@ def _printError(code, res) {
  * @param bucketName The name given to the collection of documents you're creating - typically matches the site name.
  * @param bufferMode Indicates how the existing Shipyard Buffer should be handled - see: https://shipyard.readthedocs.io/en/latest/API.html?highlight=bufferMode for further details.
  */
-def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode) {
+def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode, proxy="") {
     def res = null
     retry(5) {
         try {
@@ -36,7 +36,8 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
                                                   [name: "X-Context-Marker", value: uuid]],
                                   quiet: true,
                                   requestBody: filePath,
-                                  validResponseCodes: '200:504')
+                                  validResponseCodes: '200:504',
+                                  httpProxy: proxy)
             _printError(201, res)
         } catch (err) {
                 print "Shipyard 'create configdocs' failed: ${err}"
@@ -56,7 +57,7 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
  * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
  * @param shipyarUrl The Shipyard URL of the site you are creating documents against.
  */
-def commitConfigdocs(uuid, token, shipyardUrl) {
+def commitConfigdocs(uuid, token, shipyardUrl, proxy="") {
     def res = null
     retry(5) {
         try {
@@ -65,7 +66,8 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
                               customHeaders: [[name: "X-Auth-Token", value: token],
                                               [name: "X-Context-Marker", value: uuid]],
                               quiet: true,
-                              validResponseCodes: '200:504')
+                              validResponseCodes: '200:504',
+                              httpProxy: proxy)
             _printError(200, res)
         } catch (err) {
                 print "Shipyard 'commit configdocs' failed: ${err}"
@@ -87,7 +89,7 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
  * @param action The action to perform - see: https://shipyard.readthedocs.io/en/latest/API_action_commands.html?highlight=action for further details.
  * @param parameters Optional map of parameters needed to create action
  */
-def createAction(uuid, token, shipyardUrl, action, parameters = null) {
+def createAction(uuid, token, shipyardUrl, action, parameters = null, proxy="") {
 
     def req = ["name": action]
     if (parameters) {
@@ -105,7 +107,8 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
                                               [name: "X-Context-Marker", value: uuid]],
                               quiet: true,
                               requestBody: jreq,
-                              validResponseCodes: '200:504')
+                              validResponseCodes: '200:504',
+                              httpProxy: proxy)
             _printError(201, res)
         } catch (err) {
                 print "Shipyard 'create action' failed: ${err}"
@@ -126,8 +129,8 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
  * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  * @return List of steps for given shipyard action.
  */
-def _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
-    def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds)
+def _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true, proxy="") {
+    def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds, "shipyard", proxy)
     def token = req.getHeaders()["X-Subject-Token"][0]
     def res = null
     retry(5) {
@@ -137,7 +140,8 @@ def _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) 
                                httpMode: "GET",
                                quiet: true,
                                customHeaders: [[name: "X-Auth-Token", value: token]],
-                               validResponseCodes: '200:504')
+                               validResponseCodes: '200:504',
+                               httpProxy: proxy)
             _printError(200, res)
         } catch (err) {
             print "Shipyard 'get action' failed: ${err}"
@@ -165,8 +169,8 @@ def _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) 
  * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  * @return List of steps for given shipyard action.
  */
-def getSteps(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
-    action = _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true)
+def getSteps(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true, proxy="") {
+    action = _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true, proxy)
     return action.steps
 }
 
@@ -181,8 +185,8 @@ def getSteps(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
  * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  * @return state State of the step (such as null, "success", "skipped", "running", "queued", "scheduled")
  */
-def getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
-    def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds)
+def getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true, proxy="") {
+    def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds, "shipyard", proxy)
     def token = req.getHeaders()["X-Subject-Token"][0]
     def res = null
     retry(5) {
@@ -192,7 +196,8 @@ def getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
                                    httpMode: "GET",
                                    quiet: true,
                                    customHeaders: [[name: "X-Auth-Token", value: token]],
-                                   validResponseCodes: '200:504')
+                                   validResponseCodes: '200:504',
+                                   httpProxy: proxy)
             _printError(200, res)
         } catch (err) {
                 print "Shipyard 'get state' failed: ${err}"
@@ -232,7 +237,7 @@ def getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
  * @param artfPath Artifactory path for executed pipeline.
  * @param siteName Site name for executed pipeline.
  */
-def createConfigdocs(uuid, token, shipyardUrl, siteName) {
+def createConfigdocs(uuid, token, shipyardUrl, siteName, proxy="") {
     def manifests = ""
     files = findFiles(glob: "${siteName}/*.yaml")
     files.each {
@@ -240,7 +245,7 @@ def createConfigdocs(uuid, token, shipyardUrl, siteName) {
             manifests += readFile it.path
     }
 
-    _createConfigdocs(uuid, token, manifests, shipyardUrl, siteName, "replace")
+    _createConfigdocs(uuid, token, manifests, shipyardUrl, siteName, "replace", proxy)
 }
 
 /**
@@ -253,7 +258,7 @@ def createConfigdocs(uuid, token, shipyardUrl, siteName) {
  * @param keystoneUrl The IAM URL of the site you are authenticating against.
  * @param withCreds Boolean. Flag for using jenkins configuration to get keystone credentials.
  */
-def waitStep(systep, interval, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
+def waitStep(systep, interval, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true, proxy="") {
 
     print ">> Waiting on Shipyard step: ${systep}"
 
@@ -263,7 +268,7 @@ def waitStep(systep, interval, shipyardUrl, keystoneCreds, keystoneUrl, withCred
         sleep interval
 
         retry (5) {
-            state = getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds)
+            state = getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds, proxy)
         }
     }
 
@@ -308,14 +313,14 @@ def waitActionSteps(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=t
  * @param artfPath Artifactory path for executed pipeline.
  * @param siteName Site name for executed pipeline.
  */
-def uploadConfig(uuid, token, shipyardUrl, siteName) {
+def uploadConfig(uuid, token, shipyardUrl, siteName, proxy="") {
 
     stage('Shipyard Config Create') {
-        createConfigdocs(uuid, token, shipyardUrl, siteName)
+        createConfigdocs(uuid, token, shipyardUrl, siteName, proxy)
     }
 
     stage('Shipyard Config Commit') {
-        commitConfigdocs(uuid, token,  shipyardUrl)
+        commitConfigdocs(uuid, token,  shipyardUrl, proxy)
     }
 }
 
@@ -367,7 +372,7 @@ def _printActionSteps(action) {
  */
 def waitAction(Map map) {
 
-    mandatoryArgs = ["action", "uuid", "shipyardUrl", "keystoneCreds", "keystoneUrl"]
+    mandatoryArgs = ["action", "uuid", "shipyardUrl", "keystoneCreds", "keystoneUrl", "sshDetails"]
     missingArgs = []
     mandatoryArgs.each() {
         if (!map.containsKey(it)) {
@@ -380,13 +385,13 @@ def waitAction(Map map) {
     def withCreds = map.withCreds ?: true
     def actionId
     stage('Action create') {
-        def req = keystone.retrieveToken(map.keystoneCreds, map.keystoneUrl, withCreds)
+        def req = keystone.retrieveToken(map.keystoneCreds, map.keystoneUrl, withCreds, "shipyard", map.proxy)
         def token = req.getHeaders()["X-Subject-Token"][0]
-        def res = createAction(map.uuid, token, map.shipyardUrl, map.action, map.parameters)
+        def res = createAction(map.uuid, token, map.shipyardUrl, map.action, map.parameters, map.proxy)
         def cont = new JsonSlurperClassic().parseText(res.content)
         actionId = cont.id
     }
-    action = _getAction(actionId, map.shipyardUrl, map.keystoneCreds, map.keystoneUrl, withCreds)
+    action = _getAction(actionId, map.shipyardUrl, map.keystoneCreds, map.keystoneUrl, withCreds, map.proxy)
     def String status = action.action_lifecycle
     def failedSteps = []
     def runningSteps = []
@@ -398,16 +403,16 @@ def waitAction(Map map) {
     while (status == "Pending" || status == "Processing") {
         sleep 240
 
-        action = _getAction(actionId, map.shipyardUrl, map.keystoneCreds, map.keystoneUrl, withCreds)
+        action = _getAction(actionId, map.shipyardUrl, map.keystoneCreds, map.keystoneUrl, withCreds, map.proxy)
         status = action.action_lifecycle
         print "Wait until action is complete. Currently in ${status} state."
         (failedSteps, runningSteps) = _printActionSteps(action)
         // For drydock_build step check nodes state. For all other check pods state.
-        if (map.genesisCreds && map.genesisIp) {
+        if (map.sshDetails.creds && map.sshDetails.ip) {
             if ('drydock_build' in failedSteps || 'drydock_build' in runningSteps) {
-                ssh.cmd (map.genesisCreds, map.genesisIp, 'sudo kubectl get nodes')
+                ssh.cmd (sshDetails: map.sshDetails, cmd: 'sudo kubectl get nodes')
             } else {
-                ssh.cmd (map.genesisCreds, map.genesisIp, 'sudo kubectl get pods --all-namespaces | grep -vE "Completed|Running"')
+                ssh.cmd (sshDetails: map.sshDetails, cmd: 'sudo kubectl get pods --all-namespaces | grep -vE "Completed|Running"')
             }
         }
         if (failedSteps) {

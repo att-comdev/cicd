@@ -11,7 +11,7 @@ import groovy.json.JsonOutput
  *                           Default value is True.
  * @return res The response supplied by the Keystone upon successful authentication
  */
-def retrieveToken(keystoneCreds, keystoneUrl, withCreds=true, username='shipyard') {
+def retrieveToken(keystoneCreds, keystoneUrl, withCreds=true, username='shipyard', proxy="") {
 
     if( !(keystoneCreds instanceof List)) {
         keystoneCreds = [keystoneCreds]
@@ -45,6 +45,7 @@ def retrieveToken(keystoneCreds, keystoneUrl, withCreds=true, username='shipyard
                           httpMode: "POST",
                           quiet: true,
                           validResponseCodes: '200:504',
+                          httpProxy: proxy,
                           requestBody: jreq)
 
         if(res) {
@@ -65,6 +66,7 @@ def retrieveToken(keystoneCreds, keystoneUrl, withCreds=true, username='shipyard
                                           httpMode: "POST",
                                           quiet: true,
                                           validResponseCodes: '200:504',
+                                          httpProxy: proxy,
                                           requestBody: jreq)
                         if(res.status == 201) {
                             print "Keystone token request succeesful: ${res.status}"
