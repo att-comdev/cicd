@@ -1,7 +1,6 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
 
-
 /**
  * Retrieve Keystone token
  * Usage:
@@ -27,6 +26,7 @@ def token(Map map) {
     def retryCount = map.retryCount ?: 5.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
     def keystoneDomain = map.keystoneDomain ?: "default"
+    def proxy = map.proxy ?: ""
 
     withCredentials([[$class: "UsernamePasswordMultiBinding",
                       credentialsId: map.keystoneCreds,
@@ -68,6 +68,7 @@ def token(Map map) {
                                   contentType: "APPLICATION_JSON",
                                   httpMode: "POST",
                                   quiet: true,
+                                  httpProxy: proxy,
                                   requestBody: jreq)
             print "Keystone token request succeesful: ${res.status}"
             return res.getHeaders()["X-Subject-Token"][0]
@@ -96,12 +97,16 @@ def getTokenDetails(Map map) {
         error("Must provide Keystone Token 'keystoneToken'")
     }
 
+    // optional with defaults
+    def proxy = map.proxy ?: ""
+
     def authToken = ""
     try {
         authToken = token(keystoneUrl: map.keystoneUrl,
                           keystoneCreds: map.keystoneCreds,
                           keystoneDomain: map.keystoneDomain,
-                          retryCount: 1)
+                          retryCount: 1,
+                          proxy: proxy)
     } catch(error) {
         print "Keystone token request failed: ${error}"
     }
@@ -111,7 +116,8 @@ def getTokenDetails(Map map) {
                           customHeaders: [[name: "X-Auth-Token", value: authToken],
                                           [name: "X-Subject-Token", value: map.keystoneToken]],
                           quiet: true,
-                          validResponseCodes: '200:503')
+                          validResponseCodes: '200:503',
+                          httpProxy: proxy)
     return res
 }
 
@@ -142,6 +148,8 @@ def getServiceId(Map map) {
     // optional with defaults
     def retryCount = map.retryCount ?: 5.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
+    def proxy = map.proxy ?: ""
+
     retry (retryCount) {
         try {
 
@@ -149,7 +157,8 @@ def getServiceId(Map map) {
                                    httpMode: "GET",
                                    contentType: "APPLICATION_JSON",
                                    customHeaders: [[name: "X-Auth-Token", value: map.token]],
-                                   quiet: true)
+                                   quiet: true,
+                                   httpProxy: proxy)
             services = new JsonSlurperClassic().parseText(res.content)
             service_id = services.services[0]["id"]
             return service_id
@@ -193,6 +202,8 @@ def _getServiceEndpoint(Map map) {
     def retryCount = map.retryCount ?: 5.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
     def serviceInterface = map.serviceInterface ?: "public"
+    def proxy = map.proxy ?: ""
+
     retry (retryCount) {
         try {
 
@@ -200,7 +211,8 @@ def _getServiceEndpoint(Map map) {
                                    httpMode: "GET",
                                    contentType: "APPLICATION_JSON",
                                    customHeaders: [[name: "X-Auth-Token", value: map.token]],
-                                   quiet: true)
+                                   quiet: true,
+                                   httpProxy: proxy)
             endpoints = new JsonSlurperClassic().parseText(res.content)
             return endpoints.endpoints[0]["url"]
 
@@ -240,10 +252,12 @@ def getServiceEndpoint(Map map) {
 
     service_id = getServiceId(keystoneUrl: map.keystoneUrl,
                               token: map.token,
-                              serviceType: map.serviceType)
+                              serviceType: map.serviceType,
+                              proxy: map.proxy)
     endpoint = _getServiceEndpoint(keystoneUrl: map.keystoneUrl,
                               token: map.token,
                               serviceId: service_id,
-                              serviceInterface: serviceInterface)
+                              serviceInterface: serviceInterface,
+                              proxy: map.proxy)
     return endpoint
 }
