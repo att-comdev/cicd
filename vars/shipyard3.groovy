@@ -297,7 +297,14 @@ def waitAction(Map map) {
             if ('drydock_build' in failedSteps || 'drydock_build' in runningSteps) {
                 ssh.cmd (map.genesisCreds, map.genesisIp, 'sudo kubectl get nodes')
             } else {
-                ssh.cmd (map.genesisCreds, map.genesisIp, 'sudo kubectl get pods --all-namespaces | grep -vE "Completed|Running"')
+                // Pods with that are not fully ready
+                // (anything other than Running pods with n/n containers READY and Completed pods)
+                ssh.cmd (map.genesisCreds, map.genesisIp,
+                         'sudo kubectl get pods --all-namespaces -o wide | grep -vE -e "([0-9]+)/\\1.*Running" -e Completed')
+                // Deployments where DESIRED != UP-TO-DATE
+                ssh.cmd (map.genesisCreds, map.genesisIp, "sudo kubectl get deployments --all-namespaces | awk '$3 != $5'")
+                // Jobs where DESIRED != SUCCESSFUL
+                ssh.cmd (map.genesisCreds, map.genesisIp, "sudo kubectl get jobs --all-namespaces | awk '$3 != $4'")
             }
         }
         if (failedSteps) {
