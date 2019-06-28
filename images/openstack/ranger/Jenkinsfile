@@ -14,59 +14,69 @@ RANGER_AGENT_USER=ncconf.RANGER_AGENT_USER
 
 def label = "worker-${UUID.randomUUID().toString()}"
 
-podTemplate(label: label,yaml: """
-           apiVersion: v1
-           kind: Pod
-           spec:
-             securityContext:
-               runAsUser: 0
-             nodeSelector:
-               jenkins-node: enabled
-           """, containers: [
-               containerTemplate(name: "ubuntu",
-                                 image: "${ARTF_DOCKER_URL}/ubuntu_copy/18.04/nc-ubuntu-18.04@sha256:a08437dd42b2d095cef653d485414fe351401c55b480f16908d5911e4ba75c0f",
-                                 command: "cat",
-                                 ttyEnabled: true)],
-               volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock', mountPath: '/var/run/docker.sock')]) {
-   node(label){
-       container("ubuntu"){
-            stage('Checkout'){
-                sh 'apt-get -y install make docker.io'
-                if(env.GERRIT_NEWREV){
-                    echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
-                    IMAGE_TAG=env.GERRIT_NEWREV
-                    QUAY_IMAGE="attcomdev/${JOB_BASE_NAME}:${IMAGE_TAG}"
+try {
+    podTemplate(label: label,yaml: """
+               apiVersion: v1
+               kind: Pod
+               spec:
+                 securityContext:
+                   runAsUser: 0
+                 nodeSelector:
+                   jenkins-node: enabled
+               """, containers: [
+                   containerTemplate(name: "ubuntu",
+                                     image: "${ARTF_DOCKER_URL}/ubuntu_copy/18.04/nc-ubuntu-18.04@sha256:a08437dd42b2d095cef653d485414fe351401c55b480f16908d5911e4ba75c0f",
+                                     command: "cat",
+                                     ttyEnabled: true)],
+                   volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock', mountPath: '/var/run/docker.sock')]) {
+        node(label){
+            container("ubuntu"){
+                stage('Checkout'){
+                    sh 'apt-get -y install make docker.io'
+                    if(env.GERRIT_NEWREV){
+                        echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+                        IMAGE_TAG=env.GERRIT_NEWREV
+                        QUAY_IMAGE="attcomdev/${JOB_BASE_NAME}:${IMAGE_TAG}"
+                    }
+
+                    gerrit.cloneToBranch("https://review.opendev.org/x/${JOB_BASE_NAME}","${IMAGE_TAG}","")
+
+                    if (GERRIT_EVENT_TYPE == 'change-merged') {
+                        gerrit.rebase()
+                    }
+                    IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+                    currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
                 }
 
-                gerrit.cloneToBranch("https://review.opendev.org/x/${JOB_BASE_NAME}","${IMAGE_TAG}","")
-
-                if (GERRIT_EVENT_TYPE == 'change-merged') {
-                    gerrit.rebase()
+                stage('Docker Build') {
+                    timeout(20){
+                         sh "make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0' IMAGE_TAG=${IMAGE_TAG} RANGER_USER=${RANGER_USER} RANGER_AGENT_USER=${RANGER_AGENT_USER}"
+                    }
                 }
-                IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
-                currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
-            }
 
-            stage('Docker Build') {
-                timeout(20){
-                     sh "make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0' IMAGE_TAG=${IMAGE_TAG} RANGER_USER=${RANGER_USER} RANGER_AGENT_USER=${RANGER_AGENT_USER}"
+                stage('Docker Run') {
+                    timeout(20){
+                       sh "docker run ${IMAGE}"
+                    }
                 }
-            }
 
-            stage('Docker Run') {
-                timeout(20){
-                   sh "docker run ${IMAGE}"
-                }
-            }
-
-            stage('Publish'){
-                if (GERRIT_EVENT_TYPE == 'change-merged') {
-                    artifactory.upload (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
-                    artifactory.upload (IMAGE, IMAGE_LATEST)
-                } else {
-                    artifactory.upload (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                stage('Publish'){
+                    if (GERRIT_EVENT_TYPE == 'change-merged') {
+                        artifactory.upload (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+                        artifactory.upload (IMAGE, IMAGE_LATEST)
+                    } else {
+                        artifactory.upload (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                    }
                 }
             }
         }
     }
+    // catch both errors and exceptions
+} catch (Throwable err) {
+    currentBuild.result = 'FAILURE'
+    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+        email.sendMail(recipientProviders: [developers(), requestor()],
+                       to: env.EMAIL_LIST)
+    }
+    throw err
 }

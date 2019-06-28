@@ -18,72 +18,82 @@ IMAGE_DOCKER="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/mini-mirror:${GERRIT_PATCHSET_R
 IMAGE_DOCKER_LATEST="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/mini-mirror:latest"
 
 def label = "worker-${UUID.randomUUID().toString()}"
-podTemplate(label: label,yaml: """
-            apiVersion: v1
-            kind: Pod
-            spec:
-              securityContext:
-                runAsUser: 0
-              nodeSelector:
-                dind-node: enabled
-            """, containers: [
-                containerTemplate(name: "ubuntu",
-                                  image: "${ARTF_DOCKER_URL}/ubuntu_copy/18.04/nc-ubuntu-18.04@sha256:a08437dd42b2d095cef653d485414fe351401c55b480f16908d5911e4ba75c0f",
-                                  command: "cat",
-                                  ttyEnabled: true)],
-                volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock', mountPath: '/var/run/docker.sock')]) {
-    node(label){
-        container("ubuntu"){
+try {
+    podTemplate(label: label,yaml: """
+                apiVersion: v1
+                kind: Pod
+                spec:
+                  securityContext:
+                    runAsUser: 0
+                  nodeSelector:
+                    dind-node: enabled
+                """, containers: [
+                    containerTemplate(name: "ubuntu",
+                                      image: "${ARTF_DOCKER_URL}/ubuntu_copy/18.04/nc-ubuntu-18.04@sha256:a08437dd42b2d095cef653d485414fe351401c55b480f16908d5911e4ba75c0f",
+                                      command: "cat",
+                                      ttyEnabled: true)],
+                    volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock', mountPath: '/var/run/docker.sock')]) {
+        node(label){
+            container("ubuntu"){
 
-            stage('Setup environment'){
-                sh "apt-get install sudo make docker.io curl -y"
-            }
-            stage("checkout"){
-                if("${GERRIT_PROJECT}" == "${MINIMIRROR_PROJECT}" && env.GERRIT_NEWREV){
-                    echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
-                    gerrit.cloneToBranch("https://opendev.org/openstack/openstack-helm-images",  "${GERRIT_NEWREV}", "${JOB_BASE_NAME}")
+                stage('Setup environment'){
+                    sh "apt-get install sudo make docker.io curl -y"
                 }
-                else if("${GERRIT_PROJECT}" == "${MINIMIRROR_PROJECT}" && GERRIT_EVENT_TYPE != 'change-merged') {
-                    gerrit.cloneToBranch("https://opendev.org/openstack/openstack-helm-images", "${GERRIT_PATCHSET_REVISION}", "${JOB_BASE_NAME}")
-                }
-                else {
-                    sh "mkdir -p  ${JOB_BASE_NAME}"
-                    dir("${WORKSPACE}/${JOB_BASE_NAME}") {
-                        git "https://opendev.org/openstack/openstack-helm-images"
-                        sh "git checkout master"
+                stage("checkout"){
+                    if("${GERRIT_PROJECT}" == "${MINIMIRROR_PROJECT}" && env.GERRIT_NEWREV){
+                        echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+                        gerrit.cloneToBranch("https://opendev.org/openstack/openstack-helm-images",  "${GERRIT_NEWREV}", "${JOB_BASE_NAME}")
+                    }
+                    else if("${GERRIT_PROJECT}" == "${MINIMIRROR_PROJECT}" && GERRIT_EVENT_TYPE != 'change-merged') {
+                        gerrit.cloneToBranch("https://opendev.org/openstack/openstack-helm-images", "${GERRIT_PATCHSET_REVISION}", "${JOB_BASE_NAME}")
+                    }
+                    else {
+                        sh "mkdir -p  ${JOB_BASE_NAME}"
+                        dir("${WORKSPACE}/${JOB_BASE_NAME}") {
+                            git "https://opendev.org/openstack/openstack-helm-images"
+                            sh "git checkout master"
+                        }
+                    }
+                    dir ("minimirror/mini-mirror") {
+                        if("${GERRIT_PROJECT}" != "${MINIMIRROR_PROJECT}"){
+                            gerrit.cloneProject(GERRIT_CLONE_URL + "/" + conf.GLOBAL_REPO, GERRIT_REFSPEC, REFSPEC, conf.GLOBAL_REPO, conf.JENKINS_GERRIT_MTN5_CRED_ID)
+                        }else {
+                            gerrit.cloneProject(GERRIT_CLONE_URL + "/" + conf.GLOBAL_REPO, CLCP_MANIFESTS, REFSPEC, conf.GLOBAL_REPO, conf.JENKINS_GERRIT_MTN5_CRED_ID)
+                        }
+                        artifactory.download("${ARTF_PATH}", "gpgkey-private")
                     }
                 }
-                dir ("minimirror/mini-mirror") {
-                    if("${GERRIT_PROJECT}" != "${MINIMIRROR_PROJECT}"){
-                        gerrit.cloneProject(GERRIT_CLONE_URL + "/" + conf.GLOBAL_REPO, GERRIT_REFSPEC, REFSPEC, conf.GLOBAL_REPO, conf.JENKINS_GERRIT_MTN5_CRED_ID)
-                    }else {
-                        gerrit.cloneProject(GERRIT_CLONE_URL + "/" + conf.GLOBAL_REPO, CLCP_MANIFESTS, REFSPEC, conf.GLOBAL_REPO, conf.JENKINS_GERRIT_MTN5_CRED_ID)
+                stage('Build') {
+                    dir ("minimirror/mini-mirror"){
+                        withCredentials([string(credentialsId: 'mini-mirror-pass', variable: 'MINI_PASS')]) {
+                        sh '''
+                        REGISTRY_URI="${ARTF_DOCKER_URL}/att-comdev/" \
+                        VERSION="${GERRIT_PATCHSET_REVISION}" DISTRO=ubuntu_xenial \
+                        HTTP_PROXY=${HTTP_PROXY} HTTPS_PROXY=${HTTP_PROXY} \
+                        APTLY_CONFIG_PATH=/aic-clcp-manifests/tools/mini-mirror/etc/aptly.conf \
+                        MIRROR_SOURCE_DIR=/aic-clcp-manifests/tools/mini-mirror/sources \
+                        RELEASE_SIGN_KEY_PATH=/gpgkey-private RELEASE_SIGN_KEY_PASSPHRASE=${MINI_PASS} \
+                        bash build.sh
+                        '''
+                        }
+                        sh "docker images"
                     }
-                    artifactory.download("${ARTF_PATH}", "gpgkey-private")
                 }
-            }
-            stage('Build') {
-                dir ("minimirror/mini-mirror"){
-                    withCredentials([string(credentialsId: 'mini-mirror-pass', variable: 'MINI_PASS')]) {
-                    sh '''
-                    REGISTRY_URI="${ARTF_DOCKER_URL}/att-comdev/" \
-                    VERSION="${GERRIT_PATCHSET_REVISION}" DISTRO=ubuntu_xenial \
-                    HTTP_PROXY=${HTTP_PROXY} HTTPS_PROXY=${HTTP_PROXY} \
-                    APTLY_CONFIG_PATH=/aic-clcp-manifests/tools/mini-mirror/etc/aptly.conf \
-                    MIRROR_SOURCE_DIR=/aic-clcp-manifests/tools/mini-mirror/sources \
-                    RELEASE_SIGN_KEY_PATH=/gpgkey-private RELEASE_SIGN_KEY_PASSPHRASE=${MINI_PASS} \
-                    bash build.sh
-                    '''
+                stage('Image Publish'){
+                    publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${GERRIT_PATCHSET_REVISION}-ubuntu.${BUILD_TIMESTAMP}")
+                    if (GERRIT_EVENT_TYPE == 'change-merged') {
+                        publish.artifactory (IMAGE, IMAGE_LATEST)
                     }
-                    sh "docker images"
-                }
-            }
-            stage('Image Publish'){
-                publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${GERRIT_PATCHSET_REVISION}-ubuntu.${BUILD_TIMESTAMP}")
-                if (GERRIT_EVENT_TYPE == 'change-merged') {
-                    publish.artifactory (IMAGE, IMAGE_LATEST)
                 }
             }
         }
     }
+    // catch both errors and exceptions
+} catch (Throwable err) {
+    currentBuild.result = 'FAILURE'
+    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+        email.sendMail(recipientProviders: [developers(), requestor()],
+                       to: env.EMAIL_LIST)
+    }
+    throw err
 }
