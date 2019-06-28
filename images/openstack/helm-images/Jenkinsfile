@@ -25,79 +25,89 @@ if(env.GERRIT_NEWREV){
 }
 
 def label = "worker-${UUID.randomUUID().toString()}"
-podTemplate(label: label,
-            yaml: """
-                     apiVersion: v1
-                     kind: Pod
-                     spec:
-                       securityContext:
-                         runAsUser: 0
-                       nodeSelector:
-                         jenkins-node: enabled
-                  """,
-            containers: [containerTemplate(name: "ubuntu",
-                                           image: conf.POD_IMAGE_1804,
-                                           command: "cat",
-                                           ttyEnabled: true)],
-            volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock',
-                                     mountPath: '/var/run/docker.sock')]) {
-    node(label){
-        container("ubuntu"){
-            HELM_IMAGES_HOME = "${WORKSPACE}/openstack-helm-images"
+try {
+    podTemplate(label: label,
+                yaml: """
+                         apiVersion: v1
+                         kind: Pod
+                         spec:
+                           securityContext:
+                             runAsUser: 0
+                           nodeSelector:
+                             jenkins-node: enabled
+                      """,
+                containers: [containerTemplate(name: "ubuntu",
+                                               image: conf.POD_IMAGE_1804,
+                                               command: "cat",
+                                               ttyEnabled: true)],
+                volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock',
+                                         mountPath: '/var/run/docker.sock')]) {
+        node(label){
+            container("ubuntu"){
+                HELM_IMAGES_HOME = "${WORKSPACE}/openstack-helm-images"
 
-            stage("Checkout"){
-                if(env.GERRIT_NEWREV){
-                    echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
-                    IMAGE_TAG = env.GERRIT_NEWREV
-                }
-                gerrit.cloneToBranch(HELM_IMAGES_URL,
-                                    IMAGE_TAG,
-                                    HELM_IMAGES_HOME)
-            }
-
-            stage('Setup environment'){
-                sh "apt-get update"
-                sh "apt-get install make sudo docker.io -y"
-            }
-
-            stage('Build') {
-                dir (HELM_IMAGES_HOME) {
-                    IMAGE_TAG += ".${BUILD_TIMESTAMP}"
-                    if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
-                        IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${CALICOCTL_VERSION}-${IMAGE_TAG}"
+                stage("Checkout"){
+                    if(env.GERRIT_NEWREV){
+                        echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+                        IMAGE_TAG = env.GERRIT_NEWREV
                     }
-                    else {
-                        IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
-                    }
-
-                    sh """make IMAGE_NAME=${JOB_BASE_NAME} \
-                          OS_RELEASE=${OS_RELEASE} \
-                          IMAGE_PREFIX=${IMAGE_PREFIX}\
-                          DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
-                          CALICOCTL_VERSION=${CALICOCTL_VERSION} \
-                          EXTRA_BUILD_ARGS="--label org.opencontainers.image.revision=${IMAGE_TAG} \
-                                            --label org.opencontainers.image.source=${GERRIT_CHANGE_URL} \
-                                            --label org.opencontainers.image.revision=${VERSION}-${BUILD_NUMBER} \
-                                            --label org.opencontainers.image.event=${GERRIT_EVENT_TYPE} \
-                                            --label calicoctl.version='${CALICOCTL_VERSION}' \
-                                            --build-arg FROM=${BASE_IMAGE} \
-                                            --build-arg CALICOCTL_VERSION=${CALICOCTL_VERSION} \
-                                            --build-arg http_proxy=${HTTP_PROXY} \
-                                            --build-arg https_proxy=${HTTPS_PROXY} \
-                                            --build-arg NO_PROXY=${NO_PROXY} \
-                                            --build-arg CEPH_REPO=${CEPH_REPO} \
-                                            --build-arg CEPH_KEY=${CEPH_KEY}" \
-                          IMAGE_TAG=${IMAGE_TAG}"""
+                    gerrit.cloneToBranch(HELM_IMAGES_URL,
+                                        IMAGE_TAG,
+                                        HELM_IMAGES_HOME)
                 }
-            }
 
-            stage('Image Publish'){
-                publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                stage('Setup environment'){
+                    sh "apt-get update"
+                    sh "apt-get install make sudo docker.io -y"
+                }
 
-                if (GERRIT_EVENT_TYPE == 'change-merged') {
-                    publish.artifactory (IMAGE, IMAGE_LATEST)
+                stage('Build') {
+                    dir (HELM_IMAGES_HOME) {
+                        IMAGE_TAG += ".${BUILD_TIMESTAMP}"
+                        if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
+                            IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${CALICOCTL_VERSION}-${IMAGE_TAG}"
+                        }
+                        else {
+                            IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+                        }
+
+                        sh """make IMAGE_NAME=${JOB_BASE_NAME} \
+                              OS_RELEASE=${OS_RELEASE} \
+                              IMAGE_PREFIX=${IMAGE_PREFIX}\
+                              DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
+                              CALICOCTL_VERSION=${CALICOCTL_VERSION} \
+                              EXTRA_BUILD_ARGS="--label org.opencontainers.image.revision=${IMAGE_TAG} \
+                                                --label org.opencontainers.image.source=${GERRIT_CHANGE_URL} \
+                                                --label org.opencontainers.image.revision=${VERSION}-${BUILD_NUMBER} \
+                                                --label org.opencontainers.image.event=${GERRIT_EVENT_TYPE} \
+                                                --label calicoctl.version='${CALICOCTL_VERSION}' \
+                                                --build-arg FROM=${BASE_IMAGE} \
+                                                --build-arg CALICOCTL_VERSION=${CALICOCTL_VERSION} \
+                                                --build-arg http_proxy=${HTTP_PROXY} \
+                                                --build-arg https_proxy=${HTTPS_PROXY} \
+                                                --build-arg NO_PROXY=${NO_PROXY} \
+                                                --build-arg CEPH_REPO=${CEPH_REPO} \
+                                                --build-arg CEPH_KEY=${CEPH_KEY}" \
+                              IMAGE_TAG=${IMAGE_TAG}"""
+                    }
+                }
+
+                stage('Image Publish'){
+                    publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+
+                    if (GERRIT_EVENT_TYPE == 'change-merged') {
+                        publish.artifactory (IMAGE, IMAGE_LATEST)
+                    }
                 }
             }
         }
+    }
+    // catch both errors and exceptions
+} catch (Throwable err) {
+    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+        currentBuild.result = 'FAILURE'
+        email.sendMail(recipientProviders: [developers(), requestor()],
+                       to: env.EMAIL_LIST)
+        throw err
     }
 }

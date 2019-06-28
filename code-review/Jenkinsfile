@@ -27,95 +27,105 @@ def parseSshData() {
 (KEY_NAMES, SSH_CONFIG) = compileSshData()
 
 def label = "worker-${UUID.randomUUID().toString()}"
-podTemplate(label: label,yaml: """
-            apiVersion: v1
-            kind: Pod
-            spec:
-              securityContext:
-                runAsUser: 0
-              nodeSelector:
-                dind-node: enabled
-            """, containers: [
-                containerTemplate(name: "ubuntu",
-                                  image: conf.CODE_REVIEW_IMAGE,
-                                  command: "cat",
-                                  ttyEnabled: true,
-                                  envVars: [
-                                    envVar(key: "http_proxy", value: HTTP_PROXY),
-                                    envVar(key: "https_proxy", value: HTTP_PROXY),
-                                    envVar(key: "HTTP_PROXY", value: HTTP_PROXY),
-                                    envVar(key: "HTTPS_PROXY", value: HTTP_PROXY),
-                                    envVar(key: "no_proxy", value: NO_PROXY),
-                                    envVar(key: "NO_PROXY", value: NO_PROXY)
-                ])],
-                volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock', mountPath: '/var/run/docker.sock')]) {
-    node(label){
-        container("ubuntu"){
-            stage('Project Checkout'){
-                if(env.GERRIT_NEWREV){
-                    if(!GERRIT_HOST.contains('review')){
-                        gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
-                                             GERRIT_NEWREV,
-                                             "jenkins",
-                                             INTERNAL_GERRIT_KEY)
+try {
+    podTemplate(label: label,yaml: """
+                apiVersion: v1
+                kind: Pod
+                spec:
+                  securityContext:
+                    runAsUser: 0
+                  nodeSelector:
+                    dind-node: enabled
+                """, containers: [
+                    containerTemplate(name: "ubuntu",
+                                      image: conf.CODE_REVIEW_IMAGE,
+                                      command: "cat",
+                                      ttyEnabled: true,
+                                      envVars: [
+                                        envVar(key: "http_proxy", value: HTTP_PROXY),
+                                        envVar(key: "https_proxy", value: HTTP_PROXY),
+                                        envVar(key: "HTTP_PROXY", value: HTTP_PROXY),
+                                        envVar(key: "HTTPS_PROXY", value: HTTP_PROXY),
+                                        envVar(key: "no_proxy", value: NO_PROXY),
+                                        envVar(key: "NO_PROXY", value: NO_PROXY)
+                    ])],
+                    volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock', mountPath: '/var/run/docker.sock')]) {
+        node(label){
+            container("ubuntu"){
+                stage('Project Checkout'){
+                    if(env.GERRIT_NEWREV){
+                        if(!GERRIT_HOST.contains('review')){
+                            gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
+                                                 GERRIT_NEWREV,
+                                                 "jenkins",
+                                                 INTERNAL_GERRIT_KEY)
+                        } else {
+                            gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_NEWREV, "jenkins")
+                            dir("${WORKSPACE}/jenkins"){
+                                gerrit.rebase()
+                            }
+                        }
                     } else {
-                        gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_NEWREV, "jenkins")
-                        dir("${WORKSPACE}/jenkins"){
-                            gerrit.rebase()
+                        if(!GERRIT_HOST.contains('review')){
+                            gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
+                                                 GERRIT_PATCHSET_REVISION,
+                                                 "jenkins",
+                                                 INTERNAL_GERRIT_KEY)
+                        } else {
+                            gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
+                            dir("${WORKSPACE}/jenkins"){
+                                gerrit.rebase()
+                            }
                         }
                     }
-                } else {
-                    if(!GERRIT_HOST.contains('review')){
-                        gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
-                                             GERRIT_PATCHSET_REVISION,
-                                             "jenkins",
+                    // set UPPER_CONSTRAINTS_FILE from mos-requirements
+                    if(GERRIT_PROJECT.contains('mos-')){
+                        requirements = 'mos-requirements'
+                        gerrit.cloneProject("${INTERNAL_GERRIT_SSH}/${requirements}",
+                                             GERRIT_BRANCH,
+                                             "refs/heads/${GERRIT_BRANCH}",
+                                             requirements,
                                              INTERNAL_GERRIT_KEY)
-                    } else {
-                        gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
-                        dir("${WORKSPACE}/jenkins"){
-                            gerrit.rebase()
-                        }
+                        sh "cp ${WORKSPACE}/${requirements}/upper-constraints.txt ${WORKSPACE}/jenkins/upper-constraints.txt"
+                        sh "rm -rf ${WORKSPACE}/${requirements}"
                     }
-                }
-                // set UPPER_CONSTRAINTS_FILE from mos-requirements
-                if(GERRIT_PROJECT.contains('mos-')){
-                    requirements = 'mos-requirements'
-                    gerrit.cloneProject("${INTERNAL_GERRIT_SSH}/${requirements}",
-                                         GERRIT_BRANCH,
-                                         "refs/heads/${GERRIT_BRANCH}",
-                                         requirements,
-                                         INTERNAL_GERRIT_KEY)
-                    sh "cp ${WORKSPACE}/${requirements}/upper-constraints.txt ${WORKSPACE}/jenkins/upper-constraints.txt"
-                    sh "rm -rf ${WORKSPACE}/${requirements}"
-                }
 
-                // pod runs as root user, adding ssh config into root's default directory
-                def ssh_dir = "/root/.ssh"
-                if (env.KNOWN_HOSTS) {
-                    sh "mkdir -p ${ssh_dir}; echo \"${KNOWN_HOSTS}\" >> ${ssh_dir}/known_hosts"
+                    // pod runs as root user, adding ssh config into root's default directory
+                    def ssh_dir = "/root/.ssh"
+                    if (env.KNOWN_HOSTS) {
+                        sh "mkdir -p ${ssh_dir}; echo \"${KNOWN_HOSTS}\" >> ${ssh_dir}/known_hosts"
+                    }
+                    // Create ssh config on slave to control what login is used for
+                    // what resource
+                    // writeFile works only within workspace, so copying into root ssh dir
+                    writeFile file: "/home/jenkins/config", text: SSH_CONFIG
+                    sh "cp /home/jenkins/config ${ssh_dir}/config"
                 }
-                // Create ssh config on slave to control what login is used for
-                // what resource
-                // writeFile works only within workspace, so copying into root ssh dir
-                writeFile file: "/home/jenkins/config", text: SSH_CONFIG
-                sh "cp /home/jenkins/config ${ssh_dir}/config"
-            }
-            dir("${WORKSPACE}/jenkins"){
-                stage('Code-Review'){
-                    withEnv(["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/jenkins/upper-constraints.txt"]) {
-                        cmd = (!fileExists('Makefile')) ? "tox -e pep8,py27" : "make tests"
-                        sshagent([INTERNAL_GERRIT_KEY]) {
-                            def status = sh(returnStatus: true, script: cmd)
-                            if (status != 0) {
-                                currentBuild.result = 'FAILED'
-                                notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
-                            }else{
-                                notify.msg("Code Review successful for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}")
+                dir("${WORKSPACE}/jenkins"){
+                    stage('Code-Review'){
+                        withEnv(["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/jenkins/upper-constraints.txt"]) {
+                            cmd = (!fileExists('Makefile')) ? "tox -e pep8,py27" : "make tests"
+                            sshagent([INTERNAL_GERRIT_KEY]) {
+                                def status = sh(returnStatus: true, script: cmd)
+                                if (status != 0) {
+                                    currentBuild.result = 'FAILED'
+                                    notify.msg("Code Review failed for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}!")
+                                }else{
+                                    notify.msg("Code Review successful for ${GERRIT_PROJECT} ${GERRIT_CHANGE_NUMBER}")
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+    // catch both errors and exceptions
+} catch (Throwable err) {
+    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+        currentBuild.result = 'FAILURE'
+        email.sendMail(recipientProviders: [developers(), requestor()],
+                       to: env.EMAIL_LIST)
+        throw err
     }
 }
