@@ -144,7 +144,8 @@ def call(Map map, Closure body) {
                 message ('SUCCESS: PIPELINE EXECUTION FINISHED') {}
                 currentBuild.result = 'SUCCESS'
 
-            } catch (err) {
+              // use Throwable to catch java.lang.NoSuchMethodError error
+            } catch (Throwable err) {
                 message ('FAILURE: PIPELINE EXECUTION HALTED') {
                     print "Pipeline body failed or timed out: ${err}.\n" +
                           'Likely gate reports failure.\n'
@@ -154,13 +155,15 @@ def call(Map map, Closure body) {
             }
         }
 
-    } catch (err) {
+      // use Throwable to catch java.lang.NoSuchMethodError error
+    } catch (Throwable err) {
         message ('ERROR: FAILED TO LAUNCH JENKINS WORKER') {
             print 'Failed to launch Jenkins VM/worker.\n' +
                   'Likely infra/template or config error.\n' +
                   "Error message: ${err}"
         }
         currentBuild.result = 'FAILURE'
+        email.sendMail(recipientProviders: [developers(), requestor()])
         throw err
 
     } finally {
