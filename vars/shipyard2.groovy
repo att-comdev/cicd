@@ -412,9 +412,9 @@ def waitAction(Map map) {
                 ssh.cmd (map.genesisCreds, map.genesisIp,
                          'sudo kubectl get pods --all-namespaces -o wide | grep -vE -e "([0-9]+)/\\1.*Running" -e Completed')
                 // Deployments where DESIRED != UP-TO-DATE
-                ssh.cmd (map.genesisCreds, map.genesisIp, "sudo kubectl get deployments --all-namespaces | awk '$3 != $5'")
+                ssh.cmd (map.genesisCreds, map.genesisIp, "sudo kubectl get deployments --all-namespaces | awk '\$3 != \$5'")
                 // Jobs where DESIRED != SUCCESSFUL
-                ssh.cmd (map.genesisCreds, map.genesisIp, "sudo kubectl get jobs --all-namespaces | awk '$3 != $4'")
+                ssh.cmd (map.genesisCreds, map.genesisIp, "sudo kubectl get jobs --all-namespaces | awk '\$3 != \$4'")
             }
         }
         if (failedSteps) {
