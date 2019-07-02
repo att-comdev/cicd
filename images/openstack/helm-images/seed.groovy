@@ -53,5 +53,25 @@ projects.each { project_name ->
                 }
             }
         }
+        publishers {
+            extendedEmail {
+                recipientList('test@example.org')
+                defaultSubject('testsubject')
+                defaultContent('test body')
+                contentType('text/html')
+                triggers {
+                    beforeBuild()
+                    stillUnstable {
+                        subject('Subject')
+                        content('Body')
+                        sendTo {
+                            developers()
+                            requester()
+                            culprits()
+                        }
+                    }
+                }
+            }
+        }
     }
 }
