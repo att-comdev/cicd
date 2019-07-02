@@ -25,6 +25,26 @@ projects.each { project_name ->
             stringParam('GERRIT_CHANGE_URL','manual','Change URL')
             stringParam('CALICOCTL_VERSION','v3.4.0','Calicoctl base image version')
         }
+        publishers {
+            extendedEmail {
+                recipientList('test@example.org')
+                defaultSubject('testsubject')
+                defaultContent('test body')
+                contentType('text/html')
+                triggers {
+                    beforeBuild()
+                    stillUnstable {
+                        subject('Subject')
+                        content('Body')
+                        sendTo1 {
+                            developers()
+                            requester()
+                            culprits()
+                        }
+                    }
+                }
+            }
+        }
         triggers {
             gerritTrigger {
                 silentMode(true)
