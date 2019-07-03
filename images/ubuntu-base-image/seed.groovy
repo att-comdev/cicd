@@ -10,6 +10,9 @@ projects.each { project_name ->
         logRotator {
             daysToKeep(90)
         }
+        parameters {
+            stringParam("IMAGETAG", "xenial", "Ubuntu Release Name")
+        }
         triggers {
             definition {
                 cps {
