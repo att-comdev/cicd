@@ -3,7 +3,7 @@ conf = new config(env).CONF
 
 DOCKER_REGISTRY = "${ARTF_SECURE_DOCKER_URL}"
 Ubuntu_Repo = "${ARTF_UBUNTU_REPO}"
-IMAGE_TAG = "xenial"
+IMAGE_TAG = "${IMAGETAG}"
 VERSION = 1.0
 
 currentBuild.displayName = "#${BUILD_NUMBER} Build on ${BUILD_TIMESTAMP}"
@@ -16,10 +16,10 @@ vm2() {
         sh "sudo apt-get install -y debootstrap"
     }
     stage('Build') {
-        sh "sudo debootstrap --arch=amd64 ${IMAGE_TAG} ubuntu_xenial ${Ubuntu_Repo}"
-        sh "sudo tar -C ubuntu_xenial -c . | sudo docker import - ubuntu:xenial"
+        sh "sudo debootstrap --arch=amd64 --variant=minbase ${IMAGE_TAG} ubuntu_${IMAGE_TAG} ${Ubuntu_Repo}"
+        sh "sudo tar -C ubuntu_${IMAGE_TAG} -c . | sudo docker import - ubuntu:${IMAGE_TAG}"
         IMAGE = "${DOCKER_REGISTRY}/ubuntu:${IMAGE_TAG}-${BUILD_TIMESTAMP}"
-        sh "sudo docker tag ubuntu:xenial ${IMAGE}"
+        sh "sudo docker tag ubuntu:${IMAGE_TAG} ${IMAGE}"
     }
     stage('Image Publish') {
         publish.artifactory (IMAGE, "${JOB_BASE_NAME}:${IMAGE_TAG}-${BUILD_TIMESTAMP}")
