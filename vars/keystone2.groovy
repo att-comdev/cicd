@@ -82,7 +82,7 @@ def token(Map map) {
                         if(res.status == 201) {
                             print "Keystone token request succeesful: ${res.status}"
                             return true
-                        } else if(res.status == 401 && it != keystoneCreds.last()) {
+                        } else if(res.status == 401 && it != map.keystoneCreds.last()) {
                             // this is like a for loop "continue", move to the next item in the collection
                             print "Unauthorized exception. Check next creds."
                             return
@@ -192,7 +192,7 @@ def _getServiceEndpoint(Map map) {
             return endpoints.endpoints[0]["url"]
 
         } catch (err) {
-            print "Failed to get endpoint for service ${serviceId}: ${err}"
+            print "Failed to get endpoint for service ${map.serviceId}: ${err}"
             sleep retryTimeout
             error(err)
         }
