@@ -192,7 +192,7 @@ def _getServiceEndpoint(Map map) {
             return endpoints.endpoints[0]["url"]
 
         } catch (err) {
-            print "Failed to get endpoint for service ${serviceId}: ${err}"
+            print "Failed to get endpoint for service ${map.serviceId}: ${err}"
             sleep retryTimeout
             error(err)
         }
