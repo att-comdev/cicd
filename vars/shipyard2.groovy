@@ -405,9 +405,9 @@ def waitAction(Map map) {
         // For drydock_build step check nodes state. For all other check pods state.
         if (map.genesisCreds && map.genesisIp) {
             if ('drydock_build' in failedSteps || 'drydock_build' in runningSteps) {
-                ssh.cmd (map.genesisCreds, map.genesisIp, 'sudo kubectl get nodes')
+                ssh.cmd (map.genesisCreds, map.genesisIp, 'sudo -i kubectl get nodes')
             } else {
-                ssh.cmd (map.genesisCreds, map.genesisIp, 'sudo kubectl get pods --all-namespaces | grep -vE "Completed|Running"')
+                ssh.cmd (map.genesisCreds, map.genesisIp, 'sudo kubectl -i get pods --all-namespaces | grep -vE "Completed|Running"')
             }
         }
         if (failedSteps) {
