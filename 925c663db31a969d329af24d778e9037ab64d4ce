@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b3924c1_c0c1cf83",
+        "filename": "vars/shipyard3.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1011593
+      },
+      "writtenOn": "2019-07-10T20:11:55Z",
+      "side": 1,
+      "message": "This command will also require -i for now.",
+      "revId": "925c663db31a969d329af24d778e9037ab64d4ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
