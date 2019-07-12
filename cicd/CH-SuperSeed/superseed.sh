@@ -71,6 +71,15 @@ copy_seed(){
     for seed in $seed_list; do
         seed_file="${WORKSPACE}/${seed}"
         if [ -f ${seed_file} ]; then
+
+            # copy dependency file(s)
+            grep -E "evaluate\(.+\.groovy.?\)" "${seed_file}" | while read -r match ; do
+                eval dep_file_target_loc=$(echo "$match" | cut -d '"' -f2)
+                dep_file_name=$(basename "$dep_file_target_loc")
+                dep_file_loc=$(find ${WORKSPACE} -name "$dep_file_name")
+                cp -a $dep_file_loc $dep_file_target_loc
+            done
+
             # rename the seed groovy as an unique yet readable filename
             # this allows for multiple seed in same dir
             random_string=$(head /dev/urandom | tr -dc A-Za-z | head -c 6)
