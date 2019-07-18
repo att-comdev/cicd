@@ -104,7 +104,11 @@ try {
                 dir("${WORKSPACE}/jenkins"){
                     stage('Code-Review'){
                         withEnv(["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/jenkins/upper-constraints.txt"]) {
-                            cmd = (!fileExists('Makefile')) ? "tox -e pep8,py27" : "make tests"
+                            def cmd = "make tests"
+                            if (!fileExists('Makefile')) {
+                                cmd = ('set +e; res=0; for check in pep8 "py27 -- --concurrency=16"; do ' +
+                                       'tox -e$check; res=$(( $res | $? )); done; exit $res')
+                            }
                             sshagent([INTERNAL_GERRIT_KEY]) {
                                 def status = sh(returnStatus: true, script: cmd)
                                 if (status != 0) {
