@@ -133,12 +133,13 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
  */
 def _getAction(Map map) {
 
-    def token = keystone3.token(keystoneCreds: map.keystoneCreds,
-                                keystoneUrl: map.keystoneUrl,
-                                keystoneDomain: map.keystoneDomain)
-
     def res = null
     retry(5) {
+
+        def token = keystone3.token(keystoneCreds: map.keystoneCreds,
+                                    keystoneUrl: map.keystoneUrl,
+                                    keystoneDomain: map.keystoneDomain)
+
         try {
             res = httpRequest (url: map.shipyardUrl + "/actions/${map.actionId}",
                                contentType: "APPLICATION_JSON",
