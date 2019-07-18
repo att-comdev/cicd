@@ -3,6 +3,14 @@ conf = new config(env).CONF
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
 
+TOX_CHECK = ("set +e; res=0; for check in 'tox -epep8' 'py27 -- --concurrency=8';" +
+             'do $check; res=$(( $res | $? )); done; exit $res')
+POD_IMAGE = conf.CODE_REVIEW_IMAGE
+if (GERRIT_BRANCH == conf.STEIN_BRANCH) {
+    POD_IMAGE = conf.CODE_REVIEW_IMAGE_1804
+    TOX_CHECK = 'OS_LOG_PATH=.; tox -- --concurrency=8'
+}
+
 def compileSshData() {
     sshConfig = ""
     keys = []
@@ -38,7 +46,7 @@ try {
                     dind-node: enabled
                 """, containers: [
                     containerTemplate(name: "ubuntu",
-                                      image: conf.CODE_REVIEW_IMAGE,
+                                      image: POD_IMAGE,
                                       command: "cat",
                                       ttyEnabled: true,
                                       envVars: [
@@ -104,11 +112,7 @@ try {
                 dir("${WORKSPACE}/jenkins"){
                     stage('Code-Review'){
                         withEnv(["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/jenkins/upper-constraints.txt"]) {
-                            def cmd = "make tests"
-                            if (!fileExists('Makefile')) {
-                                cmd = ('set +e; res=0; for check in pep8 "py27 -- --concurrency=16"; do ' +
-                                       'tox -e$check; res=$(( $res | $? )); done; exit $res')
-                            }
+                            cmd = (fileExists('Makefile')) ? "make tests" : TOX_CHECK
                             sshagent([INTERNAL_GERRIT_KEY]) {
                                 def status = sh(returnStatus: true, script: cmd)
                                 if (status != 0) {
