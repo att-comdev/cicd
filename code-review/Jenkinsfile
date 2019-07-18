@@ -3,6 +3,13 @@ conf = new config(env).CONF
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
 
+PY_CHECK = 'py27'
+POD_IMAGE = conf.CODE_REVIEW_IMAGE
+if (GERRIT_BRANCH == conf.STEIN_BRANCH) {
+    POD_IMAGE = conf.CODE_REVIEW_IMAGE_1804
+    PY_CHECK = 'py36'
+}
+
 def compileSshData() {
     sshConfig = ""
     keys = []
@@ -38,7 +45,7 @@ try {
                     dind-node: enabled
                 """, containers: [
                     containerTemplate(name: "ubuntu",
-                                      image: conf.CODE_REVIEW_IMAGE,
+                                      image: POD_IMAGE,
                                       command: "cat",
                                       ttyEnabled: true,
                                       envVars: [
@@ -106,7 +113,7 @@ try {
                         withEnv(["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/jenkins/upper-constraints.txt"]) {
                             def cmd = "make tests"
                             if (!fileExists('Makefile')) {
-                                cmd = ('set +e; res=0; for check in pep8 "py27 -- --concurrency=16"; do ' +
+                                cmd = ("set +e; res=0; for check in pep8 '${PY_CHECK} -- --concurrency=16'; do " +
                                        'tox -e$check; res=$(( $res | $? )); done; exit $res')
                             }
                             sshagent([INTERNAL_GERRIT_KEY]) {
