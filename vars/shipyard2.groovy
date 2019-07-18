@@ -127,10 +127,13 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
  * @return List of steps for given shipyard action.
  */
 def _getAction(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
-    def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds)
-    def token = req.getHeaders()["X-Subject-Token"][0]
+
     def res = null
     retry(5) {
+
+        def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds)
+        def token = req.getHeaders()["X-Subject-Token"][0]
+
         try {
             res = httpRequest (url: shipyardUrl + "/actions/${action}",
                                contentType: "APPLICATION_JSON",
@@ -182,10 +185,13 @@ def getSteps(action, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
  * @return state State of the step (such as null, "success", "skipped", "running", "queued", "scheduled")
  */
 def getState(systep, shipyardUrl, keystoneCreds, keystoneUrl, withCreds=true) {
-    def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds)
-    def token = req.getHeaders()["X-Subject-Token"][0]
+
     def res = null
     retry(5) {
+
+        def req = keystone.retrieveToken(keystoneCreds, keystoneUrl, withCreds)
+        def token = req.getHeaders()["X-Subject-Token"][0]
+
         try {
             res = httpRequest (url: shipyardUrl + "${systep.url}",
                                    contentType: "APPLICATION_JSON",
