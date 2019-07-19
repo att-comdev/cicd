@@ -22,8 +22,8 @@ pipelineJob("code-review") {
                     pattern("^mos-(?!(requirements|build|tempest|etc)).*")
                     branches {
                         branch {
-                            compareType("ANT")
-                            pattern("master")
+                            compareType("REG_EXP")
+                            pattern("${MOS_BRANCHES}")
                         }
                     }
                     disableStrictForbiddenFileVerification(false)
