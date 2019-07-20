@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd8d55dc_e1a3bf59",
+        "filename": "code-review/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1014344
+      },
+      "writtenOn": "2019-07-20T15:36:55Z",
+      "side": 1,
+      "message": "I cant see it being defined anywhere?",
+      "range": {
+        "startLine": 26,
+        "startChar": 39,
+        "endLine": 26,
+        "endChar": 51
+      },
+      "revId": "6c378421530c9bafbf210f26089211d4432b051a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
