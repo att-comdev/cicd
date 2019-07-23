@@ -94,7 +94,7 @@ try {
                                              "refs/heads/${GERRIT_BRANCH}",
                                              requirements,
                                              INTERNAL_GERRIT_KEY)
-                        sh "cp ${WORKSPACE}/${requirements}/upper-constraints.txt ${WORKSPACE}/jenkins/upper-constraints.txt"
+                        sh "cp ${WORKSPACE}/${requirements}/upper-constraints.txt ${WORKSPACE}/upper-constraints.txt"
                         sh "rm -rf ${WORKSPACE}/${requirements}"
                     }
 
@@ -111,7 +111,7 @@ try {
                 }
                 dir("${WORKSPACE}/jenkins"){
                     stage('Code-Review'){
-                        withEnv(["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/jenkins/upper-constraints.txt"]) {
+                        withEnv(["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/upper-constraints.txt"]) {
                             cmd = (fileExists('Makefile')) ? "make tests" : TOX_CHECK
                             sshagent([INTERNAL_GERRIT_KEY]) {
                                 def status = sh(returnStatus: true, script: cmd)
