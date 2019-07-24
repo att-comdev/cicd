@@ -1,0 +1,77 @@
+plugins {
+    id "groovy"
+    id "jacoco"
+}
+
+group = "att.comdev"
+version = "1.0.0"
+
+sourceSets {
+    main {
+        groovy {
+            srcDirs = ['vars',
+                       'src/att/comdev']
+            // todo: research how to fix these, they have compilation issues, impacting coverage being seen
+            exclude '**/creds.groovy',
+                    '**/osh.groovy',
+                    '**/cicd_helper.groovy'
+        }
+    }
+}
+
+test {
+    // delete old test reports
+    dependsOn cleanTest
+
+    // don't ignore/ignore failures flag
+    ignoreFailures = false
+
+    // minimize logging
+    testLogging.maxGranularity = 0
+
+    // show stdout from tests
+    onOutput { dest, event -> print event.message }
+
+    // show test results
+    def results = []
+    afterTest { desc, result -> println "${desc.className.split("\\.")[-1]}: " +
+        "${desc.name}: ${result.resultType}" }
+    afterSuite { desc, result -> if (desc.className) { results << result } }
+
+    // show summary
+    doLast {
+        println "Tests: ${results.sum { it.testCount }}" +
+            ", Failures: ${results.sum { it.failedTestCount }}" +
+            ", Errors: ${results.sum { it.exceptions.size() }}" +
+            ", Skipped: ${results.sum { it.skippedTestCount }}"
+    }
+
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestCoverageVerification {
+  violationRules {
+    rule {
+      limit {
+        counter = 'LINE'
+        value = 'COVEREDRATIO'
+        // todo: up this when we want to make coverage gate
+        minimum = 0.00
+      }
+    }
+  }
+}
+
+// code coverage enforcement
+check.dependsOn jacocoTestCoverageVerification
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.codehaus.groovy:groovy-all:2.5.0"
+    testCompile "org.yaml:snakeyaml:1.24"
+    testCompile "com.lesfurets:jenkins-pipeline-unit:1.1"
+    testCompile "junit:junit:4.12"
+}
