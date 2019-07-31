@@ -23,7 +23,8 @@ projects.each { project_name ->
             stringParam('GERRIT_PATCHSET_REVISION','0','patchset revision')
             stringParam('GERRIT_EVENT_TYPE','patchset-created','patchset-created or change-merged')
             stringParam('GERRIT_CHANGE_URL','manual','Change URL')
-            stringParam('CALICOCTL_VERSION','v3.4.0','Calicoctl base image version')
+            stringParam('CALICOCTL_VERSION','v2.3.1','Calicoctl base image version')
+            stringParam('CALICOQ_VERSION','v2.3.1','Image version calicoq binary copied from')
         }
         triggers {
             gerritTrigger {
