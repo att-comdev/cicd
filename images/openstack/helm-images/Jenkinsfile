@@ -13,8 +13,15 @@ HELM_IMAGES_HOME = ""
 CEPH_REPO = "https://${ARTF_WEB_URL}/mirantis-dev-ceph/xenial/"
 CEPH_KEY = "https://${ARTF_WEB_URL}/mirantis-dev-ceph/xenial/archive-ceph-mimic.key"
 
+SECURE_IMAGES = ['calicoctl-utility']
+
+if (SECURE_IMAGES.contains(JOB_BASE_NAME)) {
+    DOCKER_REGISTRY = "${ARTF_SECURE_DOCKER_URL}"
+}
+
 if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
-    BASE_IMAGE = "calico/ctl:${CALICOCTL_VERSION}"
+    CALICOQ_IMAGE_FULL_PATH = "${DOCKER_REGISTRY}/tigera/calicoq:${CALICOQ_VERSION}"
+    CALICOCTL_IMAGE_FULL_PATH = "${DOCKER_REGISTRY}/tigera/calicoctl:${CALICOCTL_VERSION}"
     OS_RELEASE = "alpine"
 }
 
@@ -65,7 +72,7 @@ try {
                     dir (HELM_IMAGES_HOME) {
                         IMAGE_TAG += ".${BUILD_TIMESTAMP}"
                         if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
-                            IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${CALICOCTL_VERSION}-${IMAGE_TAG}"
+                            IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${CALICOQ_VERSION}-${CALICOCTL_VERSION}-${IMAGE_TAG}"
                         }
                         else {
                             IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
@@ -74,15 +81,16 @@ try {
                         sh """make IMAGE_NAME=${JOB_BASE_NAME} \
                               OS_RELEASE=${OS_RELEASE} \
                               IMAGE_PREFIX=${IMAGE_PREFIX}\
-                              DOCKER_REGISTRY=${ARTF_DOCKER_URL} \
+                              DOCKER_REGISTRY=${DOCKER_REGISTRY} \
+                              CALICOQ_VERSION=${CALICOQ_VERSION} \
                               CALICOCTL_VERSION=${CALICOCTL_VERSION} \
                               EXTRA_BUILD_ARGS="--label org.opencontainers.image.revision=${IMAGE_TAG} \
                                                 --label org.opencontainers.image.source=${GERRIT_CHANGE_URL} \
                                                 --label org.opencontainers.image.revision=${VERSION}-${BUILD_NUMBER} \
                                                 --label org.opencontainers.image.event=${GERRIT_EVENT_TYPE} \
-                                                --label calicoctl.version='${CALICOCTL_VERSION}' \
                                                 --build-arg FROM=${BASE_IMAGE} \
-                                                --build-arg CALICOCTL_VERSION=${CALICOCTL_VERSION} \
+                                                --build-arg CALICOQ_IMAGE_FULL_PATH=${CALICOQ_IMAGE_FULL_PATH} \
+                                                --build-arg CALICOCTL_IMAGE_FULL_PATH=${CALICOCTL_IMAGE_FULL_PATH} \
                                                 --build-arg http_proxy=${HTTP_PROXY} \
                                                 --build-arg https_proxy=${HTTPS_PROXY} \
                                                 --build-arg NO_PROXY=${NO_PROXY} \
