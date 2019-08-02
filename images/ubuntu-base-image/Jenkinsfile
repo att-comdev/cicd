@@ -16,7 +16,7 @@ vm2() {
         sh "sudo apt-get install -y debootstrap"
     }
     stage('Build') {
-        sh "sudo debootstrap --arch=amd64 --variant=minbase ${IMAGE_TAG} ubuntu_${IMAGE_TAG} ${Ubuntu_Repo}"
+        sh "sudo debootstrap --arch=amd64 --components=main,restricted,universe,multiverse --variant=minbase ${IMAGE_TAG} ubuntu_${IMAGE_TAG} ${Ubuntu_Repo}"
         sh "sudo tar -C ubuntu_${IMAGE_TAG} -c . | sudo docker import - ubuntu:${IMAGE_TAG}"
         IMAGE = "${DOCKER_REGISTRY}/ubuntu:${IMAGE_TAG}-${BUILD_TIMESTAMP}"
         sh "sudo docker tag ubuntu:${IMAGE_TAG} ${IMAGE}"
