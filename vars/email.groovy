@@ -7,7 +7,10 @@ def sendMail(Map email=[:]) {
     // ENABLE_EMAIL as a string allows for configuring as both global env var or pipeline parameter
     if(env.ENABLE_EMAIL == "true") {
         jenkins_instance = JENKINS_URL.split("://")[1].split('/')[0]
-        subject = email.find{ it.key == "subject" }?.value ?: "$jenkins_instance ### ${BUILD_TAG} ### ${currentBuild.currentResult}"
+
+        // subject format - [NC Enablement] {job name} {job number (optional)} {status} :: {ACTION Required| Informational}
+        default_subject = "[NC Enablement] {$jenkins_instance} {$JOB_NAME} {$BUILD_NUMBER} ${currentBuild.currentResult} :: {ACTION Required}"
+        subject = email.find{ it.key == "subject" }?.value ?: default_subject
         body = email.find{ it.key == "body" }?.value ?: """The job status is [${currentBuild.currentResult}]
                                                    For more details see the build logs at ${BUILD_URL}
 
@@ -21,8 +24,10 @@ def sendMail(Map email=[:]) {
 
         // Usage example: sendMail(attachLog: true, attachmentsPattern: "*.html", to: "mymailid")
         //                sendMail(attachLog: true, attachmentsPattern: "myfile.txt", to: "mymailid,yourmailid")
-        //                sendMail(subject:"Build failed", body: "Build failed, check logs", recipientProviders: [culprit()])
-        //                sendMail(subject:"Build success", body: "Build succeeded", recipientProviders: [developers(), requestor()])
+        //                sendMail(subject:"[NC Enablement] $jenkins_instance {JOB_NAME} {BUILD_NUMBER} ${currentBuild.currentResult} :: {ACTION Required}",
+        //                         body: "Build failed, check logs", recipientProviders: [culprit()])
+        //                sendMail(subject:"[NC Enablement] $jenkins_instance {JOB_NAME} {BUILD_NUMBER} ${currentBuild.currentResult} :: {Informational}",
+        //                         body: "Build succeeded", recipientProviders: [developers(), requestor()])
         //                sendMail(recipientProviders: [requestor()], to: "mymailid")
         // see https://jenkins.io/doc/pipeline/steps/email-ext/#emailext-extended-email for more details
         emailext body: body,
