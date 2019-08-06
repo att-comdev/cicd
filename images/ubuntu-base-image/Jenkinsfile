@@ -13,10 +13,66 @@ vm2() {
     sh ('hostname')
     stage('Setup environment') {
         sh "sudo apt-get update"
-        sh "sudo apt-get install -y debootstrap"
+        sh "sudo apt-get install -y multistrap"
     }
     stage('Build') {
-        sh "sudo debootstrap --arch=amd64 --components=main,restricted,universe,multiverse --variant=minbase ${IMAGE_TAG} ubuntu_${IMAGE_TAG} ${Ubuntu_Repo}"
+sh """cat << EOF | sudo tee ~/xenial.conf
+[General]
+arch=amd64
+directory=ubuntu_xenial
+cleanup=true
+noauth=false
+explicitsuite=false
+unpack=true
+bootstrap=xenial xenial-updates xenial-security
+
+[xenial]
+packages=apt
+source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+suite=xenial
+components=main multiverse restricted universe
+
+[xenial-updates]
+packages=apt
+source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+suite=xenial-updates
+components=main multiverse restricted universe
+
+[xenial-security]
+packages=apt
+source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+suite=xenial-security
+components=main multiverse restricted universe
+EOF"""
+sh """cat << EOF | sudo tee ~/bionic.conf
+[General]
+arch=amd64
+directory=ubuntu_bionic
+cleanup=true
+noauth=false
+explicitsuite=false
+unpack=true
+bootstrap=bionic bionic-updates bionic-security
+
+[bionic]
+packages=apt
+source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+suite=bionic
+components=main multiverse restricted universe
+
+[bionic-updates]
+packages=apt
+source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+suite=bionic-updates
+components=main multiverse restricted universe
+
+[bionic-security]
+packages=apt
+source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+suite=bionic-security
+components=main multiverse restricted universe
+EOF"""
+        sh "sudo multistrap -f ~/${IMAGE_TAG}.conf"
         sh "sudo tar -C ubuntu_${IMAGE_TAG} -c . | sudo docker import - ubuntu:${IMAGE_TAG}"
         IMAGE = "${DOCKER_REGISTRY}/ubuntu:${IMAGE_TAG}-${BUILD_TIMESTAMP}"
         sh "sudo docker tag ubuntu:${IMAGE_TAG} ${IMAGE}"
