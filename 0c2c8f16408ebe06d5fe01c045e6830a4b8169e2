@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "f1d4da60_e1b1f52a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1016091
+      },
+      "writtenOn": "2019-08-14T19:26:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c3a1b0b_cbfe344a",
+      "range": {
+        "startLine": 9,
+        "startChar": 27,
+        "endLine": 9,
+        "endChar": 31
+      },
+      "revId": "0c2c8f16408ebe06d5fe01c045e6830a4b8169e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3197af3_304f4596",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1016091
+      },
+      "writtenOn": "2019-08-14T19:26:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "184195bb_57782a6b",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 5
+      },
+      "revId": "0c2c8f16408ebe06d5fe01c045e6830a4b8169e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3a82214_8fff2a7c",
         "filename": "images/openstack/helm-images/Jenkinsfile",
         "patchSetId": 5
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "61a5c5c1_21b412c1",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1016091
+      },
+      "writtenOn": "2019-08-14T19:26:56Z",
+      "side": 1,
+      "message": "right, we don\u0027t need it",
+      "parentUuid": "d3a82214_8fff2a7c",
+      "range": {
+        "startLine": 79,
+        "startChar": 36,
+        "endLine": 79,
+        "endChar": 53
+      },
+      "revId": "0c2c8f16408ebe06d5fe01c045e6830a4b8169e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284867dc_97dafe6f",
         "filename": "images/openstack/helm-images/Jenkinsfile",
         "patchSetId": 5
@@ -91,6 +163,30 @@
       "revId": "0c2c8f16408ebe06d5fe01c045e6830a4b8169e2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2e4fdc0_e5c47fe5",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1016091
+      },
+      "writtenOn": "2019-08-14T19:26:56Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "284867dc_97dafe6f",
+      "range": {
+        "startLine": 99,
+        "startChar": 56,
+        "endLine": 100,
+        "endChar": 94
+      },
+      "revId": "0c2c8f16408ebe06d5fe01c045e6830a4b8169e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
