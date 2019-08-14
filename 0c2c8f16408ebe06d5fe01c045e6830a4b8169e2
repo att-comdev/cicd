@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "184195bb_57782a6b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-08-14T13:08:06Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 5
+      },
+      "revId": "0c2c8f16408ebe06d5fe01c045e6830a4b8169e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c3a1b0b_cbfe344a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-08-14T13:08:06Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 9,
+        "startChar": 27,
+        "endLine": 9,
+        "endChar": 31
+      },
+      "revId": "0c2c8f16408ebe06d5fe01c045e6830a4b8169e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3a82214_8fff2a7c",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-08-14T13:08:06Z",
+      "side": 1,
+      "message": "Why is it required to login before build?",
+      "range": {
+        "startLine": 79,
+        "startChar": 36,
+        "endLine": 79,
+        "endChar": 53
+      },
+      "revId": "0c2c8f16408ebe06d5fe01c045e6830a4b8169e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "284867dc_97dafe6f",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1013390
+      },
+      "writtenOn": "2019-08-14T13:08:06Z",
+      "side": 1,
+      "message": "This labels do not conform to OCI image labels standard and should not be used or should be changed.",
+      "range": {
+        "startLine": 99,
+        "startChar": 56,
+        "endLine": 100,
+        "endChar": 94
+      },
+      "revId": "0c2c8f16408ebe06d5fe01c045e6830a4b8169e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
