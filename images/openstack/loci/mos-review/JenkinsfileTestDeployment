@@ -20,10 +20,16 @@ NET_RETRY_COUNT = NET_RETRY_COUNT.toInteger()
 MANIFESTS_BRANCH = 'master'
 MANIFESTS_PROJECT_NAME = conf.GLOBAL_REPO
 VERSIONS_PATH = conf.VERSIONS_PATH
-IMAGE_BASE_URL = String.format(conf.MOS_IMAGES_BASE_URL, "",RELEASE)
+IMAGE_BASE_URL = String.format(conf.MOS_IMAGES_BASE_URL, "", RELEASE)
 RELEASES_REGEX = "(${json.parseText(env.SUPPORTED_RELEASES).join("|")})"
 RELEASE_OVERRIDES = conf.OSH_AIO_RELEASE_OVERRIDES
 REPOS = conf.OSH_AIO_REPOS
+BUILD_KUBEADM = true
+SNAPSHOT_NAME = "osh-aio-${RELEASE}-initial"
+OLD_SNAPSHOT_ID = ""
+INITIAL_DEPLOYMENT = params.INITIAL_DEPLOYMENT
+CREATE_SNAPSHOT = INITIAL_DEPLOYMENT && params.CREATE_SNAPSHOT
+BASE_IMAGE = 'cicd-ubuntu-16.04-server-cloudimg-amd64'
 
 
 def cloneOSH() {
@@ -65,16 +71,18 @@ def imageOverrides(Map images) {
         )
     }
     dir(MANIFESTS_PROJECT_NAME) {
-        sh ("sed -i 's#DOCKER_OPEN_DOMAIN#${ARTF_DOCKER_URL}#g' ${VERSIONS_PATH}")
-        sh ("sed -i 's#DOCKER_DOMAIN#${ARTF_SECURE_DOCKER_URL}#g' ${VERSIONS_PATH}")
         versions = readFile VERSIONS_PATH
         images.each { _, image ->
-            (_, replace_to, pattern) = ((image =~ /.*?\/((.*)[@:].*)/)[0])
+            (_, replace_to, pattern) = ((image =~ /.*?\/((.*?)[@:].*)/)[0])
             // For pattern replace actual release name by regex matching any release
-            pattern = pattern.replaceAll(RELEASES_REGEX, RELEASES_REGEX) + '[@:].*'
+            pattern = pattern.replaceAll(RELEASES_REGEX, RELEASES_REGEX) << '[@:].*'
+            pattern = pattern.replaceAll('openstack-patchset', 'openstack') << '[@:].*'
             versions = versions.replaceAll(pattern, replace_to)
         }
         writeFile file: VERSIONS_PATH, text: versions
+        sh "git diff"
+        sh ("sed -i 's#DOCKER_OPEN_DOMAIN#${ARTF_DOCKER_URL}#g' ${VERSIONS_PATH}")
+        sh ("sed -i 's#DOCKER_DOMAIN#${ARTF_SECURE_DOCKER_URL}#g' ${VERSIONS_PATH}")
         versionsData = (readYaml(file: VERSIONS_PATH))['data']['images']
     }
 
@@ -166,90 +174,464 @@ def tweakOSH() {
     }
 }
 
+def TestVm(Map map, Closure body) {
 
-def executor(Closure body) {
+    // Startup script to run after VM instance creation
+    //  bootstrap.sh - default
+    //  loci-bootstrap.sh - for loci builds
+    def initScript = map.initScript ?: 'bootstrap.sh'
+
+    // image used for creating instance
+    def image = map.image ?: 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+
+    // flavor type used for creating instance
+    def flavor = map.flavor ?: 'm1.medium'
+
+    // postfix string for instance nodename
+    def nodePostfix = map.nodePostfix ?: ''
+
+    // build template used for heat stack creation
+    //  basic - default
+    //  loci - for loci builds
+    def buildType = map.buildType ?: 'basic'
+
+    // Flag to control node cleanup after job execution
+    // Useful for retaining env for debugging failures
+    // NodeCleanup job be used to destroy the node later
+    //  false - default, deletes node after job
+    //  true - do not delete node
+    def doNotDeleteNode = map.doNotDeleteNode ?: false
+
+    // Flag to control Jenkins console log publishing to Artifactory.
+    //
+    // This will also set custom URL to be returned when voting in Gerrit
+    // https://jenkins.io/doc/pipeline/steps/gerrit-trigger/
+    //
+    // Useful for providing Jenkins console log when acting as 3rd party gate,
+    // especially when Jenkins itself is not accessible
+    def artifactoryLogs = map.artifactoryLogs ?: false
+
+    // global timeout for executing pipeline
+    // useful to prevent forever hanging pipelines consuming resources
+    def globalTimeout = map.timeout ?: 180
+
+    // Name of public network that is used to allocate floating IPs
+    def publicNet = map.publicNet ?: 'public'
+
+    // Name of private network for the VM
+    def privateNet = map.privateNet ?: 'private'
+
+    // resolve args to heat parameters
+    def parameters = " --parameter image=${image}" +
+                     " --parameter flavor=${flavor}" +
+                     " --parameter public_net=${publicNet}" +
+                     " --parameter private_net=${privateNet}"
+
+    // node used for launching VMs
+    def launch_node = 'jenkins-node-launch'
+
+    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+
+    def postBuildSuccessBody = map.postBuildSuccessBody ?: {}
+    def postBuildFailureBody = map.postBuildFailureBody ?: {}
+
+    // templates located in resources from shared libraries
+    // https://github.com/att-comdev/cicd/tree/master/resources
+    def stack_template="heat/stack/ubuntu.${buildType}.stack.template.yaml"
+
+    // optionally uer may supply additional identified for the VM
+    // this makes it easier to find it in OpenStack (e.g. name)
+    if (nodePostfix) {
+      name += "-${nodePostfix}"
+    }
+
+    def ip = ""
+
     timestamps {
-        // OSH AIO requires min 8 cpus cores and 16 GB ram
-        vm2('bootstrap.sh',
-            'cicd-ubuntu-16.04-server-cloudimg-amd64',
-            'm1.xlarge',
-            'deploy-osh-aio',
-            'basic',
-             false,
-             body)
+        try {
+            stage ('Node Launch') {
+
+                node(launch_node) {
+                    tmpl = libraryResource "${stack_template}"
+                    writeFile file: 'template.yaml', text: tmpl
+
+                    if (initScript) {
+                        data = libraryResource "heat/stack/${initScript}"
+                        writeFile file: initScript, text: data
+                    }
+
+                    heat.stack_create(name, "${WORKSPACE}/template.yaml", parameters)
+                    ip = heat.stack_output(name, 'floating_ip')
+                }
+
+                node('master') {
+                    jenkins.node_create (name, ip)
+
+                    timeout (14) {
+                        node(name) {
+                            sh 'cloud-init status --wait'
+                        }
+                    }
+                }
+            }
+
+            // execute pipeline body, everything within vm()
+            node (name) {
+                try {
+                    vm.message ('READY: JENKINS WORKER LAUNCHED') {
+                        print "Launch overrides: ${map}\n" +
+                              "Pipeline timeout: ${globalTimeout}\n" +
+                              "Heat template: ${stack_template}\n" +
+                              "Node IP: ${ip}"
+                    }
+                    timeout(globalTimeout) {
+                        body()
+                    }
+                    vm.message ('SUCCESS: PIPELINE EXECUTION FINISHED') {}
+                    currentBuild.result = 'SUCCESS'
+
+                // use Throwable to catch java.lang.NoSuchMethodError error
+                } catch (Throwable err) {
+                    vm.message ('FAILURE: PIPELINE EXECUTION HALTED') {
+                        print "Pipeline body failed or timed out: ${err}.\n" +
+                              'Likely gate reports failure.\n'
+                    }
+                    currentBuild.result = 'FAILURE'
+                    throw err
+                }
+            }
+            node(launch_node) {
+                postBuildSuccessBody(name)
+            }
+        // use Throwable to catch java.lang.NoSuchMethodError error
+        } catch (Throwable err) {
+            node(launch_node) {
+                postBuildFailureBody()
+            }
+            vm.message ('ERROR: FAILED TO LAUNCH JENKINS WORKER') {
+                print 'Failed to launch Jenkins VM/worker.\n' +
+                      'Likely infra/template or config error.\n' +
+                      "Error message: ${err}"
+            }
+            currentBuild.result = 'FAILURE'
+            throw err
+
+        } finally {
+            if (!doNotDeleteNode) {
+                node('master') {
+                    jenkins.node_delete(name)
+                }
+                node(launch_node) {
+                   heat.stack_delete(name)
+                }
+            }
+        }
+        return ip
     }
 }
 
-executor() {
+def installOSHAIO(List steps, concurrent=true) {
+    // see https://docs.openstack.org/openstack-helm/latest/install/developer/index.html
+    def deploy_steps = ['Packages'   : 'common/000-install-packages.sh',
+                        'Kubernetes' : 'common/010-deploy-k8s.sh',
+                        'Clients'    : 'common/020-setup-client.sh',
+                        'Ingress'    : 'common/030-ingress.sh',
+                        'Ceph'       : 'ceph/040-ceph.sh',
+                        'Ceph NS'    : 'ceph/045-ceph-ns-activate.sh',
+                        'MariaDB'    : 'ceph/050-mariadb.sh',
+                        'RabbitMQ'   : 'ceph/060-rabbitmq.sh',
+                        'Memcached'  : 'ceph/070-memcached.sh',
+                        'Keystone'   : 'ceph/080-keystone.sh',
+                        'Heat'       : 'ceph/090-heat.sh',
+                        'Horizon'    : 'ceph/100-horizon.sh',
+                        'Rados GW'   : 'ceph/110-ceph-radosgateway.sh',
+                        'Glance'     : 'ceph/120-glance.sh',
+                        'Cinder'     : 'ceph/130-cinder.sh',
+                        'Openvswitch': 'ceph/140-openvswitch.sh',
+                        'Libvirt'    : 'ceph/150-libvirt.sh',
+                        'Compute Kit': 'ceph/160-compute-kit.sh',
+                        'Gateway'    : 'ceph/170-setup-gateway.sh']
+
+    deploymentEnv = [
+        'OS_REGION_NAME=',
+        'OS_USERNAME=',
+        'OS_PASSWORD=',
+        'OS_PROJECT_NAME=',
+        'OS_PROJECT_DOMAIN_NAME=',
+        'OS_USER_DOMAIN_NAME=',
+        'OS_AUTH_URL=',
+        "OPENSTACK_RELEASE=${RELEASE}",
+        "CONTAINER_DISTRO_VERSION=${DISTRO_VERSION}",
+    ]
+    runningSet = [:]
+    def i = 0
+    steps.each { it ->
+        def y = i
+        runningSet[it] = {
+            withEnv(deploymentEnv) {
+                if (concurrent) {
+                    sleep 5*y
+                }
+                print "Installing ${it}..."
+                dir ('openstack-helm') {
+                    sh "./tools/deployment/developer/${deploy_steps[it]}"
+                }
+            }
+        }
+        i ++
+    }
+    if (concurrent) {
+        parallel runningSet
+    } else {
+        runningSet.each { _, closure -> closure() }
+    }
+}
+
+def openstackExec(cmd) {
+    withCredentials([usernamePassword(credentialsId: 'jenkins-openstack-18',
+                                      usernameVariable: 'OS_USERNAME',
+                                      passwordVariable: 'OS_PASSWORD')]) {
+        sh (returnStdout: true, script: heat.openstack_cmd(cmd)).trim()
+    }
+}
+
+def createSnapshot = { stackName ->
+    serverId = openstackExec(
+        "openstack stack resource show ${stackName} server " +
+        "-c physical_resource_id -f value"
+    )
+    try {
+        OLD_SNAPSHOT_ID = openstackExec(
+            "openstack image show -f value -c id ${SNAPSHOT_NAME}")
+    } catch (Exception) {
+        print "${SNAPSHOT_NAME} not found"
+    }
+    openstackExec("openstack server image create ${serverId} " +
+                  "--name ${SNAPSHOT_NAME}-tmp --wait")
+}
+
+def replaceImage() {
+    openstackExec(
+        "openstack image set ${SNAPSHOT_NAME}-tmp --name ${SNAPSHOT_NAME}")
+    if (OLD_SNAPSHOT_ID) {
+        deleteImage(OLD_SNAPSHOT_ID)
+    }
+}
+
+def deleteImage(image) {
+    openstackExec("openstack image delete ${image}")
+}
+
+def setupHostsConfiguration() {
+    sh 'sudo bash -c \'echo "127.0.0.1 localhost" > /etc/hosts\''
+    sh 'sudo bash -c \'echo "172.17.0.1 \$(hostname)" >> /etc/hosts\''
+}
+
+def setupDNSConfiguration() {
     sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
-    stage('Setup proxy') {
-        setproxy()
+}
+
+def deleteInitialSnapshot = {
+    deleteImage(SNAPSHOT_NAME << "-tmp")
+}
+
+
+def runHelmTests(tests, run_from_root=false) {
+    _sudo = ""
+    if (run_from_root) {
+        _sudo = "sudo"
     }
-    stage('Install docker-ce') {
-        installDockerCE()
-        // work around for yet not identified issue in osh
-        // in case of new deployment if this line is not present
-        // OSH adds '172.17.0.1 localhost', that breaks stuff
-        sh 'sudo bash -c \'echo "127.0.0.1 localhost" > /etc/hosts\''
-        sh 'sudo bash -c \'echo "172.17.0.1 \$(hostname)" >> /etc/hosts\''
-    }
-    stage('Authenticate docker repo') {
-        utils.retrier(NET_RETRY_COUNT) {
-            osh.dockerAuth()
+    sh 'mkdir -p $WORKSPACE/artifacts'
+    def results = []
+    def runningSet = [:]
+
+    tests.each { it ->
+        runningSet[it] = {
+            res = ""
+            try {
+                cmd = "${_sudo} helm test --debug ${it} --timeout 900 2>\\&1"
+                res += sh (returnStdout: true, script: cmd)
+            } catch (Exception e) {
+                cmd = "${_sudo} kubectl logs ${it}-test --namespace openstack 2>\\&1"
+                res += sh (returnStdout: true, script: cmd)
+                throw e
+            } finally {
+                results.add(res)
+            }
         }
     }
-    stage('Clone OpenstackHelm') {
-        cloneOSH()
-        tweakOSH()
+    try {
+        parallel runningSet
+    } finally {
+        writeFile file: "${WORKSPACE}/artifacts/helm_tests.log", text: results.join("\n")
     }
-    stage('Update OSH proxy') {
-        osh.updateProxy()
-    }
-    stage('Override images') {
-        // Override default OSH images from global manifests, RELEASE_OVERRIDES,
-        // latest mos set and OVERRIDE_IMAGES map and creates override yamls
-        // for every component.
-        // Also replaces all mentiones of upstream registries to artifactory cache
-        imageOverrides(overrideImagesMap)
-    }
-    stage('Download precreated kubeadm-aio image') {
-        // Pulls kubeadm image and disables it's build saving ~1h
-        utils.retrier(NET_RETRY_COUNT) {
-            sh "sudo docker pull ${conf.OSH_AIO_KUBEADM_IMAGE}"
+}
+
+
+def updateProxy() {
+    sh '''sed -i "/external_dns_nameservers:/a\\      - ${DNS_SERVER_2}\\n      - ${DNS_SERVER_1}" \
+          ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml'''
+    def amap = ['kubernetes_network_default_device': 'docker0',
+                'gate_fqdn_test': 'true',
+                'proxy': [ 'http': HTTP_PROXY, 'https': HTTP_PROXY, 'noproxy': NO_PROXY] ]
+    sh 'rm -rf ./openstack-helm-infra/tools/gate/devel/local-vars.yaml'
+    writeYaml file: './openstack-helm-infra/tools/gate/devel/local-vars.yaml', data: amap
+}
+
+
+K8S_DEPLOY_STEPS = [
+    {
+        stage('Setup host') {
+            setupDNSConfiguration()
+            setupHostsConfiguration()
         }
-        sh "sudo docker tag ${conf.OSH_AIO_KUBEADM_IMAGE} openstackhelm/kubeadm-aio:dev"
-        sh "sudo docker rmi ${conf.OSH_AIO_KUBEADM_IMAGE}"
-        sh "echo '' > openstack-helm-infra/roles/build-images/tasks/kubeadm-aio.yaml"
+    },
+    {
+        stage('Setup proxy') {
+            setproxy()
+        }
+    },
+    {
+        stage('Install docker-ce') {
+            installDockerCE()
+        }
+    },
+    {
+        stage('Authenticate docker repo') {
+            utils.retrier(NET_RETRY_COUNT) {
+                osh.dockerAuth()
+            }
+        }
+    },
+    {
+        stage('Clone OpenstackHelm') {
+            cloneOSH()
+            tweakOSH()
+        }
+        stage('Update OSH proxy') {
+            updateProxy()
+        }
+    },
+    {
+        stage('Override images') {
+            // Override default OSH images from global manifests, RELEASE_OVERRIDES,
+            // latest mos set and OVERRIDE_IMAGES map and creates override yamls
+            // for every component.
+            // Also replaces all mentions of upstream registries to artifactory cache
+            imageOverrides(overrideImagesMap)
+        }
+    },
+    {
+        stage('Download precreated kubeadm-aio image') {
+            if (!BUILD_KUBEADM) {
+                // Pulls kubeadm image and disables it's build saving ~1h
+                utils.retrier(NET_RETRY_COUNT) {
+                    sh "sudo docker pull ${conf.OSH_AIO_KUBEADM_IMAGE}"
+                }
+                sh "sudo docker tag ${conf.OSH_AIO_KUBEADM_IMAGE} openstackhelm/kubeadm-aio:dev"
+                sh "sudo docker rmi ${conf.OSH_AIO_KUBEADM_IMAGE}"
+                sh "echo '' > openstack-helm-infra/roles/build-images/tasks/kubeadm-aio.yaml"
+            }
+        }
+    },
+    {
+        stage('Install k8s cluster') {
+            try {
+                installOSHAIO(['Packages', 'Kubernetes', 'Clients', 'Ingress',
+                               'Ceph', 'Ceph NS'],
+                              concurrent=false)
+            } catch (Exception e) {
+                osh.artifactLogs()
+                error "k8s deployment failed with exception ${e}"
+            }
+        }
+    },
+]
+
+
+if (CREATE_SNAPSHOT) {
+    TestVm(initScript: 'bootstrap.sh',
+           image: BASE_IMAGE,
+           flavor: 'm1.xlarge',
+           nodePostfix: 'create-osh-initial',
+           buildType: 'basic',
+           doNotDeleteNode: false,
+           postBuildSuccessBody: createSnapshot,
+    ) {
+        K8S_DEPLOY_STEPS.each { it() }
+
+        stage('Prepare node to snapshot creation') {
+            sh "sudo docker logout ${ARTF_SECURE_DOCKER_URL}"
+            cleanWs()
+        }
+    }
+}
+
+
+TestVm(initScript: '',
+       image: ((INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) ? BASE_IMAGE :
+                SNAPSHOT_NAME << (CREATE_SNAPSHOT ? "-tmp": "")),
+       flavor: 'm1.xlarge',
+       nodePostfix: 'deploy-osh-aio',
+       buildType: 'basic',
+       doNotDeleteNode: false,
+       postBuildFailureBody: CREATE_SNAPSHOT ? deleteInitialSnapshot : {},
+) {
+    if (INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) {
+        K8S_DEPLOY_STEPS.each { it() }
+    } else {
+        setupHostsConfiguration()
+        stage('Authenticate docker repo') {
+            utils.retrier(NET_RETRY_COUNT) {
+                osh.dockerAuth()
+            }
+        }
+        stage('Clone OpenstackHelm') {
+            cloneOSH()
+            tweakOSH()
+        }
+        stage('Override images') {
+            // Override default OSH images from global manifests, RELEASE_OVERRIDES,
+            // latest mos set and OVERRIDE_IMAGES map and creates override yamls
+            // for every component.
+            // Also replaces all mentiones of upstream registries to artifactory cache
+            imageOverrides(overrideImagesMap)
+        }
+        stage('Wait for k8s cluster') {
+            ['kube-system', 'ceph', 'openstack'].each {
+                sh "./openstack-helm/tools/deployment/common/wait-for-pods.sh ${it} 1800"
+            }
+        }
     }
     stage('Install OSH AIO') {
-        deploymentEnv = [
-            'OS_REGION_NAME=',
-            'OS_USERNAME=',
-            'OS_PASSWORD=',
-            'OS_PROJECT_NAME=',
-            'OS_PROJECT_DOMAIN_NAME=',
-            'OS_USER_DOMAIN_NAME=',
-            'OS_AUTH_URL=',
-            "OPENSTACK_RELEASE=${RELEASE}",
-            "CONTAINER_DISTRO_VERSION=${DISTRO_VERSION}",
-        ]
         try {
-            withEnv(deploymentEnv) {
-                osh.installOSHAIO()
+            [
+                ['MariaDB', 'Memcached', 'RabbitMQ'],
+                ['Keystone'],
+                ['Heat', 'Horizon', 'Rados GW'],
+                ['Glance', 'Cinder', 'Openvswitch'],
+                ['Libvirt'],
+                ['Compute Kit'],
+                ['Gateway'],
+            ].each {
+                installOSHAIO(it)
             }
-        } catch (Exception exception) {
+        } catch (Exception e) {
             osh.artifactLogs()
-            error "OSH AIO deployment failed with exception $exception"
+            error "OSH AIO deployment failed with exception ${e}"
         }
     }
     stage('Run Helm tests') {
-        osh.runHelmTests()
-    }
-    stage('Parse test logs for failures') {
-        status = osh.parseTestLogs()
-        if (status != 0) {
+        try {
+            runHelmTests(['nova', 'cinder', 'glance', 'heat', 'keystone', 'neutron'])
+        } catch (Exception e) {
             osh.artifactLogs()
-            error "Helm tests failed... see log $WORKSPACE/artifacts/helm_tests.log"
-        } else { print "Helm tests passed" }
+            throw e
+        }
+    }
+    stage('Replace image') {
+        if (CREATE_SNAPSHOT) {
+            replaceImage()
+        }
     }
 }

@@ -192,7 +192,7 @@ MERGED_MAP.each { projectName, buildTypes ->
                 }
                 if (buildType =~ /nova|neutron/) {
                     booleanParam {
-                        defaultValue(false)
+                        defaultValue(true)
                         description('Add custom debian repository, specified in ' +
                                     'OVS_REPO config parameter, to base image')
                         name("CUSTOM_OVS")
@@ -226,6 +226,7 @@ MERGED_MAP.each { projectName, buildTypes ->
     }
 }
 
+
 pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
     definition {
         cps {
@@ -255,8 +256,24 @@ pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
             description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
             name('RELEASE')
         }
+        booleanParam {
+            defaultValue(false)
+            description('If true deploy from scratch, ' +
+                        'if false use precreated k8s snapshot.')
+            name('INITIAL_DEPLOYMENT')
+        }
+        booleanParam {
+            defaultValue(false)
+            description('Relevant only if INITIAL_DEPLOYMENT is true.\n' +
+                        'If true split deployment in two parts - k8s + ceph ' +
+                        'and Openstack installations, create temporary ' +
+                        'snapshot at the end of first part, use it for ' +
+                        'second part and promote in case of success.')
+            name('CREATE_SNAPSHOT')
+        }
     }
 }
+
 
 
 pipelineJob("${JOB_BASE}/CodeReviewPipeline") {

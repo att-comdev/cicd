@@ -340,9 +340,11 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     }
 
     customArgs = [:]
-    if (params.CUSTOM_OVS && BUILD_TYPE =~ /neutron|nova/) {
+    if (BUILD_TYPE =~ /neutron|nova/ && params.CUSTOM_OVS) {
         sh ("${DIND} sh -c 'echo -e \"FROM ${LOCI_BASE_IMAGE}\n" +
-            "RUN echo \"${OVS_REPO}\" >> /etc/apt/sources.list\"" +
+            "RUN echo \"${OVS_REPO}\" >> /etc/apt/sources.list\n" +
+            "RUN rm /etc/apt/apt.conf||:\n" +
+            "RUN apt-get update && apt-get install apt-transport-https\""
             "| docker build - -t base_image'")
         customArgs["FROM"] = "base_image"
         if (BUILD_TYPE.contains('neutron')) {
