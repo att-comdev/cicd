@@ -26,6 +26,7 @@ IMAGE_BASE_URL = String.format(conf.MOS_IMAGES_BASE_URL, "",RELEASE)
 RELEASES_REGEX = "(${json.parseText(env.SUPPORTED_RELEASES).join("|")})"
 RELEASE_OVERRIDES = conf.OSH_AIO_RELEASE_OVERRIDES
 REPOS = conf.OSH_AIO_REPOS
+INITIAL_DEPLOYMENT = env.JOB == 'TestDeploymentImage'
 
 
 def cloneOSH() {
@@ -168,21 +169,230 @@ def tweakOSH() {
     }
 }
 
+def TestVm(Map map, Closure body) {
 
-def executor(Closure body) {
+    // Startup script to run after VM instance creation
+    //  bootstrap.sh - default
+    //  loci-bootstrap.sh - for loci builds
+    def initScript = map.initScript ?: 'bootstrap.sh'
+
+    // image used for creating instance
+    def image = map.image ?: 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+
+    // flavor type used for creating instance
+    def flavor = map.flavor ?: 'm1.medium'
+
+    // postfix string for instance nodename
+    def nodePostfix = map.nodePostfix ?: ''
+
+    // build template used for heat stack creation
+    //  basic - default
+    //  loci - for loci builds
+    def buildType = map.buildType ?: 'basic'
+
+    // Flag to control node cleanup after job execution
+    // Useful for retaining env for debugging failures
+    // NodeCleanup job be used to destroy the node later
+    //  false - default, deletes node after job
+    //  true - do not delete node
+    def doNotDeleteNode = map.doNotDeleteNode ?: false
+
+    // Flag to control Jenkins console log publishing to Artifactory.
+    //
+    // This will also set custom URL to be returned when voting in Gerrit
+    // https://jenkins.io/doc/pipeline/steps/gerrit-trigger/
+    //
+    // Useful for providing Jenkins console log when acting as 3rd party gate,
+    // especially when Jenkins itself is not accessible
+    def artifactoryLogs = map.artifactoryLogs ?: false
+
+    // global timeout for executing pipeline
+    // useful to prevent forever hanging pipelines consuming resources
+    def globalTimeout = map.timeout ?: 120
+
+    // Name of public network that is used to allocate floating IPs
+    def publicNet = map.publicNet ?: 'public'
+
+    // Name of private network for the VM
+    def privateNet = map.privateNet ?: 'private'
+
+    // resolve args to heat parameters
+    def parameters = " --parameter image=${image}" +
+                     " --parameter flavor=${flavor}" +
+                     " --parameter public_net=${publicNet}" +
+                     " --parameter private_net=${privateNet}"
+
+    // node used for launching VMs
+    def launch_node = 'jenkins-node-launch'
+
+    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+
+    def postBuildBody = map.postBuildBody
+
+    // templates located in resources from shared libraries
+    // https://github.com/att-comdev/cicd/tree/master/resources
+    def stack_template="heat/stack/ubuntu.${buildType}.stack.template.yaml"
+
+    // optionally uer may supply additional identified for the VM
+    // this makes it easier to find it in OpenStack (e.g. name)
+    if (nodePostfix) {
+      name += "-${nodePostfix}"
+    }
+
+    def ip = ""
+
     timestamps {
-        // OSH AIO requires min 8 cpus cores and 16 GB ram
-        vm2('bootstrap.sh',
-            'cicd-ubuntu-16.04-server-cloudimg-amd64',
-            'm1.xlarge',
-            'deploy-osh-aio',
-            'basic',
-             false,
-             body)
+        try {
+            stage ('Node Launch') {
+
+                node(launch_node) {
+                    tmpl = libraryResource "${stack_template}"
+                    writeFile file: 'template.yaml', text: tmpl
+
+                    if (initScript) {
+                        data = libraryResource "heat/stack/${initScript}"
+                        writeFile file: initScript, text: data
+                    }
+
+                    heat.stack_create(name, "${WORKSPACE}/template.yaml", parameters)
+                    ip = heat.stack_output(name, 'floating_ip')
+                }
+
+                node('master') {
+                    jenkins.node_create (name, ip)
+
+                    timeout (14) {
+                        node(name) {
+                            sh 'cloud-init status --wait'
+                        }
+                    }
+                }
+            }
+
+            // execute pipeline body, everything within vm()
+            node (name) {
+                try {
+                    message ('READY: JENKINS WORKER LAUNCHED') {
+                        print "Launch overrides: ${map}\n" +
+                              "Pipeline timeout: ${globalTimeout}\n" +
+                              "Heat template: ${stack_template}\n" +
+                              "Node IP: ${ip}"
+                    }
+                    timeout(globalTimeout) {
+                        body()
+                    }
+                    if (postBuildBody) {
+                        node(launch_node) {
+                            postBuildBody(name)
+                        }
+                    }
+                    message ('SUCCESS: PIPELINE EXECUTION FINISHED') {}
+                    currentBuild.result = 'SUCCESS'
+
+                  // use Throwable to catch java.lang.NoSuchMethodError error
+                } catch (Throwable err) {
+                    message ('FAILURE: PIPELINE EXECUTION HALTED') {
+                        print "Pipeline body failed or timed out: ${err}.\n" +
+                              'Likely gate reports failure.\n'
+                    }
+                    currentBuild.result = 'FAILURE'
+                    throw err
+                }
+            }
+
+          // use Throwable to catch java.lang.NoSuchMethodError error
+        } catch (Throwable err) {
+            message ('ERROR: FAILED TO LAUNCH JENKINS WORKER') {
+                print 'Failed to launch Jenkins VM/worker.\n' +
+                      'Likely infra/template or config error.\n' +
+                      "Error message: ${err}"
+            }
+            currentBuild.result = 'FAILURE'
+            throw err
+
+        } finally {
+            if (!doNotDeleteNode) {
+                node('master') {
+                    jenkins.node_delete(name)
+                }
+                if (CREATE_SNAPSHOT) {
+                }
+                node(launch_node) {
+                   heat.stack_delete(name)
+                }
+            }
+        }
+    return ip
     }
 }
 
-executor() {
+def installOSHAIO(List steps) {
+    dir ('openstack-helm') {
+
+        // see https://docs.openstack.org/openstack-helm/latest/install/developer/index.html
+        def deploy_steps = ['Packages'   : 'common/000-install-packages.sh',
+                            'Kubernetes' : 'common/010-deploy-k8s.sh',
+                            'Clients'    : 'common/020-setup-client.sh',
+                            'Ingress'    : 'common/030-ingress.sh',
+                            'Ceph'       : 'ceph/040-ceph.sh',
+                            'Ceph NS'    : 'ceph/045-ceph-ns-activate.sh',
+                            'MariaDB'    : 'ceph/050-mariadb.sh',
+                            'RabbitMQ'   : 'ceph/060-rabbitmq.sh',
+                            'Memcached'  : 'ceph/070-memcached.sh',
+                            'Keystone'   : 'ceph/080-keystone.sh',
+                            'Heat'       : 'ceph/090-heat.sh',
+                            'Horizon'    : 'ceph/100-horizon.sh',
+                            'Rados GW'   : 'ceph/110-ceph-radosgateway.sh',
+                            'Glance'     : 'ceph/120-glance.sh',
+                            'Cinder'     : 'ceph/130-cinder.sh',
+                            'Openvswitch': 'ceph/140-openvswitch.sh',
+                            'LibVirt'    : 'ceph/150-libvirt.sh',
+                            'Compute Kit': 'ceph/160-compute-kit.sh',
+                            'Gateway'    : 'ceph/170-setup-gateway.sh']
+
+        deploymentEnv = [
+            'OS_REGION_NAME=',
+            'OS_USERNAME=',
+            'OS_PASSWORD=',
+            'OS_PROJECT_NAME=',
+            'OS_PROJECT_DOMAIN_NAME=',
+            'OS_USER_DOMAIN_NAME=',
+            'OS_AUTH_URL=',
+            "OPENSTACK_RELEASE=${RELEASE}",
+            "CONTAINER_DISTRO_VERSION=${DISTRO_VERSION}",
+        ]
+        withEnv(deploymentEnv) {
+            steps.each { step ->
+                print "Installing ${step}..."
+                sh "./tools/deployment/developer/${deploy_steps[step]}"
+            }
+        }
+    }
+}
+
+
+def createSnapshot(stackName) {
+    cmd = heat.openstack_cmd(
+        "openstack stack resource show ${name} server -c physical_resource_id -f value"
+    )
+    serverId = return sh(returnStdout: true, script: cmd).trim()
+    cmd = heat.openstack_cmd(
+        "openstack server image create ${serverId} OSH_AIO_INITIAL_DEPLOY --wait"
+    )
+    sh cmd
+}
+
+
+
+// OSH AIO requires min 8 cpus cores and 16 GB ram
+TestVm(initScript: 'bootstrap.sh',
+       image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
+       flavor: 'm1.xlarge',
+       nodePostfix: 'create-initial',
+       buildType: 'basic',
+       doNotDeleteNode: false,
+       postBuildBody: createSnapshot
+) {
     sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
     stage('Setup proxy') {
         setproxy()
@@ -222,23 +432,41 @@ executor() {
         sh "sudo docker tag ${conf.OSH_AIO_KUBEADM_IMAGE} openstackhelm/kubeadm-aio:dev"
         sh "sudo docker rmi ${conf.OSH_AIO_KUBEADM_IMAGE}"
         sh "echo '' > openstack-helm-infra/roles/build-images/tasks/kubeadm-aio.yaml"
+    stage('Install OSH AIO') {
+        try {
+            installOSHAIO(['Packages', 'Kubernetes', 'Clients', 'Ingress',
+                           'Ceph', 'Ceph NS', 'MariaDB', 'Memcached',])
+        } catch (Exception exception) {
+            osh.artifactLogs()
+            error "OSH AIO deployment failed with exception $exception"
+        }
+    }
+}
+
+
+// OSH AIO requires min 8 cpus cores and 16 GB ram
+TestVm(initScript: '',
+       image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
+       flavor: 'm1.xlarge',
+       nodePostfix: 'deploy-osh-aio',
+       buildType: 'basic',
+       doNotDeleteNode: false,
+       body
+) {
+    stage('Override images') {
+        // Override default OSH images from global manifests, RELEASE_OVERRIDES,
+        // latest mos set and OVERRIDE_IMAGES map and creates override yamls
+        // for every component.
+        // Also replaces all mentiones of upstream registries to artifactory cache
+        imageOverrides(overrideImagesMap)
     }
     stage('Install OSH AIO') {
-        deploymentEnv = [
-            'OS_REGION_NAME=',
-            'OS_USERNAME=',
-            'OS_PASSWORD=',
-            'OS_PROJECT_NAME=',
-            'OS_PROJECT_DOMAIN_NAME=',
-            'OS_USER_DOMAIN_NAME=',
-            'OS_AUTH_URL=',
-            "OPENSTACK_RELEASE=${RELEASE}",
-            "CONTAINER_DISTRO_VERSION=${DISTRO_VERSION}",
-        ]
         try {
-            withEnv(deploymentEnv) {
-                osh.installOSHAIO()
-            }
+            installOSHAIO([
+                'RabbitMQ', 'Keystone', 'Heat', 'Horizon', 'Rados GW',
+                'Glance', 'Cinder', 'Openvswitch', 'LibVirt', 'Compute Kit',
+                'Gateway',
+            ])
         } catch (Exception exception) {
             osh.artifactLogs()
             error "OSH AIO deployment failed with exception $exception"
