@@ -1,5 +1,3 @@
-@Library("nc_cicd_internal_libs@e8f1b1d9aa34b8d5737f2a1d7e553824c4dfe4cc")
-
 import com.att.nccicd.config.conf as config
 import groovy.json.JsonSlurperClassic
 

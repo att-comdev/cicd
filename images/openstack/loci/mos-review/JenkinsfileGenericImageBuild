@@ -1,5 +1,3 @@
-@Library("nc_cicd_internal_libs@e8f1b1d9aa34b8d5737f2a1d7e553824c4dfe4cc")
-
 import com.att.nccicd.config.conf as config
 import groovy.json.JsonSlurperClassic
 
@@ -342,9 +340,11 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     }
 
     customArgs = [:]
-    if (params.CUSTOM_OVS && BUILD_TYPE =~ /neutron|nova/) {
+    if (BUILD_TYPE =~ /neutron|nova/ && params.CUSTOM_OVS) {
         sh ("${DIND} sh -c 'echo -e \"FROM ${LOCI_BASE_IMAGE}\n" +
-            "RUN echo \"${OVS_REPO}\" >> /etc/apt/sources.list\"" +
+            "RUN echo \"${OVS_REPO}\" >> /etc/apt/sources.list\n" +
+            "RUN rm /etc/apt/apt.conf||:\n" +
+            "RUN apt-get update && apt-get install apt-transport-https\""
             "| docker build - -t base_image'")
         customArgs["FROM"] = "base_image"
         if (BUILD_TYPE.contains('neutron')) {
