@@ -241,6 +241,8 @@ overrideImagesJSON = JsonOutput.toJson(overrideImages)
 parameters = [
     stringParam(name: "OVERRIDE_IMAGES", value: overrideImagesJSON),
     stringParam(name: "RELEASE", value: RELEASE),
+    booleanParam(name: "INITIAL_DEPLOYMENT", value: true),
+    booleanParam(name: "CREATE_SNAPSHOT", value: true),
 ]
 
 images = ""
@@ -302,7 +304,7 @@ vm2 ('loci-bootstrap.sh',
             versions = readFile VERSIONS_PATH
             versions_updated = versions
             overrideImages.each { _, image ->
-                (_, replace_to, pattern) = ((image =~ /.*?\/((.*)[@:].*)/)[0])
+                (_, replace_to, pattern) = ((image =~ /.*?\/((.*?)[@:].*)/)[0])
                 // For pattern replace actual release name by regex matching any release
                 pattern = pattern.replaceAll(RELEASES_REGEX, RELEASES_REGEX) + '[@:].*'
                 versions_updated = versions_updated.replaceAll(
