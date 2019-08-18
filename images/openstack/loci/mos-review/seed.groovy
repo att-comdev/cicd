@@ -226,6 +226,7 @@ MERGED_MAP.each { projectName, buildTypes ->
     }
 }
 
+
 pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
     definition {
         cps {
@@ -255,8 +256,14 @@ pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
             description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
             name('RELEASE')
         }
+        booleanParam {
+            defaultValue(true)
+            description('')
+            name('REUSE_SNAPSHOT')
+        }
     }
 }
+
 
 
 pipelineJob("${JOB_BASE}/CodeReviewPipeline") {
