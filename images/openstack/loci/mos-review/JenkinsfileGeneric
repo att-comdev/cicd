@@ -47,6 +47,7 @@ stage("${REQ_PROJECT_NAME} image build") {
 PROJECT_MAP = new JsonSlurperClassic().parseText(env.PROJECT_MAP)[RELEASE]
 results = [:]
 runningSet = [:]
+def i = 0
 PROJECT_MAP.each { projectName, buildTypes ->
     if (projectName == REQ_PROJECT_NAME) { return }
     // Don't build component image with both default refspec and
@@ -60,7 +61,9 @@ PROJECT_MAP.each { projectName, buildTypes ->
         buildTypes = [projectName.split('-')[-1]]
     }
     buildTypes.each { buildType ->
+        def y = i
         runningSet[buildType] = {
+            sleep 90*y
             stage("mos-${buildType} image build") {
                 projectRef = env."${getRefParamName(projectName)}"
                 parameters = [
@@ -78,6 +81,7 @@ PROJECT_MAP.each { projectName, buildTypes ->
                 )
             }
         }
+        i++
     }
 }
 
