@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f07ee66d_04dff5fd",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-08-21T19:50:50Z",
+      "side": 1,
+      "message": "use siteName variable for that as we do for other methods",
+      "range": {
+        "startLine": 89,
+        "startChar": 42,
+        "endLine": 89,
+        "endChar": 118
+      },
+      "revId": "d36b8550bed77a34bb0814e98b7c615b5bd73b23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c41b8bf_2f9bd968",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-08-21T19:50:50Z",
+      "side": 1,
+      "message": "it may be any path, not only worlspace, lets rename it tmpPath ir smth like that",
+      "range": {
+        "startLine": 89,
+        "startChar": 28,
+        "endLine": 89,
+        "endChar": 37
+      },
+      "revId": "d36b8550bed77a34bb0814e98b7c615b5bd73b23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fae7a35_ac28016c",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-08-21T19:50:50Z",
+      "side": 1,
+      "message": "the same",
+      "range": {
+        "startLine": 134,
+        "startChar": 61,
+        "endLine": 134,
+        "endChar": 87
+      },
+      "revId": "d36b8550bed77a34bb0814e98b7c615b5bd73b23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a061e068_f00cd11e",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-08-21T19:50:50Z",
+      "side": 1,
+      "message": "the same",
+      "range": {
+        "startLine": 134,
+        "startChar": 149,
+        "endLine": 134,
+        "endChar": 173
+      },
+      "revId": "d36b8550bed77a34bb0814e98b7c615b5bd73b23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c33c5df_4803d9b1",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-08-21T19:50:50Z",
+      "side": 1,
+      "message": "the same",
+      "range": {
+        "startLine": 134,
+        "startChar": 100,
+        "endLine": 134,
+        "endChar": 126
+      },
+      "revId": "d36b8550bed77a34bb0814e98b7c615b5bd73b23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3d3a0e4_8df7d193",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-08-21T19:50:50Z",
+      "side": 1,
+      "message": "use another name for that (siteRepoPath or similar)",
+      "range": {
+        "startLine": 134,
+        "startChar": 26,
+        "endLine": 134,
+        "endChar": 50
+      },
+      "revId": "d36b8550bed77a34bb0814e98b7c615b5bd73b23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "894dfb08_037de2e7",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-08-21T19:50:50Z",
+      "side": 1,
+      "message": "rename please",
+      "range": {
+        "startLine": 197,
+        "startChar": 27,
+        "endLine": 197,
+        "endChar": 36
+      },
+      "revId": "d36b8550bed77a34bb0814e98b7c615b5bd73b23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afbbabbb_3ab6c018",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-08-21T19:50:50Z",
+      "side": 1,
+      "message": "the same",
+      "range": {
+        "startLine": 198,
+        "startChar": 127,
+        "endLine": 198,
+        "endChar": 151
+      },
+      "revId": "d36b8550bed77a34bb0814e98b7c615b5bd73b23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
