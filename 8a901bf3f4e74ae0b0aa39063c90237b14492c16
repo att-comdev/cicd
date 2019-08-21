@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0700141c_5a8b6112",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-08-21T21:02:28Z",
+      "side": 1,
+      "message": "should be SiteRepo",
+      "range": {
+        "startLine": 85,
+        "startChar": 42,
+        "endLine": 85,
+        "endChar": 54
+      },
+      "revId": "8a901bf3f4e74ae0b0aa39063c90237b14492c16",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef6226fd_2ecf65e0",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-08-21T21:02:28Z",
+      "side": 1,
+      "message": "SiteRepo",
+      "range": {
+        "startLine": 102,
+        "startChar": 42,
+        "endLine": 102,
+        "endChar": 54
+      },
+      "revId": "8a901bf3f4e74ae0b0aa39063c90237b14492c16",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
