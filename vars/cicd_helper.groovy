@@ -180,6 +180,7 @@ def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0", priAf
     priLabel = priAffinityKey.trim()
     secLabel = secAffinityKey.trim()
     image = jnlpImage.trim()
+    print "JNLP container using image: ${image}"
 
     return """
     apiVersion: v1
