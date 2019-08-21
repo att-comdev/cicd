@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "8e04ec1d_a6a8d1f6",
+        "filename": "vars/pegleg2.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2019-08-21T20:28:13Z",
+      "side": 1,
+      "message": "lets add the same method but with global and secret refs arguments",
+      "range": {
+        "startLine": 84,
+        "startChar": 4,
+        "endLine": 84,
+        "endChar": 15
+      },
+      "revId": "b42103605daa3e7c2d2f9b9adf6d220d6d7b6b4a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0af4424c_f27a5a0e",
         "filename": "vars/pegleg2.groovy",
         "patchSetId": 2
