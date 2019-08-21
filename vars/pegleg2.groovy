@@ -71,6 +71,21 @@ def lintWithinContainer(siteRepo, username, sshKey, siteName, type) {
 }
 
 /**
+ * Execution of Pegleg "lint" within a Pegleg
+ * container. NOTE: Currently setup to ignore
+ * P001 & P003. See: https://github.com/openstack/airship-pegleg/blob/master/src/bin/pegleg/pegleg/engine/errorcodes.py
+ * for more information on returned error codes.
+ *
+ * @param siteRepoPath The site repo path.
+ * @param username The username for the service account.
+ * @param sshKey The SSH key for the service account.
+ * @param siteName The name of the site you're looking to render. Must match what's in your site repository's site-definition.yaml
+ */
+def lintAndPull(tmpPath, siteRepoPath, username, sshKey, siteName) {
+    sh "pegleg -v site -p ${tmpPath} -r ssh://REPO_USERNAME@${siteRepoPath} -u ${username} -k ${sshKey} lint ${siteName} -w P001 -w P003"
+}
+
+/**
  * Execution of Pegleg "render" against a Pegleg
  * container. Redirects the output to a file, so
  * it doesn't get written to stdout.
@@ -96,8 +111,8 @@ def render(siteRepo, globalRepo, username, sshKey, siteName) {
  * @param secretsRepo The folder container your security documents (must be at your PWD)
  * @param siteName The name of the site you're looking to render. Must match what's in your site repository's site-definition.yaml
  */
-def renderWithinContainer(siteRepo, globalRepo, secretsRepo, siteName) {
-    sh "pegleg site -r ${siteRepo} -e global=${globalRepo} -e secrets=${secretsRepo} render ${siteName} -o ${siteName}.yaml"
+def renderWithinContainer(siteRepoPath, globalRepoPath, secretsRepoPath, siteName, siteNameAndPath) {
+    sh "pegleg site -r ${siteRepoPath} -e global=${globalRepoPath} -e secrets=${secretsRepoPath} render ${siteName} -o ${siteNameAndPath}.yaml"
 }
 
 /**
@@ -154,13 +169,13 @@ def collect(siteRepo, globalRepo, username, sshKey, siteName) {
  * Execution of Pegleg "collect" within a Pegleg
  * container.
  *
- * @param siteRepo The folder containing your site-level documents (must be at your PWD)
- * @param globalRepo The folder containing your global documents (must be at your PWD)
- * @param secretsRepo The folder container your security documents (must be at your PWD)
+ * @param siteRepoPath The folder containing your site-level documents (must be at your PWD)
+ * @param globalRepoPath The folder containing your global documents (must be at your PWD)
+ * @param secretsRepoPath The folder container your security documents (must be at your PWD)
  * @param siteName The name of the site you're looking to render. Must match what's in your site repository's site-definition.yaml
  */
-def collectWithinContainer(siteRepo, globalRepo, secretsRepo, siteName) {
-    sh "pegleg site -r ${siteRepo} -e global=${globalRepo} -e secrets=${secretsRepo} collect ${siteName} -s ${siteName}"
+def collectWithinContainer(siteRepoPath, globalRepoPath, secretsRepoPath, siteName, siteNameAndPath) {
+    sh "pegleg -v site -r ${siteRepoPath} -e global=${globalRepoPath} -e secrets=${secretsRepoPath} collect ${siteName} -w P001 -w P003 -s ${siteNameAndPath}"
 }
 
 /**
@@ -382,14 +397,12 @@ def generateGenesis(siteRepo, username, sshKey, destinationDirectory, siteName, 
  * Execution of Pegleg "genesis_bundle" within a Pegleg
  * container.
  *
- * @param siteRepo The folder containing your site-level documents (must be at your PWD)
- * @param username The username for the service account.
- * @param sshKey The SSH key for the service account.
+ * @param siteRepoPath The folder containing your site-level documents (must be at your PWD)
  * @param destinationDirectory The directory where the script(s) will be generated in
  * @param siteName The name of the site you're looking to generate scripts for. Must match what's in your site repository's site-definition.yaml
  */
-def generateGenesisWithinContainer(siteRepo, username, sshKey, destinationDirectory, siteName, peglegPassphrase, peglegSalt) {
-    sh """export PEGLEG_PASSPHRASE="${peglegPassphrase}"; export PEGLEG_SALT="${peglegSalt}"; pegleg -v site -u ${username} -k ${sshKey} -r ${siteRepo} genesis_bundle -b ${destinationDirectory} ${siteName} --include-validators"""
+def generateGenesisWithinContainer(siteRepoPath, globalRepoPath, secretsRepoPath, destinationDirectory, siteName) {
+    sh "pegleg -v site -r ${siteRepoPath} -e global=${globalRepoPath} -e secrets=${secretsRepoPath} genesis_bundle -b ${destinationDirectory} --include-validators ${siteName}"
 }
 
 /**
