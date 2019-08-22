@@ -99,7 +99,7 @@ def getDependencies(String projectName) {
                         'DIST_PACKAGES': ' '],
       'neutron':       ['PROFILES': 'fluent neutron openvswitch linuxbridge',
                         'PIP_PACKAGES': 'pycrypto',
-                        'DIST_PACKAGES': ' '],
+                        'DIST_PACKAGES': 'jq'],
       'nova':          ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
                         'PIP_PACKAGES': 'pycrypto',
                         'DIST_PACKAGES': ' '],
@@ -111,7 +111,7 @@ def getDependencies(String projectName) {
                         'DIST_PACKAGES': 'libssl1.0.0'],
       'neutron-sriov': ['PROFILES': 'fluent neutron linuxbridge openvswitch',
                         'PIP_PACKAGES': 'pycrypto',
-                        'DIST_PACKAGES': 'ethtool lshw']
+                        'DIST_PACKAGES': 'ethtool lshw jq']
     ]
 
     return project_config[projectName]
