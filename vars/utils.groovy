@@ -36,7 +36,7 @@ def retrier(int retries, Closure body) {
         } catch (err) {
             echo "${err}"
             sleep 1
-            lastLog = currentBuild.rawBuild.getLog(20).join()
+            lastLog = currentBuild.rawBuild.getLog(100).join()
             if (lastLog.find(Params.ABORT_ON.join("|"))) {
                 echo "Abort detected. Marking job as ABORTED."
                 currentBuild.result = 'ABORTED'
