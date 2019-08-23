@@ -3,6 +3,27 @@ pipelineJob("code-review") {
     logRotator{
         daysToKeep(90)
     }
+    parameters {
+        stringParam {
+            defaultValue("")
+            description('Internal project name for manual build.')
+            name ('GERRIT_PROJECT')
+            trim(true)
+        }
+        stringParam {
+            defaultValue("")
+            description('Reference for manual build of internal project.\n\n' +
+                        'Branch or gerrit refspec is supported.')
+            name ('GERRIT_REFSPEC')
+            trim(true)
+        }
+        stringParam {
+            defaultValue("")
+            description('Branch for manual build of internal project.\n\n')
+            name ('GERRIT_BRANCH')
+            trim(true)
+        }
+    }
     triggers {
         gerritTrigger {
             gerritProjects {
@@ -13,17 +34,6 @@ pipelineJob("code-review") {
                         branch {
                             compareType("ANT")
                             pattern("**")
-                        }
-                    }
-                    disableStrictForbiddenFileVerification(false)
-                }
-                gerritProject {
-                    compareType('REG_EXP')
-                    pattern("^mos-(?!(requirements|build|tempest|etc)).*")
-                    branches {
-                        branch {
-                            compareType("REG_EXP")
-                            pattern("${MOS_BRANCHES}")
                         }
                     }
                     disableStrictForbiddenFileVerification(false)
@@ -39,13 +49,13 @@ pipelineJob("code-review") {
                 commentAddedContains {
                     commentAddedCommentContains('^recheck\$')
                 }
-             }
-         }
-         definition {
-             cps {
-                 script(readFileFromWorkspace("code-review/Jenkinsfile"))
-                 sandbox()
-             }
-         }
-     }
+            }
+        }
+        definition {
+            cps {
+                script(readFileFromWorkspace("code-review/Jenkinsfile"))
+                sandbox()
+            }
+        }
+    }
 }
