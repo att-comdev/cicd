@@ -61,29 +61,16 @@ try {
         node(label){
             container("ubuntu"){
                 stage('Project Checkout'){
-                    if(env.GERRIT_NEWREV){
-                        if(!GERRIT_HOST.contains('review')){
-                            gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
-                                                 GERRIT_NEWREV,
-                                                 "jenkins",
-                                                 INTERNAL_GERRIT_KEY)
-                        } else {
-                            gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_NEWREV, "jenkins")
-                            dir("${WORKSPACE}/jenkins"){
-                                gerrit.rebase()
-                            }
-                        }
+                    revision = env.GERRIT_NEWREV ?: env.GERRIT_PATCHSET_REVISION ?: GERRIT_REFSPEC
+                    if(!env.GERRIT_HOST.contains('review')){
+                        gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
+                                             revision,
+                                             "jenkins",
+                                             INTERNAL_GERRIT_KEY)
                     } else {
-                        if(!GERRIT_HOST.contains('review')){
-                            gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
-                                                 GERRIT_PATCHSET_REVISION,
-                                                 "jenkins",
-                                                 INTERNAL_GERRIT_KEY)
-                        } else {
-                            gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
-                            dir("${WORKSPACE}/jenkins"){
-                                gerrit.rebase()
-                            }
+                        gerrit.cloneToBranch("https://${GERRIT_HOST}/${GERRIT_PROJECT}", revision, "jenkins")
+                        dir("${WORKSPACE}/jenkins"){
+                            gerrit.rebase()
                         }
                     }
                     // set UPPER_CONSTRAINTS_FILE from mos-requirements
