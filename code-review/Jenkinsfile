@@ -1,6 +1,13 @@
 import com.att.nccicd.config.conf as config
 conf = new config(env).CONF
 
+if (!env.GERRIT_EVENT_TYPE) {
+    GERRIT_PROJECT = params.PROJECT_NAME
+    GERRIT_REFSPEC = params.PROJECT_REF
+    GERRIT_BRANCH = params.PROJECT_BRANCH
+    GERRIT_EVENT_TYPE = 'manual'
+}
+
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
 
 TOX_CHECK = ("set +e; res=0; for check in pep8 'py27 -- --concurrency=8';" +
@@ -61,29 +68,17 @@ try {
         node(label){
             container("ubuntu"){
                 stage('Project Checkout'){
-                    if(env.GERRIT_NEWREV){
-                        if(!GERRIT_HOST.contains('review')){
-                            gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
-                                                 GERRIT_NEWREV,
-                                                 "jenkins",
-                                                 INTERNAL_GERRIT_KEY)
-                        } else {
-                            gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_NEWREV, "jenkins")
-                            dir("${WORKSPACE}/jenkins"){
-                                gerrit.rebase()
-                            }
-                        }
+                    revision = env.GERRIT_NEWREV ?: env.GERRIT_PATCHSET_REVISION ?: GERRIT_REFSPEC
+                    if(!env.GERRIT_HOST || !GERRIT_HOST.contains('review')){
+                        gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
+                                             revision,
+                                             "jenkins",
+                                             INTERNAL_GERRIT_KEY,
+                                             revision)
                     } else {
-                        if(!GERRIT_HOST.contains('review')){
-                            gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
-                                                 GERRIT_PATCHSET_REVISION,
-                                                 "jenkins",
-                                                 INTERNAL_GERRIT_KEY)
-                        } else {
-                            gerrit.cloneToBranch("https://"+GERRIT_HOST+"/"+GERRIT_PROJECT, GERRIT_PATCHSET_REVISION, "jenkins")
-                            dir("${WORKSPACE}/jenkins"){
-                                gerrit.rebase()
-                            }
+                        gerrit.cloneToBranch("https://${GERRIT_HOST}/${GERRIT_PROJECT}", revision, "jenkins")
+                        dir("${WORKSPACE}/jenkins"){
+                            gerrit.rebase()
                         }
                     }
                     // set UPPER_CONSTRAINTS_FILE from mos-requirements
@@ -131,7 +126,7 @@ try {
     // catch both errors and exceptions
 } catch (Throwable err) {
     currentBuild.result = 'FAILURE'
-    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+    if (GERRIT_EVENT_TYPE == 'change-merged') {
         email.sendMail(recipientProviders: [developers(), requestor()],
                        to: env.EMAIL_LIST)
     }
