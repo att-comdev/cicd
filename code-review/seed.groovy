@@ -17,17 +17,6 @@ pipelineJob("code-review") {
                     }
                     disableStrictForbiddenFileVerification(false)
                 }
-                gerritProject {
-                    compareType('REG_EXP')
-                    pattern("^mos-(?!(requirements|build|tempest|etc)).*")
-                    branches {
-                        branch {
-                            compareType("REG_EXP")
-                            pattern("${MOS_BRANCHES}")
-                        }
-                    }
-                    disableStrictForbiddenFileVerification(false)
-                }
             }
             triggerOnEvents {
                 patchsetCreated {
