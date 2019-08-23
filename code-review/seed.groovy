@@ -3,7 +3,24 @@ pipelineJob("code-review") {
     logRotator{
         daysToKeep(90)
     }
-    triggers {
+    parameters {
+        stringParam {
+            defaultValue()
+            description('Internal project name for manual build.')
+            name ('GERRIT_PROJECT')
+        }
+        stringParam {
+            defaultValue()
+            description('Reference for manual build of internal project.\n\n' +
+                        'Branch or gerrit refspec is supported.')
+            name ('GERRIT_REFSPEC')
+        }
+        stringParam {
+            defaultValue()
+            description('Branch for manual build of internal project.\n\n')
+            name ('GERRIT_BRANCH')
+        }
+    } triggers {
         gerritTrigger {
             gerritProjects {
                 gerritProject {
@@ -13,17 +30,6 @@ pipelineJob("code-review") {
                         branch {
                             compareType("ANT")
                             pattern("**")
-                        }
-                    }
-                    disableStrictForbiddenFileVerification(false)
-                }
-                gerritProject {
-                    compareType('REG_EXP')
-                    pattern("^mos-(?!(requirements|build|tempest|etc)).*")
-                    branches {
-                        branch {
-                            compareType("REG_EXP")
-                            pattern("${MOS_BRANCHES}")
                         }
                     }
                     disableStrictForbiddenFileVerification(false)
