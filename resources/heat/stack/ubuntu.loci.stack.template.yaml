@@ -6,6 +6,9 @@ parameters:
   public_net:
     type: string
     default: public
+  private_net:
+    type: string
+    default: private
   image:
     type: string
     default: cicd-ubuntu-16.04-server-cloudimg-amd64
@@ -32,7 +35,8 @@ resources:
   server_port:
     type: OS::Neutron::Port
     properties:
-      network_id: private
+      network_id:
+        get_param: private_net
       security_groups: [jenkins-security]
 
   server_floating_ip:
