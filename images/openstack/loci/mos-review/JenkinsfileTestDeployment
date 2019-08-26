@@ -27,10 +27,14 @@ REPOS = conf.OSH_AIO_REPOS
 BUILD_KUBEADM = true
 SNAPSHOT_NAME = "osh-aio-${RELEASE}-initial"
 OLD_SNAPSHOT_ID = ""
-INITIAL_DEPLOYMENT = params.INITIAL_DEPLOYMENT
-CREATE_SNAPSHOT = INITIAL_DEPLOYMENT && params.CREATE_SNAPSHOT
+INITIAL_DEPLOYMENT = INITIAL_DEPLOYMENT.toBoolean()
+CREATE_SNAPSHOT = INITIAL_DEPLOYMENT && CREATE_SNAPSHOT.toBoolean()
 BASE_IMAGE = 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+TROUBLESHOOTING = TROUBLESHOOTING.toBoolean()
 
+if (TROUBLESHOOTING) {
+    assert !INITIAL_DEPLOYMENT
+}
 
 def cloneOSH() {
     sh 'mkdir -p $WORKSPACE/artifacts'
@@ -171,6 +175,19 @@ def tweakOSH() {
     // to remove once https://review.opendev.org/#/c/675747/ is merged
     if (RELEASE == 'stein') {
         sh "sed -i 's/backup_driver: \"cinder.backup.drivers.swift\"/backup_driver: \"cinder.backup.drivers.swift.SwiftBackupDriver\"/g' openstack-helm/cinder/values.yaml"
+    }
+    if (TROUBLESHOOTING) {
+        // add tty: true and stding true to each service pod template
+        dir ('openstack-helm') {
+            sh (returnStdout: true, script: 'find . \\( -iname "deployment*.yaml" -o -iname "daemonset-compute.yaml" \\)').split("\n").each {
+                fname = it.trim()
+                text = readFile fname
+                (pattern, indent) = ((text =~ / *containers:\n( *- ).*/)[0])
+                indent = " " * indent.length()
+                text = text.replaceAll(pattern, pattern << "\n${indent}tty: true\n${indent}stdin: true")
+                writeFile file: fname, text: text
+            }
+        }
     }
 }
 
@@ -410,7 +427,7 @@ def createSnapshot = { stackName ->
                   "--name ${SNAPSHOT_NAME}-tmp --wait")
 }
 
-def replaceImage() {
+def replaceImage = {
     openstackExec(
         "openstack image set ${SNAPSHOT_NAME}-tmp --name ${SNAPSHOT_NAME}")
     if (OLD_SNAPSHOT_ID) {
@@ -549,6 +566,18 @@ K8S_DEPLOY_STEPS = [
 ]
 
 
+def waitForDeathTime() {
+    def deathTime
+    while (true) {
+        deathTime = Long.valueOf((readFile("config")).trim().decodeBase64())
+        if (deathTime < System.currentTimeMillis()) {
+            break
+        }
+        sleep 300
+    }
+}
+
+
 if (CREATE_SNAPSHOT) {
     TestVm(initScript: 'bootstrap.sh',
            image: BASE_IMAGE,
@@ -575,7 +604,9 @@ TestVm(initScript: '',
        nodePostfix: 'deploy-osh-aio',
        buildType: 'basic',
        doNotDeleteNode: false,
+       timeout: TROUBLESHOOTING ? 540 : 60,
        postBuildFailureBody: CREATE_SNAPSHOT ? deleteInitialSnapshot : {},
+       postBuildSuccessBody: CREATE_SNAPSHOT ? replaceImage : {},
 ) {
     if (INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) {
         K8S_DEPLOY_STEPS.each { it() }
@@ -621,17 +652,22 @@ TestVm(initScript: '',
             error "OSH AIO deployment failed with exception ${e}"
         }
     }
-    stage('Run Helm tests') {
-        try {
-            runHelmTests(['nova', 'cinder', 'glance', 'heat', 'keystone', 'neutron'])
-        } catch (Exception e) {
-            osh.artifactLogs()
-            throw e
+    if (!TROUBLESHOOTING) {
+        stage('Run Helm tests') {
+            try {
+                runHelmTests(['nova', 'cinder', 'glance', 'heat', 'keystone', 'neutron'])
+            } catch (Exception e) {
+                osh.artifactLogs()
+                throw e
+            }
         }
     }
-    stage('Replace image') {
-        if (CREATE_SNAPSHOT) {
-            replaceImage()
+    if (TROUBLESHOOTING) {
+        stage("Troubleshooting") {
+            writeFile(file: "config", text: (System.currentTimeMillis() + 3600000).toString().bytes.encodeBase64().toString())
+            timeout (480) {
+                waitForDeathTime()
+            }
         }
     }
 }
