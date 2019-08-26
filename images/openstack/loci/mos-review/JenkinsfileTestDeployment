@@ -1,3 +1,4 @@
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
 import com.att.nccicd.config.conf as config
 
@@ -27,10 +28,14 @@ REPOS = conf.OSH_AIO_REPOS
 BUILD_KUBEADM = true
 SNAPSHOT_NAME = "osh-aio-${RELEASE}-initial"
 OLD_SNAPSHOT_ID = ""
-INITIAL_DEPLOYMENT = params.INITIAL_DEPLOYMENT
-CREATE_SNAPSHOT = INITIAL_DEPLOYMENT && params.CREATE_SNAPSHOT
+INITIAL_DEPLOYMENT = INITIAL_DEPLOYMENT.toBoolean()
+CREATE_SNAPSHOT = INITIAL_DEPLOYMENT && CREATE_SNAPSHOT.toBoolean()
 BASE_IMAGE = 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+TROUBLESHOOTING = TROUBLESHOOTING.toBoolean()
 
+if (TROUBLESHOOTING) {
+    assert !INITIAL_DEPLOYMENT
+}
 
 def cloneOSH() {
     sh 'mkdir -p $WORKSPACE/artifacts'
@@ -45,7 +50,7 @@ def cloneOSH() {
 }
 
 
-def imageOverrides(Map images) {
+def imageOverrides(Map images, Map debugOverrides=[:]) {
     imageTypes = ['nova', 'nova-1804', 'neutron', 'neutron-sriov', 'glance',
                   'cinder', 'heat', 'horizon', 'keystone']
     // populate images with default values
@@ -98,6 +103,10 @@ def imageOverrides(Map images) {
             releaseOverrides = RELEASE_OVERRIDES[RELEASE][chart]
             if (releaseOverrides) {
                 overrides << releaseOverrides
+            }
+            chartDebugOverrides = debugOverrides[chart]
+            if (chartDebugOverrides) {
+                overrides << chartDebugOverrides
             }
             dir (chartDir) {
                 overrideYaml = "${chart}/values_overrides/${RELEASE}-ubuntu_${DISTRO_VERSION}.yaml"
@@ -172,6 +181,19 @@ def tweakOSH() {
     if (RELEASE == 'stein') {
         sh "sed -i 's/backup_driver: \"cinder.backup.drivers.swift\"/backup_driver: \"cinder.backup.drivers.swift.SwiftBackupDriver\"/g' openstack-helm/cinder/values.yaml"
     }
+    if (TROUBLESHOOTING) {
+        // add tty: true and stding true to each service pod template
+        dir ('openstack-helm') {
+            sh (returnStdout: true, script: 'find . \\( -iname "deployment*.yaml" -o -iname "daemonset*.yaml" \\)').split("\n").each {
+                fname = it.trim()
+                text = readFile fname
+                (pattern, indent) = ((text =~ / *containers:\n( *- ).*/)[0])
+                indent = " " * indent.length()
+                text = text.replaceAll(pattern, pattern << "\n${indent}tty: true\n${indent}stdin: true")
+                writeFile file: fname, text: text
+            }
+        }
+    }
 }
 
 def TestVm(Map map, Closure body) {
@@ -230,7 +252,7 @@ def TestVm(Map map, Closure body) {
     // node used for launching VMs
     def launch_node = 'jenkins-node-launch'
 
-    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+    def name = map.label ?: "${JOB_BASE_NAME}-${BUILD_NUMBER}"
 
     def postBuildSuccessBody = map.postBuildSuccessBody ?: {}
     def postBuildFailureBody = map.postBuildFailureBody ?: {}
@@ -241,7 +263,7 @@ def TestVm(Map map, Closure body) {
 
     // optionally uer may supply additional identified for the VM
     // this makes it easier to find it in OpenStack (e.g. name)
-    if (nodePostfix) {
+    if (nodePostfix && !label) {
       name += "-${nodePostfix}"
     }
 
@@ -410,7 +432,7 @@ def createSnapshot = { stackName ->
                   "--name ${SNAPSHOT_NAME}-tmp --wait")
 }
 
-def replaceImage() {
+def replaceImage = {
     openstackExec(
         "openstack image set ${SNAPSHOT_NAME}-tmp --name ${SNAPSHOT_NAME}")
     if (OLD_SNAPSHOT_ID) {
@@ -549,6 +571,146 @@ K8S_DEPLOY_STEPS = [
 ]
 
 
+def readConfig() {
+    def configRevision = ""
+    def data
+    def deployedConfig = []
+    def deathTime = null
+    while (true) {
+        if (fileExists("lock")) { sleep 5; continue }
+        dir ("config") {
+            revision = sh(returnStdout: true, script: "git rev-parse master").trim()
+            if (revision != configRevision) {
+                data = json.parseText(new String((readFile("config")).trim().decodeBase64()))
+                configRevision = revision
+            }
+        }
+
+        newDeathTime = Long.valueOf(data.deathTime)
+        if (deathTime != newDeathTime) {
+            print ("New death time detected: " <<
+                   "new Date(newDeathTime).format("yyyy-MM-dd HH:mm:ss 'UTC'"))
+            deathTime = newDeathTime
+        }
+        if (deathTime < System.currentTimeMillis()) {
+            break
+        }
+        newConfig = data.config ?: []
+        diff = []
+        newConfig.each {
+            if (deployedConfig.contains(it)) { return }
+            diff << it
+        }
+        if (diff) {
+            print "Applying difference: ${diff}"
+            apply(diff, configRevision)
+            deployedConfig = newConfig
+        } else {
+            sleep 60
+        }
+    }
+}
+
+
+def apply(diff, configRevision) {
+    def charts = [] as Set
+    diff.each {
+        def project = it.project
+        def component = it.component ?: project.split('-')[-1]
+        def refspec = it.refspec
+        def keys = it.keys
+        prepareImages(component, project, refspec, keys, configRevision)
+        charts << component
+    }
+    sh "git add -A; git commit -m 'Changes by ${configRevision}'"
+    dir ("openstack-helm") {
+        charts.each {
+            sh "helm delete --purge ${it}"
+            sleep 30
+            sh "./tools/deployment/common/wait-for-pods.sh openstack"
+            def values
+            withEnv(["OPENSTACK_RELEASE=${RELEASE}",
+                     "CONTAINER_DISTRO_VERSION=${DISTRO_VERSION}"]) {
+                values = sh(script: "./tools/deployment/common/get-values-overrides.sh ${it}",
+                            returnStdout: true)
+            }
+            sh "helm upgrade --install ${it} ./${it} --namespace openstack ${values}"
+            sleep 60
+        }
+    }
+}
+
+
+def prepareImages(component, project, refspec, keys, configRevision) {
+    yaml = "openstack-helm/${component}/values_overrides/${RELEASE}-ubuntu_${DISTRO_VERSION}.yaml"
+    data = readYaml(file: yaml)
+    images = [:]
+    if (keys) {
+        keys.each { key ->
+            image = data.images.tags[key]
+            if (!images[image]) { images[image] = [] }
+            images[image].add(key)
+        }
+    } else {
+        data.images.tags.each { _, value ->
+            if (value.contains('mos-' << component)) {
+                images[value] = []
+            }
+        }
+    }
+    def updatedImages = []
+    images.each {
+        updatedImages << createImage(it, project, refspec, configRevision)
+    }
+    updatedImages.each {
+        def updatedImage = it.toString()
+        def pattern = '.*' << updatedImage.split(':')[0] << '[:@].*'
+        data.images.tags.each { k, v ->
+            if (keys) {
+                if (!keys.contains(k) || k != updatedImage.split('/')[0]) {
+                    return
+                }
+                else {
+                    data.images.tags[k] = updatedImage
+                }
+            } else if (v =~ /${pattern}/) {
+                data.images.tags[k] = updatedImage
+            }
+        }
+    }
+    sh "rm ${yaml}"
+    writeYaml(file: yaml, data: data)
+}
+
+
+def createImage(image, project, refspec, configRevision) {
+    keys = image.value
+    image = image.key
+    sshagent ([INTERNAL_GERRIT_KEY]) {
+        if (!fileExists(project)) {
+            sh "git clone ${INTERNAL_GERRIT_SSH}/${project}"
+        }
+        dir (project) {
+            sh "git fetch origin ${refspec} && git checkout FETCH_HEAD"
+        }
+    }
+    PY = RELEASE == 'stein' ? 'python3' : 'python'
+    cmd = "bash -c 'apt-get update && apt-get install -y git && cd ${project}; ${PY} setup.py install'"
+    sh "sudo docker run --cidfile=containerid -v ${WORKSPACE}/${project}:/${project} ${image} ${cmd}"
+    tag = image.split('/')[-1].split('@')[0].split(':')[0] << ":${configRevision}"
+    containerId = readFile "containerid"
+    sh "sudo docker commit ${containerId} ${tag}"
+    sh "sudo rm containerid"
+    if (keys) {
+        keys.each { key ->
+            sh "sudo docker tag ${tag} ${key}/${tag}"
+        }
+        sh "sudo docker rmi ${tag}"
+    }
+    return tag
+}
+
+
 if (CREATE_SNAPSHOT) {
     TestVm(initScript: 'bootstrap.sh',
            image: BASE_IMAGE,
@@ -575,7 +737,10 @@ TestVm(initScript: '',
        nodePostfix: 'deploy-osh-aio',
        buildType: 'basic',
        doNotDeleteNode: false,
+       timeout: TROUBLESHOOTING ? 540 : 60,
+       label: LABEL,
        postBuildFailureBody: CREATE_SNAPSHOT ? deleteInitialSnapshot : {},
+       postBuildSuccessBody: CREATE_SNAPSHOT ? replaceImage : {},
 ) {
     if (INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) {
         K8S_DEPLOY_STEPS.each { it() }
@@ -621,17 +786,42 @@ TestVm(initScript: '',
             error "OSH AIO deployment failed with exception ${e}"
         }
     }
-    stage('Run Helm tests') {
-        try {
-            runHelmTests(['nova', 'cinder', 'glance', 'heat', 'keystone', 'neutron'])
-        } catch (Exception e) {
-            osh.artifactLogs()
-            throw e
+    if (!TROUBLESHOOTING) {
+        stage('Run Helm tests') {
+            try {
+                runHelmTests(['nova', 'cinder', 'glance', 'heat', 'keystone', 'neutron'])
+            } catch (Exception e) {
+                osh.artifactLogs()
+                throw e
+            }
         }
     }
-    stage('Replace image') {
-        if (CREATE_SNAPSHOT) {
-            replaceImage()
+    if (TROUBLESHOOTING) {
+        stage("Troubleshooting") {
+            initConfig()
+            timeout (480) {
+                readConfig()
+            }
         }
     }
+}
+
+def initConfig() {
+    sh "mkdir config"
+    while (fileExists('lock')) { sleep 1 }
+    sh "touch lock"
+    dir ("config") {
+        sh "git init"
+        data = JsonOutput.toJson(["deathTime": (System.currentTimeMillis() + 3600000).toString()])
+        writeFile(file: "config", text: data.bytes.encodeBase64().toString())
+        sh 'git config user.email "T-850@model.101"'
+        sh 'git config user.name "T-850 Model 101"'
+        sh "git add config; git commit -m 'Initial'"
+    }
+    dir ("openstack-helm") {
+        sh 'git config user.email "T-850@model.101"'
+        sh 'git config user.name "T-850 Model 101"'
+        sh "git add -A; git commit -m 'Initial'"
+    }
+    sh "rm lock"
 }
