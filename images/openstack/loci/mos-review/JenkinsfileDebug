@@ -1,0 +1,59 @@
+import com.att.nccicd.config.conf as config
+import groovy.json.JsonSlurperClassic
+
+conf = new config(env).CONF
+RETRY_COUNT = RETRY_COUNT.toInteger()
+
+projectList = new JsonSlurperClassic().parseText(PROJECT_LIST)
+
+if (GERRIT_BRANCH == conf.OCATA_BRANCH) {
+    RELEASE = 'ocata'
+} else if (GERRIT_BRANCH == conf.STEIN_BRANCH) {
+    RELEASE = 'stein'
+} else {
+    error("Unsupported branch: ${GERRIT_BRANCH}")
+}
+
+LABEL = "DebugDeployment-${GERRIT_CHANGE_NUMBER}"
+
+def waitForNode(limit) {
+    def i = 0
+    while (!nodesByLabel(label: LABEL)) {
+        if (i > limit) {
+            return false
+        }
+        sleep 60
+        i ++
+    }
+    return true
+}
+
+if (!waitForNode(4)) {
+    build(job: "${JOB_BASE}/DebugDeploymentPipeline",
+          parameters: [
+              stringParam(name: 'RELEASE', value: RELEASE),
+              stringParam(name: 'LABEL', value: LABEL)
+           ],
+          wait: false
+    )
+}
+
+if (!waitForNode(7)) {
+    error("Timeout expired in waiting for environment")
+}
+
+node(LABEL) {
+    dir("${WORKSPACE}/../DebugDeploymentPipeline") {
+        while (!fileExists("config")) {
+            sleep 60
+        }
+        while (!fileExists('lock')) { sleep 1 }
+        sh "touch lock"
+        dir ("config") {
+            config = JsonOutput.toJson(["deathTime": (System.currentTimeMillis() + 3600000).toString()])
+            writeFile(file: "config", text: config.bytes.encodeBase64().toString())
+            sh "git add config; git commit -m 'Initial'"
+        }
+        sh "rm lock"
+    }
+}

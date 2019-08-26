@@ -1,3 +1,4 @@
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
 import com.att.nccicd.config.conf as config
 
@@ -27,10 +28,14 @@ REPOS = conf.OSH_AIO_REPOS
 BUILD_KUBEADM = true
 SNAPSHOT_NAME = "osh-aio-${RELEASE}-initial"
 OLD_SNAPSHOT_ID = ""
-INITIAL_DEPLOYMENT = params.INITIAL_DEPLOYMENT
-CREATE_SNAPSHOT = INITIAL_DEPLOYMENT && params.CREATE_SNAPSHOT
+INITIAL_DEPLOYMENT = INITIAL_DEPLOYMENT.toBoolean()
+CREATE_SNAPSHOT = INITIAL_DEPLOYMENT && CREATE_SNAPSHOT.toBoolean()
 BASE_IMAGE = 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+TROUBLESHOOTING = TROUBLESHOOTING.toBoolean()
 
+if (TROUBLESHOOTING) {
+    assert !INITIAL_DEPLOYMENT
+}
 
 def cloneOSH() {
     sh 'mkdir -p $WORKSPACE/artifacts'
@@ -172,6 +177,19 @@ def tweakOSH() {
     if (RELEASE == 'stein') {
         sh "sed -i 's/backup_driver: \"cinder.backup.drivers.swift\"/backup_driver: \"cinder.backup.drivers.swift.SwiftBackupDriver\"/g' openstack-helm/cinder/values.yaml"
     }
+    if (TROUBLESHOOTING) {
+        // add tty: true and stding true to each service pod template
+        dir ('openstack-helm') {
+            sh (returnStdout: true, script: 'find . \\( -iname "deployment*.yaml" -o -iname "daemonset-compute.yaml" \\)').split("\n").each {
+                fname = it.trim()
+                text = readFile fname
+                (pattern, indent) = ((text =~ / *containers:\n( *- ).*/)[0])
+                indent = " " * indent.length()
+                text = text.replaceAll(pattern, pattern << "\n${indent}tty: true\n${indent}stdin: true")
+                writeFile file: fname, text: text
+            }
+        }
+    }
 }
 
 def TestVm(Map map, Closure body) {
@@ -230,7 +248,7 @@ def TestVm(Map map, Closure body) {
     // node used for launching VMs
     def launch_node = 'jenkins-node-launch'
 
-    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+    def name = map.label ?: "${JOB_BASE_NAME}-${BUILD_NUMBER}"
 
     def postBuildSuccessBody = map.postBuildSuccessBody ?: {}
     def postBuildFailureBody = map.postBuildFailureBody ?: {}
@@ -241,7 +259,7 @@ def TestVm(Map map, Closure body) {
 
     // optionally uer may supply additional identified for the VM
     // this makes it easier to find it in OpenStack (e.g. name)
-    if (nodePostfix) {
+    if (nodePostfix && !label) {
       name += "-${nodePostfix}"
     }
 
@@ -410,7 +428,7 @@ def createSnapshot = { stackName ->
                   "--name ${SNAPSHOT_NAME}-tmp --wait")
 }
 
-def replaceImage() {
+def replaceImage = {
     openstackExec(
         "openstack image set ${SNAPSHOT_NAME}-tmp --name ${SNAPSHOT_NAME}")
     if (OLD_SNAPSHOT_ID) {
@@ -549,6 +567,33 @@ K8S_DEPLOY_STEPS = [
 ]
 
 
+def readConfig() {
+    def configRevision = ""
+    def config
+    def deployedConfig = null
+    while (true) {
+        if (fileExists("lock")) { sleep 5; continue }
+        dir ("config") {
+            revision = sh(returnStdout: true, script: "git rev-parse master").trim()
+            if (revision != configRevision) {
+                config = json.parseText(new String((readFile("config")).trim().decodeBase64()))
+                configRevision = revision
+            }
+        }
+
+        newDeathTime = Long.valueOf(config.deathTime)
+        if (deathTime != newDeathTime) {
+            print ("New death time detected: " << new Date(newDeathTime).format("yyyy-MM-dd'T'HH:mm:ss'Z'"))
+            deathTime = newDeathTime
+        }
+        if (deathTime < System.currentTimeMillis()) {
+            break
+        }
+        sleep 300
+    }
+}
+
+
 if (CREATE_SNAPSHOT) {
     TestVm(initScript: 'bootstrap.sh',
            image: BASE_IMAGE,
@@ -575,7 +620,10 @@ TestVm(initScript: '',
        nodePostfix: 'deploy-osh-aio',
        buildType: 'basic',
        doNotDeleteNode: false,
+       timeout: TROUBLESHOOTING ? 540 : 60,
+       label: LABEL,
        postBuildFailureBody: CREATE_SNAPSHOT ? deleteInitialSnapshot : {},
+       postBuildSuccessBody: CREATE_SNAPSHOT ? replaceImage : {},
 ) {
     if (INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) {
         K8S_DEPLOY_STEPS.each { it() }
@@ -621,17 +669,35 @@ TestVm(initScript: '',
             error "OSH AIO deployment failed with exception ${e}"
         }
     }
-    stage('Run Helm tests') {
-        try {
-            runHelmTests(['nova', 'cinder', 'glance', 'heat', 'keystone', 'neutron'])
-        } catch (Exception e) {
-            osh.artifactLogs()
-            throw e
+    if (!TROUBLESHOOTING) {
+        stage('Run Helm tests') {
+            try {
+                runHelmTests(['nova', 'cinder', 'glance', 'heat', 'keystone', 'neutron'])
+            } catch (Exception e) {
+                osh.artifactLogs()
+                throw e
+            }
         }
     }
-    stage('Replace image') {
-        if (CREATE_SNAPSHOT) {
-            replaceImage()
+    if (TROUBLESHOOTING) {
+        stage("Troubleshooting") {
+            initConfig()
+            timeout (480) {
+                readConfig()
+            }
         }
     }
+}
+
+def initConfig() {
+    sh "mkdir config"
+    while (!fileExists('lock')) { sleep 1 }
+    sh "touch lock"
+    dir ("config") {
+        sh "git init"
+        config = JsonOutput.toJson(["deathTime": (System.currentTimeMillis() + 3600000).toString()])
+        writeFile(file: "config", text: config.bytes.encodeBase64().toString())
+        sh "git add config; git commit -m 'Initial'"
+    }
+    sh "rm lock"
 }
