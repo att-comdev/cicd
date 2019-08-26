@@ -13,16 +13,20 @@ if (GERRIT_BRANCH == conf.OCATA_BRANCH) {
     error("Unsupported branch: ${GERRIT_BRANCH}")
 }
 
+if ( GERRIT_TOPIC =~ /^debug.*/ ) {
+    error ("Pipeline is disabled for changes with debug topic")
+}
+
 params = [
     stringParam(name: 'PROJECT_NAME', value: GERRIT_PROJECT),
     stringParam(name: 'PROJECT_REF', value: GERRIT_REFSPEC),
     stringParam(name: 'PROJECT_BRANCH', value: GERRIT_BRANCH),
 ]
 stage("Code-review") {
-    if (GERRIT_EVENT_TYPE != 'change-merged') {
+    if (GERRIT_EVENT_TYPE != 'change-merged' && GERRIT_PROJECT != 'mos-requirements') {
         job = utils.runBuild("code-review", params)
     } else {
-        print "Skipping checks for 'change-merged' event"
+        print "Skipping checks"
     }
 }
 
