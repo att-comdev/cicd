@@ -347,9 +347,6 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
             "RUN echo \"${OVS_REPO}\" >> /etc/apt/sources.list\"" +
             "| docker build - -t base_image'")
         customArgs["FROM"] = "base_image"
-        if (BUILD_TYPE.contains('neutron')) {
-            projConfArgs['DIST_PACKAGES'] = projConfArgs['DIST_PACKAGES'] + ' jq'
-        }
     }
 
     def argsMap = loci.mergeArgs([DEFAULT_ARGS, projConfArgs, wheelArgs, customArgs])
@@ -374,12 +371,12 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     return image_tag
 }
 
-vm2 ('loci-bootstrap.sh',
-     'cicd-ubuntu-16.04-server-cloudimg-amd64',
-     'm1.medium',
-     '',
-    'loci',
-    false) {
+vm (initScript: 'loci-bootstrap.sh',
+    image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
+    flavor: 'm1.medium',
+    nodePostfix: '',
+    buildType: 'loci',
+    doNotDeleteNode: false) {
 
     sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
     stage('Docker Setup') {
