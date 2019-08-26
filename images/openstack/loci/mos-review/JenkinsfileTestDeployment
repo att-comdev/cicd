@@ -1,3 +1,4 @@
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
 import com.att.nccicd.config.conf as config
 
@@ -27,10 +28,16 @@ REPOS = conf.OSH_AIO_REPOS
 BUILD_KUBEADM = true
 SNAPSHOT_NAME = "osh-aio-${RELEASE}-initial"
 OLD_SNAPSHOT_ID = ""
-INITIAL_DEPLOYMENT = params.INITIAL_DEPLOYMENT
-CREATE_SNAPSHOT = INITIAL_DEPLOYMENT && params.CREATE_SNAPSHOT
+INITIAL_DEPLOYMENT = INITIAL_DEPLOYMENT.toBoolean()
+CREATE_SNAPSHOT = INITIAL_DEPLOYMENT && CREATE_SNAPSHOT.toBoolean()
 BASE_IMAGE = 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+TROUBLESHOOTING = TROUBLESHOOTING.toBoolean()
+AVAILABLE_IMAGES = []
+DEFAULT_IMAGES = [:]
 
+if (TROUBLESHOOTING) {
+    assert !INITIAL_DEPLOYMENT
+}
 
 def cloneOSH() {
     sh 'mkdir -p $WORKSPACE/artifacts'
@@ -45,7 +52,7 @@ def cloneOSH() {
 }
 
 
-def imageOverrides(Map images) {
+def imageOverrides(Map images, Map debugOverrides=[:]) {
     imageTypes = ['nova', 'nova-1804', 'neutron', 'neutron-sriov', 'glance',
                   'cinder', 'heat', 'horizon', 'keystone']
     // populate images with default values
@@ -98,6 +105,10 @@ def imageOverrides(Map images) {
             releaseOverrides = RELEASE_OVERRIDES[RELEASE][chart]
             if (releaseOverrides) {
                 overrides << releaseOverrides
+            }
+            chartDebugOverrides = debugOverrides[chart]
+            if (chartDebugOverrides) {
+                overrides << chartDebugOverrides
             }
             dir (chartDir) {
                 overrideYaml = "${chart}/values_overrides/${RELEASE}-ubuntu_${DISTRO_VERSION}.yaml"
@@ -160,17 +171,22 @@ def installDockerCE() {
 
 
 def tweakOSH() {
-    // to remove once https://review.opendev.org/#/c/676823/ is merged
-    sh 'sudo apt-get install -y bc'
-    // to remove once https://review.opendev.org/#/c/675797/ is merged
-    dir ("openstack-helm") { sh "git fetch https://review.opendev.org/openstack/openstack-helm refs/changes/97/675797/6 && git checkout FETCH_HEAD" }
     // to remove once https://review.opendev.org/#/c/675789/ or https://review.opendev.org/#/c/675792/ are merged
     sh "sed -i 's/project_domain_id = \"\"/project_domain_id =/g' openstack-helm/glance/values.yaml"
     sh "sed -i 's/user_domain_id = \"\"/user_domain_id =/g' openstack-helm/glance/values.yaml"
 
-    // to remove once https://review.opendev.org/#/c/675747/ is merged
-    if (RELEASE == 'stein') {
-        sh "sed -i 's/backup_driver: \"cinder.backup.drivers.swift\"/backup_driver: \"cinder.backup.drivers.swift.SwiftBackupDriver\"/g' openstack-helm/cinder/values.yaml"
+    if (TROUBLESHOOTING) {
+        // add tty: true and stding true to each service pod template
+        dir ('openstack-helm') {
+            sh (returnStdout: true, script: 'find . \\( -iname "deployment*.yaml" -o -iname "daemonset*.yaml" \\)').split("\n").each {
+                fname = it.trim()
+                text = readFile fname
+                (pattern, indent) = ((text =~ / *containers:\n( *- ).*/)[0])
+                indent = " " * indent.length()
+                text = text.replaceAll(pattern, pattern << "\n${indent}tty: true\n${indent}stdin: true")
+                writeFile file: fname, text: text
+            }
+        }
     }
 }
 
@@ -230,10 +246,12 @@ def TestVm(Map map, Closure body) {
     // node used for launching VMs
     def launch_node = 'jenkins-node-launch'
 
-    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+    def name = map.label ?: "${JOB_BASE_NAME}-${BUILD_NUMBER}"
 
     def postBuildSuccessBody = map.postBuildSuccessBody ?: {}
     def postBuildFailureBody = map.postBuildFailureBody ?: {}
+    def preBuildBody = map.preBuildBody ?: null
+    def troubleshootingBody = map.troubleshootingBody ?: null
 
     // templates located in resources from shared libraries
     // https://github.com/att-comdev/cicd/tree/master/resources
@@ -241,7 +259,7 @@ def TestVm(Map map, Closure body) {
 
     // optionally uer may supply additional identified for the VM
     // this makes it easier to find it in OpenStack (e.g. name)
-    if (nodePostfix) {
+    if (nodePostfix && !label) {
       name += "-${nodePostfix}"
     }
 
@@ -274,7 +292,12 @@ def TestVm(Map map, Closure body) {
                     }
                 }
             }
-
+            if (preBuildBody) {
+                node (name) {
+                    preBuildBody()
+                }
+                sleep 60
+            }
             // execute pipeline body, everything within vm()
             node (name) {
                 try {
@@ -299,6 +322,9 @@ def TestVm(Map map, Closure body) {
                     currentBuild.result = 'FAILURE'
                     throw err
                 }
+            }
+            if (troubleshootingBody) {
+                troubleshootingBody(name)
             }
             node(launch_node) {
                 postBuildSuccessBody(name)
@@ -410,7 +436,7 @@ def createSnapshot = { stackName ->
                   "--name ${SNAPSHOT_NAME}-tmp --wait")
 }
 
-def replaceImage() {
+def replaceImage = {
     openstackExec(
         "openstack image set ${SNAPSHOT_NAME}-tmp --name ${SNAPSHOT_NAME}")
     if (OLD_SNAPSHOT_ID) {
@@ -447,10 +473,22 @@ def runHelmTests(tests, run_from_root=false) {
 
     tests.each { it ->
         runningSet[it] = {
-            res = ""
+            def res = ""
+            def secondRetry = false
             try {
-                cmd = "${_sudo} helm test --debug ${it} --timeout 900 2>\\&1"
-                res += sh (returnStdout: true, script: cmd)
+                utils.retrier(2) {
+                    try {
+                        cmd = "${_sudo} helm test --debug ${it} --timeout 900 2>\\&1"
+                        result = sh (returnStdout: true, script: cmd)
+                    catch (Exception e) {
+                        if (!secondRetry) {
+                            sh "bash -c 'kubectl delete pod ${it}-test -nopenstack ||:'"
+                            secondRetry = true
+                        }
+                        throw(e)
+                    }
+                }
+                res += result
             } catch (Exception e) {
                 cmd = "${_sudo} kubectl logs ${it}-test --namespace openstack 2>\\&1"
                 res += sh (returnStdout: true, script: cmd)
@@ -476,6 +514,27 @@ def updateProxy() {
                 'proxy': [ 'http': HTTP_PROXY, 'https': HTTP_PROXY, 'noproxy': NO_PROXY] ]
     sh 'rm -rf ./openstack-helm-infra/tools/gate/devel/local-vars.yaml'
     writeYaml file: './openstack-helm-infra/tools/gate/devel/local-vars.yaml', data: amap
+}
+
+
+def setupHugepages = {
+    grubPgs = "grub-common grub-legacy-ec2 grub-pc grub-pc-bin grub2-common"
+    sh "sudo bash -c 'apt-get update; apt-get install ${grubPgs} -y'"
+    data = readFile "/etc/default/grub"
+    data = data.replaceAll(
+        "GRUB_CMDLINE_LINUX_DEFAULT=.*",
+        "GRUB_CMDLINE_LINUX_DEFAULT=\"console=tty1 console=ttyS0 " +
+        "default_hugepagesz=1G hugepagesz=1G hugepages=2 intel_iommu=on iommu=pt\""
+    ).replaceAll(
+        "GRUB_CMDLINE_LINUX=.*",
+        "GRUB_CMDLINE_LINUX=\"console=tty1 console=ttyS0 default_hugepagesz=1G " +
+        "hugepagesz=1G hugepages=2 intel_iommu=on iommu=pt\""
+    )
+    writeFile file: "${HOME}/grub", text: data
+    sh "sudo mv ${HOME}/grub /etc/default/"
+    sh 'sudo bash -c "update-grub"'
+    sh 'sudo bash -c "echo \'none /mnt/huge hugetlbfs pagesize=1G,size=2G 0 0\' >> /etc/fstab"'
+    sh 'sudo bash -c "echo \'sleep 1; sudo reboot;\' | at now"'
 }
 
 
@@ -549,6 +608,199 @@ K8S_DEPLOY_STEPS = [
 ]
 
 
+CMDS = [
+    'reboot': 'sudo bash -c "echo \'sleep 5; sudo reboot;\' | at now"'
+]
+
+
+def readConfig(nodeName) {
+    def configRevision = ""
+    def data
+    def deathTime = null
+    def oldConfig = null
+    def cmd = null
+    def finish = null
+    while (true) {
+        if (finish) {
+            break
+        }
+        sleep 60
+        node (nodeName) {
+            if (fileExists("lock")) { sleep 5; continue }
+            dir ("config") {
+                revision = sh(returnStdout: true, script: "git rev-parse master").trim()
+                if (revision != configRevision) {
+                    data = json.parseText(new String((readFile("config")).trim().decodeBase64()))
+                    configRevision = revision
+                }
+            }
+
+            newDeathTime = Long.valueOf(data.deathTime)
+            if (deathTime != newDeathTime) {
+                print ("New death time detected: " <<
+                       new Date(newDeathTime).format("yyyy-MM-dd HH:mm:ss 'UTC'"))
+                deathTime = newDeathTime
+            }
+            if (deathTime < System.currentTimeMillis()) {
+                finish = true
+            }
+            newConfig = data.config ?: []
+            if (oldConfig != newConfig) {
+                newConfig.each { chart, tags ->
+                    print "Applying configuration for ${chart}:\n${tags}"
+                    apply(chart, tags, configRevision)
+                    oldConfig = newConfig
+                }
+            }
+
+            if (fileExists("reboot")) {
+                sh "rm reboot"
+                command = CMDS['reboot']
+                sh command
+            }
+        }
+    }
+}
+
+
+def apply(chart, tags, configRevision) {
+    prepareImages(chart, tags)
+    dir ("openstack-helm") {
+        oshDiff = sh (script: "git diff", returnStdout: true).trim()
+        if (!oshDiff) {
+            print "Nothing to apply for chart ${chart}"
+            return
+        }
+        print oshDiff
+        sh "helm delete --purge ${chart} ||:"
+        sleep 30
+        sh "./tools/deployment/common/wait-for-pods.sh openstack ||:"
+        def values
+        withEnv(["OPENSTACK_RELEASE=${RELEASE}",
+                 "CONTAINER_DISTRO_VERSION=${DISTRO_VERSION}"]) {
+            values = sh(script: "./tools/deployment/common/get-values-overrides.sh ${chart}",
+                        returnStdout: true)
+        }
+        sh "helm upgrade --install ${chart} ./${chart} --namespace openstack ${values}"
+        sh "git add -A && git commit -m 'Changes by ${configRevision}'"
+    }
+}
+
+
+def getOverridesHash(tagOverridesList) {
+    org.apache.commons.codec.digest.DigestUtils.sha256Hex(tagOverridesList.toString())
+}
+
+def getCombinations(tagOverridesList) {
+    size = tagOverridesList.size()
+    def combs = [] as Set
+    for (i = size - 1; i >= 0; i--)  {
+        tagOverridesList.eachPermutation {
+            combs << it.subList(0, i).sort()
+        }
+    }
+    combs = combs as List
+    combs.sort { a, b -> b.size() <=> a.size() }
+    return combs
+}
+
+def getImageName(image) {
+    image.split('/')[-1].split('@')[0].split(':')[0]
+}
+
+
+def prepareImages(chart, tags) {
+    def yaml = "openstack-helm/${chart}/values_overrides/${RELEASE}-ubuntu_${DISTRO_VERSION}.yaml"
+    def data = readYaml(file: yaml)
+    def defaultOverrides = tags.default ?: [:]
+    def overrides = tags.overrides ?: [:]
+    def images = [:]
+    def newData = json.parseText(JsonOutput.toJson(data))
+    data.images.tags.each { deployedTag, deployedImage ->
+        if (!deployedImage.contains('mos-' << chart)) { return }
+        def tagOverrides = overrides[deployedTag] ?: defaultOverrides
+        tagOverridesList = []
+        tagOverrides.each { k, v -> tagOverridesList.add([k, v])}
+        tagOverridesList.sort()
+        def overridesHash = getOverridesHash(tagOverridesList)
+        def imageName = getImageName(deployedImage)
+        def newImage = (imageName << ':' << overridesHash).toString()
+
+        // populate DEFAULT_IMAGES to be a source of initial images in future
+        if (!AVAILABLE_IMAGES.contains(deployedImage) && !DEFAULT_IMAGES[imageName]) {
+            print "Adding ${deployedImage} to default images"
+            DEFAULT_IMAGES[imageName] = deployedImage
+        }
+
+        // Continue if an image with required overrides is already deployed
+        if (newImage == deployedImage) { return }
+
+        // Create new image if image with required overrides does not exist
+        // and add it to AVAILABLE_IMAGES
+        def created = false
+        if (!AVAILABLE_IMAGES.contains(newImage)) {
+            // search for images with partial overrides and apply difference
+            for (List item: getCombinations(tagOverridesList)) {
+                def baseImage = (imageName << ':' << getOverridesHash(item)).toString()
+                if (AVAILABLE_IMAGES.contains(baseImage)) {
+                    print ("Found image with partially deployed overrides: \n${baseImage} - ${item}")
+                    createImage(newImage, tagOverridesList - item, baseImage)
+                    created = true
+                    break
+                }
+            }
+            // If image with partial overrides or base image with empty overrides
+            // do not exist create base image and apply all overrides to it
+            if (!created) {
+                def defaultImage = DEFAULT_IMAGES[imageName]
+                print "Creating a base image with empty overrides from ${defaultImage}"
+                def baseImage = (imageName << ':' << getOverridesHash([])).toString()
+                createImage(baseImage, [], defaultImage)
+                AVAILABLE_IMAGES << baseImage
+                print "Creating image with overrides ${tagOverridesList} from ${baseImage}"
+                createImage(newImage, tagOverridesList, baseImage)
+            }
+            AVAILABLE_IMAGES << newImage
+        } else {
+            print "Image ${newImage} with overrides ${tagOverridesList} already exist"
+        }
+        newData.images.tags[deployedTag] = newImage
+    }
+
+    sh "rm ${yaml}"
+    writeYaml(file: yaml, data: newData)
+}
+
+
+def createImage(image, overrides, baseImage) {
+    def cmd = ""
+    def mounts = ""
+    PY = RELEASE == 'stein' ? 'python3' : 'python'
+    sshagent ([INTERNAL_GERRIT_KEY]) {
+        overrides.each {
+            def project = it[0]
+            def refspec = it[1]
+            if (!fileExists(project)) {
+                sh "git clone ${INTERNAL_GERRIT_SSH}/${project}"
+            }
+            dir (project) {
+                sh "git fetch origin ${refspec} && git checkout FETCH_HEAD"
+            }
+            cmd = cmd << "cd ${project} && ${PY} setup.py install && cd /; "
+            mounts = mounts << "-v ${WORKSPACE}/${project}:/${project} "
+        }
+    }
+    cmd = "bash -c 'apt-get update && apt-get install -y git; ${cmd}'"
+    params = ("-e HTTP_PROXY=${HTTP_PROXY} -e HTTPS_PROXY=${HTTPS_PROXY} " +
+              "-e NO_PROXY=${NO_PROXY} -e http_proxy=${HTTP_PROXY} "       +
+              "-e https_proxy=${HTTPS_PROXY} -e no_proxy=${NO_PROXY}")
+    sh "sudo docker run --cidfile=containerid ${params} ${mounts} ${baseImage} ${cmd}"
+    def containerId = readFile "containerid"
+    sh "sudo docker commit ${containerId} ${image}"
+    sh "sudo rm containerid"
+}
+
+
 if (CREATE_SNAPSHOT) {
     TestVm(initScript: 'bootstrap.sh',
            image: BASE_IMAGE,
@@ -557,12 +809,23 @@ if (CREATE_SNAPSHOT) {
            buildType: 'basic',
            doNotDeleteNode: false,
            postBuildSuccessBody: createSnapshot,
+           preBuildBody: setupHugepages,
     ) {
         K8S_DEPLOY_STEPS.each { it() }
 
         stage('Prepare node to snapshot creation') {
             sh "sudo docker logout ${ARTF_SECURE_DOCKER_URL}"
             cleanWs()
+        }
+    }
+}
+
+
+def troubleshooting = { nodeName ->
+    stage("Troubleshooting") {
+        initConfig(nodeName)
+        timeout (480) {
+            readConfig(nodeName)
         }
     }
 }
@@ -575,7 +838,12 @@ TestVm(initScript: '',
        nodePostfix: 'deploy-osh-aio',
        buildType: 'basic',
        doNotDeleteNode: false,
+       timeout: TROUBLESHOOTING ? 540 : 60,
+       label: LABEL,
        postBuildFailureBody: CREATE_SNAPSHOT ? deleteInitialSnapshot : {},
+       postBuildSuccessBody: CREATE_SNAPSHOT ? replaceImage : {},
+       preBuildBody: (INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) ? setupHugepages : null,
+       troubleshootingBody: TROUBLESHOOTING ? troubleshooting : null,
 ) {
     if (INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) {
         K8S_DEPLOY_STEPS.each { it() }
@@ -621,17 +889,37 @@ TestVm(initScript: '',
             error "OSH AIO deployment failed with exception ${e}"
         }
     }
-    stage('Run Helm tests') {
-        try {
-            runHelmTests(['nova', 'cinder', 'glance', 'heat', 'keystone', 'neutron'])
-        } catch (Exception e) {
-            osh.artifactLogs()
-            throw e
+    if (!TROUBLESHOOTING) {
+        stage('Run Helm tests') {
+            try {
+                runHelmTests(['nova', 'cinder', 'glance', 'heat', 'keystone', 'neutron'])
+            } catch (Exception e) {
+                osh.artifactLogs()
+                throw e
+            }
         }
     }
-    stage('Replace image') {
-        if (CREATE_SNAPSHOT) {
-            replaceImage()
+}
+
+
+def initConfig(nodeName) {
+    node (nodeName) {
+        sh "mkdir config"
+        while (fileExists('lock')) { sleep 1 }
+        sh "touch lock"
+        dir ("config") {
+            sh "git init"
+            data = JsonOutput.toJson(["deathTime": (System.currentTimeMillis() + 7200000).toString()])
+            writeFile(file: "config", text: data.bytes.encodeBase64().toString())
+            sh 'git config user.email "T-850@model.101"'
+            sh 'git config user.name "T-850 Model 101"'
+            sh "git add config; git commit -m 'Initial'"
         }
+        dir ("openstack-helm") {
+            sh 'git config user.email "T-850@model.101"'
+            sh 'git config user.name "T-850 Model 101"'
+            sh "git add -A; git commit -m 'Initial'"
+        }
+        sh "rm lock"
     }
 }
