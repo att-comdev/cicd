@@ -90,14 +90,18 @@ WHEELS_LATEST = (
 )
 
 DEFAULT_ARGS = [
-  'FROM':         "${LOCI_BASE_IMAGE}",
-  'PROJECT':      "${PROJECT_SUFFIX}",
-  'PROJECT_REF':  "${PROJECT_REF}",
-  'NO_PROXY':     "${NO_PROXY}",
-  'http_proxy':   "${HTTP_PROXY}",
-  'https_proxy':  "${HTTPS_PROXY}",
-  'PROJECT_REPO': getProjectRepoInternalUrl(PROJECT_NAME),
-  'PYTHON3'     : PY3,
+  'FROM':            "${LOCI_BASE_IMAGE}",
+  'PROJECT':         "${PROJECT_SUFFIX}",
+  'PROJECT_REF':     "${PROJECT_REF}",
+  'PROJECT_RELEASE': "${RELEASE}",
+  'HTTP_PROXY':      "${HTTP_PROXY}",
+  'HTTPS_PROXY':     "${HTTPS_PROXY}",
+  'NO_PROXY':        "${NO_PROXY}",
+  'http_proxy':      "${HTTP_PROXY}",
+  'https_proxy':     "${HTTPS_PROXY}",
+  'no_proxy':        "${NO_PROXY}",
+  'PROJECT_REPO':    getProjectRepoInternalUrl(PROJECT_NAME),
+  'PYTHON3'     :    PY3,
 ]
 
 // cmd for running Docker in Docker
@@ -117,12 +121,21 @@ def getProjectRepoInternalUrl(prj) {
 }
 
 def create_mirrors(projectList, keyList) {
+    def limit = 10
     sshagent(keyList) {
         dir (REPO_BASE_PATH) {
-            projectList.each {
-                (url, name) = [getProjectRepoUrl(it), it.split("/")[-1]]
-                sh "git clone --mirror ${url} ${name}"
-                sh "git --git-dir ${name} update-server-info"
+            projectList.collate(limit).each { list ->
+                def runningSet = [:]
+                print "Clonning ${list}"
+                list.each {
+                    def url, name
+                    (url, name) = [getProjectRepoUrl(it), it.split("/")[-1]]
+                    runningSet[name] = {
+                        sh "git clone --mirror ${url} ${name}"
+                        sh "git --git-dir ${name} update-server-info"
+                    }
+                }
+                parallel runningSet
             }
         }
     }
@@ -298,11 +311,13 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
                "${LOCI_BASE_IMAGE}")
     def base_sha256 = sh(returnStdout: true, script: cmd).trim()
 
-    def loci_version = gerrit.getVersion(LOCI_REPO, "master")
+    //def loci_version = gerrit.getVersion(LOCI_REPO, "master")
+    def loci_version = "49d2fcc870d682dfbb70c91a853f05ab17121a7a"
 
     LOCI_REPO_PATH = "/tmp/loci"
     // Clone loci repo to apply cicd patch for tests deletion
     sh "${DIND} git clone ${LOCI_REPO} ${LOCI_REPO_PATH}"
+    sh "${DIND} sh -c 'cd ${LOCI_REPO_PATH} && git fetch https://review.opendev.org/openstack/loci refs/changes/66/678566/1 && git checkout FETCH_HEAD'"
 
     // Copy script for tests cleanup to docker
     data = libraryResource "cicd/remove_tests.sh"
@@ -342,14 +357,9 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     customArgs = [:]
     if (BUILD_TYPE =~ /neutron|nova/ && params.CUSTOM_OVS) {
         sh ("${DIND} sh -c 'echo -e \"FROM ${LOCI_BASE_IMAGE}\n" +
-            "RUN apt-get update && apt-get install apt-transport-https\n" +
-            "RUN rm /etc/apt/apt.conf||:\n" +
             "RUN echo \"${OVS_REPO}\" >> /etc/apt/sources.list\"" +
             "| docker build - -t base_image'")
         customArgs["FROM"] = "base_image"
-        if (BUILD_TYPE.contains('neutron')) {
-            projConfArgs['DIST_PACKAGES'] = projConfArgs['DIST_PACKAGES'] + ' jq'
-        }
     }
 
     def argsMap = loci.mergeArgs([DEFAULT_ARGS, projConfArgs, wheelArgs, customArgs])
@@ -374,14 +384,15 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     return image_tag
 }
 
-vm2 ('loci-bootstrap.sh',
-     'cicd-ubuntu-16.04-server-cloudimg-amd64',
-     'm1.medium',
-     '',
-    'loci',
-    false) {
+vm (initScript: 'loci-bootstrap.sh',
+    image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
+    flavor: ('m1.' << (PROJECT_NAME.contains('requirements') ? 'large' : 'medium')),
+    nodePostfix: '',
+    buildType: 'loci',
+    doNotDeleteNode: false) {
 
     sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
+    vm2.setKnownHosts()
     stage('Docker Setup') {
         loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
                      DIND_CONTAINER, NET_RETRY_COUNT)
