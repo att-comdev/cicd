@@ -19,10 +19,10 @@ params = [
     stringParam(name: 'PROJECT_BRANCH', value: GERRIT_BRANCH),
 ]
 stage("Code-review") {
-    if (GERRIT_EVENT_TYPE != 'change-merged') {
+    if (GERRIT_EVENT_TYPE != 'change-merged' && GERRIT_PROJECT != 'mos-requirements') {
         job = utils.runBuild("code-review", params)
     } else {
-        print "Skipping checks for 'change-merged' event"
+        print "Skipping checks"
     }
 }
 
