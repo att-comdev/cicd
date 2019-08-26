@@ -93,9 +93,12 @@ DEFAULT_ARGS = [
   'FROM':         "${LOCI_BASE_IMAGE}",
   'PROJECT':      "${PROJECT_SUFFIX}",
   'PROJECT_REF':  "${PROJECT_REF}",
+  'HTTP_PROXY':   "${HTTP_PROXY}",
+  'HTTPS_PROXY':  "${HTTPS_PROXY}",
   'NO_PROXY':     "${NO_PROXY}",
   'http_proxy':   "${HTTP_PROXY}",
   'https_proxy':  "${HTTPS_PROXY}",
+  'no_proxy':     "${NO_PROXY}",
   'PROJECT_REPO': getProjectRepoInternalUrl(PROJECT_NAME),
   'PYTHON3'     : PY3,
 ]
@@ -117,13 +120,18 @@ def getProjectRepoInternalUrl(prj) {
 }
 
 def create_mirrors(projectList, keyList) {
+    runningSet = [:]
     sshagent(keyList) {
         dir (REPO_BASE_PATH) {
             projectList.each {
+                def url, name
                 (url, name) = [getProjectRepoUrl(it), it.split("/")[-1]]
-                sh "git clone --mirror ${url} ${name}"
-                sh "git --git-dir ${name} update-server-info"
+                runningSet[name] = {
+                    sh "git clone --mirror ${url} ${name}"
+                    sh "git --git-dir ${name} update-server-info"
+                }
             }
+            parallel runningSet
         }
     }
 }
@@ -342,14 +350,9 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     customArgs = [:]
     if (BUILD_TYPE =~ /neutron|nova/ && params.CUSTOM_OVS) {
         sh ("${DIND} sh -c 'echo -e \"FROM ${LOCI_BASE_IMAGE}\n" +
-            "RUN apt-get update && apt-get install apt-transport-https\n" +
-            "RUN rm /etc/apt/apt.conf||:\n" +
             "RUN echo \"${OVS_REPO}\" >> /etc/apt/sources.list\"" +
             "| docker build - -t base_image'")
         customArgs["FROM"] = "base_image"
-        if (BUILD_TYPE.contains('neutron')) {
-            projConfArgs['DIST_PACKAGES'] = projConfArgs['DIST_PACKAGES'] + ' jq'
-        }
     }
 
     def argsMap = loci.mergeArgs([DEFAULT_ARGS, projConfArgs, wheelArgs, customArgs])
@@ -374,14 +377,15 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     return image_tag
 }
 
-vm2 ('loci-bootstrap.sh',
-     'cicd-ubuntu-16.04-server-cloudimg-amd64',
-     'm1.medium',
-     '',
-    'loci',
-    false) {
+vm (initScript: 'loci-bootstrap.sh',
+    image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
+    flavor: 'm1.medium',
+    nodePostfix: '',
+    buildType: 'loci',
+    doNotDeleteNode: false) {
 
     sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
+    vm2.setKnownHosts()
     stage('Docker Setup') {
         loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
                      DIND_CONTAINER, NET_RETRY_COUNT)
