@@ -243,6 +243,8 @@ pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
         "NET_RETRY_COUNT":    NET_RETRY_COUNT,
         "MANIFESTS_BRANCH":   MANIFESTS_BRANCH,
         "SUPPORTED_RELEASES": JsonOutput.toJson(SUPPORTED_RELEASES),
+        "TROUBLESHOOTING":    false,
+        "LABEL":              "",
     )
     parameters {
         stringParam {
@@ -274,6 +276,97 @@ pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
     }
 }
 
+
+pipelineJob("${JOB_BASE}/DebugDeploymentPipeline") {
+    definition {
+        cps {
+            script(readFileFromWorkspace(
+                      "${JOB_BASE}/JenkinsfileTestDeployment")
+            )
+            sandbox(false)
+        }
+    }
+    properties {
+        disableResume()
+    }
+    environmentVariables(
+        "NET_RETRY_COUNT":    NET_RETRY_COUNT,
+        "MANIFESTS_BRANCH":   MANIFESTS_BRANCH,
+        "SUPPORTED_RELEASES": JsonOutput.toJson(SUPPORTED_RELEASES),
+        "CREATE_SNAPSHOT":    false,
+        "INITIAL_DEPLOYMENT": false,
+        "TROUBLESHOOTING":    true,
+        "OVERRIDE_IMAGES":    '{}',
+    )
+    parameters {
+        choiceParam {
+            choices(SUPPORTED_RELEASES.join("\n"))
+            description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
+            name('RELEASE')
+        }
+        stringParam {
+            defaultValue('')
+            description('')
+            name('LABEL')
+            trim(true)
+        }
+    }
+}
+
+
+pipelineJob("${JOB_BASE}/DebugPipeline") {
+    environmentVariables(
+        "JOB_BASE":     JOB_BASE,
+        "PROJECT_LIST": JsonOutput.toJson(MERGED_MAP.keySet()),
+        "RETRY_COUNT":  RETRY_COUNT,
+    )
+    properties {
+        disableResume()
+    }
+    definition {
+        cps {
+            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileDebug"))
+            sandbox(false)
+        }
+    }
+    triggers {
+        gerritTrigger {
+            serverName('mtn5-gerrit')
+            gerritProjects {
+                SUPPORTED_RELEASES.each { release ->
+                    gerritProject {
+                        compareType('REG_EXP')
+                        pattern(PROJECT_MAP[release].keySet().join("|"))
+                        branches {
+                            branch {
+                                compareType("REG_EXP")
+                                pattern("${RELEASE_BRANCH_MAP[release]}")
+                            }
+                        }
+                        topics {
+                            topic {
+                                compareType('REG_EXP')
+                                pattern("^debug.*\$")
+                            }
+                        }
+                        disableStrictForbiddenFileVerification(false)
+                    }
+                }
+            }
+            triggerOnEvents {
+                patchsetCreated {
+                    excludeDrafts(true)
+                    excludeTrivialRebase(false)
+                    excludeNoCodeChange(true)
+                }
+                commentAddedContains {
+                    commentAddedCommentContains('^[Dd]ebug.*')
+                }
+            }
+            silentMode(true)
+        }
+    }
+}
 
 
 pipelineJob("${JOB_BASE}/CodeReviewPipeline") {
