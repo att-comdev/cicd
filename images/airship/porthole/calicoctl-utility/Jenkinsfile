@@ -1,0 +1,118 @@
+import com.att.nccicd.config.conf as config
+conf = new config(env).CONF
+
+IMAGE_TAG = !env.GERRIT_PATCHSET_REVISION ? REVISION: env.GERRIT_PATCHSET_REVISION
+EFFECTIVE_REFSPEC = !env.GERRIT_REFSPEC ? REFSPEC: env.GERRIT_REFSPEC
+EVENT_TYPE = !env.GERRIT_EVENT_TYPE ? "manual": env.GERRIT_EVENT_TYPE
+EFFECTIVE_CHANGE_URL = !env.GERRIT_CHANGE_URL ? "": env.GERRIT_CHANGE_URL
+DOCKER_REGISTRY = "${ARTF_SECURE_DOCKER_URL}"
+IMAGE_PREFIX = "airship/porthole"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+AIRSHIP_PORTHOLE_URL = "https://review.opendev.org/airship/porthole"
+AIRSHIP_PORTHOLE_HOME = ""
+OS_RELEASE = "alpine"
+BUILD_TYPE = "network-cloud"
+
+if(EVENT_TYPE == "manual"){
+    // We expect either both or none
+    if([REVISION,REFSPEC].any() && ![REVISION,REFSPEC].every()){
+        error """Please provide either values for both variables(REVISION,REFSPEC)
+                  or leave them both empty"""
+    }
+}
+currentBuild.displayName = "#${BUILD_NUMBER} ${EVENT_TYPE}"
+
+def label = "worker-${UUID.randomUUID().toString()}"
+try {
+    podTemplate(label: label,
+                yaml: """
+                         apiVersion: v1
+                         kind: Pod
+                         spec:
+                           securityContext:
+                             runAsUser: 0
+                           nodeSelector:
+                             jenkins-node: enabled
+                      """,
+                containers: [containerTemplate(name: "ubuntu",
+                                               image: conf.POD_IMAGE_1804,
+                                               command: "cat",
+                                               ttyEnabled: true)],
+                volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock',
+                                         mountPath: '/var/run/docker.sock')]) {
+        node(label){
+            container("ubuntu"){
+                AIRSHIP_PORTHOLE_HOME = "${WORKSPACE}/${IMAGE_PREFIX}"
+
+                stage("Checkout"){
+                    if(env.GERRIT_NEWREV){
+                        echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+                        IMAGE_TAG = env.GERRIT_NEWREV
+                    }
+                    gerrit.cloneToBranch(AIRSHIP_PORTHOLE_URL, IMAGE_TAG,
+                                          AIRSHIP_PORTHOLE_HOME, null, EFFECTIVE_REFSPEC)
+                }
+
+                stage('Setup environment'){
+                    sh "apt-get update"
+                    sh "apt-get install make sudo docker.io -y"
+                }
+
+                stage('Build') {
+                    dir ("${AIRSHIP_PORTHOLE_HOME}/Dockerfiles/${JOB_BASE_NAME}") {
+                        IMAGE_TAG += ".${BUILD_TIMESTAMP}"
+                        BUILD_ARGS = [
+                            "IMAGE_NAME=${JOB_BASE_NAME}",
+                            "DOCKER_REGISTRY=${DOCKER_REGISTRY}",
+                            "IMAGE_PREFIX=${IMAGE_PREFIX}",
+                            "BUILD_TYPE=${BUILD_TYPE}",
+                            "OS_RELEASE=${OS_RELEASE}",
+                            "IMAGE_TAG=${IMAGE_TAG}",
+                        ]
+                        EXTRA_BUILD_ARGS = [
+                            "--label org.opencontainers.image.revision=${IMAGE_TAG}",
+                            "--label org.opencontainers.image.source=${EFFECTIVE_CHANGE_URL}",
+                            "--label org.opencontainers.image.event=${EVENT_TYPE}",
+                            "--build-arg DOCKER_REGISTRY=${DOCKER_REGISTRY}",
+                        ]
+                        if(HTTP_PROXY) {EXTRA_BUILD_ARGS.add("--build-arg http_proxy=${HTTP_PROXY}")}
+                        if(HTTPS_PROXY) {EXTRA_BUILD_ARGS.add("--build-arg https_proxy=${HTTPS_PROXY}")}
+                        if(NO_PROXY) {EXTRA_BUILD_ARGS.add("--build-arg NO_PROXY=${NO_PROXY}")}
+                        if(CALICOQ_VERSION) {
+                            EXTRA_BUILD_ARGS.add("--build-arg CALICOQ_VERSION=${CALICOQ_VERSION}")
+                        }
+                        if(CALICOCTL_VERSION) {
+                            EXTRA_BUILD_ARGS.add("--build-arg CALICOCTL_VERSION=${CALICOCTL_VERSION}")
+                        }
+                        sh """make ${BUILD_ARGS.join(' ')} \
+                              EXTRA_BUILD_ARGS="${EXTRA_BUILD_ARGS.join(' ')}" """
+                    }
+                }
+
+                stage('Image Publish'){
+                    IMAGE = sh (
+                        script: """docker images --filter label=org.opencontainers.image.revision=${IMAGE_TAG} \
+                            --format {{.Repository}}:{{.Tag}}""",
+                        returnStdout: true
+                    ).trim()
+                    if (EVENT_TYPE == 'change-merged') {
+                        publish.image('jenkins-artifactory', ARTF_SECURE_DOCKER_URL,
+                                                IMAGE, "${ARTF_SECURE_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                        publish.image('jenkins-artifactory', ARTF_SECURE_DOCKER_URL, IMAGE, "${ARTF_SECURE_DOCKER_URL}/${IMAGE_LATEST}")
+                    } else {
+                        publish.image('jenkins-artifactory', ARTF_SECURE_DOCKER_URL,
+                                                IMAGE, "${ARTF_SECURE_DOCKER_URL}/test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                    }
+                }
+            }
+        }
+    }
+    // catch both errors and exceptions
+} catch (Throwable err) {
+    currentBuild.result = 'FAILURE'
+    if (EVENT_TYPE == 'change-merged') {
+        email.sendMail(recipientProviders: [developers(), requestor()],
+                       to: env.EMAIL_LIST)
+    }
+    throw err
+}
