@@ -25,22 +25,26 @@ noauth=false
 explicitsuite=false
 unpack=true
 bootstrap=xenial xenial-updates xenial-security
+aptsources=xenial xenial-updates xenial-security
 
 [xenial]
 packages=apt
 source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+keyring=ubuntu-keyring
 suite=xenial
 components=main multiverse restricted universe
 
 [xenial-updates]
 packages=apt
 source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+keyring=ubuntu-keyring
 suite=xenial-updates
 components=main multiverse restricted universe
 
 [xenial-security]
 packages=apt
 source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+keyring=ubuntu-keyring
 suite=xenial-security
 components=main multiverse restricted universe
 EOF"""
@@ -53,22 +57,26 @@ noauth=false
 explicitsuite=false
 unpack=true
 bootstrap=bionic bionic-updates bionic-security
+aptsources=bionic bionic-updates bionic-security
 
 [bionic]
 packages=apt
 source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+keyring=ubuntu-keyring
 suite=bionic
 components=main multiverse restricted universe
 
 [bionic-updates]
 packages=apt
 source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+keyring=ubuntu-keyring
 suite=bionic-updates
 components=main multiverse restricted universe
 
 [bionic-security]
 packages=apt
 source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+keyring=ubuntu-keyring
 suite=bionic-security
 components=main multiverse restricted universe
 EOF"""
