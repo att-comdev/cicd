@@ -35,9 +35,12 @@ try {
                             IMAGE_TAG="${GERRIT_NEWREV}"
                     }
 
-                    gerrithub.cloneToBranch("${GIT_REPO}", "${IMAGE_TAG}","")
-                    if(GERRIT_EVENT_TYPE != 'change-merged') {
+                    if(GERRIT_EVENT_TYPE != 'change-merged' && GERRIT_PROJECT == GIT_REPO) {
+                        gerrithub.cloneToBranch("${GIT_REPO}", "${IMAGE_TAG}","")
                         gerrit.rebase()
+                    }
+                    else {
+                        git "https://review.gerrithub.io/att-comdev/dockerfiles"
                     }
 
                     sh "apt-get update -y"
@@ -47,7 +50,6 @@ try {
                     def cmd="docker inspect --format='{{index .RepoDigests 0}}' \
                                 ${IMAGE_PREFIX}/${JOB_BASE_NAME}:${DEFAULT_TAG}"
                     def base_sha256 = sh(returnStdout: true, script: cmd).trim()
-
                     sh "sudo make build:${IMAGE_PREFIX}:${DEFAULT_TAG} \
                           DEFAULT_NAMESPACE=${DEFAULT_NAMESPACE} \
                           EXTRA_BUILD_ARGS=\"--build-arg FROM=${IMAGE_PREFIX}/${IMAGE_PREFIX}:${DEFAULT_TAG} \
