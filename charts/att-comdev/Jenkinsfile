@@ -46,7 +46,8 @@ vm(flavor: FLAVOR) {
                                  CHARTS_HOME)
         }
         dir(CHARTS_HOME){
-            GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+//            GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+            GIT_COMMIT = GERRIT_NEWREV.substring(0,12) //Take GIT commit from gerrit environment variable
         }
     }
 
