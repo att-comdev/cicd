@@ -100,6 +100,7 @@ DEFAULT_ARGS = [
   'http_proxy':      "${HTTP_PROXY}",
   'https_proxy':     "${HTTPS_PROXY}",
   'no_proxy':        "${NO_PROXY}",
+  'PIP_ARGS':        "--index-url ${ARTF_PIP_INDEX_URL}",
   'PROJECT_REPO':    getProjectRepoInternalUrl(PROJECT_NAME),
   'PYTHON3'     :    PY3,
 ]
