@@ -1,6 +1,9 @@
 import com.att.nccicd.config.conf as config
+import groovy.json.JsonSlurperClassic
 
 conf = new config(env).CONF
+
+json = new JsonSlurperClassic()
 
 NET_RETRY_COUNT = env.NET_RETRY_COUNT.toInteger()
 TOPIC = "${RELEASE}-mirrors-update"
