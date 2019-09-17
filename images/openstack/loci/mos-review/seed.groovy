@@ -356,7 +356,7 @@ pipelineJob("${JOB_BASE}/DebugPipeline") {
             triggerOnEvents {
                 patchsetCreated {
                     excludeDrafts(true)
-                    excludeTrivialRebase(false)
+                    excludeTrivialRebase(true)
                     excludeNoCodeChange(true)
                 }
                 commentAddedContains {

@@ -100,6 +100,7 @@ DEFAULT_ARGS = [
   'http_proxy':      "${HTTP_PROXY}",
   'https_proxy':     "${HTTPS_PROXY}",
   'no_proxy':        "${NO_PROXY}",
+  'PIP_ARGS':        "--index-url ${ARTF_PIP_INDEX_URL}",
   'PROJECT_REPO':    getProjectRepoInternalUrl(PROJECT_NAME),
   'PYTHON3'     :    PY3,
 ]
@@ -312,7 +313,7 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     def base_sha256 = sh(returnStdout: true, script: cmd).trim()
 
     //def loci_version = gerrit.getVersion(LOCI_REPO, "master")
-    def loci_version = "49d2fcc870d682dfbb70c91a853f05ab17121a7a"
+    def loci_version = "c94e375f8da31363c5c8155027e2bfeb4dc7accb"
 
     LOCI_REPO_PATH = "/tmp/loci"
     // Clone loci repo to apply cicd patch for tests deletion
