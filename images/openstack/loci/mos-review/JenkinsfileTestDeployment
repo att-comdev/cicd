@@ -9,8 +9,10 @@ overrideImagesMap = json.parseText(OVERRIDE_IMAGES)
 
 if (RELEASE == 'ocata') {
     DISTRO_VERSION = 'xenial'
+    BRANCH = conf.OCATA_BRANCH
 } else if (RELEASE == 'stein') {
     DISTRO_VERSION = 'bionic'
+    BRANCH = conf.STEIN_BRANCH
 }
 
 def getProjectRepoUrl(prj) {
@@ -175,6 +177,13 @@ def tweakOSH() {
     sh "sed -i 's/project_domain_id = \"\"/project_domain_id =/g' openstack-helm/glance/values.yaml"
     sh "sed -i 's/user_domain_id = \"\"/user_domain_id =/g' openstack-helm/glance/values.yaml"
 
+    // to remove once https://review.opendev.org/#/c/682497 is merged
+    dir ("openstack-helm") {
+        sh 'git config user.email "T-850@model.101"'
+        sh 'git config user.name "T-850 Model 101"'
+        sh ("git fetch https://review.opendev.org/openstack/openstack-helm refs/changes/97/682497/1 && git cherry-pick FETCH_HEAD")
+    }
+
     if (TROUBLESHOOTING) {
         // add tty: true and stding true to each service pod template
         dir ('openstack-helm') {
@@ -189,6 +198,24 @@ def tweakOSH() {
         }
     }
 }
+
+
+def installOpenstackClient() {
+    sshagent ([INTERNAL_GERRIT_KEY]) {
+        sh "git clone -b ${BRANCH} ${INTERNAL_GERRIT_SSH}/mos-requirements"
+        dir ("mos-requirements") {
+            def upperConstraints = readFile "upper-constraints.txt"
+            upperConstraints = upperConstraints.replaceAll(
+                "ssh://", "ssh://${INTERNAL_GERRIT_USER}@"
+            )
+            writeFile file: "upper-constraints.txt", text: upperConstraints
+        }
+        if (!sh (returnStatus: true, script: "sudo pip uninstall python-openstackclient -y")) {
+            sh ("openstack-helm/tools/deployment/developer/ceph/020-setup-client.sh")
+        }
+    }
+}
+
 
 def TestVm(Map map, Closure body) {
 
@@ -517,6 +544,12 @@ def updateProxy() {
 }
 
 
+def exportPipEnv = {
+    sh "sudo bash -c 'echo UPPER_CONSTRAINTS_FILE=${WORKSPACE}/mos-requirements/upper-constraints.txt >> /etc/environment'"
+    sh "sudo bash -c 'echo PIP_INDEX_URL=${ARTF_PIP_INDEX_URL} >> /etc/environment'"
+}
+
+
 def setupHugepages = {
     grubPgs = "grub-common grub-legacy-ec2 grub-pc grub-pc-bin grub2-common"
     sh "sudo bash -c 'apt-get update; apt-get install ${grubPgs} -y'"
@@ -535,6 +568,14 @@ def setupHugepages = {
     sh 'sudo bash -c "update-grub"'
     sh 'sudo bash -c "echo \'none /mnt/huge hugetlbfs pagesize=1G,size=2G 0 0\' >> /etc/fstab"'
     sh 'sudo bash -c "echo \'sleep 1; sudo reboot;\' | at now"'
+}
+
+
+def setupNode = {
+    vm2.setKnownHosts()
+    sh "sudo cp ${HOME}/.ssh/known_hosts /etc/ssh/ssh_known_hosts"
+    exportPipEnv()
+    setupHugepages()
 }
 
 
@@ -572,6 +613,11 @@ K8S_DEPLOY_STEPS = [
         }
     },
     {
+        stage('Install OpenstackClient') {
+            installOpenstackClient()
+        }
+    },
+    {
         stage('Override images') {
             // Override default OSH images from global manifests, RELEASE_OVERRIDES,
             // latest mos set and OVERRIDE_IMAGES map and creates override yamls
@@ -596,9 +642,11 @@ K8S_DEPLOY_STEPS = [
     {
         stage('Install k8s cluster') {
             try {
-                installOSHAIO(['Packages', 'Kubernetes', 'Clients', 'Ingress',
-                               'Ceph', 'Ceph NS'],
-                              concurrent=false)
+                installOSHAIO(['Packages', 'Kubernetes'], concurrent=false)
+                sshagent ([INTERNAL_GERRIT_KEY]) {
+                    installOSHAIO(['Clients'], concurrent=false)
+                }
+                installOSHAIO(['Ingress', 'Ceph', 'Ceph NS'], concurrent=false)
             } catch (Exception e) {
                 osh.artifactLogs()
                 error "k8s deployment failed with exception ${e}"
@@ -867,7 +915,7 @@ if (CREATE_SNAPSHOT) {
            buildType: 'basic',
            doNotDeleteNode: false,
            postBuildSuccessBody: createSnapshot,
-           preBuildBody: setupHugepages,
+           preBuildBody: setupNode,
     ) {
         K8S_DEPLOY_STEPS.each { it() }
 
@@ -900,7 +948,7 @@ TestVm(initScript: '',
        label: LABEL,
        postBuildFailureBody: CREATE_SNAPSHOT ? deleteInitialSnapshot : {},
        postBuildSuccessBody: CREATE_SNAPSHOT ? replaceImage : {},
-       preBuildBody: (INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) ? setupHugepages : null,
+       preBuildBody: (INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) ? setupNode : null,
        troubleshootingBody: TROUBLESHOOTING ? troubleshooting : null,
 ) {
     if (INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) {
@@ -922,6 +970,9 @@ TestVm(initScript: '',
             // for every component.
             // Also replaces all mentiones of upstream registries to artifactory cache
             imageOverrides(overrideImagesMap)
+        }
+        stage('Install OpenstackClient') {
+            installOpenstackClient()
         }
         stage('Wait for k8s cluster') {
             ['kube-system', 'ceph', 'openstack'].each {
