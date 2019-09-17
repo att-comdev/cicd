@@ -56,7 +56,11 @@ try {
                     }
                     dir ("minimirror/mini-mirror") {
                         if("${GERRIT_PROJECT}" != "${MINIMIRROR_PROJECT}"){
-                            gerrit.cloneProject(GERRIT_CLONE_URL + "/" + conf.GLOBAL_REPO, GERRIT_REFSPEC, REFSPEC, conf.GLOBAL_REPO, conf.JENKINS_GERRIT_MTN5_CRED_ID)
+                            if(GERRIT_EVENT_TYPE == 'change-merged') {
+                              gerrit.cloneProject(GERRIT_CLONE_URL + "/" + conf.GLOBAL_REPO, GERRIT_NEWREV, REFSPEC, conf.GLOBAL_REPO, conf.JENKINS_GERRIT_MTN5_CRED_ID)
+                            } else {
+                              gerrit.cloneProject(GERRIT_CLONE_URL + "/" + conf.GLOBAL_REPO, GERRIT_REFSPEC, REFSPEC, conf.GLOBAL_REPO, conf.JENKINS_GERRIT_MTN5_CRED_ID)
+                            }
                         }else {
                             gerrit.cloneProject(GERRIT_CLONE_URL + "/" + conf.GLOBAL_REPO, CLCP_MANIFESTS, REFSPEC, conf.GLOBAL_REPO, conf.JENKINS_GERRIT_MTN5_CRED_ID)
                         }
