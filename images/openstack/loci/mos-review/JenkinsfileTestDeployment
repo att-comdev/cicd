@@ -9,8 +9,10 @@ overrideImagesMap = json.parseText(OVERRIDE_IMAGES)
 
 if (RELEASE == 'ocata') {
     DISTRO_VERSION = 'xenial'
+    BRANCH = conf.OCATA_BRANCH
 } else if (RELEASE == 'stein') {
     DISTRO_VERSION = 'bionic'
+    BRANCH = conf.STEIN_BRANCH
 }
 
 def getProjectRepoUrl(prj) {
@@ -174,6 +176,28 @@ def tweakOSH() {
     // to remove once https://review.opendev.org/#/c/675789/ or https://review.opendev.org/#/c/675792/ are merged
     sh "sed -i 's/project_domain_id = \"\"/project_domain_id =/g' openstack-helm/glance/values.yaml"
     sh "sed -i 's/user_domain_id = \"\"/user_domain_id =/g' openstack-helm/glance/values.yaml"
+
+    // to remove once https://review.opendev.org/#/c/682497 is merged
+    dir ("openstack-helm") {
+        sh 'git config user.email "T-850@model.101"'
+        sh 'git config user.name "T-850 Model 101"'
+        sh ("git fetch https://review.opendev.org/openstack/openstack-helm refs/changes/97/682497/1 && git cherry-pick FETCH_HEAD")
+    }
+    sshagent ([INTERNAL_GERRIT_KEY]) {
+        sh "git clone ${INTERNAL_GERRIT_SSH}/mos-requirements"
+        dir ("mos-requirements") {
+            def upperConstraints = readFile "upper-constraints.txt"
+            upperConstraints = upperConstraints.replaceAll(
+                "ssh://", "ssh://${INTERNAL_GERRIT_USER}@"
+            )
+            writeFile file: "upper-constraints.txt", text: upperConstraints
+        }
+        dir ("openstack-helm") {
+            sh "sudo pip uninstall python-openstackclient -y ||:"
+            sh ("export UPPER_CONSTRAINTS_FILE=${WORKSPACE}/mos-requirements/upper-constraints.txt; " +
+                "./tools/deployment/developer/ceph/020-setup-client.sh")
+        }
+    }
 
     if (TROUBLESHOOTING) {
         // add tty: true and stding true to each service pod template
@@ -869,6 +893,9 @@ if (CREATE_SNAPSHOT) {
            postBuildSuccessBody: createSnapshot,
            preBuildBody: setupHugepages,
     ) {
+        vm2.setKnownHosts()
+        sh "sudo bash -c 'echo PIP_INDEX_URL=${ARTF_PIP_INDEX_URL} >> /etc/environment'"
+        sh "sudo cp ${HOME}/.ssh/known_hosts /etc/ssh/ssh_known_hosts"
         K8S_DEPLOY_STEPS.each { it() }
 
         stage('Prepare node to snapshot creation') {
