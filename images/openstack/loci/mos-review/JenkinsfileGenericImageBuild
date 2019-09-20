@@ -11,7 +11,8 @@ LOCAL_WEB_ADDR = '172.18.0.1'
 LOCAL_WEB_URL = "http://${LOCAL_WEB_ADDR}:${LOCAL_WEB_PORT}"
 NO_PROXY += ",${LOCAL_WEB_ADDR}"
 REPO_BASE_PATH = 'web/repo'
-COMMIT_ARGS = "-c 'user.name=Jenkins' -c 'user.email=jenkins@example.com'"
+COMMIT_ARGS = ("-c 'user.name=Jenkins (${INTERNAL_GERRIT_USER})' " +
+               "-c 'user.email=${INTERNAL_GERRIT_USER}@att.com'")
 PY3 = 'no'
 
 NET_RETRY_COUNT = env.NET_RETRY_COUNT.toInteger()
