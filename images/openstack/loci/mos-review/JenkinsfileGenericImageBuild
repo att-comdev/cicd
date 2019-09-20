@@ -313,13 +313,11 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
                "${LOCI_BASE_IMAGE}")
     def base_sha256 = sh(returnStdout: true, script: cmd).trim()
 
-    //def loci_version = gerrit.getVersion(LOCI_REPO, "master")
-    def loci_version = "49d2fcc870d682dfbb70c91a853f05ab17121a7a"
+    def loci_version = gerrit.getVersion(LOCI_REPO, "master")
 
     LOCI_REPO_PATH = "/tmp/loci"
     // Clone loci repo to apply cicd patch for tests deletion
     sh "${DIND} git clone ${LOCI_REPO} ${LOCI_REPO_PATH}"
-    sh "${DIND} sh -c 'cd ${LOCI_REPO_PATH} && git fetch https://review.opendev.org/openstack/loci refs/changes/66/678566/1 && git checkout FETCH_HEAD'"
 
     // Copy script for tests cleanup to docker
     data = libraryResource "cicd/remove_tests.sh"
