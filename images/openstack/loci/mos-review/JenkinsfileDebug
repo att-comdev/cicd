@@ -27,15 +27,11 @@ if (GERRIT_CHANGE_OWNER_EMAIL != GERRIT_EVENT_ACCOUNT_EMAIL) {
     error("Wrong user")
 }
 
-
-if (GERRIT_BRANCH == conf.OCATA_BRANCH) {
-    RELEASE = 'ocata'
-} else if (GERRIT_BRANCH == conf.STEIN_BRANCH) {
-    RELEASE = 'stein'
-} else {
-    error("Unsupported branch: ${GERRIT_BRANCH}")
+def keyForValue(map, value) {
+    map.find { it.value == value }?.key
 }
-
+RELEASE_BRANCH_MAP = json.parseText(RELEASE_BRANCH_MAP)
+RELEASE = keyForValue(RELEASE_BRANCH_MAP, GERRIT_BRANCH)
 
 def setPubKey() {
     node (LABEL) {
