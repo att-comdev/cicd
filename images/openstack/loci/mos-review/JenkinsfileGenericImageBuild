@@ -48,14 +48,12 @@ if (['patchset-created', 'comment-added'].contains(EVENT_TYPE)) {
 PROJECT_SUFFIX = env.PROJECT_NAME.split('-')[-1]
 IMAGE_NAME = "mos-" + BUILD_TYPE
 
-if (RELEASE == 'ocata') {
-    PROJECT_BRANCH = conf.OCATA_BRANCH
-} else if (RELEASE == 'stein') {
-    PROJECT_BRANCH = conf.STEIN_BRANCH
+if (RELEASE == 'stein') {
     PY3 = 'affirmative'
-} else {
-    error("Unsupported RELEASE: ${RELEASE}")
 }
+
+RELEASE_BRANCH_MAP = json.parseText(RELEASE_BRANCH_MAP)
+PROJECT_BRANCH = RELEASE_BRANCH_MAP[RELEASE]
 
 PROJECT_REF = PROJECT_REF ? PROJECT_REF : PROJECT_BRANCH
 
