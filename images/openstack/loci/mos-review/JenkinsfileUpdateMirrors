@@ -10,11 +10,8 @@ TOPIC = "${RELEASE}-mirrors-update"
 COMMIT_ARGS = "-c 'user.name=Jenkins (${INTERNAL_GERRIT_USER})' -c 'user.email=${INTERNAL_GERRIT_USER}@att.com'"
 MESSAGE = "[Update] Mirrors revisions update"
 
-if (RELEASE == 'ocata') {
-    BRANCH = conf.OCATA_BRANCH
-} else if (RELEASE == 'stein') {
-    BRANCH = conf.STEIN_BRANCH
-}
+RELEASE_BRANCH_MAP = json.parseText(RELEASE_BRANCH_MAP)
+BRANCH = RELEASE_BRANCH_MAP[RELEASE]
 
 MIRRORS_BRANCH = 'MOS/' + RELEASE
 
