@@ -238,19 +238,32 @@ imagesVersions.each { buildType, data ->
 }
 
 overrideImagesJSON = JsonOutput.toJson(overrideImages)
-parameters = [
-    stringParam(name: "OVERRIDE_IMAGES", value: overrideImagesJSON),
-    stringParam(name: "RELEASE", value: RELEASE),
-    booleanParam(name: "INITIAL_DEPLOYMENT", value: true),
-    booleanParam(name: "CREATE_SNAPSHOT", value: true),
-]
 
 images = ""
 overrideImages.each { k, v -> images += "${k}=${v}\n"}
 
 stage("Test Deployment") {
     if (params.RUN_DEPLOYMENT) {
+        print ("Initiating snapshot creation..")
+        parameters = [
+            stringParam(name: "OVERRIDE_IMAGES", value: overrideImagesJSON),
+            stringParam(name: "RELEASE", value: RELEASE),
+            booleanParam(name: "INITIAL_DEPLOYMENT", value: true),
+            booleanParam(name: "CREATE_SNAPSHOT", value: true),
+        ]
+        build(
+            job: "${JOB_BASE}/TestDeploymentPipeline",
+            parameters: parameters,
+            wait: false
+        )
+
         print ("Starting test deployment with latest set:\n${images}")
+        parameters = [
+            stringParam(name: "OVERRIDE_IMAGES", value: overrideImagesJSON),
+            stringParam(name: "RELEASE", value: RELEASE),
+            booleanParam(name: "INITIAL_DEPLOYMENT", value: false),
+            booleanParam(name: "CREATE_SNAPSHOT", value: false),
+        ]
         utils.runBuild(
             "${JOB_BASE}/TestDeploymentPipeline",
             parameters,
