@@ -159,9 +159,8 @@ EOF"""
 
 
 def installDockerCE() {
-    sh 'sudo apt-get remove -y runc containerd docker.io'
     packages = 'apt-transport-https ca-certificates curl software-properties-common'
-    sh "sudo apt-get update && sudo apt-get upgrade -y; sudo apt-get install -y ${packages}"
+    sh "sudo apt-get update && sudo apt-get install -y ${packages}"
     REPOS.each { component, data ->
         sh "sudo bash -c 'echo \"${data.source}\" >> /etc/apt/sources.list.d/${component}.list'"
         sh "sudo bash -c 'echo \"${data.pref}\" >> /etc/apt/preferences.d/${component}.pref'"
@@ -454,6 +453,7 @@ def openstackExec(cmd) {
 }
 
 def createSnapshot = { stackName ->
+    sleep 60
     serverId = openstackExec(
         "openstack stack resource show ${stackName} server " +
         "-c physical_resource_id -f value"
@@ -554,9 +554,15 @@ def exportPipEnv = {
 }
 
 
+def updateHost = {
+    sh 'sudo apt-get remove -y runc containerd docker.io'
+    sh 'sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y'
+}
+
+
 def setupHugepages = {
     grubPgs = "grub-common grub-legacy-ec2 grub-pc grub-pc-bin grub2-common"
-    sh "sudo bash -c 'apt-get update; apt-get install ${grubPgs} -y'"
+    sh "sudo apt-get update && sudo apt-get install ${grubPgs} -y"
     data = readFile "/etc/default/grub"
     data = data.replaceAll(
         "GRUB_CMDLINE_LINUX_DEFAULT=.*",
@@ -577,6 +583,7 @@ def setupHugepages = {
 
 def setupNode = {
     vm2.setKnownHosts()
+    updateHost()
     sh "sudo cp ${HOME}/.ssh/known_hosts /etc/ssh/ssh_known_hosts"
     exportPipEnv()
     setupHugepages()
@@ -591,13 +598,13 @@ K8S_DEPLOY_STEPS = [
         }
     },
     {
-        stage('Setup proxy') {
-            setproxy()
+        stage('Install docker-ce') {
+            installDockerCE()
         }
     },
     {
-        stage('Install docker-ce') {
-            installDockerCE()
+        stage('Setup proxy') {
+            setproxy()
         }
     },
     {
@@ -927,6 +934,7 @@ if (CREATE_SNAPSHOT) {
             sh "sudo docker logout ${ARTF_SECURE_DOCKER_URL}"
             cleanWs()
         }
+        sh 'sudo bash -c "echo \'sleep 1; sudo poweroff;\' | at now"'
     }
 }
 
