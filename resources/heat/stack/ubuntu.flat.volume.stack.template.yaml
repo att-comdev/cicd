@@ -1,0 +1,44 @@
+heat_template_version: ocata
+
+description: Generic template for launching Ubuntu
+
+parameters:
+  public_net:
+    type: string
+    default: public
+  private_net:
+    type: string
+    default: private
+  image:
+    type: string
+    default: bionic-server-cloudimg-amd64
+  flavor:
+    type: string
+    default: m1.large
+  key:
+    type: string
+    default: jenkins-slave-keypair
+
+resources:
+  server:
+    type: OS::Nova::Server
+    properties:
+      config_drive: true
+      flavor: { get_param: flavor }
+      key_name: { get_param: key }
+      networks:
+        - port: { get_resource: server_port }
+      user_data_format: RAW
+      user_data: {get_file: cloud-config}
+
+  server_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id:
+        get_param: public_net
+      security_groups: [jenkins-security]
+
+outputs:
+  floating_ip:
+    description: The external IP associated to the server
+    value: { get_attr: [server, first_address ] }
