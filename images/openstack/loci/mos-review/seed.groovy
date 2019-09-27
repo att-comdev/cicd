@@ -514,3 +514,53 @@ pipelineJob("${JOB_BASE}/UpdateMirrors") {
         }
     }
 }
+
+
+pipelineJob("${JOB_BASE}/RestrictMosUplift") {
+    properties {
+        disableResume()
+    }
+    definition {
+        cps {
+            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileRestrictMosUplift"))
+            sandbox(false)
+        }
+    }
+    triggers {
+        gerritTrigger {
+            serverName('mtn5-gerrit')
+            gerritProjects {
+                gerritProject {
+                    compareType('REG_EXP')
+                    pattern('aic-clcp-manifests')
+                    branches {
+                        branch {
+                            compareType("REG_EXP")
+                            pattern("master")
+                        }
+                    }
+                    topics {
+                        topic {
+                            compareType('REG_EXP')
+                            pattern("^(${SUPPORTED_RELEASES.join('|')})-loci-update\$")
+                        }
+                    }
+                    disableStrictForbiddenFileVerification(false)
+                }
+            }
+            gerritBuildStartedVerifiedValue(-1)
+            triggerOnEvents {
+                patchsetCreated {
+                    excludeDrafts(true)
+                    excludeTrivialRebase(false)
+                    excludeNoCodeChange(true)
+                }
+                changeMerged()
+                commentAddedContains {
+                    commentAddedCommentContains('^recheck')
+                }
+            }
+            silentMode(false)
+        }
+    }
+}

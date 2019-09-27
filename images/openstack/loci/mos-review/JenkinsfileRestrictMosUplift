@@ -1,0 +1,71 @@
+import com.att.nccicd.config.conf as config
+
+conf = new config(env).CONF
+
+REFS = "+refs/heads/*:refs/remotes/origin/* +refs/changes/*:refs/changes/*"
+
+MANIFESTS_PROJECT_NAME = conf.GLOBAL_REPO
+VERSIONS_PATH = conf.VERSIONS_PATH
+
+
+def reply (message) {
+    sshagent([INTERNAL_GERRIT_KEY]) {
+        sh ("ssh -p ${GERRIT_PORT} ${INTERNAL_GERRIT_USER}@${GERRIT_HOST} " +
+            "gerrit review --project \"${GERRIT_PROJECT}\" " +
+            "--message '\"${message}\"' --verified -1 '${GERRIT_PATCHSET_REVISION}'")
+    }
+}
+
+podTemplate(label: label, yaml: """
+            apiVersion: v1
+            kind: Pod
+            spec:
+              securityContext:
+                runAsUser: 0
+              nodeSelector:
+                dind-node: enabled
+            """, containers: [
+                containerTemplate(name: "ubuntu",
+                                  image: conf.CODE_REVIEW_IMAGE,
+                                  command: "cat",
+                                  ttyEnabled: true,
+                                  envVars: [
+                                    envVar(key: "http_proxy", value: HTTP_PROXY),
+                                    envVar(key: "https_proxy", value: HTTP_PROXY),
+                                    envVar(key: "HTTP_PROXY", value: HTTP_PROXY),
+                                    envVar(key: "HTTPS_PROXY", value: HTTP_PROXY),
+                                    envVar(key: "no_proxy", value: NO_PROXY),
+                                    envVar(key: "NO_PROXY", value: NO_PROXY)
+                ])],
+                volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock',
+                                         mountPath: '/var/run/docker.sock')]) {
+    node(label) {
+        container("ubuntu") {
+            def ssh_dir = "/root/.ssh"
+            if (env.KNOWN_HOSTS) {
+                sh "mkdir -p ${ssh_dir}; echo \"${KNOWN_HOSTS}\" >> ${ssh_dir}/known_hosts"
+            }
+            gerrit.cloneToBranch(
+                "${INTERNAL_GERRIT_SSH}/${MANIFESTS_PROJECT_NAME}",
+                GERRIT_REFSPEC,
+                "jenkins",
+                INTERNAL_GERRIT_KEY,
+                REFS
+            )
+            dir (MANIFESTS_PROJECT_NAME) {
+                cmd = (
+                    "git diff HEAD HEAD^1 -U0 -- ${VERSIONS_PATH} | " +
+                    "grep -P '^[\+-].*/loci/mos/mos-'"
+                if (sh (returnStdout: true, script: cmd).trim()) {
+                    msg = (
+                        "Manual uplift for MOS is restricted. Please use: \n" +
+                        "https://${INTERNAL_GERRIT_URL}/#/q/topic:ocata-loci-update\n" +
+                        "to perform an uplift with verified artifacts."
+                    )
+                    reply(msg)
+                    error(msg)
+                }
+            }
+        }
+    }
+}
