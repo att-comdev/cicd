@@ -1,8 +1,11 @@
 heat_template_version: ocata
 
-description: Generic template for launching Ubuntu
+description: Generic template for launching VM from volume
 
 parameters:
+  public_net:
+    type: string
+    default: public
   private_net:
     type: string
     default: private
@@ -42,7 +45,7 @@ resources:
     type: OS::Neutron::Port
     properties:
       network_id:
-        get_param: private_net
+        get_param: public_net
       security_groups: [jenkins-security]
 
 outputs:
