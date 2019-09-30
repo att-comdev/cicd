@@ -6,7 +6,16 @@ import groovy.json.JsonOutput
 
 IMAGE_PREFIX="att-comdev"
 VERSION=1.0
-GERRIT_CLONE_URL = "ssh://" + conf.SSH_REPO_USER + "@" + conf.GERRIT_URL
+def GIT_USER
+node("master") {
+    withCredentials([sshUserPrivateKey(credentialsId: conf.JENKINS_GERRIT_MTN5_CRED_ID,
+        keyFileVariable: 'SSH_KEY',
+        usernameVariable: 'SSH_USER')]) {
+        GIT_USER = SSH_USER
+    }
+}
+
+GERRIT_CLONE_URL = "ssh://" + GIT_USER + "@" + conf.GERRIT_URL
 REFSPEC = "refs/changes/*:refs/changes/*"
 ARTF_PATH = "minimirror/gpgkey-private"
 
