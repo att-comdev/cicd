@@ -3,6 +3,9 @@ heat_template_version: ocata
 description: Generic template for launching Ubuntu
 
 parameters:
+  public_net:
+    type: string
+    default: public
   private_net:
     type: string
     default: private
