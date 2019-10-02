@@ -68,6 +68,7 @@ DEPENDENCY_PROJECT_LIST = [
         'mos-novaclient',
         'mos-glanceclient',
         'mos-glance-store',
+        'openstack/tap-as-a-service-dashboard',
     ]
 ]
 
