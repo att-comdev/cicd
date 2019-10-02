@@ -159,6 +159,10 @@ def getRevision(projectRepo, projectRef) {
         revision = gerrit.getVersion(projectRepo, projectRef,
                                      INTERNAL_GERRIT_KEY)
     }
+    if (!revision) {
+        error ("Unable to determine revision " +
+               "for ${projectRepo} from ${projectRef}")
+    }
     return revision
 }
 
