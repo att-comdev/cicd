@@ -240,7 +240,7 @@ images = ""
 overrideImages.each { k, v -> images += "${k}=${v}\n"}
 
 stage("Test Deployment") {
-    if (params.RUN_DEPLOYMENT) {
+    if (RECREATE_SNAPSHOT.toBoolean()) {
         print ("Initiating snapshot creation..")
         parameters = [
             stringParam(name: "OVERRIDE_IMAGES", value: overrideImagesJSON),
@@ -253,7 +253,8 @@ stage("Test Deployment") {
             parameters: parameters,
             wait: false
         )
-
+    }
+    if (RUN_DEPLOYMENT.toBoolean()) {
         print ("Starting test deployment with latest set:\n${images}")
         parameters = [
             stringParam(name: "OVERRIDE_IMAGES", value: overrideImagesJSON),
