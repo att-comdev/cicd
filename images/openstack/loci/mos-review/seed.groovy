@@ -465,6 +465,7 @@ SUPPORTED_RELEASES.each { release ->
             "RETRY_COUNT":             RETRY_COUNT,
             "MANIFESTS_BRANCH":        MANIFESTS_BRANCH,
             "REQ_PROJECT_NAME":        REQ_PROJECT_NAME,
+            "RECREATE_SNAPSHOT":       true,
         )
         properties {
             disableResume()
@@ -486,6 +487,36 @@ SUPPORTED_RELEASES.each { release ->
         }
         triggers {
             cron('H 5 * * *')
+        }
+    }
+}
+
+
+SUPPORTED_RELEASES.each { release ->
+    pipelineJob("${JOB_BASE}/LatestUpliftPipeline${release.capitalize()}") {
+        environmentVariables(
+            "JOB_BASE":                JOB_BASE,
+            "PROJECT_MAP":             JsonOutput.toJson(PROJECT_MAP[release]),
+            "DEPENDENCY_PROJECT_LIST": JsonOutput.toJson(DEPENDENCY_PROJECT_LIST[release]),
+            "SUPPORTED_RELEASES":      JsonOutput.toJson(SUPPORTED_RELEASES),
+            "RELEASE":                 "${release}",
+            "NET_RETRY_COUNT":         NET_RETRY_COUNT,
+            "RETRY_COUNT":             RETRY_COUNT,
+            "MANIFESTS_BRANCH":        MANIFESTS_BRANCH,
+            "REQ_PROJECT_NAME":        REQ_PROJECT_NAME,
+            "RECREATE_SNAPSHOT":       false,
+            "RUN_DEPLOYMENT":          true,
+        )
+        properties {
+            disableResume()
+        }
+        definition {
+            cps {
+                script(readFileFromWorkspace(
+                           "${JOB_BASE}/JenkinsfileReleaseNightly")
+                )
+                sandbox(false)
+            }
         }
     }
 }
