@@ -755,6 +755,12 @@ def readConfig(nodeName) {
 
 
 def apply(chart, tags, configRevision) {
+    dir ("openstack-helm") {
+        oshDiff = sh (script: "git diff", returnStdout: true).trim()
+        if (oshDiff) {
+            sh "git add -A && git commit -m 'Pre-update ${configRevision} commit'"
+        }
+    }
     prepareImages(chart, tags)
     dir ("openstack-helm") {
         oshDiff = sh (script: "git diff", returnStdout: true).trim()
