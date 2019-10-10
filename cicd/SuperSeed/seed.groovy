@@ -63,6 +63,7 @@ freeStyleJob("${job_path}") {
             credentialsBinding {
                 usernamePassword('JENKINS_USER', 'JENKINS_TOKEN', 'jenkins-token')
             }
+            sshAgent("${INTERNAL_GERRIT_KEY}")
         }
         shell(readFileFromWorkspace("${job_path}/superseed.sh"))
         jobDsl {
