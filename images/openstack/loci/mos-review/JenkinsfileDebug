@@ -246,7 +246,7 @@ def init = { params ->
     reply("init: Initiating a deployment of environment. " +
           "Approximate waiting time: 30 minutes")
     deploy()
-    if (!waitForNode(10)) {
+    if (!waitForNode(15)) {
         reply("init: Failed to create environment. Please try again or contact " +
               "CI/CD team")
         error("Failed to create environment.")
