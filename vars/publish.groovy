@@ -52,7 +52,7 @@ def quay (String src, String dst, useSudo=true) {
 }
 
 def secureImage (String creds, String url, String src, String dst, useSudo=true) {
-    image('secure-artifactory', ARTF_SECURE_DOCKER_URL, src, dst, useSudo)
+    image('jenkins-artifactory', ARTF_SECURE_DOCKER_URL, src, dst, useSudo)
 }
 
 /**
@@ -60,8 +60,7 @@ def secureImage (String creds, String url, String src, String dst, useSudo=true)
  *
  * @param properties "key1=value1;key2=value2" string
  * @param url artifact URL, e.g. "${ARTF_DOCKER_URL}/clcp-manifests"
- * @param creds jenkins credentials ID; 'jenkins-artifactory' or
- *        'secure-artifactory' at the moment
+ * @param creds jenkins credentials ID; 'jenkins-artifactory'
  */
 def setProperty (String creds, String url, String properties) {
 // Usage example:
