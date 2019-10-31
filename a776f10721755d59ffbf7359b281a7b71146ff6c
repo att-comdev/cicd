@@ -22,6 +22,30 @@
       "revId": "a776f10721755d59ffbf7359b281a7b71146ff6c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "859f69f4_3b2cdddb",
+        "filename": "vars/publish.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1012483
+      },
+      "writtenOn": "2019-10-31T17:35:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47cac757_b2ed50ae",
+      "range": {
+        "startLine": 55,
+        "startChar": 10,
+        "endLine": 55,
+        "endChar": 31
+      },
+      "revId": "a776f10721755d59ffbf7359b281a7b71146ff6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
