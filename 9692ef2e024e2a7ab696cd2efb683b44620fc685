@@ -22,6 +22,30 @@
       "revId": "9692ef2e024e2a7ab696cd2efb683b44620fc685",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b36a48df_e279d9b1",
+        "filename": "images/att-comdev/minimirror/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1011937
+      },
+      "writtenOn": "2019-11-04T21:52:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "226dcfc5_4136c213",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 2
+      },
+      "revId": "9692ef2e024e2a7ab696cd2efb683b44620fc685",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
