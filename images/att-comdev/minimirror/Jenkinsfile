@@ -10,6 +10,8 @@ GERRIT_CLONE_URL = "ssh://" + conf.SSH_REPO_USER + "@" + conf.GERRIT_URL
 REFSPEC = "refs/changes/*:refs/changes/*"
 ARTF_PATH = "minimirror/gpgkey-private"
 
+NO_PROXY=".cci.att.com"
+
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 
 IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/mini-mirror:${GERRIT_PATCHSET_REVISION}-ubuntu_xenial"
@@ -71,6 +73,8 @@ try {
                     dir ("minimirror/mini-mirror"){
                         withCredentials([string(credentialsId: 'mini-mirror-pass', variable: 'MINI_PASS')]) {
                         sh '''
+			export NO_PROXY="${NO_PROXY}"
+			export no_proxy="${NO_PROXY}"
                         REGISTRY_URI="${ARTF_DOCKER_URL}/att-comdev/" \
                         VERSION="${GERRIT_PATCHSET_REVISION}" DISTRO=ubuntu_xenial \
                         HTTP_PROXY=${HTTP_PROXY} HTTPS_PROXY=${HTTP_PROXY} \
