@@ -71,6 +71,8 @@ try {
                     dir ("minimirror/mini-mirror"){
                         withCredentials([string(credentialsId: 'mini-mirror-pass', variable: 'MINI_PASS')]) {
                         sh '''
+			export NO_PROXY=".cci.att.com"
+			export no_proxy=".cci.att.com"
                         REGISTRY_URI="${ARTF_DOCKER_URL}/att-comdev/" \
                         VERSION="${GERRIT_PATCHSET_REVISION}" DISTRO=ubuntu_xenial \
                         HTTP_PROXY=${HTTP_PROXY} HTTPS_PROXY=${HTTP_PROXY} \
