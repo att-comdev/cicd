@@ -1,0 +1,9 @@
+Verified+1: Jenkins <attcomdev.jenkins@gmail.com>
+Code-Review+2: <sb464f@att.com>
+Code-Review+2: Roman Gorshunov <roman.gorshunov@att.com>
+Workflow+1: Roman Gorshunov <roman.gorshunov@att.com>
+Submitted-by: Tin Lam <tin@irrational.io>
+Submitted-at: Tue, 05 Nov 2019 16:44:52 +0000
+Reviewed-on: https://review.gerrithub.io/c/att-comdev/cicd/+/473235
+Project: att-comdev/cicd
+Branch: refs/heads/master
