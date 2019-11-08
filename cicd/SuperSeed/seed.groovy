@@ -29,6 +29,12 @@ freeStyleJob("${job_path}") {
                             pattern("**/master")
                         }
                     }
+                    filePaths {
+                        filePath {
+                          compareType('ANT')
+                          pattern('**/*.seed*.groovy')
+                        }
+                    }
                     disableStrictForbiddenFileVerification(false)
                 }
                 gerritProject {
@@ -38,6 +44,12 @@ freeStyleJob("${job_path}") {
                         branch {
                             compareType('ANT')
                             pattern("**/master")
+                        }
+                    }
+                    filePaths {
+                        filePath {
+                          compareType('ANT')
+                          pattern('**/*.seed*.groovy')
                         }
                     }
                     disableStrictForbiddenFileVerification(false)
