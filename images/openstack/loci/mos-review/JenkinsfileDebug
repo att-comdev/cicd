@@ -314,7 +314,7 @@ def deepCopy(map) {
 }
 
 def updateDeathTime() {
-    deathTime = System.currentTimeMillis() + 7200000
+    deathTime = System.currentTimeMillis() + 14400000
     deathTimeReadable = new Date(deathTime).format(
         "yyyy-MM-dd HH:mm:ss 'UTC'")
     writeFile(

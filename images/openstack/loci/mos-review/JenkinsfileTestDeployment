@@ -21,7 +21,7 @@ def getProjectRepoUrl(prj) {
 }
 
 NET_RETRY_COUNT = NET_RETRY_COUNT.toInteger()
-MANIFESTS_BRANCH = 'master'
+MANIFESTS_BRANCH = conf.OS_RELEASE_MANIFESTS_BRANCH_MAP[RELEASE]
 MANIFESTS_PROJECT_NAME = conf.GLOBAL_REPO
 VERSIONS_PATH = conf.VERSIONS_PATH
 IMAGE_BASE_URL = String.format(conf.MOS_IMAGES_BASE_URL, "", RELEASE)
@@ -1046,7 +1046,7 @@ def initConfig(nodeName) {
         sh "touch config/lock"
         dir ("config") {
             sh "git init"
-            def deathTime = (System.currentTimeMillis() + 7200000).toString()
+            def deathTime = (System.currentTimeMillis() + 14400000).toString()
             writeFile(file: "deathTime", text: deathTime.bytes.encodeBase64().toString())
             writeFile(file: "config", text: '{}'.bytes.encodeBase64().toString())
             sh 'git config user.email "T-850@model.101"'
