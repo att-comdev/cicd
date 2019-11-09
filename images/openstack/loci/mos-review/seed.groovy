@@ -10,7 +10,6 @@ RETRY_COUNT = 2
 NET_RETRY_COUNT = 5
 RELEASE_BRANCH_MAP = json.parseText(RELEASE_BRANCH_MAP)
 SUPPORTED_RELEASES = RELEASE_BRANCH_MAP.keySet() as List
-MANIFESTS_BRANCH = 'master'
 EVENT_TYPES = ['manual', 'patchset-created', 'change-merged']
 
 MIRRORS_PREFIX = 'mirrors/mos/'
@@ -244,7 +243,6 @@ pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
     }
     environmentVariables(
         "NET_RETRY_COUNT":    NET_RETRY_COUNT,
-        "MANIFESTS_BRANCH":   MANIFESTS_BRANCH,
         "SUPPORTED_RELEASES": JsonOutput.toJson(SUPPORTED_RELEASES),
         "TROUBLESHOOTING":    false,
         "LABEL":              "",
@@ -294,7 +292,6 @@ pipelineJob("${JOB_BASE}/DebugDeploymentPipeline") {
     }
     environmentVariables(
         "NET_RETRY_COUNT":    NET_RETRY_COUNT,
-        "MANIFESTS_BRANCH":   MANIFESTS_BRANCH,
         "SUPPORTED_RELEASES": JsonOutput.toJson(SUPPORTED_RELEASES),
         "CREATE_SNAPSHOT":    false,
         "INITIAL_DEPLOYMENT": false,
@@ -466,7 +463,6 @@ SUPPORTED_RELEASES.each { release ->
             "RELEASE":                 "${release}",
             "NET_RETRY_COUNT":         NET_RETRY_COUNT,
             "RETRY_COUNT":             RETRY_COUNT,
-            "MANIFESTS_BRANCH":        MANIFESTS_BRANCH,
             "REQ_PROJECT_NAME":        REQ_PROJECT_NAME,
             "RECREATE_SNAPSHOT":       true,
         )
@@ -505,7 +501,6 @@ SUPPORTED_RELEASES.each { release ->
             "RELEASE":                 "${release}",
             "NET_RETRY_COUNT":         NET_RETRY_COUNT,
             "RETRY_COUNT":             RETRY_COUNT,
-            "MANIFESTS_BRANCH":        MANIFESTS_BRANCH,
             "REQ_PROJECT_NAME":        REQ_PROJECT_NAME,
             "RECREATE_SNAPSHOT":       false,
             "RUN_DEPLOYMENT":          true,
