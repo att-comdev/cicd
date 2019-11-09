@@ -77,44 +77,79 @@ def exportWheels(String containerName, String requirementsImage) {
  * Retrieve project configs
  * Used as args for building loci images
  *
+ * @param release Name of the openstack release
  * @param projectName Name of the openstack project
  * @return Map containing the project configs for projectName
  */
-def getDependencies(String projectName) {
+def getDependencies(String release, String projectName) {
     def project_config = [
-      'keystone':      ['PROFILES': 'fluent apache ldap',
-                        'PIP_PACKAGES': 'pycrypto python-openstackclient',
-                        'DIST_PACKAGES': ' '],
-      'heat':          ['PROFILES': 'fluent apache',
-                        'PIP_PACKAGES': 'pycrypto',
-                        'DIST_PACKAGES': 'curl'],
-      'glance':        ['PROFILES': 'fluent glance ceph',
-                        'PIP_PACKAGES': 'pycrypto python-swiftclient',
-                        'DIST_PACKAGES': ' '],
-      'horizon':       ['PROFILES': 'fluent horizon apache',
-                        'PIP_PACKAGES': 'pycrypto',
-                        'DIST_PACKAGES': ' '],
-      'cinder':        ['PROFILES': 'fluent cinder lvm ceph qemu',
-                        'PIP_PACKAGES': 'pycrypto python-swiftclient',
-                        'DIST_PACKAGES': ' '],
-      'neutron':       ['PROFILES': 'fluent neutron openvswitch linuxbridge',
-                        'PIP_PACKAGES': 'pycrypto',
-                        'DIST_PACKAGES': 'jq'],
-      'nova':          ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
-                        'PIP_PACKAGES': 'pycrypto',
-                        'DIST_PACKAGES': ' '],
-      'barbican':      ['PROFILES': 'fluent',
-                        'PIP_PACKAGES': 'pycrypto',
-                        'DIST_PACKAGES': ' '],
-      'nova-1804':     ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
-                        'PIP_PACKAGES': 'pycrypto',
-                        'DIST_PACKAGES': 'libssl1.0.0'],
-      'neutron-sriov': ['PROFILES': 'fluent neutron linuxbridge openvswitch',
-                        'PIP_PACKAGES': 'pycrypto',
-                        'DIST_PACKAGES': 'ethtool lshw jq']
+        'ocata': [
+            'keystone':      ['PROFILES': 'fluent apache ldap',
+                              'PIP_PACKAGES': 'pycrypto python-openstackclient',
+                              'DIST_PACKAGES': ' '],
+            'heat':          ['PROFILES': 'fluent apache',
+                              'PIP_PACKAGES': 'pycrypto',
+                              'DIST_PACKAGES': 'curl'],
+            'glance':        ['PROFILES': 'fluent glance ceph',
+                              'PIP_PACKAGES': 'pycrypto python-swiftclient',
+                              'DIST_PACKAGES': ' '],
+            'horizon':       ['PROFILES': 'fluent horizon apache',
+                              'PIP_PACKAGES': 'pycrypto',
+                              'DIST_PACKAGES': ' '],
+            'cinder':        ['PROFILES': 'fluent cinder lvm ceph qemu',
+                              'PIP_PACKAGES': 'pycrypto python-swiftclient',
+                              'DIST_PACKAGES': ' '],
+            'neutron':       ['PROFILES': 'fluent neutron openvswitch linuxbridge',
+                              'PIP_PACKAGES': 'pycrypto',
+                              'DIST_PACKAGES': 'jq'],
+            'nova':          ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
+                              'PIP_PACKAGES': 'pycrypto',
+                              'DIST_PACKAGES': ' '],
+            'barbican':      ['PROFILES': 'fluent',
+                              'PIP_PACKAGES': 'pycrypto',
+                              'DIST_PACKAGES': ' '],
+            'nova-1804':     ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
+                              'PIP_PACKAGES': 'pycrypto',
+                              'DIST_PACKAGES': 'libssl1.0.0'],
+            'neutron-sriov': ['PROFILES': 'fluent neutron linuxbridge openvswitch',
+                              'PIP_PACKAGES': 'pycrypto',
+                              'DIST_PACKAGES': 'ethtool lshw jq']
+        ],
+        'stein': [
+            'keystone':      ['PROFILES': 'fluent apache ldap',
+                              'PIP_PACKAGES': 'python-openstackclient',
+                              'DIST_PACKAGES': ' '],
+            'heat':          ['PROFILES': 'fluent apache',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': 'curl'],
+            'glance':        ['PROFILES': 'fluent glance ceph',
+                              'PIP_PACKAGES': 'python-swiftclient',
+                              'DIST_PACKAGES': ' '],
+            'horizon':       ['PROFILES': 'fluent horizon apache',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': ' '],
+            'cinder':        ['PROFILES': 'fluent cinder lvm ceph qemu',
+                              'PIP_PACKAGES': 'python-swiftclient',
+                              'DIST_PACKAGES': ' '],
+            'neutron':       ['PROFILES': 'fluent neutron openvswitch linuxbridge',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': 'jq'],
+            'nova':          ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': ' '],
+            'barbican':      ['PROFILES': 'fluent',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': ' '],
+            'nova-1804':     ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': 'libssl1.0.0'],
+            'neutron-sriov': ['PROFILES': 'fluent neutron linuxbridge openvswitch',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': 'ethtool lshw jq']
+        ],
     ]
 
-    return project_config[projectName]
+    return project_config[release][projectName]
 }
 
 /**
