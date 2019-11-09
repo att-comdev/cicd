@@ -11,6 +11,7 @@ NET_RETRY_COUNT = 5
 RELEASE_BRANCH_MAP = json.parseText(RELEASE_BRANCH_MAP)
 SUPPORTED_RELEASES = RELEASE_BRANCH_MAP.keySet() as List
 MANIFESTS_BRANCH = 'master'
+EVENT_TYPES = ['manual', 'patchset-created', 'change-merged']
 
 MIRRORS_PREFIX = 'mirrors/mos/'
 REQ_PROJECT_NAME = 'mos-requirements'
@@ -117,14 +118,13 @@ pipelineJob("${JOB_BASE}/GenericPipeline") {
             name('DEPENDENCY_LIST')
             trim(true)
         }
-        stringParam {
-            defaultValue("manual")
-            description('Type of event that triggered job.\n\n'    +
-                        'Only "manual" is supported for manually ' +
-                        'triggered jobs')
-            name("EVENT_TYPE")
-            trim(true)
-        }
+        choiceParam (
+            'EVENT_TYPE',
+            EVENT_TYPES,
+            ('Type of event that triggered job.\n\n'    +
+             'Only "manual" is supported for manually ' +
+             'triggered jobs'),
+        )
         booleanParam {
             defaultValue(true)
             description('RUN AIO deployment against image(s)')
@@ -186,14 +186,13 @@ MERGED_MAP.each { projectName, buildTypes ->
                     SUPPORTED_RELEASES,
                     "Supported releases: ${SUPPORTED_RELEASES.join(', ')}"
                 )
-                stringParam {
-                    defaultValue("manual")
-                    description('Type of event that triggered job.\n\n'    +
-                                'Only "manual" is supported for manually ' +
-                                'triggered jobs')
-                    name("EVENT_TYPE")
-                    trim(true)
-                }
+                choiceParam (
+                    'EVENT_TYPE',
+                    EVENT_TYPES,
+                    ('Type of event that triggered job.\n\n'    +
+                     'Only "manual" is supported for manually ' +
+                     'triggered jobs'),
+                )
                 if (buildType =~ /nova|neutron/) {
                     booleanParam {
                         defaultValue(true)
@@ -220,7 +219,7 @@ MERGED_MAP.each { projectName, buildTypes ->
                 }
             }
             environmentVariables(
-                "RESTRICT_EVENT_TYPE": false,
+                "RESTRICT_EVENT_TYPE": true,
                 "UPDATE_TOPIC":        UPDATE_TOPIC,
                 "PROJECT_NAME":        projectName,
                 "BUILD_TYPE":          buildType,
@@ -393,12 +392,13 @@ pipelineJob("${JOB_BASE}/CodeReviewPipeline") {
             name('GERRIT_BRANCH')
             trim(true)
         }
-        stringParam {
-            defaultValue('patchset-created')
-            description('')
-            name('GERRIT_EVENT_TYPE')
-            trim(true)
-        }
+        choiceParam (
+            'EVENT_TYPE',
+            EVENT_TYPES,
+            ('Type of event that triggered job.\n\n'    +
+             'Only "manual" is supported for manually ' +
+             'triggered jobs'),
+        )
     }
     environmentVariables(
         "JOB_BASE":     JOB_BASE,
