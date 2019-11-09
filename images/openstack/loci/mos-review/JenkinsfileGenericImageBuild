@@ -36,12 +36,12 @@ def isStartedByUser() {
 
 if (EVENT_TYPE != 'manual' && RESTRICT_EVENT_TYPE.toBoolean() &&
         isStartedByUser()) {
-    error "Only manual EVENT_TYPE is allowed for manual builds"
+    error "Only 'manual' EVENT_TYPE is allowed for manual builds"
 }
 
 PS = ''
 
-if (['patchset-created', 'comment-added'].contains(EVENT_TYPE)) {
+if (EVENT_TYPE != 'change-merged') {
     PS = '-patchset'
 }
 
