@@ -97,11 +97,11 @@ pipelineJob("${JOB_BASE}/GenericPipeline") {
         daysToKeep(90)
     }
     parameters {
-        choiceParam {
-            choices(SUPPORTED_RELEASES.join("\n"))
-            description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
-            name('RELEASE')
-        }
+        choiceParam (
+            'RELEASE',
+            SUPPORTED_RELEASES,
+            "Supported releases: ${SUPPORTED_RELEASES.join(', ')}"
+        )
         stringParam {
             defaultValue('')
             description('Url to requirements loci image.\n\n'   +
@@ -181,11 +181,11 @@ MERGED_MAP.each { projectName, buildTypes ->
                     name ('PROJECT_REF')
                     trim(true)
                 }
-                choiceParam {
-                    choices(SUPPORTED_RELEASES.join("\n"))
-                    description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
-                    name('RELEASE')
-                }
+                choiceParam (
+                    'RELEASE',
+                    SUPPORTED_RELEASES,
+                    "Supported releases: ${SUPPORTED_RELEASES.join(', ')}"
+                )
                 stringParam {
                     defaultValue("manual")
                     description('Type of event that triggered job.\n\n'    +
@@ -257,11 +257,11 @@ pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
             name('OVERRIDE_IMAGES')
             trim(true)
         }
-        choiceParam {
-            choices(SUPPORTED_RELEASES.join("\n"))
-            description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
-            name('RELEASE')
-        }
+        choiceParam (
+            'RELEASE',
+            SUPPORTED_RELEASES,
+            "Supported releases: ${SUPPORTED_RELEASES.join(', ')}"
+        )
         booleanParam {
             defaultValue(false)
             description('If true deploy from scratch, ' +
@@ -303,11 +303,11 @@ pipelineJob("${JOB_BASE}/DebugDeploymentPipeline") {
         "OVERRIDE_IMAGES":    '{}',
     )
     parameters {
-        choiceParam {
-            choices(SUPPORTED_RELEASES.join("\n"))
-            description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
-            name('RELEASE')
-        }
+        choiceParam (
+            'RELEASE',
+            SUPPORTED_RELEASES,
+            "Supported releases: ${SUPPORTED_RELEASES.join(', ')}"
+        )
         stringParam {
             defaultValue('')
             description('')
@@ -536,11 +536,11 @@ pipelineJob("${JOB_BASE}/UpdateMirrors") {
         disableResume()
     }
     parameters {
-        choiceParam {
-            choices(SUPPORTED_RELEASES.join("\n"))
-            description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
-            name('RELEASE')
-        }
+        choiceParam (
+            'RELEASE',
+            SUPPORTED_RELEASES,
+            "Supported releases: ${SUPPORTED_RELEASES.join(', ')}"
+        )
     }
     definition {
         cps {
