@@ -98,7 +98,7 @@ pipelineJob("${JOB_BASE}/GenericPipeline") {
     }
     parameters {
         choiceParam {
-            choices(SUPPORTED_RELEASES.join("\n"))
+            choices(SUPPORTED_RELEASES)
             description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
             name('RELEASE')
         }
@@ -182,7 +182,7 @@ MERGED_MAP.each { projectName, buildTypes ->
                     trim(true)
                 }
                 choiceParam {
-                    choices(SUPPORTED_RELEASES.join("\n"))
+                    choices(SUPPORTED_RELEASES)
                     description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
                     name('RELEASE')
                 }
@@ -258,7 +258,7 @@ pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
             trim(true)
         }
         choiceParam {
-            choices(SUPPORTED_RELEASES.join("\n"))
+            choices(SUPPORTED_RELEASES)
             description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
             name('RELEASE')
         }
@@ -304,7 +304,7 @@ pipelineJob("${JOB_BASE}/DebugDeploymentPipeline") {
     )
     parameters {
         choiceParam {
-            choices(SUPPORTED_RELEASES.join("\n"))
+            choices(SUPPORTED_RELEASES)
             description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
             name('RELEASE')
         }
@@ -537,7 +537,7 @@ pipelineJob("${JOB_BASE}/UpdateMirrors") {
     }
     parameters {
         choiceParam {
-            choices(SUPPORTED_RELEASES.join("\n"))
+            choices(SUPPORTED_RELEASES)
             description("Supported releases: ${SUPPORTED_RELEASES.join(', ')}")
             name('RELEASE')
         }
