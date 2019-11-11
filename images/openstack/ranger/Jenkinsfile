@@ -1,17 +1,17 @@
 import com.att.nccicd.config.conf as ncconfig
-
 ncconf = new ncconfig(env).CONF
 
-DOCKER_REGISTRY="${ARTF_DOCKER_URL}"
-IMAGE_TAG= "${GERRIT_PATCHSET_REVISION}"
 IMAGE_PREFIX="openstack"
-IMAGE_NAME="${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
-IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
-QUAY_IMAGE_LATEST="attcomdev/${JOB_BASE_NAME}:latest"
-QUAY_IMAGE="quay.io/attcomdev/${JOB_BASE_NAME}:${IMAGE_TAG}"
+IMAGE_TAG = "${IMAGE_PREFIX}/${JOB_BASE_NAME}"
+IMAGE_URL = "${ARTF_DOCKER_URL}/${IMAGE_TAG}"
+IMAGE_LATEST = "${IMAGE_TAG}:latest"
+IMAGE_COMMIT = "${IMAGE_TAG}:${GERRIT_PATCHSET_REVISION}.${BUILD_TIMESTAMP}"
+IMAGE_PATCHSET = "${IMAGE_PREFIX}/test/${JOB_BASE_NAME}:${GERRIT_PATCHSET_REVISION}.${BUILD_TIMESTAMP}"
+IMAGE_MANUAL = "${IMAGE_PREFIX}/test/${JOB_BASE_NAME}:${GERRIT_EVENT_TYPE}"
+UPSTREAM_URL = "https://review.opendev.org"
 RANGER_USER=ncconf.RANGER_USER
 RANGER_AGENT_USER=ncconf.RANGER_AGENT_USER
-
+currentBuild.displayName = "${JOB_BASE_NAME} build #${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 def label = "worker-${UUID.randomUUID().toString()}"
 
 try {
@@ -33,27 +33,23 @@ try {
             container("ubuntu"){
                 stage('Checkout'){
                     sh 'apt-get -y install make docker.io'
-                    if(env.GERRIT_NEWREV){
-                        echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
-                        IMAGE_TAG=env.GERRIT_NEWREV
-                        QUAY_IMAGE="attcomdev/${JOB_BASE_NAME}:${IMAGE_TAG}"
-                    }
+                    IMAGE = "${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${GERRIT_PATCHSET_REVISION}"
 
                     gerrit.cloneToBranch("https://review.opendev.org/x/${JOB_BASE_NAME}","${IMAGE_TAG}","")
 
                     if (GERRIT_EVENT_TYPE == 'change-merged') {
-                        gerrit.rebase()
+                        sh '''git config user.email "airship.jenkins@gmail.com"
+                            git config user.name "Jenkins"
+                            git pull --rebase origin ${GERRIT_BRANCH}'''
                     }
-                    IMAGE="${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
-                    currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
+                    IMAGE="${DOCKER_REGISTRY}/${IMAGE_NAME}"
                 }
 
                 stage('Docker Build') {
                     timeout(20){
-                         sh "make images USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${IMAGE_TAG} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0' IMAGE_TAG=${IMAGE_TAG} RANGER_USER=${RANGER_USER} RANGER_AGENT_USER=${RANGER_AGENT_USER}"
+                            sh "make images IMAGE_NAME=${JOB_BASE_NAME} USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${GERRIT_PATCHSET_REVISION} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0' IMAGE_TAG=${GERRIT_PATCHSET_REVISION} RANGER_USER=${RANGER_USER} RANGER_AGENT_USER=${RANGER_AGENT_USER}"
                     }
                 }
-
                 stage('Docker Run') {
                     timeout(20){
                        sh "docker run ${IMAGE}"
@@ -62,16 +58,18 @@ try {
 
                 stage('Publish'){
                     if (GERRIT_EVENT_TYPE == 'change-merged') {
-                        artifactory.upload (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
-                        artifactory.upload (IMAGE, IMAGE_LATEST)
+                        publish.artifactory ("${IMAGE_URL}:${GERRIT_PATCHSET_REVISION}", IMAGE_LATEST, useSudo=false)
+                        publish.artifactory ("${IMAGE_URL}:${GERRIT_PATCHSET_REVISION}", IMAGE_COMMIT, useSudo=false)
+                    else if (GERRIT_EVENT_TYPE == 'manual') {
+                        publish.artifactory ("${IMAGE_URL}:${GERRIT_PATCHSET_REVISION}", IMAGE_MANUAL, useSudo=false)
                     } else {
-                        artifactory.upload (IMAGE, "test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}")
+                        publish.artifactory ("${IMAGE_URL}:${GERRIT_PATCHSET_REVISION}", IMAGE_PATCHSET, useSudo=false)
                     }
                 }
             }
         }
     }
-    // catch both errors and exceptions
+// catch both errors and exceptions
 } catch (Throwable err) {
     currentBuild.result = 'FAILURE'
     if (env.GERRIT_EVENT_TYPE == 'change-merged') {
