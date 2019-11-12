@@ -14,6 +14,7 @@ pipelineJob("${JOB_FOLDER}/minimirror") {
     parameters {
         stringParam('MINIMIRROR_PROJECT',"openstack/openstack-helm-images")
         stringParam('CLCP_MANIFESTS',"master")
+        stringParam('BUILD_TYPE',"all")
     }
     triggers {
         gerritTrigger {
