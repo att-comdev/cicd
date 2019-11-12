@@ -12,7 +12,21 @@ ARTF_PATH = "minimirror/gpgkey-private"
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 
-IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/mini-mirror:${GERRIT_PATCHSET_REVISION}-ubuntu_xenial"
+def build_releases = []
+assert !BUILD_TYPE
+switch (BUILD_TYPE) {
+    case 'xenial':
+      build_releases << 'xenial'
+      break
+    case 'bionic':
+      build_releases << 'bionic'
+      break
+    default:
+    case 'all':
+      build_releases = ['xenial', 'bionic']
+      break
+}
+
 IMAGE_LATEST="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/mini-mirror:latest"
 IMAGE_DOCKER="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/mini-mirror:${GERRIT_PATCHSET_REVISION}-docker-ubuntu"
 IMAGE_DOCKER_LATEST="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/mini-mirror:latest"
@@ -65,30 +79,42 @@ try {
                             gerrit.cloneProject(GERRIT_CLONE_URL + "/" + conf.GLOBAL_REPO, CLCP_MANIFESTS, REFSPEC, conf.GLOBAL_REPO, conf.JENKINS_GERRIT_MTN5_CRED_ID)
                         }
                         artifactory.download("${ARTF_PATH}", "gpgkey-private")
+
+                        if (env.GERRIT_PATCHSET_REVISION) {
+                            build_releases = []
+                            files = gerrit.getChangedFiles(conf.GLOBAL_REPO, "${GERRIT_PATCHSET_REVISION}")
+                            if (assert files.any { it ==~ /*xenial*/ }) { build_releases << 'xenial' }
+                            if (assert files.any { it ==~ /*bionic*/ }) { build_releases << 'bionic' }
+                        }
                     }
                 }
                 stage('Build') {
-                    dir ("minimirror/mini-mirror"){
-                        withCredentials([string(credentialsId: 'mini-mirror-pass', variable: 'MINI_PASS')]) {
-                        sh '''
-                        export NO_PROXY="${NO_PROXY}"
-                        export no_proxy="${NO_PROXY}"
-                        REGISTRY_URI="${ARTF_DOCKER_URL}/att-comdev/" \
-                        VERSION="${GERRIT_PATCHSET_REVISION}" DISTRO=ubuntu_xenial \
-                        HTTP_PROXY=${HTTP_PROXY} HTTPS_PROXY=${HTTP_PROXY} \
-                        APTLY_CONFIG_PATH=/aic-clcp-manifests/tools/mini-mirror/etc/aptly.conf \
-                        MIRROR_SOURCE_DIR=/aic-clcp-manifests/tools/mini-mirror/sources \
-                        RELEASE_SIGN_KEY_PATH=/gpgkey-private RELEASE_SIGN_KEY_PASSPHRASE=${MINI_PASS} \
-                        bash build.sh
-                        '''
+                    build_releases.each {
+                        dir ("minimirror/mini-mirror"){
+                            withCredentials([string(credentialsId: 'mini-mirror-pass', variable: 'MINI_PASS')]) {
+                            sh '''
+                            export NO_PROXY="${NO_PROXY}"
+                            export no_proxy="${NO_PROXY}"
+                            REGISTRY_URI="${ARTF_DOCKER_URL}/att-comdev/" \
+                            VERSION="${GERRIT_PATCHSET_REVISION}" DISTRO=ubuntu_${it} \
+                            HTTP_PROXY=${HTTP_PROXY} HTTPS_PROXY=${HTTP_PROXY} \
+                            APTLY_CONFIG_PATH=/aic-clcp-manifests/tools/mini-mirror/etc/aptly.conf \
+                            MIRROR_SOURCE_DIR=/aic-clcp-manifests/tools/mini-mirror/sources \
+                            RELEASE_SIGN_KEY_PATH=/gpgkey-private RELEASE_SIGN_KEY_PASSPHRASE=${MINI_PASS} \
+                            bash build.sh
+                            '''
+                            }
+                            sh "docker images"
                         }
-                        sh "docker images"
                     }
                 }
                 stage('Image Publish'){
-                    publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${GERRIT_PATCHSET_REVISION}-ubuntu.${BUILD_TIMESTAMP}")
-                    if (GERRIT_EVENT_TYPE == 'change-merged') {
-                        publish.artifactory (IMAGE, IMAGE_LATEST)
+                    build_releases.each {
+                        IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/mini-mirror:${GERRIT_PATCHSET_REVISION}-ubuntu_${it}"
+                        publish.artifactory (IMAGE, "${IMAGE_PREFIX}/${JOB_BASE_NAME}:${GERRIT_PATCHSET_REVISION}-ubuntu.${BUILD_TIMESTAMP}")
+                        if (GERRIT_EVENT_TYPE == 'change-merged') {
+                            publish.artifactory (IMAGE, IMAGE_LATEST)
+                        }
                     }
                 }
             }
