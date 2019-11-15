@@ -7,7 +7,7 @@ Sincerely,
 AT&T Integrated Cloud Community Development Team
 
 
-# Shared Libraries
+## Shared Libraries
 
 Folder `vars` is used for shared functions across pipelines.
 
