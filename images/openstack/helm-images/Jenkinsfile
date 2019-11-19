@@ -86,6 +86,7 @@ try {
                                                 --build-arg http_proxy=${HTTP_PROXY} \
                                                 --build-arg https_proxy=${HTTPS_PROXY} \
                                                 --build-arg NO_PROXY=${NO_PROXY} \
+                                                --build-arg no_proxy=${NO_PROXY} \
                                                 --build-arg CEPH_REPO=${CEPH_REPO} \
                                                 --build-arg CEPH_KEY=${CEPH_KEY}" \
                               IMAGE_TAG=${IMAGE_TAG}"""
