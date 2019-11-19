@@ -5,7 +5,7 @@ IMAGE_PREFIX="openstack"
 IMAGE_TEST="${IMAGE_PREFIX}/test/${JOB_BASE_NAME}:${GERRIT_PATCHSET_REVISION}.${BUILD_TIMESTAMP}"
 IMAGE_LATEST="${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
 IMAGE_MERGE="${IMAGE_PREFIX}/${JOB_BASE_NAME}:${GERRIT_PATCHSET_REVISION}.${BUILD_TIMESTAMP}"
-UPSTREAM_URL="https://review.opendev.org/x/"
+UPSTREAM_URL="https://review.opendev.org/"
 RANGER_USER=ncconf.RANGER_USER
 RANGER_AGENT_USER=ncconf.RANGER_AGENT_USER
 
@@ -32,10 +32,10 @@ try {
                 stage('Checkout'){
                     sh 'apt-get -y install make docker.io'
                     if (GERRIT_EVENT_TYPE == 'manual') {
-                        gerrit.clone("${UPSTREAM_URL}${JOB_BASE_NAME}", GERRIT_PATCHSET_REVISION, "")
+                        gerrit.clone("${UPSTREAM_URL}${REPO_NAME}", GERRIT_PATCHSET_REVISION, "")
                     }
                     else {
-                        gerrit.cloneToBranch("${UPSTREAM_URL}${JOB_BASE_NAME}", GERRIT_PATCHSET_REVISION,"")
+                        gerrit.cloneToBranch("${UPSTREAM_URL}${REPO_NAME}", GERRIT_PATCHSET_REVISION,"")
                     }
                     if (GERRIT_EVENT_TYPE == 'change-merged') {
                         sh '''git config user.email "airship.jenkins@gmail.com"
