@@ -9,6 +9,7 @@ VERSION=1.0
 GERRIT_CLONE_URL = "ssh://" + conf.SSH_REPO_USER + "@" + conf.GERRIT_URL
 REFSPEC = "refs/changes/*:refs/changes/*"
 ARTF_PATH = "minimirror/gpgkey-private"
+OSH_IMAGES_STABLE=${OSH_IMAGES_STABLE:-"e06dfa0189b8c5074c6a96512defde5f59c86aea"}
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 
@@ -51,7 +52,7 @@ try {
                         sh "mkdir -p  ${JOB_BASE_NAME}"
                         dir("${WORKSPACE}/${JOB_BASE_NAME}") {
                             git "https://opendev.org/openstack/openstack-helm-images"
-                            sh "git checkout master"
+                            sh "git reset --hard '${OSH_IMAGES_STABLE}\'"
                         }
                     }
                     dir ("minimirror/mini-mirror") {
