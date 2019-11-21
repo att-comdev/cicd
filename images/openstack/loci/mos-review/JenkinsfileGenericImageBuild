@@ -356,6 +356,11 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
        labels += " --label org.label-schema.vcs-event=${EVENT_TYPE}"
     }
 
+    // To revert once https://review.opendev.org/#/c/693754
+    // https://review.opendev.org/#/c/684298/ are merged
+    if (RELEASE == 'stein') {
+        projConfArgs['DIST_PACKAGES'] += ' libpython3.6'
+    }
     customArgs = [:]
     if (BUILD_TYPE =~ /neutron|nova/ && params.CUSTOM_OVS) {
         sh ("${DIND} sh -c 'echo -e \"FROM ${LOCI_BASE_IMAGE}\n" +
