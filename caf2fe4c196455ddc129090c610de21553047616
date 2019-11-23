@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ccfe6b4_4df2cb9d",
+        "filename": "vars/shipyard2.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 1016987
+      },
+      "writtenOn": "2019-11-23T05:52:04Z",
+      "side": 1,
+      "message": "Would it be ok to leave the original awk, and tack on a grep at the end to exclude n/n?\n\n     awk \u0027\\$3 !\u003d \\$5\u0027 | grep -vE \u0027([0-9]+)/\\\\1\u0027\n\nIt might ease the transition between k8s versions.",
+      "range": {
+        "startLine": 421,
+        "startChar": 158,
+        "endLine": 421,
+        "endChar": 174
+      },
+      "revId": "caf2fe4c196455ddc129090c610de21553047616",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
