@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afb546d_b732a012",
+        "filename": "images/att-comdev/minimirror/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1016591
+      },
+      "writtenOn": "2019-11-25T17:43:44Z",
+      "side": 1,
+      "message": "The mini-mirror build in openstack-helm-images has been updated before the yaml change has been merged, so this commit needs to be moved up to at least 489a3e16788455fcc5c6eedd4a492eb2a66d34d8",
+      "range": {
+        "startLine": 20,
+        "startChar": 27,
+        "endLine": 20,
+        "endChar": 67
+      },
+      "revId": "6789da1456ece0f306bf9554f468b10a415b4c7e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
