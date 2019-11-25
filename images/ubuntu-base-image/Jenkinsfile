@@ -29,19 +29,19 @@ aptsources=xenial xenial-updates xenial-security
 
 [xenial]
 packages=apt apt-transport-https ca-certificates libssl1.0.0 openssl
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.mtn57z.cci.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=xenial
 components=main multiverse restricted universe
 
 [xenial-updates]
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.mtn57z.cci.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=xenial-updates
 components=main multiverse restricted universe
 
 [xenial-security]
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.mtn57z.cci.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=xenial-security
 components=main multiverse restricted universe
@@ -59,19 +59,19 @@ aptsources=bionic bionic-updates bionic-security
 
 [bionic]
 packages=apt ca-certificates
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.mtn57z.cci.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=bionic
 components=main multiverse restricted universe
 
 [bionic-updates]
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.mtn57z.cci.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=bionic-updates
 components=main multiverse restricted universe
 
 [bionic-security]
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.mtn57z.cci.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=bionic-security
 components=main multiverse restricted universe
