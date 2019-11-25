@@ -333,3 +333,31 @@ def waitAction(Map map) {
         error("Shipyard action finished with status ${status} instead of complete.")
     }
 }
+
+
+/**
+ * Request of "configdocs"
+ *
+ * @param token An authorization token retrieved from Keystone prior to calling this function that may allow you to perform this action.
+ * @param shipyardUrl The Shipyard URL of the site you are creating documents against.
+ */
+def getRenderedConfigDocs(token, shipyardUrl) {
+    def res = null
+    retry(5) {
+        try {
+            res = httpRequest (url: shipyardUrl + "/renderedconfigdocs?version=last_site_action&cleartext-secrets=true",
+                               httpMode: "GET",
+                               customHeaders: [[name: "Content-Type", value: "application/x-yaml"],
+                                               [name: "X-Auth-Token", value: token]],
+                               quiet: true,
+                               validResponseCodes: '200:503')
+            _printError(200, res)
+        } catch (err) {
+            print "Shipyard 'get configdocs' failed: ${err}"
+            sleep 120
+            error(err.getMessage())
+        }
+    }
+    data = new JsonSlurperClassic().parseText(res.content)
+    return data
+}
