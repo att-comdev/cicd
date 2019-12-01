@@ -75,6 +75,13 @@ def getImageVersions(url) {
 
     cmd = (
         "${DIND} docker inspect " +
+        "--format='{{index .Config.Labels \"org.label-schema.build-date\"}}' " +
+        " ${url}"
+    )
+    versions['date'] = sh(returnStdout: true, script: cmd).trim()
+
+    cmd = (
+        "${DIND} docker inspect " +
         "--format='{{index .Config.Labels \"org.label-schema.requirements-image\"}}' " +
         " ${url}"
     )
@@ -84,7 +91,7 @@ def getImageVersions(url) {
 
 
 def getLatestSetVersions = {
-    imagesVersions = [:]
+    def imagesVersions = [:]
     PROJECT_MAP.each { projectName, buildTypes ->
         if (!buildTypes) {
             buildTypes = [projectName.split('-')[-1]]
@@ -190,11 +197,11 @@ vm2 ('loci-bootstrap.sh',
         print "Projects versions:\n${reposVersions}"
     }
     stage('Gather latest set versions') {
-        imagesVersions = getLatestSetVersions()
-        print "Images versions:\n${imagesVersions}"
+        IMAGES_VERSIONS = getLatestSetVersions()
+        print "Images versions:\n${IMAGES_VERSIONS}"
     }
     stage('Verify images versions') {
-        imagesHasFailures = verifyImagesVersions(imagesVersions, reposVersions)
+        imagesHasFailures = verifyImagesVersions(IMAGES_VERSIONS, reposVersions)
     }
     stage('Verify dependency components versions') {
         utils.retrier (NET_RETRY_COUNT) {
@@ -206,7 +213,7 @@ vm2 ('loci-bootstrap.sh',
                 null
             )
         }
-        requirement_ref = imagesVersions['requirements']['vcsRef']
+        requirement_ref = IMAGES_VERSIONS['requirements']['vcsRef']
         dir(REQ_PROJECT_NAME) {
             sh "git checkout ${requirement_ref}"
             upperConstraints = readFile 'upper-constraints.txt'
@@ -219,7 +226,7 @@ vm2 ('loci-bootstrap.sh',
         depsHasFailures = verifyDepVersions(upperConstraintsVersions,
                                             reposVersions)
     }
-    print ("REPORT:\n${imagesVersions}\n${upperConstraintsVersions}")
+    print ("REPORT:\n${IMAGES_VERSIONS}\n${upperConstraintsVersions}")
     if(imagesHasFailures || depsHasFailures) {
         error("Failed to validate images integrity. " +
               "Please check logs for details.")
@@ -229,7 +236,7 @@ vm2 ('loci-bootstrap.sh',
 }
 
 overrideImages = [:]
-imagesVersions.each { buildType, data ->
+IMAGES_VERSIONS.each { buildType, data ->
     var_name = "${buildType.replace('-', '_').toUpperCase()}_LOCI"
     overrideImages[var_name] = data["url"]
 }
@@ -314,12 +321,16 @@ vm2 ('loci-bootstrap.sh',
         dir(MANIFESTS_PROJECT_NAME) {
             versions = readFile VERSIONS_PATH
             versions_updated = versions
-            overrideImages.each { _, image ->
+            IMAGES_VERSIONS.each { _, data ->
+                (image, comment) = (data['url'], " ${data['vcsRef']}.${data['date']}")
                 (_, replace_to, pattern) = ((image =~ /.*?\/((.*?)[@:].*)/)[0])
                 // For pattern replace actual release name by regex matching any release
-                pattern = pattern.replaceAll(RELEASES_REGEX, RELEASES_REGEX) + '[@:].*'
+                image_pattern = pattern.replaceAll(RELEASES_REGEX, RELEASES_REGEX) + '[@:].*'
                 versions_updated = versions_updated.replaceAll(
-                    pattern, replace_to)
+                    image_pattern, replace_to)
+                comment_pattern = "(?<=#).*(?=\n.{0,100}${replace_to})"
+                versions_updated = versions_updated.replaceAll(
+                    comment_pattern, comment)
             }
             if(versions_updated == versions) {
                 print "No new changes. Versions.yaml is up to date."
