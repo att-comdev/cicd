@@ -344,7 +344,6 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
       --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
 
     if (!PROJECT_NAME.contains('requirements')) {
-        pull(WHEELS_LATEST)
         cmd = ("${DIND} docker inspect --format='{{index .RepoDigests 0}}' " +
                "${WHEELS_LATEST}")
         def requirements_sha256 = sh(returnStdout: true, script: cmd).trim()
