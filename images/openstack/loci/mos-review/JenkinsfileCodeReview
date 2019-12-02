@@ -13,7 +13,7 @@ def keyForValue(map, value) {
 
 RELEASE = keyForValue(RELEASE_BRANCH_MAP, GERRIT_BRANCH)
 
-if ( GERRIT_TOPIC =~ /^debug.*/ ) {
+if ( params.GERRIT_TOPIC =~ /^debug.*/ ) {
     error ("Pipeline is disabled for changes with debug topic")
 }
 

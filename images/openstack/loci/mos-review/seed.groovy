@@ -390,7 +390,7 @@ pipelineJob("${JOB_BASE}/CodeReviewPipeline") {
             trim(true)
         }
         choiceParam (
-            'EVENT_TYPE',
+            'GERRIT_EVENT_TYPE',
             EVENT_TYPES,
             ('Type of event that triggered job.\n\n'    +
              'Only "manual" is supported for manually ' +
