@@ -1015,6 +1015,7 @@ TestVm(initScript: '',
             error "OSH AIO deployment failed with exception ${e}"
         }
     }
+    sh "sudo docker logout ${ARTF_SECURE_DOCKER_URL}"
     if (!TROUBLESHOOTING) {
         stage('Run Helm tests') {
             try {
