@@ -86,6 +86,17 @@ def getImageVersions(url) {
         " ${url}"
     )
     versions['requirements_sha256'] = sh(returnStdout: true, script: cmd).trim().split('@')[-1]
+
+    // Verify that predefined static tag points to the same image
+    def tag = "${versions['vcsRef']}.${versions['date']}"
+    utils.retrier(NET_RETRY_COUNT) {
+        def res = sh (script: "${DIND} docker pull ${url.split(':')[0]}:${tag}",
+                      returnStdout: true)
+    }
+    if (!res.contains(versions['sha256'])) {
+        error("Digest sha256 of latest and static tag do not match!")
+    }
+
     return versions
 }
 

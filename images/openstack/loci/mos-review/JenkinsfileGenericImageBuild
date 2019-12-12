@@ -303,9 +303,14 @@ def pull(url) {
     }
 }
 
-def push(image_tag) {
+def push(imageTag, sha=null) {
     utils.retrier (NET_RETRY_COUNT) {
-        sh "${DIND} docker push ${image_tag}"
+        result = sh (returnStdout: true,
+                     script: "${DIND} docker push ${imageTag}")
+        print result
+    }
+    if (sha && !result.contains(sha)) {
+        error("digest sha256 does not match")
     }
 }
 
@@ -380,15 +385,17 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
         }
     }
     push(image_tag)
-
+    cmd = ("${DIND} docker inspect " +
+           "--format='{{index .RepoDigests 0}}' ${image_tag}")
+    def image_sha = sh(returnStdout: true, script: cmd).trim()
     //publish latest (branch) tag on merge for requirements
     if (EVENT_TYPE == 'change-merged') {
         def image_latest = "${IMAGE_BASE}/${IMAGE_NAME}:latest"
         sh "${DIND} docker tag ${image_tag} ${image_latest}"
-        push(image_latest)
+        push(image_latest, image_sha.split('@')[-1])
     }
 
-    return image_tag
+    return image_sha
 }
 
 vm (initScript: 'loci-bootstrap.sh',
@@ -418,18 +425,17 @@ vm (initScript: 'loci-bootstrap.sh',
     stage ("Build Project") {
         print "Building ${PROJECT_NAME.capitalize()}"
         if (PROJECT_NAME.contains('requirements')) {
-            IMAGE_LOCI = buildLociMos()
+            env.IMAGE_SHA = buildLociMos()
         } else {
             loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
             WHEELS_ARG = ['WHEELS': "${LOCAL_WEB_URL}/images/wheels.tar"]
-            IMAGE_LOCI = buildLociMos(loci.getDependencies(RELEASE, BUILD_TYPE),
-                                      WHEELS_ARG)
+            env.IMAGE_SHA = buildLociMos(
+                loci.getDependencies(RELEASE, BUILD_TYPE),
+                WHEELS_ARG
+            )
         }
         env.LOCI_IMAGE_VAR = (
             "${BUILD_TYPE.replace('-', '_').toUpperCase()}_LOCI")
-        cmd = ("${DIND} docker inspect " +
-               "--format='{{index .RepoDigests 0}}' ${IMAGE_LOCI}")
-        env.IMAGE_SHA = sh(returnStdout: true, script: cmd).trim()
         sh "mkdir -p ${WORKSPACE}/artifacts"
         sh "echo $IMAGE_SHA | tee -a ${WORKSPACE}/artifacts/loci_image.txt"
         archiveArtifacts 'artifacts/*'
