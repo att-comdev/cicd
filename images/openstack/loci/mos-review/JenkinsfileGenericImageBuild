@@ -67,7 +67,7 @@ CEPH_REPO = null
 if (RELEASE == 'stein' || ["neutron-sriov", "nova-1804"].contains(BUILD_TYPE)) {
     LOCI_BASE_IMAGE = conf.LOCI_SRIOV_BASE_IMAGE
     OVS_REPO = conf.OVS_REPOS['bionic']
-    CEPH_REPO = conf.CEPH_REPO['bionic']
+    CEPH_REPO = conf.CEPH_REPOS['bionic']
 } else {
     LOCI_BASE_IMAGE = conf.LOCI_BASE_IMAGE
     OVS_REPO = conf.OVS_REPOS['xenial']
