@@ -63,10 +63,11 @@ currentBuild.displayName = (
     "#${BUILD_NUMBER} ${DISPLAY_PREFIX}"
 )
 
-
+CEPH_REPO = null
 if (RELEASE == 'stein' || ["neutron-sriov", "nova-1804"].contains(BUILD_TYPE)) {
     LOCI_BASE_IMAGE = conf.LOCI_SRIOV_BASE_IMAGE
     OVS_REPO = conf.OVS_REPOS['bionic']
+    CEPH_REPO = conf.CEPH_REPO['bionic']
 } else {
     LOCI_BASE_IMAGE = conf.LOCI_BASE_IMAGE
     OVS_REPO = conf.OVS_REPOS['xenial']
@@ -370,6 +371,14 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     if (BUILD_TYPE =~ /neutron|nova/ && params.CUSTOM_OVS) {
         sh ("${DIND} sh -c 'echo -e \"FROM ${LOCI_BASE_IMAGE}\n" +
             "RUN echo \"${OVS_REPO}\" >> /etc/apt/sources.list\"" +
+            "| docker build - -t base_image'")
+        customArgs["FROM"] = "base_image"
+    }
+    if (CEPH_REPO && BUILD_TYPE =~ /nova|cinder/) {
+        def baseImage = customArgs["FROM"] ?: LOCI_BASE_IMAGE
+        sh ("${DIND} sh -c ''")
+        sh ("${DIND} sh -c 'echo -e \"FROM ${baseImage}\n" +
+            "RUN echo \"${CEPH_REPO}\" >> /etc/apt/sources.list\"" +
             "| docker build - -t base_image'")
         customArgs["FROM"] = "base_image"
     }
