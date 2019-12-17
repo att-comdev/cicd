@@ -138,6 +138,9 @@ def call(Map map, Closure body) {
                           "Heat template: ${stack_template}\n" +
                           "Node IP: ${ip}"
                 }
+                if (env.VM_PRE_HOOK_CMD) {
+                    sh VM_PRE_HOOK_CMD
+                }
                 timeout(globalTimeout) {
                     body()
                 }

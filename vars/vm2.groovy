@@ -69,6 +69,9 @@ def call(udata = 'bootstrap.sh',
 
         // body executed under specified vm node
         node (name) {
+            if (env.VM_PRE_HOOK_CMD) {
+                sh VM_PRE_HOOK_CMD
+            }
             setKnownHosts()
             body()
         }
