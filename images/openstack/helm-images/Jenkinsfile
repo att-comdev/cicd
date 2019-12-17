@@ -10,12 +10,17 @@ OS_RELEASE = "ubuntu_xenial"
 VERSION = 1.0
 HELM_IMAGES_URL = "https://review.opendev.org/openstack/openstack-helm-images"
 HELM_IMAGES_HOME = ""
-CEPH_REPO = "https://${ARTF_WEB_URL}/mirantis-dev-ceph/xenial/"
-CEPH_KEY = "https://${ARTF_WEB_URL}/mirantis-dev-ceph/xenial/archive-ceph-mimic.key"
+CEPH_REPO = "https://${ARTF_WEB_URL}/mirantis-dev-ceph-nautilus/bionic/"
+CEPH_KEY = "https://${ARTF_WEB_URL}/mirantis-dev-ceph-nautilus/bionic/archive-ceph-nautilus.key"
 
 if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
     BASE_IMAGE = "calico/ctl:${CALICOCTL_VERSION}"
     OS_RELEASE = "alpine"
+}
+
+if (JOB_BASE_NAME.contains('ceph-')) {
+    BASE_IMAGE = "ubuntu:bionic"
+    OS_RELEASE = "ubuntu_bionic"
 }
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
@@ -66,6 +71,8 @@ try {
                         IMAGE_TAG += ".${BUILD_TIMESTAMP}"
                         if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
                             IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${CALICOCTL_VERSION}-${IMAGE_TAG}"
+                        } else if (JOB_BASE_NAME.contains('ceph-')) {
+                            IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}-ubuntu_bionic
                         }
                         else {
                             IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
