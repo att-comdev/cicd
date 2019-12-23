@@ -43,7 +43,7 @@ pipelineJob("${JOB_FOLDER}/minimirror") {
                     branches {
                         branch {
                             compareType('ANT')
-                            pattern("**")
+                            pattern("**/master")
                         }
                     }
                     filePaths {
