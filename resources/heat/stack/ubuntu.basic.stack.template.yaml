@@ -15,6 +15,16 @@ parameters:
   flavor:
     type: string
     default: m1.large
+  init_script:
+    type: string
+    default: bootstrap.sh
+
+conditions:
+    add_floatingip:
+      not:
+        equals:
+          - get_param: public_net
+          - null
 
 resources:
   server:
@@ -29,7 +39,8 @@ resources:
 
       user_data:
         str_replace:
-          template: {get_file: bootstrap.sh}
+          template:
+            get_file: { get_param: init_script }
           params:
             $message: Hello World!
 
@@ -41,6 +52,7 @@ resources:
       security_groups: [jenkins-security]
 
   server_floating_ip:
+    condition: add_floatingip
     type: OS::Neutron::FloatingIP
     properties:
       floating_network:
@@ -50,5 +62,12 @@ resources:
 outputs:
   floating_ip:
     description: The external IP associated to the server
-    value: { get_attr: [server_floating_ip, floating_ip_address] }
-
+    value:
+      if:
+        - add_floatingip
+        - get_attr:
+            - server_floating_ip
+            - floating_ip_address
+        - get_attr:
+            - server
+            - first_address
