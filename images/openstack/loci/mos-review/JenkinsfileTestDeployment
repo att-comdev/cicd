@@ -179,6 +179,8 @@ def tweakOSH() {
         [].each {
             sh ("git fetch https://review.opendev.org/openstack/openstack-helm refs/changes/${it} && git cherry-pick FETCH_HEAD")
         }
+        // Pin get-values-overrides.sh as it's altered to fix upstream gates
+        sh "git checkout 97ac0575ba1127a2a16a35fba9a57ddeda1acc26 -- tools/deployment/common/get-values-overrides.sh"
     }
 
     if (TROUBLESHOOTING) {
