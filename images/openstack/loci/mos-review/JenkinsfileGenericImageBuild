@@ -376,7 +376,6 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     }
     if (CEPH_REPO && BUILD_TYPE =~ /nova|cinder/) {
         def baseImage = customArgs["FROM"] ?: LOCI_BASE_IMAGE
-        sh ("${DIND} sh -c ''")
         sh ("${DIND} sh -c 'echo -e \"FROM ${baseImage}\n" +
             "RUN echo \"${CEPH_REPO}\" >> /etc/apt/sources.list\"" +
             "| docker build - -t base_image'")
