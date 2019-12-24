@@ -190,12 +190,12 @@ def verifyDepVersions(upperConstraintsVersions, reposVersions) {
 }
 
 
-vm2 ('loci-bootstrap.sh',
-         'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         'm1.medium',
-         'validation',
-         'loci',
-         false) {
+vm (initScript: 'loci-bootstrap.sh',
+        image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
+        flavor: 'm1.medium',
+        nodePostfix: 'validation',
+        doNotDeleteNode: false) {
+    vm2.setKnownHosts()
     // Create ssh config on slave to control what login is used for
     // what resource
     writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
@@ -295,12 +295,12 @@ stage("Test Deployment") {
 
 currentBuild.description = images
 
-vm2 ('loci-bootstrap.sh',
-         'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         'm1.medium',
-         'replacement',
-         'loci',
-         false) {
+vm (initScript: 'loci-bootstrap.sh',
+        image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
+        flavor: 'm1.medium',
+        nodePostfix: 'replacement',
+        doNotDeleteNode: false) {
+    vm2.setKnownHosts()
     // Create ssh config on slave to control what login is used for
     // what resource
     writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
