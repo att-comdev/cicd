@@ -55,7 +55,8 @@ def setPubKey() {
 
 
 def getHost(name) {
-  return Jenkins.getInstance().getComputer(name).getNode().getLauncher().getHost()
+  def launcher = Jenkins.getInstance().getComputer(name).getNode().getLauncher()
+  return (launcher.getHost(), launcher.getPort())
 }
 
 
@@ -253,9 +254,9 @@ def init = { params ->
     }
     if (waitForDeployment(30)) {
         setPubKey()
-        ip = getHost(LABEL)
+        (ip, port) = getHost(LABEL)
         reply("init: Environment deployment is successfully finished. " +
-              "You may access it with:\n\nssh ubuntu@${ip}\n\nusing your Gerrit key")
+              "You may access it with:\n\nssh -p ${port} ubuntu@${ip}\n\nusing your Gerrit key")
     } else {
         reply("init: Failed to create environment. Please try again or contact " +
               "CI/CD team")
