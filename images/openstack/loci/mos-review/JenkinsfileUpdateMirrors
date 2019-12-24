@@ -104,12 +104,12 @@ def getProjectsNotes(ucVersions, mirrorsVersions) {
 }
 
 
-vm2 ('loci-bootstrap.sh',
-         'cicd-ubuntu-16.04-server-cloudimg-amd64',
-         'm1.medium',
-         '',
-         'loci',
-         false) {
+vm (initScript: 'loci-bootstrap.sh',
+        image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
+        flavor: 'm1.medium',
+        nodePostfix: '',
+        doNotDeleteNode: false) {
+    vm2.setKnownHosts()
     // Create ssh config on slave to control what login is used for
     // what resource
     writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
