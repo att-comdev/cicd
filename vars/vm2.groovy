@@ -48,14 +48,14 @@ def call(udata = 'bootstrap.sh',
                 writeFile file: 'template.yaml', text: tmpl
 
                 data = libraryResource "heat/stack/${udata}"
-                writeFile file: udata, text: data
+                writeFile file: 'cloud-config', text: data
 
                 heat.stack_create(name, "${WORKSPACE}/template.yaml", parameters)
                 ip = heat.stack_output(name, 'floating_ip')
             }
 
             node('master') {
-                jenkins.node_create (name, ip, 'jenkins-slave-ssh', numOfExecutors)
+                jenkins.node_create (name, ip, '22', 'jenkins-slave-ssh', numOfExecutors)
             }
 
             node(launch_node) {
