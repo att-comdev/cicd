@@ -108,7 +108,6 @@ vm2 ('loci-bootstrap.sh',
          'cicd-ubuntu-16.04-server-cloudimg-amd64',
          'm1.medium',
          '',
-         'loci',
          false) {
     // Create ssh config on slave to control what login is used for
     // what resource
