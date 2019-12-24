@@ -1,3 +1,4 @@
+@Library("cicd_upstream_libs@refs/changes/20/70120/12")
 import com.att.nccicd.config.conf as config
 import groovy.json.JsonSlurperClassic
 
