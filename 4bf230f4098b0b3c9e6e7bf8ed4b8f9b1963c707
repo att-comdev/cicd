@@ -22,6 +22,30 @@
       "revId": "4bf230f4098b0b3c9e6e7bf8ed4b8f9b1963c707",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea78fb2c_c1a944ad",
+        "filename": "vars/jenkins.groovy",
+        "patchSetId": 16
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2019-12-24T15:30:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d17dfaf_c255816e",
+      "range": {
+        "startLine": 3,
+        "startChar": 4,
+        "endLine": 3,
+        "endChar": 15
+      },
+      "revId": "4bf230f4098b0b3c9e6e7bf8ed4b8f9b1963c707",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
