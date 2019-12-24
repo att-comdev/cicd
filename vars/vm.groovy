@@ -75,8 +75,18 @@ def call(Map map, Closure body) {
     // useful to prevent forever hanging pipelines consuming resources
     def globalTimeout = map.timeout ?: 120
 
+    // if useJumphost is true floating ip won't be assinged to vm.
+    // Jenkins will access vm via jumphost configured in global configuration
+    // with OS_JUMPHOST_PUBLIC_IP variable
+    def useJumphost = map.useJumphost
+    if (useJumphost != false) {
+        useJumphost = env.OS_JUMPHOST_PUBLIC_IP ? true : false
+    }
+
     // Name of public network that is used to allocate floating IPs
-    def publicNet = map.publicNet ?: 'public'
+    def publicNet = useJumphost ? '' : (map.publicNet ?:
+                                        env.OS_PUBLIC_NET ?:
+                                        'public')
 
     // Name of private network for the VM
     def privateNet = map.privateNet ?: 'private'
@@ -103,6 +113,7 @@ def call(Map map, Closure body) {
     }
 
     def ip = ""
+    def port = "22"
 
     try {
         stage ('Node Launch') {
@@ -112,14 +123,18 @@ def call(Map map, Closure body) {
                 writeFile file: 'template.yaml', text: tmpl
 
                 data = libraryResource "heat/stack/${initScript}"
-                writeFile file: initScript, text: data
+                writeFile file: 'cloud-config', text: data
 
                 heat.stack_create(name, "${WORKSPACE}/template.yaml", parameters)
                 ip = heat.stack_output(name, 'floating_ip')
+                if (useJumphost) {
+                    port = (ip.split('\\.')[-1].toInteger() + 10000).toString()
+                    ip = OS_JUMPHOST_PUBLIC_IP
+                }
             }
 
             node('master') {
-                jenkins.node_create (name, ip)
+                jenkins.node_create (name, ip, port)
 
                 timeout (14) {
                     node(name) {
@@ -136,7 +151,7 @@ def call(Map map, Closure body) {
                     print "Launch overrides: ${map}\n" +
                           "Pipeline timeout: ${globalTimeout}\n" +
                           "Heat template: ${stack_template}\n" +
-                          "Node IP: ${ip}"
+                          "Node IP: ${ip}:${port}"
                 }
                 if (env.VM_PRE_HOOK_CMD) {
                     sh VM_PRE_HOOK_CMD
