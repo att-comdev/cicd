@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6aaaf636_94d9a297",
+        "filename": "resources/heat/stack/ubuntu.basic.stack.template.yaml",
+        "patchSetId": 17
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1016987
+      },
+      "writtenOn": "2019-12-24T04:11:12Z",
+      "side": 1,
+      "message": "slightly too indented",
+      "range": {
+        "startLine": 19,
+        "startChar": 11,
+        "endLine": 24,
+        "endChar": 14
+      },
+      "revId": "7bd3d344793800ae629300fa218c1a9d7719e4a4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
