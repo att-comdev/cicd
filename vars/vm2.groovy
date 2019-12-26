@@ -33,6 +33,10 @@ def call(udata = 'bootstrap.sh',
 
     def stack_template="heat/stack/ubuntu.${buildtype}.stack.template.yaml"
 
+    if (env.OS_JUMPHOST_PUBLIC_IP) {
+        error ("'vm2' does not support jumphost. Please switch to 'vm'.")
+    }
+
     // optionally uer may supply additional identified for the VM
     // this makes it easier to find it in OpenStack
     if (postfix) {
