@@ -219,7 +219,7 @@ def call(Map map, Closure body) {
         }
 
     }
-  return ip
+  return [ip, port]
 }
 
 /**
