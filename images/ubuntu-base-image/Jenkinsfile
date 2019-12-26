@@ -8,7 +8,7 @@ VERSION = 1.0
 
 currentBuild.displayName = "#${BUILD_NUMBER} Build on ${BUILD_TIMESTAMP}"
 
-vm2() {
+vm () {
     cleanWs()
     sh ('hostname')
     stage('Setup environment') {

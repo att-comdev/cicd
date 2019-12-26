@@ -1,8 +1,10 @@
 
-def fip = vm2(NODE_DATA, NODE_IMAGE, NODE_FLAVOR, NODE_POSTFIX, 'basic', true) {
+def (fip, port) = vm (initScript: NODE_DATA, image: NODE_IMAGE,
+                      flavor: NODE_FLAVOR, nodePostfix: NODE_POSTFIX,
+                      buildType: 'basic', doNotDelete: true) {
   sh ('hostname')
   sh("echo ${SSH_KEY} >> /home/ubuntu/.ssh/authorized_keys")
 }
 
-currentBuild.displayName = "#${BUILD_NUMBER} VM ${NODE_POSTFIX} ${fip}"
-print "Access VM on Floating IP => ubuntu@${fip}"
+currentBuild.displayName = "#${BUILD_NUMBER} VM ${NODE_POSTFIX} ${fip}:${port}"
+print "Access VM on Floating IP => ssh ubuntu@${fip} -p ${port}"

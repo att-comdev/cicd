@@ -157,6 +157,7 @@ def call(Map map, Closure body) {
                     sh VM_PRE_HOOK_CMD
                 }
                 timeout(globalTimeout) {
+                    setKnownHosts()
                     body()
                 }
                 message ('SUCCESS: PIPELINE EXECUTION FINISHED') {}
@@ -222,6 +223,7 @@ def call(Map map, Closure body) {
   return [ip, port]
 }
 
+
 /**
  *  This method allow for conventional usage as vm()
  *       vm() - All defaults
@@ -229,4 +231,55 @@ def call(Map map, Closure body) {
 def call(Closure body) {
    map = [:]
     call(map, body)
+}
+
+
+/**
+ * This method updates known_hosts for each slave from Jenkins variable
+ * to prevent minm attacks. ssh-keyscan needs to be removed and KNOWN_HOSTS to be
+ * populated with proper keys.
+ */
+def setKnownHosts() {
+    if (env.KNOWN_HOSTS) {
+        sh "mkdir -p ${HOME}/.ssh; echo \"${KNOWN_HOSTS}\" >> ${HOME}/.ssh/known_hosts"
+    }
+}
+
+
+/**
+ * This method is used for any Jenkins pipelines that are behind the proxy.  They are currently
+ * set to global variables in Jenkins, if you have no firewall you can define these parameters as
+ * empty string in globals.
+ *
+ */
+def setproxy(){
+    if (HTTP_PROXY){
+
+        // redirection with "<<-" doesnot work well to remove whitespaces/tabs
+        sh'''sudo mkdir -p /etc/systemd/system/docker.service.d
+             cat << EOF | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
+[Service]
+Environment="HTTP_PROXY=${HTTP_PROXY}"
+Environment="HTTPS_PROXY=${HTTP_PROXY}"
+Environment="NO_PROXY=${NO_PROXY}"
+EOF'''
+
+        sh'''cat << EOF | sudo tee -a /etc/environment
+http_proxy=${HTTP_PROXY}
+https_proxy=${HTTP_PROXY}
+no_proxy=${NO_PROXY}
+HTTP_PROXY=${HTTP_PROXY}
+HTTPS_PROXY=${HTTP_PROXY}
+NO_PROXY=${NO_PROXY}
+EOF'''
+
+        sh "sudo systemctl daemon-reload"
+        sh "sudo systemctl restart docker"
+        sh 'export http_proxy=${HTTP_PROXY}'
+        sh 'export https_proxy=${HTTP_PROXY}'
+        sh 'export no_proxy=${NO_PROXY}'
+        sh 'export HTTP_PROXY=${HTTP_PROXY}'
+        sh 'export HTTPS_PROXY=${HTTP_PROXY}'
+        sh 'export NO_PROXY=${NO_PROXY}'
+    }
 }
