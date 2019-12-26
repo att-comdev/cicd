@@ -13,7 +13,7 @@ FLAVOR = 'm1.xlarge'
 
 vm(flavor: FLAVOR) {
     stage('Setup environment'){
-        vm2.setproxy()
+        vm.setproxy()
     }
 
     stage('Deploy Kubernetes AIO'){

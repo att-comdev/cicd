@@ -413,7 +413,6 @@ vm (initScript: 'loci-bootstrap.sh',
     doNotDeleteNode: false) {
 
     sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
-    vm2.setKnownHosts()
     stage('Docker Setup') {
         loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
                      DIND_CONTAINER, NET_RETRY_COUNT)

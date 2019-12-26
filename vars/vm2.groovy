@@ -22,6 +22,9 @@ def call(udata = 'bootstrap.sh',
          numOfExecutors = 2,
          Closure body) {
 
+    print "---------------------------------------------------------------\n" +
+          "'vm2' IS DEPRECATED AND WILL BE REMOVED. PLEASE SWITCH TO 'vm'.\n" +
+          "---------------------------------------------------------------\n"
     // resolve args to heat parameters
     def parameters = " --parameter image=${image}" +
                      " --parameter flavor=${flavor}"

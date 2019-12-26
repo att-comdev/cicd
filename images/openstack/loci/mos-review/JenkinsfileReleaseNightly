@@ -195,7 +195,6 @@ vm (initScript: 'loci-bootstrap.sh',
         flavor: 'm1.medium',
         nodePostfix: 'validation',
         doNotDeleteNode: false) {
-    vm2.setKnownHosts()
     // Create ssh config on slave to control what login is used for
     // what resource
     writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
@@ -300,7 +299,6 @@ vm (initScript: 'loci-bootstrap.sh',
         flavor: 'm1.medium',
         nodePostfix: 'replacement',
         doNotDeleteNode: false) {
-    vm2.setKnownHosts()
     // Create ssh config on slave to control what login is used for
     // what resource
     writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG

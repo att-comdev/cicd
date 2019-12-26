@@ -353,6 +353,7 @@ def TestVm(Map map, Closure body) {
                               "Node IP: ${ip}:${port}"
                     }
                     timeout(globalTimeout) {
+                        vm.setKnownHosts()
                         body()
                     }
                     vm.message ('SUCCESS: PIPELINE EXECUTION FINISHED') {}
@@ -597,7 +598,7 @@ def setupHugepages = {
 
 
 def setupNode = {
-    vm2.setKnownHosts()
+    vm.setKnownHosts()
     updateHost()
     sh "sudo cp ${HOME}/.ssh/known_hosts /etc/ssh/ssh_known_hosts"
     exportPipEnv()
