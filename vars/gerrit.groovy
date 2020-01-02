@@ -293,9 +293,10 @@ EOF"""
  * @param userEmail Email of Jenkins user that triggered the job
  * @param userName BUILD_USER that triggered the Jenkins job
  * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
+ * @param repoName name of the repository being pushed to
  * @param refspec "xxxx/master" or other refspec
 */
-def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName) {
+def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master") {
     sshagent(credentials: [credentials]) {
         sh """
              git config user.email '${userEmail}'
@@ -306,7 +307,7 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
              git commit -m "${commitMessage}"
              scp -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks
              git commit --amend --no-edit
-             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:refs/for/master
+             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
            """
     }
 }
