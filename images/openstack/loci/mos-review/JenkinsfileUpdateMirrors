@@ -86,7 +86,7 @@ def getProjectsNotes(ucVersions, mirrorsVersions) {
                "--end-commit ${revision}")
         secNotes = sh(returnStdout: true, script: cmd).trim()
         dir(repo_dir) {
-            cmd = ("git log --oneline ${uc_revision}...${revision}")
+            cmd = ("git log --oneline --no-merges ${uc_revision}...${revision}")
             changelog = sh(returnStdout: true, script: cmd).trim()
         }
         msg = ""
