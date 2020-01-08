@@ -175,6 +175,7 @@ vm (initScript: 'loci-bootstrap.sh',
                     if (changeId) {
                         msg += "\nChange-Id: ${changeId}"
                     }
+                    msg = msg.replace('"', "'")
                     sh "git ${COMMIT_ARGS} commit -a -m \"$msg\""
                     sh "git show HEAD"
                     sh "git push origin HEAD:refs/for/${BRANCH}/${TOPIC}"
