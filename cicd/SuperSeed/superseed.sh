@@ -220,7 +220,6 @@ if [[ ! -z ${RELEASE_FILE_PATH} ]]; then
 else
     lint_whitespaces
     lint_jenkins_files
-    find_seed
     if [[ "${GERRIT_HOST}" = review ]]; then
         check_sandbox_parameter
     fi
@@ -230,6 +229,8 @@ else
         echo "INFO: Not applying seeds for patchsets, Seeds are applied only after merge"
         exit 0
     fi
+
+    find_seed
 
     if [[ ! ${SEED_PATH} =~ ^tests/ ]]; then
         copy_seed ${SEED_PATH}
