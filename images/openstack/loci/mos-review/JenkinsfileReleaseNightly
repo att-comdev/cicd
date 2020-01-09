@@ -12,19 +12,17 @@ REQ_PROJECT_NAME = env.REQ_PROJECT_NAME
 PROJECT_MAP = json.parseText(env.PROJECT_MAP)
 DEPENDENCY_PROJECT_LIST = json.parseText(env.DEPENDENCY_PROJECT_LIST)
 
-RELEASES_REGEX = "(${json.parseText(env.SUPPORTED_RELEASES).join("|")})"
 RELEASE = env.RELEASE
 DIND_CONTAINER = "nightly-${RELEASE}"
 DIND = "sudo docker exec ${DIND_CONTAINER}"
 
-MESSAGE = "[Update] Nightly ${RELEASE} loci update"
+MESSAGE = String.format(env.UPLIFT_COMMIT_MESSAGE_TEMPLATE, 'nightly', RELEASE)
+TOPIC = String.format(env.UPLIFT_TOPIC_TEMPLATE, RELEASE)
 
 ARTF_REPO = 'openstack'
 
 RELEASE_BRANCH_MAP = json.parseText(RELEASE_BRANCH_MAP)
 BRANCH = RELEASE_BRANCH_MAP[RELEASE]
-
-TOPIC = "${RELEASE}-loci-update"
 
 PROJECT_PREFIX = "loci/mos"
 IMAGE_BASE = String.format(conf.MOS_IMAGES_BASE_URL, "", RELEASE)
