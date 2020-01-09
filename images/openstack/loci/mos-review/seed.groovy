@@ -544,3 +544,44 @@ pipelineJob("${JOB_BASE}/UpdateMirrors") {
         }
     }
 }
+
+
+pipelineJob("${JOB_BASE}/UpliftPipeline") {
+    environmentVariables(
+        "NET_RETRY_COUNT": NET_RETRY_COUNT,
+    )
+    properties {
+        disableResume()
+    }
+    parameters {
+        choiceParam (
+            'RELEASE',
+            SUPPORTED_RELEASES,
+            "Supported releases: ${SUPPORTED_RELEASES.join(', ')}"
+        )
+        stringParam {
+            description("Images map to uplift")
+            defaultValue('{}')
+            name('IMAGES')
+            trim(true)
+        }
+        stringParam {
+            description("Gerrit topic for uplift change")
+            defaultValue('{}')
+            name('TOPIC')
+            trim(true)
+        }
+        stringParam {
+            description("Commit message for uplift commit")
+            defaultValue('[DO NOT MERGE] For test only')
+            name('COMMIT_MESSAGE')
+            trim(true)
+        }
+    }
+    definition {
+        cps {
+            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileUplift"))
+            sandbox(false)
+        }
+    }
+}
