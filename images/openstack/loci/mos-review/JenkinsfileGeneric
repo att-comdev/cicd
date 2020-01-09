@@ -45,7 +45,7 @@ stage("${REQ_PROJECT_NAME} image build") {
 }
 
 PROJECT_MAP = new JsonSlurperClassic().parseText(env.PROJECT_MAP)[RELEASE]
-results = [:]
+imagesVersions = [:]
 runningSet = [:]
 def i = 0
 PROJECT_MAP.each { projectName, buildTypes ->
@@ -74,7 +74,7 @@ PROJECT_MAP.each { projectName, buildTypes ->
                     stringParam(name: 'EVENT_TYPE', value: EVENT_TYPE),
                 ]
                 print "Building image for ${buildType} with ${parameters}"
-                results[buildType] = utils.runBuild(
+                imagesVesions[buildType] = utils.runBuild(
                     "${JOB_BASE}/mos-${buildType}",
                     parameters,
                     RETRY_COUNT
@@ -88,7 +88,7 @@ PROJECT_MAP.each { projectName, buildTypes ->
 parallel runningSet
 
 overrideImages = [:]
-results.each { _, job ->
+imagesVersions.each { _, job ->
     buildVars = job.getBuildVariables()
     overrideImages[buildVars["LOCI_IMAGE_VAR"]] = buildVars["IMAGE_SHA"]
 }
@@ -116,3 +116,27 @@ if (EVENT_TYPE != 'change-merged' && params.RUN_DEPLOYMENT) {
 }
 
 env.IMAGES = images
+
+if (env.UPLIFT_IMAGES.toBoolean()) {
+    def upliftCommitMessage, upliftTopic
+    if (EVENT_TYPE == 'change-merged') {
+        upliftCommitMessage = String.format(env.UPLIFT_COMMIT_MESSAGE_TEMPLATE,
+                                            'merge event', RELEASE)
+        upliftTopic = String.format(env.UPLIFT_TOPIC_TEMPLATE, RELEASE)
+    } else {
+        upliftCommitMessage = '[DO NOT MERGE] FOR TEST ONLY'
+        upliftTopic = "test-${RELEASE}-uplift"
+    }
+    parameters = [
+        stringParam(name: "IMAGES",
+                    value: JsonOutput.toJson(JsonOutput.toJson(imagesVersions))),
+        stringParam(name: "RELEASE", value: RELEASE),
+        stringParam(name: "TOPIC", value: upliftTopic),
+        stringParam(name: "COMMIT_MESSAGE", value: upliftCommitMessage),
+    ]
+    utils.runBuild(
+        "${JOB_BASE}/UpliftPipeline",
+        parameters,
+        RETRY_COUNT
+    )
+}
