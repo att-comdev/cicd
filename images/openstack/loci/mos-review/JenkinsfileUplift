@@ -16,6 +16,21 @@ MANIFESTS_BRANCH = conf.OS_RELEASE_MANIFESTS_BRANCH_MAP[RELEASE]
 COMMIT_ARGS = ("-c 'user.name=Jenkins (${INTERNAL_GERRIT_USER})' " +
                "-c 'user.email=${INTERNAL_GERRIT_USER}@att.com'")
 
+def compileSshData() {
+    sshConfig = ""
+    keys = []
+    json.parseText(SSH_DATA).each { entry ->
+        sshConfig += "Host ${entry.value.resource}\n" +
+                     "User ${entry.value.user}\n"
+        keys.add(entry.key)
+    }
+    return [keys, sshConfig]
+}
+
+// Compile ssh-agent key names and ssh config from SSH_DATA to be used
+// for fetching projects to internal mirror
+(KEY_NAMES, SSH_CONFIG) = compileSshData()
+
 
 vm (initScript: 'loci-bootstrap.sh',
         image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
@@ -28,9 +43,11 @@ vm (initScript: 'loci-bootstrap.sh',
     sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
     stage("Replacing images in versions.yaml") {
         env.GERRIT_TOPIC = TOPIC
+        def changeId = null
+
         changes = gerrit.getTopicCommitInfo(
-            MANIFESTS_PROJECT_NAME, INTERNAL_GERRIT_URL, INTERNAL_GERRIT_PORT,
-            INTERNAL_GERRIT_KEY
+            MANIFESTS_PROJECT_NAME, INTERNAL_GERRIT_URL,
+            INTERNAL_GERRIT_PORT, INTERNAL_GERRIT_KEY
         )
 
         if (changes.size() > 1) {
@@ -39,7 +56,6 @@ vm (initScript: 'loci-bootstrap.sh',
                   "Please close extra changes.")
         }
 
-        changeId = null
         if (changes) {
             changeId = changes[0]["id"]
         }
