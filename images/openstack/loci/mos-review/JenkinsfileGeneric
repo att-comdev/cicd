@@ -88,9 +88,15 @@ PROJECT_MAP.each { projectName, buildTypes ->
 parallel runningSet
 
 overrideImages = [:]
-results.each { _, job ->
+imagesVersions = [:]
+results.each { buildType, job ->
     buildVars = job.getBuildVariables()
     overrideImages[buildVars["LOCI_IMAGE_VAR"]] = buildVars["IMAGE_SHA"]
+    imagesVersions[buildType] = [
+        'vcsRef': buildVars["PROJECT_VERSION"],
+        'date': buildVars["BUILD_TIMESTAMP"],
+        'url': buildVars["IMAGE_SHA"],
+    ]
 }
 overrideImagesJSON = JsonOutput.toJson(overrideImages)
 parameters = [
@@ -116,3 +122,27 @@ if (EVENT_TYPE != 'change-merged' && params.RUN_DEPLOYMENT) {
 }
 
 env.IMAGES = images
+
+if (UPLIFT_IMAGES.toBoolean()) {
+    def upliftCommitMessage, upliftTopic
+    if (EVENT_TYPE == 'change-merged') {
+        upliftCommitMessage = String.format(env.UPLIFT_COMMIT_MESSAGE_TEMPLATE,
+                                            'merge event', RELEASE)
+        upliftTopic = String.format(env.UPLIFT_TOPIC_TEMPLATE, RELEASE)
+    } else {
+        upliftCommitMessage = '[DO NOT MERGE] FOR TEST ONLY'
+        upliftTopic = "test-${RELEASE}-uplift"
+    }
+    parameters = [
+        stringParam(name: "IMAGES",
+                    value: JsonOutput.toJson(imagesVersions)),
+        stringParam(name: "RELEASE", value: RELEASE),
+        stringParam(name: "TOPIC", value: upliftTopic),
+        stringParam(name: "COMMIT_MESSAGE", value: upliftCommitMessage),
+    ]
+    utils.runBuild(
+        "${JOB_BASE}/UpliftPipeline",
+        parameters,
+        RETRY_COUNT
+    )
+}
