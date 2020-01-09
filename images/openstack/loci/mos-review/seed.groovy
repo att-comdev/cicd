@@ -11,6 +11,8 @@ NET_RETRY_COUNT = 5
 RELEASE_BRANCH_MAP = json.parseText(RELEASE_BRANCH_MAP)
 SUPPORTED_RELEASES = RELEASE_BRANCH_MAP.keySet() as List
 EVENT_TYPES = ['manual', 'patchset-created', 'change-merged']
+UPLIFT_COMMIT_MESSAGE_TEMPLATE = "[Uplift] %s %s loci update"
+UPLIFT_TOPIC_TEMPLATE = "%s-loci-update"
 
 MIRRORS_PREFIX = 'mirrors/mos/'
 REQ_PROJECT_NAME = 'mos-requirements'
@@ -146,10 +148,13 @@ pipelineJob("${JOB_BASE}/GenericPipeline") {
         disableResume()
     }
     environmentVariables(
-        "JOB_BASE":               JOB_BASE,
-        "PROJECT_MAP":            JsonOutput.toJson(PROJECT_MAP),
-        "REQ_PROJECT_NAME":       REQ_PROJECT_NAME,
-        "RETRY_COUNT":            RETRY_COUNT,
+        "JOB_BASE":                       JOB_BASE,
+        "PROJECT_MAP":                    JsonOutput.toJson(PROJECT_MAP),
+        "REQ_PROJECT_NAME":               REQ_PROJECT_NAME,
+        "RETRY_COUNT":                    RETRY_COUNT,
+        "UPLIFT_IMAGES":                  false,
+        "UPLIFT_COMMIT_MESSAGE_TEMPLATE": UPLIFT_COMMIT_MESSAGE_TEMPLATE,
+        "UPLIFT_TOPIC_TEMPLATE":          UPLIFT_TOPIC_TEMPLATE,
     )
     definition {
         cps {
@@ -456,15 +461,16 @@ pipelineJob("${JOB_BASE}/CodeReviewPipeline") {
 SUPPORTED_RELEASES.each { release ->
     pipelineJob("${JOB_BASE}/ReleaseNightlyPipeline${release.capitalize()}") {
         environmentVariables(
-            "JOB_BASE":                JOB_BASE,
-            "PROJECT_MAP":             JsonOutput.toJson(PROJECT_MAP[release]),
-            "DEPENDENCY_PROJECT_LIST": JsonOutput.toJson(DEPENDENCY_PROJECT_LIST[release]),
-            "SUPPORTED_RELEASES":      JsonOutput.toJson(SUPPORTED_RELEASES),
-            "RELEASE":                 "${release}",
-            "NET_RETRY_COUNT":         NET_RETRY_COUNT,
-            "RETRY_COUNT":             RETRY_COUNT,
-            "REQ_PROJECT_NAME":        REQ_PROJECT_NAME,
-            "RECREATE_SNAPSHOT":       true,
+            "JOB_BASE":                       JOB_BASE,
+            "PROJECT_MAP":                    JsonOutput.toJson(PROJECT_MAP[release]),
+            "DEPENDENCY_PROJECT_LIST":        JsonOutput.toJson(DEPENDENCY_PROJECT_LIST[release]),
+            "RELEASE":                        "${release}",
+            "NET_RETRY_COUNT":                NET_RETRY_COUNT,
+            "RETRY_COUNT":                    RETRY_COUNT,
+            "REQ_PROJECT_NAME":               REQ_PROJECT_NAME,
+            "RECREATE_SNAPSHOT":              true,
+            "UPLIFT_COMMIT_MESSAGE_TEMPLATE": UPLIFT_COMMIT_MESSAGE_TEMPLATE,
+            "UPLIFT_TOPIC_TEMPLATE":          UPLIFT_TOPIC_TEMPLATE,
         )
         properties {
             disableResume()
@@ -494,16 +500,17 @@ SUPPORTED_RELEASES.each { release ->
 SUPPORTED_RELEASES.each { release ->
     pipelineJob("${JOB_BASE}/LatestUpliftPipeline${release.capitalize()}") {
         environmentVariables(
-            "JOB_BASE":                JOB_BASE,
-            "PROJECT_MAP":             JsonOutput.toJson(PROJECT_MAP[release]),
-            "DEPENDENCY_PROJECT_LIST": JsonOutput.toJson(DEPENDENCY_PROJECT_LIST[release]),
-            "SUPPORTED_RELEASES":      JsonOutput.toJson(SUPPORTED_RELEASES),
-            "RELEASE":                 "${release}",
-            "NET_RETRY_COUNT":         NET_RETRY_COUNT,
-            "RETRY_COUNT":             RETRY_COUNT,
-            "REQ_PROJECT_NAME":        REQ_PROJECT_NAME,
-            "RECREATE_SNAPSHOT":       false,
-            "RUN_DEPLOYMENT":          true,
+            "JOB_BASE":                       JOB_BASE,
+            "PROJECT_MAP":                    JsonOutput.toJson(PROJECT_MAP[release]),
+            "DEPENDENCY_PROJECT_LIST":        JsonOutput.toJson(DEPENDENCY_PROJECT_LIST[release]),
+            "RELEASE":                        "${release}",
+            "NET_RETRY_COUNT":                NET_RETRY_COUNT,
+            "RETRY_COUNT":                    RETRY_COUNT,
+            "REQ_PROJECT_NAME":               REQ_PROJECT_NAME,
+            "RECREATE_SNAPSHOT":              false,
+            "RUN_DEPLOYMENT":                 true,
+            "UPLIFT_COMMIT_MESSAGE_TEMPLATE": UPLIFT_COMMIT_MESSAGE_TEMPLATE,
+            "UPLIFT_TOPIC_TEMPLATE":          UPLIFT_TOPIC_TEMPLATE,
         )
         properties {
             disableResume()
@@ -540,6 +547,48 @@ pipelineJob("${JOB_BASE}/UpdateMirrors") {
     definition {
         cps {
             script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileUpdateMirrors"))
+            sandbox(false)
+        }
+    }
+}
+
+
+pipelineJob("${JOB_BASE}/UpliftPipeline") {
+    environmentVariables(
+        "NET_RETRY_COUNT":    NET_RETRY_COUNT,
+        "SUPPORTED_RELEASES": JsonOutput.toJson(SUPPORTED_RELEASES),
+    )
+    properties {
+        disableResume()
+    }
+    parameters {
+        choiceParam (
+            'RELEASE',
+            SUPPORTED_RELEASES,
+            "Supported releases: ${SUPPORTED_RELEASES.join(', ')}"
+        )
+        stringParam {
+            description("Images map to uplift")
+            defaultValue('{}')
+            name('IMAGES')
+            trim(true)
+        }
+        stringParam {
+            description("Gerrit topic for uplift change")
+            defaultValue('{}')
+            name('TOPIC')
+            trim(true)
+        }
+        stringParam {
+            description("Commit message for uplift commit")
+            defaultValue('[DO NOT MERGE] For test only')
+            name('COMMIT_MESSAGE')
+            trim(true)
+        }
+    }
+    definition {
+        cps {
+            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileUplift"))
             sandbox(false)
         }
     }
