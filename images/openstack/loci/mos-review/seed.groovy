@@ -11,6 +11,8 @@ NET_RETRY_COUNT = 5
 RELEASE_BRANCH_MAP = json.parseText(RELEASE_BRANCH_MAP)
 SUPPORTED_RELEASES = RELEASE_BRANCH_MAP.keySet() as List
 EVENT_TYPES = ['manual', 'patchset-created', 'change-merged']
+UPLIFT_COMMIT_MESSAGE_TEMPLATE = "[Uplift] %s ${RELEASE} loci update"
+UPLIFT_TOPIC_TEMPLATE = "%s-loci-update"
 
 MIRRORS_PREFIX = 'mirrors/mos/'
 REQ_PROJECT_NAME = 'mos-requirements'
@@ -146,10 +148,11 @@ pipelineJob("${JOB_BASE}/GenericPipeline") {
         disableResume()
     }
     environmentVariables(
-        "JOB_BASE":               JOB_BASE,
-        "PROJECT_MAP":            JsonOutput.toJson(PROJECT_MAP),
-        "REQ_PROJECT_NAME":       REQ_PROJECT_NAME,
-        "RETRY_COUNT":            RETRY_COUNT,
+        "JOB_BASE":         JOB_BASE,
+        "PROJECT_MAP":      JsonOutput.toJson(PROJECT_MAP),
+        "REQ_PROJECT_NAME": REQ_PROJECT_NAME,
+        "RETRY_COUNT":      RETRY_COUNT,
+        "UPLIFT_IMAGES":    false,
     )
     definition {
         cps {
@@ -494,16 +497,18 @@ SUPPORTED_RELEASES.each { release ->
 SUPPORTED_RELEASES.each { release ->
     pipelineJob("${JOB_BASE}/LatestUpliftPipeline${release.capitalize()}") {
         environmentVariables(
-            "JOB_BASE":                JOB_BASE,
-            "PROJECT_MAP":             JsonOutput.toJson(PROJECT_MAP[release]),
-            "DEPENDENCY_PROJECT_LIST": JsonOutput.toJson(DEPENDENCY_PROJECT_LIST[release]),
-            "SUPPORTED_RELEASES":      JsonOutput.toJson(SUPPORTED_RELEASES),
-            "RELEASE":                 "${release}",
-            "NET_RETRY_COUNT":         NET_RETRY_COUNT,
-            "RETRY_COUNT":             RETRY_COUNT,
-            "REQ_PROJECT_NAME":        REQ_PROJECT_NAME,
-            "RECREATE_SNAPSHOT":       false,
-            "RUN_DEPLOYMENT":          true,
+            "JOB_BASE":                       JOB_BASE,
+            "PROJECT_MAP":                    JsonOutput.toJson(PROJECT_MAP[release]),
+            "DEPENDENCY_PROJECT_LIST":        JsonOutput.toJson(DEPENDENCY_PROJECT_LIST[release]),
+            "SUPPORTED_RELEASES":             JsonOutput.toJson(SUPPORTED_RELEASES),
+            "RELEASE":                        "${release}",
+            "NET_RETRY_COUNT":                NET_RETRY_COUNT,
+            "RETRY_COUNT":                    RETRY_COUNT,
+            "REQ_PROJECT_NAME":               REQ_PROJECT_NAME,
+            "RECREATE_SNAPSHOT":              false,
+            "RUN_DEPLOYMENT":                 true,
+            "UPLIFT_COMMIT_MESSAGE_TEMPLATE": UPLIFT_COMMIT_MESSAGE_TEMPLATE,
+            "UPLIFT_TOPIC_TEMPLATE":          UPLIFT_TOPIC_TEMPLATE,
         )
         properties {
             disableResume()
