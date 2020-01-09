@@ -8,20 +8,14 @@ json = new JsonSlurperClassic()
 
 NET_RETRY_COUNT = env.NET_RETRY_COUNT.toInteger()
 RETRY_COUNT = env.RETRY_COUNT.toInteger()
-MANIFESTS_PROJECT_NAME = conf.GLOBAL_REPO
-VERSIONS_PATH = conf.VERSIONS_PATH
 REQ_PROJECT_NAME = env.REQ_PROJECT_NAME
 PROJECT_MAP = json.parseText(env.PROJECT_MAP)
 DEPENDENCY_PROJECT_LIST = json.parseText(env.DEPENDENCY_PROJECT_LIST)
 
 RELEASES_REGEX = "(${json.parseText(env.SUPPORTED_RELEASES).join("|")})"
 RELEASE = env.RELEASE
-MANIFESTS_BRANCH = conf.OS_RELEASE_MANIFESTS_BRANCH_MAP[RELEASE]
 DIND_CONTAINER = "nightly-${RELEASE}"
 DIND = "sudo docker exec ${DIND_CONTAINER}"
-
-COMMIT_ARGS = ("-c 'user.name=Jenkins (${INTERNAL_GERRIT_USER})' " +
-               "-c 'user.email=${INTERNAL_GERRIT_USER}@att.com'")
 
 MESSAGE = "[Update] Nightly ${RELEASE} loci update"
 
@@ -294,74 +288,13 @@ stage("Test Deployment") {
 
 currentBuild.description = images
 
-vm (initScript: 'loci-bootstrap.sh',
-        image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
-        flavor: 'm1.medium',
-        nodePostfix: 'replacement',
-        doNotDeleteNode: false) {
-    // Create ssh config on slave to control what login is used for
-    // what resource
-    writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
-    sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
-    stage("Replacing images in versions.yaml") {
-        env.GERRIT_TOPIC = TOPIC
-        changes = gerrit.getTopicCommitInfo(
-            MANIFESTS_PROJECT_NAME, INTERNAL_GERRIT_URL, INTERNAL_GERRIT_PORT,
-            INTERNAL_GERRIT_KEY
-        )
-
-        if (changes.size() > 1) {
-            error("Something wrong occurred. There should be either one or " +
-                  "none open changes for topic ${TOPIC}.\n" +
-                  "Please close extra changes.")
-        }
-
-        changeId = null
-        if (changes) {
-            changeId = changes[0]["id"]
-        }
-
-        utils.retrier (NET_RETRY_COUNT) {
-            gerrit.cloneToBranch(
-                getProjectRepoUrl(MANIFESTS_PROJECT_NAME),
-                MANIFESTS_BRANCH,
-                MANIFESTS_PROJECT_NAME,
-                INTERNAL_GERRIT_KEY,
-                null
-            )
-        }
-        dir(MANIFESTS_PROJECT_NAME) {
-            versions = readFile VERSIONS_PATH
-            versions_updated = versions
-            IMAGES_VERSIONS.each { _, data ->
-                image = data['url']
-                comment = " ${data['vcsRef']}.${data['date']}"
-                (_, replace_to, pattern) = ((image =~ /.*?\/((.*?)[@:].*)/)[0])
-                // For pattern replace actual release name by regex matching any release
-                image_pattern = pattern.replaceAll(RELEASES_REGEX, RELEASES_REGEX) + '[@:].*'
-                versions_updated = versions_updated.replaceAll(
-                    image_pattern, replace_to)
-                comment_pattern = "(?<=#).*\\.\\d{4}(-\\d{2}){2}_\\d{2}(-\\d{2}){2}.*(?=\n.{0,100}${replace_to})"
-                versions_updated = versions_updated.replaceAll(
-                    comment_pattern, comment)
-            }
-            if(versions_updated == versions) {
-                print "No new changes. Versions.yaml is up to date."
-            } else {
-                writeFile file: VERSIONS_PATH, text: versions_updated
-                sshagent([INTERNAL_GERRIT_KEY]) {
-                    sh ("scp -p -P ${INTERNAL_GERRIT_PORT} " +
-                        "${INTERNAL_GERRIT_URL}:hooks/commit-msg " +
-                        ".git/hooks/")
-                    msg = MESSAGE + "\n\n${env.BUILD_URL}"
-                    if (changeId) {
-                        msg += "\n\nChange-Id: ${changeId}"
-                    }
-                    sh "git ${COMMIT_ARGS} commit -a -m '${msg}'"
-                    sh "git show HEAD"
-                    sh "git push origin HEAD:refs/for/${MANIFESTS_BRANCH}/${TOPIC}"
-                }
-            }
-        }
-    }
-}
+parameters = [
+    stringParam(name: "IMAGES", value: JsonOutput.toJson(IMAGES_VERSIONS)),
+    stringParam(name: "RELEASE", RELEASE),
+    stringParam(name: "TOPIC", TOPIC),
+]
+utils.runBuild(
+    "${JOB_BASE}/UpliftPipeline",
+    parameters,
+    RETRY_COUNT
+)
