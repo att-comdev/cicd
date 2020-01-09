@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d7e0023_53f7a7b4",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-01-09T21:09:16Z",
+      "side": 1,
+      "message": "please put this into configuration",
+      "range": {
+        "startLine": 13,
+        "startChar": 13,
+        "endLine": 13,
+        "endChar": 72
+      },
+      "revId": "01112ff77f5bd148a57f448029c130968c5c4966",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
