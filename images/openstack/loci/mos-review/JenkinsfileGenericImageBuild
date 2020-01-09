@@ -440,6 +440,8 @@ vm (initScript: 'loci-bootstrap.sh',
                 WHEELS_ARG
             )
         }
+        env.PROJECT_VERSION = PROJECT_VERSION
+        env.BUILD_TIMESTAMP = BUILD_TIMESTAMP
         env.LOCI_IMAGE_VAR = (
             "${BUILD_TYPE.replace('-', '_').toUpperCase()}_LOCI")
         sh "mkdir -p ${WORKSPACE}/artifacts"
