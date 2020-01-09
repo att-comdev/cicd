@@ -18,6 +18,10 @@ if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
     OS_RELEASE = "alpine"
 }
 
+if ("${JOB_BASE_NAME}" == 'ceph-config-helper') {
+    BASE_IMAGE = conf.LOCI_SRIOV_BASE_IMAGE
+}
+
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 if(env.GERRIT_NEWREV){
     echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
