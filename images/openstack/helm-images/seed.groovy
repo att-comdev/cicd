@@ -44,6 +44,11 @@ projects.each { project_name ->
                 }
                 triggerOnEvents {
                     changeMerged()
+                    patchsetCreated {
+                       excludeDrafts(false)
+                       excludeTrivialRebase(false)
+                       excludeNoCodeChange(false)
+                    }
                 }
             }
             definition {
