@@ -8,6 +8,7 @@ IMAGE_MERGE="${IMAGE_PREFIX}/${JOB_BASE_NAME}:${GERRIT_PATCHSET_REVISION}.${BUIL
 UPSTREAM_URL="https://review.opendev.org/"
 RANGER_USER=ncconf.RANGER_USER
 RANGER_AGENT_USER=ncconf.RANGER_AGENT_USER
+BASE_IMAGE=ncconf.UBUNTU_BIONIC_BASE_IMAGE
 
 currentBuild.displayName="Build #${BUILD_NUMBER} ${JOB_BASE_NAME} ${GERRIT_BRANCH} ${GERRIT_EVENT_TYPE}"
 def label="worker-${UUID.randomUUID().toString()}"
@@ -46,7 +47,7 @@ try {
 
                 stage('Docker Build') {
                     timeout(20){
-                            sh "make images IMAGE_NAME=${JOB_BASE_NAME} USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${GERRIT_PATCHSET_REVISION} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0 --label org.label-schema.branch=${GERRIT_BRANCH}' IMAGE_TAG=${GERRIT_PATCHSET_REVISION} RANGER_USER=${RANGER_USER} RANGER_AGENT_USER=${RANGER_AGENT_USER}"
+                            sh "make images IMAGE_NAME=${JOB_BASE_NAME} BASE_IMAGE=${BASE_IMAGE} USE_PROXY=true PROXY=${HTTP_PROXY} IMAGE_PREFIX=${IMAGE_PREFIX} DOCKER_REGISTRY=${ARTF_DOCKER_URL} LABEL='org.label-schema.vcs-ref=${GERRIT_PATCHSET_REVISION} --label org.label-schema.vcs-url=${GERRIT_CHANGE_URL} --label org.label-schema.version=0.1.0 --label org.label-schema.branch=${GERRIT_BRANCH}' IMAGE_TAG=${GERRIT_PATCHSET_REVISION} RANGER_USER=${RANGER_USER} RANGER_AGENT_USER=${RANGER_AGENT_USER}"
                     }
                 }
                 stage('Docker Run') {
