@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f96894e6_9433f77d",
+        "filename": "images/openstack/ranger/Jenkinsfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1013696
+      },
+      "writtenOn": "2020-01-20T22:33:23Z",
+      "side": 1,
+      "message": "use this variable ncconf.UBUNTU_BIONIC_BASE_IMAGE",
+      "revId": "4667b2c7e48ceff1e6dac0195dee3d752518abeb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
