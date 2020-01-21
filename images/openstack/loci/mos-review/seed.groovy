@@ -146,6 +146,9 @@ pipelineJob("${JOB_BASE}/GenericPipeline") {
     }
     properties {
         disableResume()
+        rebuild {
+            rebuildDisabled()
+        }
     }
     environmentVariables(
         "JOB_BASE":                       JOB_BASE,
@@ -169,6 +172,9 @@ MERGED_MAP.each { projectName, buildTypes ->
         pipelineJob("${JOB_BASE}/mos-${buildType}") {
             properties {
                 disableResume()
+                rebuild {
+                    rebuildDisabled()
+                }
             }
             definition {
                 cps {
