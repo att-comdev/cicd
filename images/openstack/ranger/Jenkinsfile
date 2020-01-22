@@ -53,7 +53,7 @@ try {
                 stage('Docker Run') {
                     timeout(20){
                        IMAGE = "${ARTF_DOCKER_URL}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${GERRIT_PATCHSET_REVISION}"
-                       sh "docker run ${IMAGE}"
+                       sh "docker run ${IMAGE} echo 'Image ran successfully'"
                     }
                 }
 
