@@ -1,7 +1,8 @@
 JOB_FOLDER="images/att-comdev/minimirror"
 folder("images/att-comdev")
 folder("images/att-comdev/minimirror")
-pipelineJob("${JOB_FOLDER}/minimirror") {
+pipelineJob("${JOB_FOLDER}/minimirror LEGACY BUILD") {
+    description("Legacy mini-mirror pipeline. DO NOT USE for NC >= 1.9.1")
     logRotator{
         daysToKeep(90)
     }
@@ -12,7 +13,6 @@ pipelineJob("${JOB_FOLDER}/minimirror") {
                 }
     }
     parameters {
-        stringParam('MINIMIRROR_PROJECT',"openstack/openstack-helm-images")
         stringParam('CLCP_MANIFESTS',"master")
     }
     triggers {
@@ -20,23 +20,6 @@ pipelineJob("${JOB_FOLDER}/minimirror") {
             silentMode(false)
             serverName('Any Server')
             gerritProjects {
-                gerritProject {
-                    compareType('PLAIN')
-                    pattern("openstack/openstack-helm-images")
-                    branches {
-                        branch {
-                            compareType('ANT')
-                            pattern("**/master")
-                        }
-                    }
-                    filePaths {
-                        filePath {
-                            compareType('ANT')
-                            pattern("mini-mirror/**")
-                        }
-                    }
-                    disableStrictForbiddenFileVerification(false)
-                }
                 gerritProject {
                     compareType('PLAIN')
                     pattern("aic-clcp-manifests")
