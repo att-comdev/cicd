@@ -2,20 +2,71 @@ import groovy.json.JsonSlurperClassic
 import groovy.json.JsonOutput
 
 
+/**
+ * Helper for print error from failed request
+ * @param code Expected response code
+ * @param res Response object
+ */
+def _printError(code, res) {
+    if( !(code instanceof List)) {
+        code = [code]
+    }
+    if ( !(code.contains(res.status))) {
+        print "See details content: " + res.content
+        error("Request failed with ${res.status}")
+    }
+}
+
 def getBasicAuth (String user, String passwd) {
     def creds = "${user}:${passwd}"
     return creds.bytes.encodeBase64().toString()
 }
 
+def getSystemPath (String ip, String auth) {
+    def res
+    retry(5) {
+        try {
+            def res = httpRequest (url: "https://${ip}/redfish/v1/Systems/",
+                                   customHeaders:[[name:'Authorization', value:"Basic ${auth}"]],
+                                   httpMode: 'GET',
+                                   ignoreSslErrors: true)
+
+            _printError(200, res)
+        } catch (err) {
+            print "Failed to get System Path: ${err}"
+            sleep 120
+            error(err.getMessage())
+        }
+    }
+
+    def cont = new JsonSlurperClassic().parseText(res.content)
+    def systemPath = cont.Members[0]."@odata.id"
+
+    if (systemPath.endsWith("/")) {
+        systemPath = systemPath[0..-2]
+    }
+
+    print "System Path: " + systemPath
+    return systemPath
+}
+
 def getPowerState (String ip, String auth) {
 
-    def res = httpRequest (url: "https://${ip}/redfish/v1/Systems/System.Embedded.1/",
-                  customHeaders:[[name:'Authorization', value:"Basic ${auth}"]],
-                  httpMode: 'GET',
-                  ignoreSslErrors: true)
+    def systemPath = getSystemPath(ip, auth)
 
-    if (res.status != 200) {
-          error("Failed to get power state: ${res.status}, ${res.content}")
+    def res
+    retry(5) {
+        try {
+            res = httpRequest (url: "https://${ip}${systemPath}/",
+                               customHeaders:[[name:'Authorization', value:"Basic ${auth}"]],
+                               httpMode: 'GET',
+                               ignoreSslErrors: true)
+            _printError(200, res)
+        } catch (err) {
+            print "Failed to get power state: ${err}"
+            sleep 120
+            error(err.getMessage())
+        }
     }
 
     def cont = new JsonSlurperClassic().parseText(res.content)
@@ -26,21 +77,30 @@ def getPowerState (String ip, String auth) {
 
 def setPowerState (String ip, String auth, String state) {
 
+    def systemPath = getSystemPath(ip, auth)
+
     def req = [ 'ResetType': state ]
     def jreq = new JsonOutput().toJson(req)
 
-    res = httpRequest (url: "https://${ip}/redfish/v1/Systems/System.Embedded.1/Actions/ComputerSystem.Reset",
-              customHeaders:[[name:'Authorization', value:"Basic ${auth}"]],
-              httpMode: 'POST',
-              ignoreSslErrors: true,
-              contentType: 'APPLICATION_JSON',
-              requestBody: jreq)
+    def res
+    retry(5) {
+        try {
+            res = httpRequest (url: "https://${ip}${systemPath}/Actions/ComputerSystem.Reset/",
+                               customHeaders:[[name:'Authorization', value:"Basic ${auth}"]],
+                               httpMode: 'POST',
+                               ignoreSslErrors: true,
+                               contentType: 'APPLICATION_JSON',
+                               requestBody: jreq)
 
-    if (res.status != 204) {
-         error("Failed to set power state: ${res.status}, ${res.content}")
+            // 204 iDrac, 200 iLO
+            _printError([200, 204], res)
+        } catch (err) {
+            print "Failed to set power state: ${err}"
+            sleep 120
+            error(err.getMessage())
+        }
     }
 }
-
 
 def powerOn (String ip, String auth) {
 
@@ -83,16 +143,9 @@ def powerOff (String ip, String auth) {
 }
 
 def powerReset (String ip, String auth) {
-
-    print "Setting power state ForceRestart for node ${ip}"
-    setPowerState(ip, auth, 'ForceRestart')
-
-    timeout(1) {
-        def state = getPowerState(ip, auth)
-        while (state != 'On') {
-            print "Power state is not yet \'On\' (${state}), waiting 10 seconds"
-            sleep 10
-            state = getPowerState(ip, auth)
-        }
-    }
+    // ForceRestart is not an option in iDrac 8, changing
+    // powerReset to 'ForceOff' -> 'On"'
+    print "Beginning power reset process for node ${ip}"
+    powerOff(ip, auth)
+    powerOn(ip, auth)
 }
