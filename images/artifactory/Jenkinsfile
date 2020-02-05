@@ -1,0 +1,89 @@
+import com.att.nccicd.config.conf as config
+conf = new config(env).CONF
+
+currentBuild.displayName = "#${BUILD_NUMBER}-${GERRIT_EVENT_TYPE}"
+GIT_REPO="att-comdev/dockerfiles"
+IMAGE_TAG="${GERRIT_PATCHSET_REVISION}"
+IMAGE_PREFIX="artifactory696"
+IMAGE_LATEST = "${IMAGE_PREFIX}/${JOB_BASE_NAME}:latest"
+IMAGE="${ARTF_DOCKER_URL}/${IMAGE_PREFIX}"
+DEFAULT_NAMESPACE="${ARTF_DOCKER_URL}"
+
+def label = "worker-${UUID.randomUUID().toString()}"
+try {
+    podTemplate(label: label,
+                yaml: """
+                    apiVersion: v1
+                    kind: Pod
+                    spec:
+                      securityContext:
+                        runAsUser: 0
+                      nodeSelector:
+                        jenkins-node: enabled
+                """,
+                containers: [containerTemplate(name: "ubuntu",
+                                          image: conf.POD_IMAGE_1804,
+                                          command: "cat",
+                                          ttyEnabled: true)],
+                volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock',
+                    mountPath: '/var/run/docker.sock')]) {
+        node(label){
+            stage ('Environment Proxy') {
+            sh """
+               export http_proxy=${HTTP_PROXY}
+               export https_proxy=${HTTP_PROXY}
+               export HTTP_PROXY=${HTTP_PROXY}
+               export HTTPS_PROXY=${HTTP_PROXY}
+               export no_proxy=${NO_PROXY}
+               export NO_PROXY=${NO_PROXY}
+                """
+
+             }
+
+            container("ubuntu"){
+
+                stage('Build & Checkout'){
+                    // if (env.GERRIT_NEWREV) {
+                    //     echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
+                    //         IMAGE_TAG="${GERRIT_NEWREV}"
+                    // }
+                    echo ("QQQQQQQQQQ ${IMAGE_TAG}")
+                    gerrithub.clone("${GIT_REPO}", "${IMAGE_TAG}")
+                    echo ("TTTTTT")
+                    if(GERRIT_EVENT_TYPE != 'change-merged') {
+                        gerrit.rebase()
+                    }
+                    echo ("DDDD")
+                    sh "apt-get update -y"
+                    sh "apt-get install make sudo docker.io -y"
+
+                    //sh "docker pull docker.io/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${DEFAULT_TAG}"
+                    sh "docker build -t ${IMAGE}:${IMAGE_TAG} ${IMAGE_PREFIX}"
+                    // def cmd="docker inspect --format='{{index .RepoDigests 0}}' \
+                    //             ${IMAGE}:${IMAGE_TAG}"
+                    // def base_sha256 = sh(returnStdout: true, script: cmd).trim()
+
+                }
+
+                stage('Publish'){
+                    if (GERRIT_EVENT_TYPE == 'change-merged') {
+                    //Only going to store images on merged into this directory
+                    publish.artifactory("${IMAGE}:${IMAGE_TAG}","${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+                    publish.artifactory("${IMAGE}:${IMAGE_TAG}",IMAGE_LATEST)
+                    } else {
+                        publish.artifactory("${IMAGE}:${IMAGE_TAG}","test/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}.${BUILD_TIMESTAMP}")
+                    }
+                }
+            }
+        }
+    }
+    // catch both errors and exceptions
+} catch (Throwable err) {
+    if (env.GERRIT_EVENT_TYPE == 'change-merged') {
+        currentBuild.result = 'FAILURE'
+        email.sendMail(recipientProviders: [developers(), requestor()],
+                       to: env.EMAIL_LIST)
+        throw err
+    }
+    throw err
+}
