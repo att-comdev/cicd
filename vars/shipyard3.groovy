@@ -296,18 +296,18 @@ def waitAction(Map map) {
         // For drydock_build step check nodes state. For all other check pods state.
         if (map.genesisCreds && map.genesisIp) {
             if ('drydock_build' in failedSteps || 'drydock_build' in runningSteps) {
-                ssh.cmd (map.genesisCreds, map.genesisIp, 'sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get nodes')
+                ssh.wait (map.genesisCreds, map.genesisIp, 'sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get nodes')
             } else {
                 // Pods with that are not fully ready
                 // (anything other than Running pods with n/n containers READY and Completed pods)
-                ssh.cmd (map.genesisCreds, map.genesisIp,
-                         'sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get pods --all-namespaces -o wide | grep -vE -e "([0-9]+)/\\1.*Running" -e Completed')
+                ssh.wait (map.genesisCreds, map.genesisIp,
+                          'sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get pods --all-namespaces -o wide | grep -vE -e "([0-9]+)/\\1.*Running" -e Completed')
                 // Deployments where DESIRED != UP-TO-DATE
-                ssh.cmd (map.genesisCreds, map.genesisIp,
-                         "sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get deployments --all-namespaces | awk '\$3 != \$5'")
+                ssh.wait (map.genesisCreds, map.genesisIp,
+                          "sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get deployments --all-namespaces | awk '\$3 != \$5'")
                 // Jobs where DESIRED != SUCCESSFUL or COMPLETIONS != n/n
-                ssh.cmd (map.genesisCreds, map.genesisIp,
-                         "sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get jobs --all-namespaces | awk '\$3 != \$4' | grep -vE '([0-9]+)/\\1'")
+                ssh.wait (map.genesisCreds, map.genesisIp,
+                          "sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get jobs --all-namespaces | awk '\$3 != \$4' | grep -vE '([0-9]+)/\\1'")
             }
         }
         if (failedSteps) {
