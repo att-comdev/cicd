@@ -294,9 +294,10 @@ EOF"""
  * @param userName BUILD_USER that triggered the Jenkins job
  * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
  * @param repoName name of the repository being pushed to
+ * @param gerritTopic topic for submitted patchset
  * @param refspec "xxxx/master" or other refspec
 */
-def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master") {
+def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, gerritTopic = "", refspec = "refs/for/master") {
     sshagent(credentials: [credentials]) {
         sh """
              git config user.email '${userEmail}'
@@ -307,7 +308,32 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
              git commit -m "${commitMessage}"
              scp -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks
              git commit --amend --no-edit
-             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
+             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec} -o topic=${gerritTopic}
+           """
+    }
+}
+
+/**
+ * Amend an existing patchset that has been cloned to branch.
+ *
+ * @param credentials Gerrit credentials to submit a patchset
+ * @param userEmail Email of Jenkins user that triggered the job
+ * @param userName BUILD_USER that triggered the Jenkins job
+ * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
+ * @param repoName name of the repository being pushed to
+ * @param gerritTopic topic for submitted patchset
+ * @param refspec "xxxx/master" or other refspec
+ */
+def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, gerritTopic = "", refspec = "refs/for/master") {
+    sshagent(credentials: [credentials]) {
+        sh """
+             git config user.email '${userEmail}'
+             git config user.name '${userName}'
+             git config --global push.default matching
+             git status
+             git add .
+             git commit --amend --no-edit
+             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec} -o topic=${gerritTopic}
            """
     }
 }
