@@ -333,7 +333,7 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
         "git fetch https://review.opendev.org/openstack/loci ${lociRef} && " +
         "git checkout FETCH_HEAD'")
     def loci_version = sh (
-        script: "${DIND} sh -c 'cd ${LOCI_REPO_PATH} && git rev-parse HEAD",
+        script: "${DIND} sh -c 'cd ${LOCI_REPO_PATH} && git rev-parse HEAD'",
         returnStdout: true
     ).trim()
 
