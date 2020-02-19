@@ -321,11 +321,21 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
                "${LOCI_BASE_IMAGE}")
     def base_sha256 = sh(returnStdout: true, script: cmd).trim()
 
-    def loci_version = gerrit.getVersion(LOCI_REPO, "master")
+    // switch to 'master' once https://review.opendev.org/#/c/707058 is merged
+    // also this logic ensures consistency in loci revision used for labeling
+    // and building
+    def lociRef = 'refs/changes/58/707058/1'
 
     LOCI_REPO_PATH = "/tmp/loci"
     // Clone loci repo to apply cicd patch for tests deletion
     sh "${DIND} git clone ${LOCI_REPO} ${LOCI_REPO_PATH}"
+    sh ("${DIND} sh -c 'cd ${LOCI_REPO_PATH} && " +
+        "git fetch https://review.opendev.org/openstack/loci ${lociRef} && " +
+        "git checkout FETCH_HEAD'")
+    def loci_version = sh (
+        script: "${DIND} sh -c 'cd ${LOCI_REPO_PATH} && git rev-parse HEAD",
+        returnStdout: true
+    ).trim()
 
     // Copy script for tests cleanup to docker
     data = libraryResource "cicd/remove_tests.sh"
