@@ -1,5 +1,6 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
+
 import com.att.nccicd.config.conf as config
 
 conf = new config(env).CONF
@@ -128,51 +129,25 @@ def imageOverrides(Map images, Map debugOverrides=[:]) {
 }
 
 
-def setproxy(){
-    if (HTTP_PROXY){
-
-        // redirection with "<<-" doesnot work well to remove whitespaces/tabs
-        sh """sudo mkdir -p /etc/systemd/system/docker.service.d
-             cat << EOF | sudo tee /etc/systemd/system/docker.service.d/http-proxy.conf
-[Service]
-Environment="HTTP_PROXY=${HTTP_PROXY}"
-Environment="HTTPS_PROXY=${HTTP_PROXY}"
-Environment="NO_PROXY=${NO_PROXY}"
-EOF"""
-        sh """cat << EOF | sudo tee -a /etc/environment
-http_proxy=${HTTP_PROXY}
-https_proxy=${HTTP_PROXY}
-no_proxy=${NO_PROXY}
-HTTP_PROXY=${HTTP_PROXY}
-HTTPS_PROXY=${HTTP_PROXY}
-NO_PROXY=${NO_PROXY}
-EOF"""
-        sh "sudo systemctl daemon-reload"
-        sh "sudo systemctl restart docker"
-        sh "export http_proxy=${HTTP_PROXY}"
-        sh "export https_proxy=${HTTP_PROXY}"
-        sh "export no_proxy=${NO_PROXY}"
-        sh "export HTTP_PROXY=${HTTP_PROXY}"
-        sh "export HTTPS_PROXY=${HTTP_PROXY}"
-        sh "export NO_PROXY=${NO_PROXY}"
-    }
-}
-
-
-def installDockerCE() {
+def installPackages() {
     packages = 'apt-transport-https ca-certificates curl software-properties-common'
     sh "sudo apt-get update && sudo apt-get install -y ${packages}"
     REPOS.each { component, data ->
         sh "sudo bash -c 'echo \"${data.source}\" >> /etc/apt/sources.list.d/${component}.list'"
         sh "sudo bash -c 'echo \"${data.pref}\" >> /etc/apt/preferences.d/${component}.pref'"
     }
-    sh 'sudo apt-get update && sudo apt-get install -y docker-ce'
+    sh 'sudo apt-get update && sudo apt-get install -y docker-ce ceph-common rbd-nbd'
     sh "sudo systemctl daemon-reload"
     sh "sudo systemctl restart docker"
 }
 
 
 def tweakOSH() {
+    conf.OSH_AIO_PINNINGS[RELEASE].each { repo, ref ->
+        dir (repo) {
+            sh "git checkout ${ref}"
+        }
+    }
     dir ("openstack-helm") {
         sh 'git config user.email "T-850@model.101"'
         sh 'git config user.name "T-850 Model 101"'
@@ -196,6 +171,43 @@ def tweakOSH() {
             }
         }
     }
+
+    // This is the most dirty part to make OSH AIO to use customizied artifacts location for k8s
+    // Apparenly avialability of configuration overriding should be addressed upstream
+    sh '''sed -i "/external_dns_nameservers:/a\\      - ${DNS_SERVER_2}\\n      - ${DNS_SERVER_1}" \
+          ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml'''
+    def defaults = './openstack-helm-infra/roles/build-images/defaults/main.yml'
+    def amap = readYaml file: defaults
+    amap['url'] = [
+        'google_kubernetes_repo': "${ARTIFACTS_URL}/kubernetes-release/release/{{ version.kubernetes }}/bin/linux/amd64",
+        'google_helm_repo': "${ARTIFACTS_URL}/kubernetes-helm",
+        'cni_repo': "${ARTIFACTS_URL}/containernetworking/download/{{ version.cni }}",
+    ]
+    sh "rm -rf ${defaults}"
+    writeYaml file: defaults, data: amap
+
+    defaults = './openstack-helm-infra/roles/build-helm-packages/defaults/main.yml'
+    amap = readYaml file: defaults
+    amap['url'] = [
+        'google_helm_repo': "${ARTIFACTS_URL}/kubernetes-helm",
+    ]
+    sh "rm -rf ${defaults}"
+    writeYaml file: defaults, data: amap
+
+    def kubeadmDockerfileName = "./openstack-helm-infra/tools/images/kubeadm-aio/Dockerfile"
+    def kubeadmDockerfile = readFile kubeadmDockerfileName
+    kubeadmDockerfile = kubeadmDockerfile.replace(
+        'FROM docker.io/ubuntu:xenial', "FROM ${conf.LOCI_BASE_IMAGE}").replaceAll(
+        'ENV PIP_INDEX_URL.*', "ENV PIP_INDEX_URL=${ARTF_PIP_INDEX_URL}").replaceAll(
+        '.*PIP_TRUSTED_HOST.*', '').replaceAll(
+        'ARG UBUNTU_URL=.*', "ARG UBUNTU_URL=https://${ARTF_UBUNTU_REPO}/")
+    writeFile file: kubeadmDockerfileName, text: kubeadmDockerfile
+
+    // we cover this part from internal ceph repo
+    sh "sed -i '/support-packages/d' ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/roles/deploy-kubelet/tasks/main.yaml"
+    // override kubelet default pod infra container image to use an internal one
+    sh "sed -i 's#KUBELET_SYSTEM_PODS_ARGS=#\\0--pod-infra-container-image ${ARTF_DOCKER_URL}/pause:3.1 #g' ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/roles/deploy-kubelet/templates/10-kubeadm.conf.j2"
+    sh "sed -i 's#https://pkg.cfssl.org#${ARTIFACTS_URL}/cfssl#g' ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/roles/deploy-kubeadm-master/tasks/helm-cni.yaml"
 }
 
 
@@ -555,17 +567,6 @@ def runHelmTests(tests, run_from_root=false) {
 }
 
 
-def updateProxy() {
-    sh '''sed -i "/external_dns_nameservers:/a\\      - ${DNS_SERVER_2}\\n      - ${DNS_SERVER_1}" \
-          ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml'''
-    def amap = ['kubernetes_network_default_device': 'docker0',
-                'gate_fqdn_test': 'true',
-                'proxy': [ 'http': HTTP_PROXY, 'https': HTTP_PROXY, 'noproxy': NO_PROXY] ]
-    sh 'rm -rf ./openstack-helm-infra/tools/gate/devel/local-vars.yaml'
-    writeYaml file: './openstack-helm-infra/tools/gate/devel/local-vars.yaml', data: amap
-}
-
-
 def exportPipEnv = {
     sh "sudo bash -c 'echo PIP_INDEX_URL=${ARTF_PIP_INDEX_URL} >> /etc/environment'"
 }
@@ -615,13 +616,8 @@ K8S_DEPLOY_STEPS = [
         }
     },
     {
-        stage('Install docker-ce') {
-            installDockerCE()
-        }
-    },
-    {
-        stage('Setup proxy') {
-            setproxy()
+        stage('Install packages') {
+            installPackages()
         }
     },
     {
@@ -635,9 +631,6 @@ K8S_DEPLOY_STEPS = [
         stage('Clone OpenstackHelm') {
             cloneOSH()
             tweakOSH()
-        }
-        stage('Update OSH proxy') {
-            updateProxy()
         }
     },
     {
@@ -930,11 +923,8 @@ def createImage(image, overrides, baseImage) {
         }
     }
     cmd = "bash -c 'apt-get update && apt-get install -y git; ${cmd}'"
-    params = ("-e HTTP_PROXY=${HTTP_PROXY} -e HTTPS_PROXY=${HTTPS_PROXY} " +
-              "-e NO_PROXY=${NO_PROXY} -e http_proxy=${HTTP_PROXY} "       +
-              "-e https_proxy=${HTTPS_PROXY} -e no_proxy=${NO_PROXY}")
     sh "sudo rm containerid ||:"
-    sh "sudo docker run --cidfile=containerid ${params} ${mounts} ${baseImage} ${cmd}"
+    sh "sudo docker run --cidfile=containerid ${mounts} ${baseImage} ${cmd}"
     def containerId = readFile "containerid"
     sh "sudo docker commit ${containerId} ${image}"
     sh "sudo rm containerid"
