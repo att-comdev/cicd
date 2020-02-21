@@ -294,10 +294,10 @@ EOF"""
  * @param userName BUILD_USER that triggered the Jenkins job
  * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
  * @param repoName name of the repository being pushed to
- * @param gerritTopic topic for submitted patchset
  * @param refspec "xxxx/master" or other refspec
+ * @param gerritTopic topic for submitted patchset
 */
-def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, gerritTopic = "", refspec = "refs/for/master") {
+def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "") {
     sshagent(credentials: [credentials]) {
         sh """
              git config user.email '${userEmail}'
@@ -321,10 +321,10 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
  * @param userName BUILD_USER that triggered the Jenkins job
  * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
  * @param repoName name of the repository being pushed to
- * @param gerritTopic topic for submitted patchset
  * @param refspec "xxxx/master" or other refspec
+ * @param gerritTopic topic for submitted patchset
  */
-def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, gerritTopic = "", refspec = "refs/for/master") {
+def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "") {
     sshagent(credentials: [credentials]) {
         sh """
              git config user.email '${userEmail}'
