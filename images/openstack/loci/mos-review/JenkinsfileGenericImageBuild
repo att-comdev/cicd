@@ -4,12 +4,12 @@ import groovy.json.JsonSlurperClassic
 conf = new config(env).CONF
 json = new JsonSlurperClassic()
 
-LOCI_REPO = 'https://opendev.org/openstack/loci.git'
+LOCI_REPO = '${INTERNAL_GERRIT_SSH}/mirrors/opendev/loci'
 
 LOCAL_WEB_PORT = '8080'
 LOCAL_WEB_ADDR = '172.18.0.1'
+NO_PROXY="${NO_PROXY},${LOCAL_WEB_ADDR}"
 LOCAL_WEB_URL = "http://${LOCAL_WEB_ADDR}:${LOCAL_WEB_PORT}"
-NO_PROXY += ",${LOCAL_WEB_ADDR}"
 REPO_BASE_PATH = 'web/repo'
 COMMIT_ARGS = ("-c 'user.name=Jenkins (${INTERNAL_GERRIT_USER})' " +
                "-c 'user.email=${INTERNAL_GERRIT_USER}@att.com'")
@@ -73,7 +73,6 @@ if (RELEASE == 'stein' || ["neutron-sriov", "nova-1804"].contains(BUILD_TYPE)) {
     OVS_REPO = conf.OVS_REPOS['xenial']
 }
 
-
 REQ_PROJECT_NAME = 'mos-requirements'
 PROJECT_PREFIX = "loci/mos"
 PROJECT_REPO = getProjectRepoUrl(PROJECT_NAME)
@@ -94,20 +93,29 @@ DEFAULT_ARGS = [
   'PROJECT':         "${PROJECT_SUFFIX}",
   'PROJECT_REF':     "${PROJECT_REF}",
   'PROJECT_RELEASE': "${RELEASE}",
-  'HTTP_PROXY':      "${HTTP_PROXY}",
-  'HTTPS_PROXY':     "${HTTPS_PROXY}",
-  'NO_PROXY':        "${NO_PROXY}",
-  'http_proxy':      "${HTTP_PROXY}",
-  'https_proxy':     "${HTTPS_PROXY}",
-  'no_proxy':        "${NO_PROXY}",
-  'PIP_ARGS':        "--index-url ${ARTF_PIP_INDEX_URL}",
+// Commenting for future use of mirrored repositories
+// after switching to git proto
+//  'NOVNC_REPO':      "${getProjectRepoInternalUrl("novnc")}",
+//  'SPICE_REPO':      "${getProjectRepoInternalUrl("spice-html5")}",
   'PROJECT_REPO':    getProjectRepoInternalUrl(PROJECT_NAME),
   'PYTHON3'     :    PY3,
 ]
 
-// cmd for running Docker in Docker
-DIND_CONTAINER = "locibuildcont"
-DIND = "sudo docker exec ${DIND_CONTAINER}"
+// keep proxy for nova as it has multiple dependencies that need special
+// handling (websockify with submodule, novnc, spice-htpm5 with shallow clonning)
+// should be addressed separately switching to more sophisticated git proto
+if (PROJECT_NAME.contains('nova')) {
+    DEFAULT_ARGS << [
+        'HTTP_PROXY':      "${HTTP_PROXY}",
+        'HTTPS_PROXY':     "${HTTPS_PROXY}",
+        'NO_PROXY':        "${NO_PROXY}",
+        'http_proxy':      "${HTTP_PROXY}",
+        'https_proxy':     "${HTTPS_PROXY}",
+        'no_proxy':        "${NO_PROXY}",
+    ]
+}
+
+SHELL = "sudo"
 
 // Compile ssh-agent key names and ssh config from SSH_DATA to be used
 // for fetching projects to internal mirror
@@ -145,7 +153,7 @@ def create_mirrors(projectList, keyList) {
 def getRequirementsImageVersion() {
     pull(WHEELS_LATEST)
     cmd = (
-        "${DIND} docker inspect " +
+        "${SHELL} docker inspect " +
         "--format='{{index .Config.Labels \"org.label-schema.vcs-ref\"}}' " +
         " ${WHEELS_LATEST}"
     )
@@ -228,6 +236,11 @@ def prepare_local_mirrors = {
         create_mirrors(sshDependencyList, KEY_NAMES)
     }
 
+    // for future switching to mirrored novnc and spice-html5
+    //if (conf.LOCI_EXTRA_MIRRORS) {
+    //    create_mirrors(conf.LOCI_EXTRA_MIRRORS, KEY_NAMES)
+    //}
+
     // if we build requirements image, replace external urls to point nginx in
     // upper-constraints.txt and replace PROJECT_REF build argument
     // Also replace revisions for components in OVERRIDE_DEPENDENCY_LIST
@@ -300,14 +313,14 @@ def parseSshData() {
 
 def pull(url) {
     utils.retrier (NET_RETRY_COUNT) {
-        sh "${DIND} docker pull ${url}"
+        sh "${SHELL} docker pull ${url}"
     }
 }
 
 def push(imageTag, sha=null) {
     utils.retrier (NET_RETRY_COUNT) {
         result = sh (returnStdout: true,
-                     script: "${DIND} docker push ${imageTag}")
+                     script: "${SHELL} docker push ${imageTag}")
         print result
     }
     if (sha && !result.contains(sha)) {
@@ -317,39 +330,39 @@ def push(imageTag, sha=null) {
 
 def buildLociMos(projConfArgs = null, wheelArgs = null) {
     pull(LOCI_BASE_IMAGE)
-    def cmd = ("${DIND} docker inspect --format='{{index .RepoDigests 0}}' " +
+    def cmd = ("${SHELL} docker inspect --format='{{index .RepoDigests 0}}' " +
                "${LOCI_BASE_IMAGE}")
     def base_sha256 = sh(returnStdout: true, script: cmd).trim()
 
     // switch to 'master' once https://review.opendev.org/#/c/707058 is merged
     // also this logic ensures consistency in loci revision used for labeling
     // and building
-    def lociRef = 'refs/changes/58/707058/1'
+    def lociRef = 'refs/changes/76/73876/1'
 
     LOCI_REPO_PATH = "/tmp/loci"
     // Clone loci repo to apply cicd patch for tests deletion
-    sh "${DIND} git clone ${LOCI_REPO} ${LOCI_REPO_PATH}"
-    sh ("${DIND} sh -c 'cd ${LOCI_REPO_PATH} && " +
-        "git fetch https://review.opendev.org/openstack/loci ${lociRef} && " +
-        "git checkout FETCH_HEAD'")
-    def loci_version = sh (
-        script: "${DIND} sh -c 'cd ${LOCI_REPO_PATH} && git rev-parse HEAD'",
-        returnStdout: true
-    ).trim()
+    def loci_version
+    sshagent([INTERNAL_GERRIT_KEY]) {
+        sh "git clone ${LOCI_REPO} ${LOCI_REPO_PATH}"
+        dir (LOCI_REPO_PATH) {
+            sh ("git fetch origin ${lociRef} && " +
+                "git checkout FETCH_HEAD")
+            loci_version = sh (script: "git rev-parse HEAD",
+                               returnStdout: true).trim()
+        }
+    }
 
     // Copy script for tests cleanup to docker
     data = libraryResource "cicd/remove_tests.sh"
     writeFile file: 'remove_tests.sh', text: data
 
-    sh ("sudo docker exec " +
-        "-e REMOVE_TESTS_FILE_DATA=\"\$(cat ${WORKSPACE}/remove_tests.sh)\" " +
-        "${DIND_CONTAINER} sh -c 'echo \"\$REMOVE_TESTS_FILE_DATA\" > " +
-        "${LOCI_REPO_PATH}/scripts/remove_tests.sh'")
-    sh "${DIND} chmod +x ${LOCI_REPO_PATH}/scripts/remove_tests.sh"
+    sh "echo \"\$REMOVE_TESTS_FILE_DATA\" > " +
+          "${LOCI_REPO_PATH}/scripts/remove_tests.sh"
+
+    sh "chmod +x ${LOCI_REPO_PATH}/scripts/remove_tests.sh"
 
     // Add tests deletion step into install scenario for loci
-    sh ("${DIND} " +
-        "sed -i '/clone_project.sh/a \$(dirname \$0)/remove_tests.sh' " +
+    sh ("sed -i '/clone_project.sh/a \$(dirname \$0)/remove_tests.sh' " +
         "${LOCI_REPO_PATH}/scripts/install.sh")
 
     def labels = " --label org.label-schema.vcs-ref=${PROJECT_VERSION}\
@@ -361,7 +374,7 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
       --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
 
     if (!PROJECT_NAME.contains('requirements')) {
-        cmd = ("${DIND} docker inspect --format='{{index .RepoDigests 0}}' " +
+        cmd = ("${SHELL} docker inspect --format='{{index .RepoDigests 0}}' " +
                "${WHEELS_LATEST}")
         def requirements_sha256 = sh(returnStdout: true, script: cmd).trim()
         labels += (" --label org.label-schema.requirements-image=" +
@@ -372,19 +385,19 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
        labels += " --label org.label-schema.vcs-event=${EVENT_TYPE}"
     }
 
-    customArgs = [:]
+    customArgs = ["FROM": "base_image"]
+    sh ("bash -c 'echo -e \"FROM ${LOCI_BASE_IMAGE}\n" +
+        "ENV PIP_INDEX_URL=${ARTF_PIP_INDEX_URL}\"" +
+        "| ${SHELL} docker build - -t ${customArgs.FROM}'")
     if (BUILD_TYPE =~ /neutron|nova/ && params.CUSTOM_OVS) {
-        sh ("${DIND} sh -c 'echo -e \"FROM ${LOCI_BASE_IMAGE}\n" +
+        sh ("bash -c 'echo -e \"FROM ${customArgs.FROM}\n" +
             "RUN echo \"${OVS_REPO}\" >> /etc/apt/sources.list\"" +
-            "| docker build - -t base_image'")
-        customArgs["FROM"] = "base_image"
+            "| ${SHELL} docker build - -t ${customArgs.FROM}'")
     }
     if (CEPH_REPO && BUILD_TYPE =~ /nova|cinder/) {
-        def baseImage = customArgs["FROM"] ?: LOCI_BASE_IMAGE
-        sh ("${DIND} sh -c 'echo -e \"FROM ${baseImage}\n" +
+        sh ("bash -c 'echo -e \"FROM ${customArgs.FROM}\n" +
             "RUN echo \"${CEPH_REPO}\" >> /etc/apt/sources.list\"" +
-            "| docker build - -t base_image'")
-        customArgs["FROM"] = "base_image"
+            "| ${SHELL} docker build - -t ${customArgs.FROM}'")
     }
 
     def argsMap = loci.mergeArgs([DEFAULT_ARGS, projConfArgs, wheelArgs, customArgs])
@@ -393,18 +406,18 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
                      ".${BUILD_TIMESTAMP}")
     ansiColor('xterm') {
         utils.retrier(NET_RETRY_COUNT) {
-            sh ("${DIND} docker build --force-rm --no-cache " +
+            sh ("${SHELL} docker build --force-rm --no-cache " +
                 "${LOCI_REPO_PATH} ${args} ${labels} --tag ${image_tag}")
         }
     }
     push(image_tag)
-    cmd = ("${DIND} docker inspect " +
+    cmd = ("${SHELL} docker inspect " +
            "--format='{{index .RepoDigests 0}}' ${image_tag}")
     def image_sha = sh(returnStdout: true, script: cmd).trim()
     //publish latest (branch) tag on merge for requirements
     if (EVENT_TYPE == 'change-merged') {
         def image_latest = "${IMAGE_BASE}/${IMAGE_NAME}:latest"
-        sh "${DIND} docker tag ${image_tag} ${image_latest}"
+        sh "${SHELL} docker tag ${image_tag} ${image_latest}"
         push(image_latest, image_sha.split('@')[-1])
     }
 
@@ -417,14 +430,20 @@ vm (initScript: 'loci-bootstrap.sh',
     nodePostfix: '',
     doNotDeleteNode: false) {
 
-    sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
-    stage('Docker Setup') {
-        loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
-                     DIND_CONTAINER, NET_RETRY_COUNT)
-    }
+    // workaround to support existing requirements images that has old address hard-coded
+    sh "sudo ip a a ${LOCAL_WEB_ADDR} dev docker0"
 
+    sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
+    sh 'sudo service docker stop ||:'
+    sh 'sudo apt-get update && sudo apt-get install -y runc containerd docker.io'
+    sh 'sudo service docker start ||:'
+
+    stage('Init env') {
+        loci.initEnv(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
+                     "", NET_RETRY_COUNT)
+    }
     stage('Local Repo Setup') {
-        loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT, NET_RETRY_COUNT)
+        loci.runNginx("", "${LOCAL_WEB_ADDR}:${LOCAL_WEB_PORT}", NET_RETRY_COUNT)
         // Create ssh config on slave to control what login is used for
         // what resource
         writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
@@ -438,7 +457,7 @@ vm (initScript: 'loci-bootstrap.sh',
         if (PROJECT_NAME.contains('requirements')) {
             env.IMAGE_SHA = buildLociMos()
         } else {
-            loci.exportWheels(DIND_CONTAINER, WHEELS_LATEST)
+            loci.exportWheels("", WHEELS_LATEST)
             WHEELS_ARG = ['WHEELS': "${LOCAL_WEB_URL}/images/wheels.tar"]
             env.IMAGE_SHA = buildLociMos(
                 loci.getDependencies(RELEASE, BUILD_TYPE),

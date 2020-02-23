@@ -13,8 +13,10 @@ PROJECT_MAP = json.parseText(env.PROJECT_MAP)
 DEPENDENCY_PROJECT_LIST = json.parseText(env.DEPENDENCY_PROJECT_LIST)
 
 RELEASE = env.RELEASE
-DIND_CONTAINER = "nightly-${RELEASE}"
-DIND = "sudo docker exec ${DIND_CONTAINER}"
+
+SHELL = "sudo"
+
+REPOS = conf.OSH_AIO_REPOS
 
 MESSAGE = String.format(env.UPLIFT_COMMIT_MESSAGE_TEMPLATE, 'nightly', RELEASE)
 TOPIC = String.format(env.UPLIFT_TOPIC_TEMPLATE, RELEASE)
@@ -51,29 +53,29 @@ def getProjectRepoUrl(prj) {
 def getImageVersions(url) {
     versions = [:]
     utils.retrier(NET_RETRY_COUNT) {
-        sh "${DIND} docker pull ${url}"
+        sh "${SHELL} docker pull ${url}"
     }
 
-    cmd = "${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${url}"
+    cmd = "${SHELL} docker inspect --format='{{index .RepoDigests 0}}' ${url}"
     versions['url'] = sh(returnStdout: true, script: cmd).trim()
     versions['sha256'] = versions['url'].split('@')[-1]
 
     cmd = (
-        "${DIND} docker inspect " +
+        "${SHELL} docker inspect " +
         "--format='{{index .Config.Labels \"org.label-schema.vcs-ref\"}}' " +
         " ${url}"
     )
     versions['vcsRef'] = sh(returnStdout: true, script: cmd).trim()
 
     cmd = (
-        "${DIND} docker inspect " +
+        "${SHELL} docker inspect " +
         "--format='{{index .Config.Labels \"org.label-schema.build-date\"}}' " +
         " ${url}"
     )
     versions['date'] = sh(returnStdout: true, script: cmd).trim()
 
     cmd = (
-        "${DIND} docker inspect " +
+        "${SHELL} docker inspect " +
         "--format='{{index .Config.Labels \"org.label-schema.requirements-image\"}}' " +
         " ${url}"
     )
@@ -83,7 +85,7 @@ def getImageVersions(url) {
     def res
     def tag = "${versions['vcsRef']}.${versions['date']}"
     utils.retrier(NET_RETRY_COUNT) {
-        res = sh (script: "${DIND} docker pull ${url.split(':')[0]}:${tag}",
+        res = sh (script: "${SHELL} docker pull ${url.split(':')[0]}:${tag}",
                       returnStdout: true)
     }
     if (!res.contains(versions['sha256'])) {
@@ -191,9 +193,14 @@ vm (initScript: 'loci-bootstrap.sh',
     // what resource
     writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
     sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
+
+    sh 'sudo service docker stop ||:'
+    sh 'sudo apt-get update && sudo apt-get install -y runc containerd docker.io'
+    sh 'sudo service docker start ||:'
+
     stage('Docker Setup') {
-        loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
-                     DIND_CONTAINER, NET_RETRY_COUNT)
+        loci.initEnv(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
+                     "", NET_RETRY_COUNT)
     }
     stage('Gather projects versions') {
         reposVersions = getProjectsVersions(
