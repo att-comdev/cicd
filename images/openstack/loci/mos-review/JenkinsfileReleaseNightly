@@ -13,8 +13,16 @@ PROJECT_MAP = json.parseText(env.PROJECT_MAP)
 DEPENDENCY_PROJECT_LIST = json.parseText(env.DEPENDENCY_PROJECT_LIST)
 
 RELEASE = env.RELEASE
-DIND_CONTAINER = "nightly-${RELEASE}"
-DIND = "sudo docker exec ${DIND_CONTAINER}"
+
+DIND_CONTAINER = ""
+DIND = "sudo"
+
+if (env.USE_DIND && env.USE_DIND.toBoolean()) {
+    DIND_CONTAINER = "nightly-${RELEASE}"
+    DIND = "sudo docker exec ${DIND_CONTAINER}"
+}
+
+REPOS = conf.OSH_AIO_REPOS
 
 MESSAGE = String.format(env.UPLIFT_COMMIT_MESSAGE_TEMPLATE, 'nightly', RELEASE)
 TOPIC = String.format(env.UPLIFT_TOPIC_TEMPLATE, RELEASE)
@@ -191,6 +199,14 @@ vm (initScript: 'loci-bootstrap.sh',
     // what resource
     writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
     sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
+
+    REPOS.each { component, data ->
+        sh "sudo bash -c 'echo \"${data.source}\" >> /etc/apt/sources.list.d/${component}.list'"
+        sh "sudo bash -c 'echo \"${data.pref}\" >> /etc/apt/preferences.d/${component}.pref'"
+    }
+    sh 'sudo apt-get remove -y runc containerd docker.io'
+    sh 'sudo apt-get update && sudo apt-get install -y docker-ce'
+
     stage('Docker Setup') {
         loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
                      DIND_CONTAINER, NET_RETRY_COUNT)
