@@ -6,10 +6,10 @@ json = new JsonSlurperClassic()
 
 LOCI_REPO = 'https://opendev.org/openstack/loci.git'
 
+REPOS = conf.OSH_AIO_REPOS
 LOCAL_WEB_PORT = '8080'
 LOCAL_WEB_ADDR = '172.18.0.1'
 LOCAL_WEB_URL = "http://${LOCAL_WEB_ADDR}:${LOCAL_WEB_PORT}"
-NO_PROXY += ",${LOCAL_WEB_ADDR}"
 REPO_BASE_PATH = 'web/repo'
 COMMIT_ARGS = ("-c 'user.name=Jenkins (${INTERNAL_GERRIT_USER})' " +
                "-c 'user.email=${INTERNAL_GERRIT_USER}@att.com'")
@@ -94,20 +94,19 @@ DEFAULT_ARGS = [
   'PROJECT':         "${PROJECT_SUFFIX}",
   'PROJECT_REF':     "${PROJECT_REF}",
   'PROJECT_RELEASE': "${RELEASE}",
-  'HTTP_PROXY':      "${HTTP_PROXY}",
-  'HTTPS_PROXY':     "${HTTPS_PROXY}",
-  'NO_PROXY':        "${NO_PROXY}",
-  'http_proxy':      "${HTTP_PROXY}",
-  'https_proxy':     "${HTTPS_PROXY}",
-  'no_proxy':        "${NO_PROXY}",
   'PIP_ARGS':        "--index-url ${ARTF_PIP_INDEX_URL}",
   'PROJECT_REPO':    getProjectRepoInternalUrl(PROJECT_NAME),
   'PYTHON3'     :    PY3,
 ]
 
-// cmd for running Docker in Docker
-DIND_CONTAINER = "locibuildcont"
-DIND = "sudo docker exec ${DIND_CONTAINER}"
+DIND_CONTAINER = ""
+DIND = "sudo"
+
+if (env.USE_DIND && env.USE_DIND.toBoolean()) {
+    // cmd for running Docker in Docker
+    DIND_CONTAINER = "locibuildcont"
+    DIND = "sudo docker exec ${DIND_CONTAINER}"
+}
 
 // Compile ssh-agent key names and ssh config from SSH_DATA to be used
 // for fetching projects to internal mirror
@@ -341,10 +340,17 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     data = libraryResource "cicd/remove_tests.sh"
     writeFile file: 'remove_tests.sh', text: data
 
-    sh ("sudo docker exec " +
-        "-e REMOVE_TESTS_FILE_DATA=\"\$(cat ${WORKSPACE}/remove_tests.sh)\" " +
-        "${DIND_CONTAINER} sh -c 'echo \"\$REMOVE_TESTS_FILE_DATA\" > " +
-        "${LOCI_REPO_PATH}/scripts/remove_tests.sh'")
+    cmd = "echo \"\$REMOVE_TESTS_FILE_DATA\" > " +
+          "${LOCI_REPO_PATH}/scripts/remove_tests.sh"
+    if (DIND_CONTAINER) {
+        cmd = (
+            "sudo docker exec " +
+            "-e REMOVE_TESTS_FILE_DATA=\"\$(cat ${WORKSPACE}/remove_tests.sh)\" " +
+            "${DIND_CONTAINER} sh -c '${cmd}'"
+        )
+    }
+    sh cmd
+
     sh "${DIND} chmod +x ${LOCI_REPO_PATH}/scripts/remove_tests.sh"
 
     // Add tests deletion step into install scenario for loci
@@ -418,11 +424,14 @@ vm (initScript: 'loci-bootstrap.sh',
     doNotDeleteNode: false) {
 
     sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
+    sh 'sudo service docker stop ||:'
+    sh 'sudo apt-get update && sudo apt-get install -y runc containerd docker.io'
+    sh 'sudo service docker start ||:'
+
     stage('Docker Setup') {
-        loci.runDind(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
+        loci.initEnv(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
                      DIND_CONTAINER, NET_RETRY_COUNT)
     }
-
     stage('Local Repo Setup') {
         loci.runNginx(DIND_CONTAINER, LOCAL_WEB_PORT, NET_RETRY_COUNT)
         // Create ssh config on slave to control what login is used for

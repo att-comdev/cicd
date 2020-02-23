@@ -8,27 +8,30 @@ import att.comdev.cicd.config.conf
  * @param artifactoryCred Credentialsid for authenticating the docker repository
  * @param containerName Name of the running Dind Container
  */
-def runDind(String artifactoryURL, String artifactoryCred, String containerName, Integer retry_count=3) {
-    def opts = "--privileged --name ${containerName}" +
-               " -e HTTP_PROXY=${HTTP_PROXY} -e HTTPS_PROXY=${HTTP_PROXY}" +
-               " -e NO_PROXY=${NO_PROXY} "
-    def mounts = '-v /var/lib/docker' +
-                 ' -v $(pwd):/opt/loci'
+def initEnv(String artifactoryURL, String artifactoryCred, String containerName, Integer retry_count=3) {
+    def shell = "sudo"
+    if (containerName) {
+        def opts = "--privileged --name ${containerName}" +
+                   " -e HTTP_PROXY=${HTTP_PROXY} -e HTTPS_PROXY=${HTTP_PROXY}" +
+                   " -e NO_PROXY=${NO_PROXY} "
+        def mounts = '-v /var/lib/docker' +
+                     ' -v $(pwd):/opt/loci'
 
-    // cmd for running Docker in Docker
-    dind = "sudo docker exec ${containerName}"
+        // cmd for running Docker in Docker
+        shell = "sudo docker exec ${containerName}"
 
-    utils.retrier(retry_count) {
-        sh "sudo docker run -d ${opts} ${mounts} ${ARTF_DOCKER_URL}/${conf.DIND_IMAGE}"
+        utils.retrier(retry_count) {
+            sh "sudo docker run -d ${opts} ${mounts} ${ARTF_DOCKER_URL}/${conf.DIND_IMAGE}"
+        }
+        sh "${shell} sh -cx 'apk update; apk add git'"
     }
-    sh "${dind} sh -cx 'apk update; apk add git'"
 
     withCredentials([usernamePassword(credentialsId: artifactoryCred,
             usernameVariable: 'ARTIFACTORY_USER',
             passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
         opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
         utils.retrier(retry_count) {
-            sh "${dind} docker login ${opts} ${artifactoryURL}"
+            sh "${shell} docker login ${opts} ${artifactoryURL}"
         }
     }
 }
@@ -43,15 +46,19 @@ def runDind(String artifactoryURL, String artifactoryCred, String containerName,
  * @param port Local port for the ngnix service
  */
 def runNginx(String containerName, String localPort, Integer retry_count=3) {
-    sh "mkdir -p web"
+    def shell = 'sudo'
+    def sourceDir = 'web'
+    sh "mkdir -p ${sourceDir}"
+    if (containerName) {
+        // cmd for running Docker in Docker
+        shell = "sudo docker exec ${containerName}"
+        sourceDir = '/opt/loci/web'
+    }
 
-    // cmd for running Docker in Docker
-    dind = "sudo docker exec ${containerName}"
-
-    def opts = '-d -v /opt/loci/web:/usr/share/nginx/html:ro'
+    def opts = "-d -v ${sourceDir}:/usr/share/nginx/html:ro"
     def port = "-p ${localPort}:80"
     utils.retrier(retry_count) {
-        sh "${dind} docker run ${opts} ${port} ${ARTF_DOCKER_URL}/${conf.NGINX_IMAGE}"
+        sh "${shell} docker run ${opts} ${port} ${ARTF_DOCKER_URL}/${conf.NGINX_IMAGE}"
     }
 }
 
@@ -63,14 +70,19 @@ def runNginx(String containerName, String localPort, Integer retry_count=3) {
  * @param requirementsImage Requirements image used to create the wheels export
  */
 def exportWheels(String containerName, String requirementsImage) {
-    sh "mkdir -p web/images"
+    def shell = 'sudo'
+    def sourceDir = 'web/images'
+    sh "mkdir -p ${sourceDir}"
 
-    // cmd for running Docker in Docker
-    dind = "sudo docker exec ${containerName}"
+    if (containerName) {
+        // cmd for running Docker in Docker
+        shell = "sudo docker exec ${containerName}"
+        sourceDir = "/opt/loci/${sourceDir}"
+    }
 
-    sh "${dind} docker create --name loci-wheels ${requirementsImage} bash"
-    sh "${dind} docker export -o /opt/loci/web/images/wheels.tar loci-wheels"
-    sh "${dind} chmod +r /opt/loci/web/images/wheels.tar"
+    sh "${shell} docker create --name loci-wheels ${requirementsImage} bash"
+    sh "${shell} docker export -o ${sourceDir}/wheels.tar loci-wheels"
+    sh "${shell} chmod +r ${sourceDir}/wheels.tar"
 }
 
 /**
