@@ -25,32 +25,6 @@ pipelineJob("code-review") {
         }
     }
     triggers {
-        gerritTrigger {
-            gerritProjects {
-                gerritProject {
-                    compareType('REG_EXP')
-                    pattern("^aic-aqa-.*")
-                    branches {
-                        branch {
-                            compareType("ANT")
-                            pattern("**")
-                        }
-                    }
-                    disableStrictForbiddenFileVerification(false)
-                }
-            }
-            triggerOnEvents {
-                patchsetCreated {
-                    excludeDrafts(false)
-                    excludeTrivialRebase(false)
-                    excludeNoCodeChange(false)
-                }
-                changeMerged()
-                commentAddedContains {
-                    commentAddedCommentContains('^recheck\$')
-                }
-            }
-        }
         definition {
             cps {
                 script(readFileFromWorkspace("code-review/Jenkinsfile"))
