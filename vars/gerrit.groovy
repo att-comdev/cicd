@@ -294,10 +294,36 @@ EOF"""
  * @param userName BUILD_USER that triggered the Jenkins job
  * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
  * @param repoName name of the repository being pushed to
+ * @param refspec "xxxx/master" or other refspec
+ */
+def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master") {
+    sshagent(credentials: [credentials]) {
+        sh """
+             git config user.email '${userEmail}'
+             git config user.name '${userName}'
+             git config --global push.default matching
+             git status
+             git add .
+             git commit -m "${commitMessage}"
+             scp -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks
+             git commit --amend --no-edit
+             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
+           """
+    }
+}
+
+/**
+ * Submit a patchset with topic into the master branch. Must be using git 2.10.2 or greater.
+ *
+ * @param credentials Gerrit credentials to submit a patchset
+ * @param userEmail Email of Jenkins user that triggered the job
+ * @param userName BUILD_USER that triggered the Jenkins job
+ * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
+ * @param repoName name of the repository being pushed to
  * @param gerritTopic topic for submitted patchset
  * @param refspec "xxxx/master" or other refspec
-*/
-def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, gerritTopic = "", refspec = "refs/for/master") {
+ */
+def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "") {
     sshagent(credentials: [credentials]) {
         sh """
              git config user.email '${userEmail}'
@@ -314,7 +340,31 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
 }
 
 /**
- * Submit a patchset into the master branch.
+ * Amend an existing patchset that has been cloned to branch.
+ *
+ * @param credentials Gerrit credentials to submit a patchset
+ * @param userEmail Email of Jenkins user that triggered the job
+ * @param userName BUILD_USER that triggered the Jenkins job
+ * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
+ * @param repoName name of the repository being pushed to
+ * @param refspec "xxxx/master" or other refspec
+ */
+def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "") {
+    sshagent(credentials: [credentials]) {
+        sh """
+             git config user.email '${userEmail}'
+             git config user.name '${userName}'
+             git config --global push.default matching
+             git status
+             git add .
+             git commit --amend --no-edit
+             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
+           """
+    }
+}
+
+/**
+ * Amend an existing patchset that has been cloned to branch. Must be using git 2.10.2 or greater.
  *
  * @param credentials Gerrit credentials to submit a patchset
  * @param userEmail Email of Jenkins user that triggered the job
@@ -324,7 +374,7 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
  * @param gerritTopic topic for submitted patchset
  * @param refspec "xxxx/master" or other refspec
  */
-def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, gerritTopic = "", refspec = "refs/for/master") {
+def amendPatchsetWithTopic(credentials, userEmail, userName, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "") {
     sshagent(credentials: [credentials]) {
         sh """
              git config user.email '${userEmail}'
