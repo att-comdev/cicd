@@ -4,13 +4,13 @@ def clone(String url, String refspec){
 // Usage example: gerrit.clone("gerrit url", "origin/master")
 // clone refspec: gerrit.clone("gerrit url", "${env.GERRIT_REFSPEC}")
     checkout poll: false,
-    scm: [$class: 'GitSCM',
-         branches: [[name: refspec]],
-         doGenerateSubmoduleConfigurations: false,
-         extensions: [[$class: 'CleanBeforeCheckout']],
-         submoduleCfg: [],
-         userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-         url: url ]]]
+            scm: [$class: 'GitSCM',
+                  branches: [[name: refspec]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'CleanBeforeCheckout']],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
+                                       url: url ]]]
 }
 
 /**
@@ -19,34 +19,34 @@ def clone(String url, String refspec){
  * @param url "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
  * @param refspec "xxxx/master" or other refspec
  * @param creds jenkins SSH credentials ID
-*/
+ */
 def clone(String url, String refspec, String creds){
 // Usage example: gerrit.clone("ssh://${GERRIT_HOST}/${GERRIT_PROJECT}", '*/master', "jenkins-gerrit-ssh-creds")
     checkout poll: false,
-    scm: [$class: 'GitSCM',
-         branches: [[name: refspec]],
-         doGenerateSubmoduleConfigurations: false,
-         extensions: [[$class: 'CleanBeforeCheckout']],
-         submoduleCfg: [],
-         userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-         url: url,
-         credentialsId: creds ]]]
+            scm: [$class: 'GitSCM',
+                  branches: [[name: refspec]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'CleanBeforeCheckout']],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
+                                       url: url,
+                                       credentialsId: creds ]]]
 }
 
 def cloneToBranch(String url, String refspec, String targetDirectory){
 //This method is used so that we can checkout the patchset to a local
 //branch and then rebase it locally with the current master before we build and test
     checkout poll: false,
-    scm: [$class: 'GitSCM',
-              branches: [[name: refspec]],
-              doGenerateSubmoduleConfigurations: false,
-              extensions: [[$class: 'LocalBranch',
-                            localBranch: 'jenkins'],
-                           [$class: 'RelativeTargetDirectory',
-                            relativeTargetDir: targetDirectory]],
-                            submoduleCfg: [],
-                            userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-                                                 url: url ]]]
+            scm: [$class: 'GitSCM',
+                  branches: [[name: refspec]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'LocalBranch',
+                                localBranch: 'jenkins'],
+                               [$class: 'RelativeTargetDirectory',
+                                relativeTargetDir: targetDirectory]],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
+                                       url: url ]]]
 }
 
 /**
@@ -59,7 +59,7 @@ def cloneToBranch(String url, String refspec, String targetDirectory){
  * @param targetDirectory local directory where to clone repo
  * @param creds jenkins SSH credentials ID
  * @param gerritRefspec Overridden refspec value
-*/
+ */
 def cloneToBranch(String url, String refspec, String targetDirectory, String creds, String gerritRefspec) {
     checkout poll: false,
             scm: [$class                           : 'GitSCM',
@@ -84,20 +84,20 @@ def cloneToBranch(String url, String refspec, String targetDirectory, String cre
  * @param refspec "xxxx/master" or other refspec
  * @param targetDirectory local directory where to clone repo
  * @param creds jenkins SSH credentials ID
-*/
+ */
 def cloneToBranch(String url, String refspec, String targetDirectory, String creds){
     checkout poll: false,
-    scm: [$class: 'GitSCM',
-              branches: [[name: refspec]],
-              doGenerateSubmoduleConfigurations: false,
-              extensions: [[$class: 'LocalBranch',
-                            localBranch: 'jenkins'],
-                           [$class: 'RelativeTargetDirectory',
-                            relativeTargetDir: targetDirectory]],
-                            submoduleCfg: [],
-                            userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-                                                 url: url,
-                                                 credentialsId: creds ]]]
+            scm: [$class: 'GitSCM',
+                  branches: [[name: refspec]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'LocalBranch',
+                                localBranch: 'jenkins'],
+                               [$class: 'RelativeTargetDirectory',
+                                relativeTargetDir: targetDirectory]],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
+                                       url: url,
+                                       credentialsId: creds ]]]
 }
 
 def rebase(){
@@ -109,31 +109,31 @@ def rebase(){
 
 //Replace clone and rebase methods
 def checkout(String revision, String branchToClone, String refspec, String targetDirectory){
-   if(revision){
-       IMAGE_TAG=revision
-   }
-   cloneToBranch(branchToClone, refspec, targetDirectory)
-   if(!revision) {
-       dir(env.WORKSPACE+"/"+targetDirectory){
-           rebase()
-       }
-   }
+    if(revision){
+        IMAGE_TAG=revision
+    }
+    cloneToBranch(branchToClone, refspec, targetDirectory)
+    if(!revision) {
+        dir(env.WORKSPACE+"/"+targetDirectory){
+            rebase()
+        }
+    }
 }
 
 def cloneProject(String url, String branch, String refspec, String targetDirectory){
 //This method is used so that we can checkout different project
 //from any patchset in different pipelines
     checkout poll: false,
-    scm: [$class: 'GitSCM',
-              branches: [[name: "${branch}"]],
-              doGenerateSubmoduleConfigurations: false,
-              extensions: [[$class: 'LocalBranch',
-                            localBranch: 'jenkins'],
-                           [$class: 'RelativeTargetDirectory',
-                            relativeTargetDir: targetDirectory]],
-                            submoduleCfg: [],
-                            userRemoteConfigs: [[refspec: "${refspec}",
-                                                 url: url ]]]
+            scm: [$class: 'GitSCM',
+                  branches: [[name: "${branch}"]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'LocalBranch',
+                                localBranch: 'jenkins'],
+                               [$class: 'RelativeTargetDirectory',
+                                relativeTargetDir: targetDirectory]],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: "${refspec}",
+                                       url: url ]]]
 }
 
 /**
@@ -146,20 +146,20 @@ def cloneProject(String url, String branch, String refspec, String targetDirecto
  * @param refspec "xxxx/master" or other refspec
  * @param targetDirectory local directory where to clone repo
  * @param creds jenkins SSH credentials ID
-*/
+ */
 def cloneProject(String url, String branch, String refspec, String targetDirectory, String creds){
     checkout poll: false,
-    scm: [$class: 'GitSCM',
-              branches: [[name: "${branch}"]],
-              doGenerateSubmoduleConfigurations: false,
-              extensions: [[$class: 'LocalBranch',
-                            localBranch: 'jenkins'],
-                           [$class: 'RelativeTargetDirectory',
-                            relativeTargetDir: targetDirectory]],
-                            submoduleCfg: [],
-                            userRemoteConfigs: [[refspec: "${refspec}",
-                                                 url: url,
-                                                 credentialsId: creds ]]]
+            scm: [$class: 'GitSCM',
+                  branches: [[name: "${branch}"]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [[$class: 'LocalBranch',
+                                localBranch: 'jenkins'],
+                               [$class: 'RelativeTargetDirectory',
+                                relativeTargetDir: targetDirectory]],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[refspec: "${refspec}",
+                                       url: url,
+                                       credentialsId: creds ]]]
 }
 
 /**
@@ -176,7 +176,7 @@ def cloneProject(String url, String branch, String refspec, String targetDirecto
 def getTopicCommitId(repo, url, port, creds) {
     def revision = "master"
     withCredentials([sshUserPrivateKey(credentialsId: creds,
-                                       keyFileVariable: 'SSH_KEY')]) {
+            keyFileVariable: 'SSH_KEY')]) {
         // If triggering repo includes a topic
         if(GERRIT_TOPIC != null && GERRIT_TOPIC != "") {
             def topicJson = sh(script: "ssh -i ${SSH_KEY} -p ${port} ${url} gerrit query --format=JSON topic:${GERRIT_TOPIC} status:open project:${repo}", returnStdout: true).trim()
@@ -211,7 +211,7 @@ def getTopicCommitInfo(repo, url, port, creds) {
     def commits = []
     def jsonList = []
     withCredentials([sshUserPrivateKey(credentialsId: creds,
-                                       keyFileVariable: 'SSH_KEY')]) {
+            keyFileVariable: 'SSH_KEY')]) {
         // If triggering repo includes a topic
         if(GERRIT_TOPIC != null && GERRIT_TOPIC != "") {
             def topicJson = sh(script: "ssh -i ${SSH_KEY} -p ${port} ${url} gerrit query \
@@ -253,8 +253,8 @@ def getTopicCommitInfo(repo, url, port, creds) {
  * @return commitHash
  */
 def getVersion(String url, String branch) {
-        def cmd = "git ls-remote $url $branch | cut -f1"
-        return sh(returnStdout: true, script: cmd).trim()
+    def cmd = "git ls-remote $url $branch | cut -f1"
+    return sh(returnStdout: true, script: cmd).trim()
 }
 
 /**
@@ -268,7 +268,7 @@ def getVersion(String url, String branch) {
  */
 def getVersion(String url, String branch, String creds) {
     withCredentials([sshUserPrivateKey(credentialsId: creds,
-                                       keyFileVariable: 'SSH_KEY')]) {
+            keyFileVariable: 'SSH_KEY')]) {
         // wrapper for custom git ssh key
         // ssh -i $SSH_KEY $@
         def filewrapper = "/usr/bin/git-ssh-wrapper"
@@ -287,7 +287,33 @@ EOF"""
 }
 
 /**
- * Submit a patchset into the master branch.
+ * Amend an existing patchset that has been cloned to branch.
+ *
+ * @param credentials Gerrit credentials to submit a patchset
+ * @param userEmail Email of Jenkins user that triggered the job
+ * @param userName BUILD_USER that triggered the Jenkins job
+ * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
+ * @param repoName name of the repository being pushed to
+ * @param refspec "xxxx/master" or other refspec
+ */
+def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master") {
+    sshagent(credentials: [credentials]) {
+        sh """
+             git config user.email '${userEmail}'
+             git config user.name '${userName}'
+             git config --global push.default matching
+             git status
+             git add .
+             git commit -m "${commitMessage}"
+             scp -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks
+             git commit --amend --no-edit
+             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
+           """
+    }
+}
+
+/**
+ * Submit a patchset with topic into the master branch. Must be using git 2.10.2 or greater.
  *
  * @param credentials Gerrit credentials to submit a patchset
  * @param userEmail Email of Jenkins user that triggered the job
@@ -296,8 +322,8 @@ EOF"""
  * @param repoName name of the repository being pushed to
  * @param gerritTopic topic for submitted patchset
  * @param refspec "xxxx/master" or other refspec
-*/
-def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, gerritTopic = "", refspec = "refs/for/master") {
+ */
+def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "") {
     sshagent(credentials: [credentials]) {
         sh """
              git config user.email '${userEmail}'
@@ -321,10 +347,34 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
  * @param userName BUILD_USER that triggered the Jenkins job
  * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
  * @param repoName name of the repository being pushed to
+ * @param refspec "xxxx/master" or other refspec
+ */
+def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, refspec = "refs/for/master") {
+    sshagent(credentials: [credentials]) {
+        sh """
+             git config user.email '${userEmail}'
+             git config user.name '${userName}'
+             git config --global push.default matching
+             git status
+             git add .
+             git commit --amend --no-edit
+             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
+           """
+    }
+}
+
+/**
+ * Amend an existing patchset that has been cloned to branch. Must be using git 2.10.2 or greater.
+ *
+ * @param credentials Gerrit credentials to submit a patchset
+ * @param userEmail Email of Jenkins user that triggered the job
+ * @param userName BUILD_USER that triggered the Jenkins job
+ * @param gerritUrl "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
+ * @param repoName name of the repository being pushed to
  * @param gerritTopic topic for submitted patchset
  * @param refspec "xxxx/master" or other refspec
  */
-def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, gerritTopic = "", refspec = "refs/for/master") {
+def amendPatchsetWithTopic(credentials, userEmail, userName, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "") {
     sshagent(credentials: [credentials]) {
         sh """
              git config user.email '${userEmail}'
@@ -354,11 +404,11 @@ def getLocalRepoVersion(repo_path) {
 
 
 /**
-  * Get Commit diff for a given repo path and commit ID
-  *
-  * @param repo_path directory where git repo is cloned
-  * @param commit_id to get diff
-  */
+ * Get Commit diff for a given repo path and commit ID
+ *
+ * @param repo_path directory where git repo is cloned
+ * @param commit_id to get diff
+ */
 def getCommitDiff(repo_path, commit_id) {
     def cmd = "cd  ${repo_path} && git show ${commit_id}"
     def git_diff =  sh(returnStdout: true, script: cmd).trim()
