@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89076ab5_6df1d5cd",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 2
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-02-25T18:57:58Z",
+      "side": 1,
+      "message": "specified branch",
+      "range": {
+        "startLine": 290,
+        "startChar": 26,
+        "endLine": 290,
+        "endChar": 36
+      },
+      "revId": "fb7aed4b741fe6e26e9d6ea26ec24b48271d22e1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
