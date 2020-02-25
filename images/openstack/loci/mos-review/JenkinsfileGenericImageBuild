@@ -101,10 +101,10 @@ DEFAULT_ARGS = [
   'PYTHON3'     :    PY3,
 ]
 
-// keep proxy for nova as it has multiple dependencies that need special
+// keep proxy for nova and requirements as they multiple dependencies that need special
 // handling (websockify with submodule, novnc, spice-htpm5 with shallow clonning)
 // should be addressed separately switching to more sophisticated git proto
-if (PROJECT_NAME.contains('nova')) {
+if (PROJECT_NAME =~ /nova|requirements/) {
     DEFAULT_ARGS << [
         'HTTP_PROXY':      "${HTTP_PROXY}",
         'HTTPS_PROXY':     "${HTTPS_PROXY}",
@@ -334,10 +334,7 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
                "${LOCI_BASE_IMAGE}")
     def base_sha256 = sh(returnStdout: true, script: cmd).trim()
 
-    // switch to 'master' once https://review.opendev.org/#/c/707058 is merged
-    // also this logic ensures consistency in loci revision used for labeling
-    // and building
-    def lociRef = 'refs/changes/76/73876/1'
+    def lociRef = conf.LOCI_REF
 
     LOCI_REPO_PATH = "/tmp/loci"
     // Clone loci repo to apply cicd patch for tests deletion
