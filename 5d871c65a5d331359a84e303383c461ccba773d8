@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94ce3ec2_3b780c91",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2020-02-25T18:51:12Z",
+      "side": 1,
+      "message": "submit a patchset",
+      "range": {
+        "startLine": 290,
+        "startChar": 3,
+        "endLine": 290,
+        "endChar": 8
+      },
+      "revId": "5d871c65a5d331359a84e303383c461ccba773d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
