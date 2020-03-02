@@ -159,6 +159,32 @@ def getDependencies(String release, String projectName) {
                               'PIP_PACKAGES': '',
                               'DIST_PACKAGES': 'ethtool lshw jq']
         ],
+        'train': [
+            'keystone':      ['PROFILES': 'fluent apache ldap',
+                              'PIP_PACKAGES': 'python-openstackclient',
+                              'DIST_PACKAGES': ' '],
+            'heat':          ['PROFILES': 'fluent apache',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': 'curl'],
+            'glance':        ['PROFILES': 'fluent glance ceph',
+                              'PIP_PACKAGES': 'python-swiftclient',
+                              'DIST_PACKAGES': ' '],
+            'horizon':       ['PROFILES': 'fluent horizon apache',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': ' '],
+            'cinder':        ['PROFILES': 'fluent cinder lvm ceph qemu',
+                              'PIP_PACKAGES': 'python-swiftclient',
+                              'DIST_PACKAGES': ' '],
+            'neutron':       ['PROFILES': 'fluent neutron openvswitch linuxbridge',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': 'ethtool lshw jq']
+            'nova':          ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': 'libssl1.0.0 net-tools'],
+            'barbican':      ['PROFILES': 'fluent',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': ' '],
+        ],
     ]
 
     return project_config[release][projectName]
