@@ -177,7 +177,7 @@ def getDependencies(String release, String projectName) {
                               'DIST_PACKAGES': ' '],
             'neutron':       ['PROFILES': 'fluent neutron openvswitch linuxbridge',
                               'PIP_PACKAGES': '',
-                              'DIST_PACKAGES': 'ethtool lshw jq']
+                              'DIST_PACKAGES': 'ethtool lshw jq'],
             'nova':          ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
                               'PIP_PACKAGES': '',
                               'DIST_PACKAGES': 'libssl1.0.0 net-tools'],
