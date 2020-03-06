@@ -993,6 +993,11 @@ TestVm(initScript: '',
         stage('Clone OpenstackHelm') {
             cloneOSH()
             tweakOSH()
+            // make helm toolkit explicitly here to replace the old
+            // one from snapshot
+            dir ("openstack-helm-infra") {
+                sh "make helm-toolkit"
+            }
         }
         stage('Override images') {
             // Override default OSH images from global manifests, RELEASE_OVERRIDES,
