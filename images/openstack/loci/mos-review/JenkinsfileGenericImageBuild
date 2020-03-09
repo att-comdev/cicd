@@ -64,10 +64,12 @@ currentBuild.displayName = (
 )
 
 CEPH_REPO = null
+LIBVIRT_REPO = null
 if (RELEASE == 'stein' || ["neutron-sriov", "nova-1804"].contains(BUILD_TYPE)) {
     LOCI_BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
     OVS_REPO = conf.OVS_REPOS['bionic']
     CEPH_REPO = conf.LOCI_CEPH_REPOS['bionic']
+    LIBVIRT_REPO = conf.LIBVIRT_REPOS['bionic']
 } else {
     LOCI_BASE_IMAGE = conf.LOCI_BASE_IMAGE
     OVS_REPO = conf.OVS_REPOS['xenial']
@@ -394,6 +396,11 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
     if (CEPH_REPO && BUILD_TYPE =~ /nova|cinder|glance/) {
         sh ("bash -c 'echo -e \"FROM ${customArgs.FROM}\n" +
             "RUN echo \"${CEPH_REPO}\" >> /etc/apt/sources.list\"" +
+            "| ${SHELL} docker build - -t ${customArgs.FROM}'")
+    }
+    if (LIBVIRT_REPO && BUILD_TYPE =~ /nova|cinder/) {
+        sh ("bash -c 'echo -e \"FROM ${customArgs.FROM}\n" +
+            "RUN echo \"${LIBVIRT_REPO}\" >> /etc/apt/sources.list\"" +
             "| ${SHELL} docker build - -t ${customArgs.FROM}'")
     }
 
