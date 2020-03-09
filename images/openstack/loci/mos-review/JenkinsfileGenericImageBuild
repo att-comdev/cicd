@@ -391,7 +391,7 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
             "RUN echo \"${OVS_REPO}\" >> /etc/apt/sources.list\"" +
             "| ${SHELL} docker build - -t ${customArgs.FROM}'")
     }
-    if (CEPH_REPO && BUILD_TYPE =~ /nova|cinder/) {
+    if (CEPH_REPO && BUILD_TYPE =~ /nova|cinder|glance/) {
         sh ("bash -c 'echo -e \"FROM ${customArgs.FROM}\n" +
             "RUN echo \"${CEPH_REPO}\" >> /etc/apt/sources.list\"" +
             "| ${SHELL} docker build - -t ${customArgs.FROM}'")
