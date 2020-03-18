@@ -181,9 +181,15 @@ def getDependencies(String release, String projectName) {
             'nova':          ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
                               'PIP_PACKAGES': '',
                               'DIST_PACKAGES': 'libssl1.0.0 net-tools'],
+            'nova-1804':     ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': 'libssl1.0.0 net-tools'],
             'barbican':      ['PROFILES': 'fluent',
                               'PIP_PACKAGES': '',
                               'DIST_PACKAGES': ' '],
+            'neutron-sriov': ['PROFILES': 'fluent neutron linuxbridge openvswitch',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': 'ethtool lshw jq'],
         ],
     ]
 
