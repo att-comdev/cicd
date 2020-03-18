@@ -45,8 +45,8 @@ PROJECT_MAP = [
         'mos-glance':          [],
         'mos-cinder':          [],
         'mos-horizon':         [],
-        'mos-neutron':         [],
-        'mos-nova':            [],
+        'mos-neutron':         ['neutron', 'neutron-sriov'],
+        'mos-nova':            ['nova', 'nova-1804'],
         'mos-barbican':        [],
     ]
 ]

@@ -894,7 +894,7 @@ def prepareImages(chart, tags) {
 def createImage(image, overrides, baseImage) {
     def cmd = ""
     def mounts = ""
-    PY = RELEASE == 'stein' ? 'python3' : 'python'
+    PY = RELEASE == 'ocata' ? 'python' : 'python3'
     sshagent ([INTERNAL_GERRIT_KEY]) {
         overrides.each {
             def projectUrl = (it[0].contains("://") ? it[0] : "${INTERNAL_GERRIT_SSH}/${it[0]}")
