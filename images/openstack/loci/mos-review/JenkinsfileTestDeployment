@@ -8,11 +8,7 @@ json = new JsonSlurperClassic()
 
 overrideImagesMap = json.parseText(OVERRIDE_IMAGES)
 
-if (RELEASE == 'ocata') {
-    DISTRO_VERSION = 'xenial'
-} else if (RELEASE == 'stein') {
-    DISTRO_VERSION = 'bionic'
-}
+DISTRO_VERSION = RELEASE == 'ocata' ? 'xenial' : 'bionic'
 
 RELEASE_BRANCH_MAP = json.parseText(RELEASE_BRANCH_MAP)
 BRANCH = RELEASE_BRANCH_MAP[RELEASE]
