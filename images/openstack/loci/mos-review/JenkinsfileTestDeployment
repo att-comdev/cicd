@@ -116,8 +116,11 @@ def imageOverrides(Map images, Map debugOverrides=[:]) {
             }
             dir (chartDir) {
                 overrideYaml = "${chart}/values_overrides/${RELEASE}-ubuntu_${DISTRO_VERSION}.yaml"
+                def overrideData = (fileExists(overrideYaml) ?
+                    readYaml(file: overrideYaml) : [:])
+                overrideData['images'] = ["tags": overrides]
                 sh "rm -rf ${overrideYaml}"
-                writeYaml file: overrideYaml, data: ["images": ["tags": overrides]]
+                writeYaml file: overrideYaml, data: overrideData
             }
         }
     }
@@ -171,6 +174,9 @@ def tweakOSH() {
             }
         }
     }
+
+    // downstream mariadb image does not have py3 yet
+    sh 'sed -i "s:#!/usr/bin/python3:#!/usr/bin/python:g" openstack-helm-infra/mariadb/templates/bin/_start.py.tpl ||:'
 
     // This is the most dirty part to make OSH AIO to use customizied artifacts location for k8s
     // Apparenly avialability of configuration overriding should be addressed upstream
