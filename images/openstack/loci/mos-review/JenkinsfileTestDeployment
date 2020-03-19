@@ -116,8 +116,11 @@ def imageOverrides(Map images, Map debugOverrides=[:]) {
             }
             dir (chartDir) {
                 overrideYaml = "${chart}/values_overrides/${RELEASE}-ubuntu_${DISTRO_VERSION}.yaml"
+                def overrideData = (fileExists(overrideYaml) ?
+                    readYaml(file: overrideYaml) : [:])
+                overrideData['images'] = ["tags": overrides]
                 sh "rm -rf ${overrideYaml}"
-                writeYaml file: overrideYaml, data: ["images": ["tags": overrides]]
+                writeYaml file: overrideYaml, data: overrideData
             }
         }
     }
