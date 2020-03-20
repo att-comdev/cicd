@@ -193,7 +193,7 @@ lint_jenkins_files(){
             continue
         echo "INFO: linting file ""${file}""..."
         opts="-s ${JENKINS_CLI_URL} -auth ${JENKINS_USER}:${JENKINS_TOKEN}"
-        cat "${file}" | java -jar ${JENKINS_CLI} ${opts} declarative-linter
+        #cat "${file}" | java -jar ${JENKINS_CLI} ${opts} declarative-linter
     done
 }
 
