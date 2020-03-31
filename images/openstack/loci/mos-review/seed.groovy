@@ -386,11 +386,6 @@ pipelineJob("${JOB_BASE}/DebugPipeline") {
                 }
             }
             triggerOnEvents {
-                patchsetCreated {
-                    excludeDrafts(true)
-                    excludeTrivialRebase(true)
-                    excludeNoCodeChange(true)
-                }
                 commentAddedContains {
                     commentAddedCommentContains('^[Dd]ebug.*')
                 }
