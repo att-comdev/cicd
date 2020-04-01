@@ -23,6 +23,25 @@ if (JOB_BASE_NAME.contains('ceph-')) {
     OS_RELEASE = "ubuntu_bionic"
 }
 
+if ("${JOB_BASE_NAME}" == 'elasticsearch-s3') {
+    OS_RELEASE = "7_1_0"
+}
+
+if ("${JOB_BASE_NAME}" == 'fluentd') {
+    OS_RELEASE = "debian"
+}
+
+if ("${JOB_BASE_NAME}" == 'nagios') {
+    BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
+    OS_RELEASE = "ubuntu_bionic"
+}
+
+if ("${JOB_BASE_NAME}" == 'prometheus-openstack-exporter') {
+    BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
+    OS_RELEASE = "ubuntu_bionic"
+}
+
+
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 if(env.GERRIT_NEWREV){
     echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
