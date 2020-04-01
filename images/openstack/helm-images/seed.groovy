@@ -8,7 +8,11 @@ def projects = ['ceph-daemon',
                 'ceph-cephfs-provisioner',
                 'mysql-client-utility',
                 'openstack-utility',
-                'calicoctl-utility']
+                'calicoctl-utility',
+                'elasticsearch-s3', 
+                'fluentd', 
+                'nagios', 
+                'prometheus-openstack-exporter']
 
 projects.each { project_name ->
     JOB_BASE_NAME=project_name

@@ -23,6 +23,25 @@ if (JOB_BASE_NAME.contains('ceph-')) {
     OS_RELEASE = "ubuntu_bionic"
 }
 
+if ("${JOB_BASE_NAME}" == 'elasticsearch-s3') {
+    OS_RELEASE = "7_1_0"
+}
+
+if ("${JOB_BASE_NAME}" == 'fluentd') {
+    OS_RELEASE = "debian"
+}
+
+if ("${JOB_BASE_NAME}" == 'nagios') {
+    BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
+    OS_RELEASE = "ubuntu_bionic"
+}
+
+if ("${JOB_BASE_NAME}" == 'prometheus-openstack-exporter') {
+    BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
+    OS_RELEASE = "ubuntu_bionic"
+}
+
+
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
 if(env.GERRIT_NEWREV){
     echo ("${GERRIT_NEWREV} is being used to override refspec: ${GERRIT_REFSPEC}")
@@ -71,11 +90,11 @@ try {
                         IMAGE_TAG += ".${BUILD_TIMESTAMP}"
                         if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
                             IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${CALICOCTL_VERSION}-${IMAGE_TAG}"
-                        } else if (JOB_BASE_NAME.contains('ceph-')) {
+                        } else if (JOB_BASE_NAME.contains('ceph-') or ) {
                             IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}-ubuntu_bionic"
                         }
                         else {
-                            IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}"
+                            IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${IMAGE_TAG}-${OS_RELEASE}"
                         }
 
                         sh """make IMAGE_NAME=${JOB_BASE_NAME} \
