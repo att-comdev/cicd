@@ -37,6 +37,7 @@ PROJECT_MAP = [
         'mos-neutron':         ['neutron', 'neutron-sriov'],
         'mos-nova':            ['nova', 'nova-1804'],
         'mos-barbican':        [],
+        'mos-placement':       [],
     ],
     "train": [
         "${REQ_PROJECT_NAME}": [],
@@ -48,6 +49,7 @@ PROJECT_MAP = [
         'mos-neutron':         ['neutron', 'neutron-sriov'],
         'mos-nova':            ['nova', 'nova-1804'],
         'mos-barbican':        [],
+        'mos-placement':       [],
     ]
 ]
 
