@@ -157,7 +157,10 @@ def getDependencies(String release, String projectName) {
                               'DIST_PACKAGES': 'libssl1.0.0 net-tools'],
             'neutron-sriov': ['PROFILES': 'fluent neutron linuxbridge openvswitch',
                               'PIP_PACKAGES': '',
-                              'DIST_PACKAGES': 'ethtool lshw jq']
+                              'DIST_PACKAGES': 'ethtool lshw jq'],
+            'placement':     ['PROFILES': 'apache',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': ''],
         ],
         'train': [
             'keystone':      ['PROFILES': 'fluent apache ldap',
@@ -190,6 +193,9 @@ def getDependencies(String release, String projectName) {
             'neutron-sriov': ['PROFILES': 'fluent neutron linuxbridge openvswitch',
                               'PIP_PACKAGES': '',
                               'DIST_PACKAGES': 'ethtool lshw jq'],
+            'placement':     ['PROFILES': 'apache',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': ''],
         ],
     ]
 
