@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ec695aa_d05485fa",
+        "filename": "vars/ssh_pwd.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1016987
+      },
+      "writtenOn": "2020-04-09T20:40:19Z",
+      "side": 1,
+      "message": "I thought we would need to add failOnError here as an argument, and then pass it through to sshCommand.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 2
+      },
+      "revId": "543afc7bdad63a52c343ef70043c605b1ab6cf71",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
