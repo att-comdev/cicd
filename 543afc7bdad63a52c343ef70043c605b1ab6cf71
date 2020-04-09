@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "c719a98d_6d70e13d",
+        "filename": "vars/ssh_pwd.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1016987
+      },
+      "writtenOn": "2020-04-09T20:40:48Z",
+      "side": 1,
+      "message": "Not sure if this works here?",
+      "range": {
+        "startLine": 20,
+        "startChar": 8,
+        "endLine": 20,
+        "endChar": 26
+      },
+      "revId": "543afc7bdad63a52c343ef70043c605b1ab6cf71",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4ec695aa_d05485fa",
         "filename": "vars/ssh_pwd.groovy",
         "patchSetId": 1
