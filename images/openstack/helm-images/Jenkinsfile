@@ -30,6 +30,12 @@ if (JOB_BASE_NAME.contains('ceph-')) {
 
 if ("${JOB_BASE_NAME}" == 'elasticsearch-s3') {
     SUFFIX = "7_1_0"
+    def regMatch = "${HTTP_PROXY}" =~ /\w+:\/\/(.*):(.*)/
+    PROXY_HOST = regMatch[0][1]
+    PROXY_PORT = regMatch[0][2]
+    BUILD_ARGS += [
+        "--build-arg PROXY_HOST=${PROXY_HOST}",
+        "--build-arg PROXY_PORT=${PROXY_PORT}",]
 }
 
 if ("${JOB_BASE_NAME}" == 'fluentd') {
