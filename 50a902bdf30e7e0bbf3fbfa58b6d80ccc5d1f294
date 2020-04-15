@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5239b8f_11894633",
+        "filename": "images/openstack/helm-images/Jenkinsfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1017859
+      },
+      "writtenOn": "2020-04-15T16:40:20Z",
+      "side": 1,
+      "message": "Could this be changed to\n\n    \"--build-arg ES_JAVA_OPTS\u003d\"-Dhttp.proxyHost\u003d${PROXY_HOST} -Dhttp.proxyPort\u003d${PROXY_PORT} -Dhttps.proxyHost\u003d${PROXY_HOST} -Dhttps.proxyPort\u003d${PROXY_PORT}\"\n\nIt is simpler to add this proxy logic outside of the dockerfile",
+      "range": {
+        "startLine": 36,
+        "startChar": 19,
+        "endLine": 38,
+        "endChar": 48
+      },
+      "revId": "50a902bdf30e7e0bbf3fbfa58b6d80ccc5d1f294",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
