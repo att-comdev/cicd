@@ -1,7 +1,7 @@
 base_path = "cicd"
 job_path = "${base_path}/SuperSeed"
 folder("${base_path}")
-
+//This is a test 2
 freeStyleJob("${job_path}") {
     logRotator{
         daysToKeep(90)
