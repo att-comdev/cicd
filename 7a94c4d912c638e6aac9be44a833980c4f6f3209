@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d7ef0b6_b211e5ba",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileGeneric",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-04-24T23:36:42Z",
+      "side": 1,
+      "message": "please work on line sizes to match the style of other code",
+      "revId": "7a94c4d912c638e6aac9be44a833980c4f6f3209",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d83aaafe_aafd0f62",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileGeneric",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-04-24T23:36:42Z",
+      "side": 1,
+      "message": "lets save build variables instead of job in results above and use it here and below. invoking getBuildVariables() two times cuts an eye.",
+      "range": {
+        "startLine": 85,
+        "startChar": 20,
+        "endLine": 85,
+        "endChar": 84
+      },
+      "revId": "7a94c4d912c638e6aac9be44a833980c4f6f3209",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8388683_0eaeeed9",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileGeneric",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-04-24T23:36:42Z",
+      "side": 1,
+      "message": "please work on line sizes to match the style of other code",
+      "range": {
+        "startLine": 93,
+        "startChar": 26,
+        "endLine": 93,
+        "endChar": 126
+      },
+      "revId": "7a94c4d912c638e6aac9be44a833980c4f6f3209",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78c6837e_13f68919",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileGeneric",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-04-24T23:36:42Z",
+      "side": 1,
+      "message": "please gather the result and process them after \u0027parallel runningSet\u0027 line, rather than throw exception here. pls use \u0027utils.runBuild\u0027 as above to improve stability. it has wait: true and propagate: false",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 33
+      },
+      "revId": "7a94c4d912c638e6aac9be44a833980c4f6f3209",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
