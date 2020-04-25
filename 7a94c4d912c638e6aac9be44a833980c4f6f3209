@@ -142,6 +142,30 @@
       "revId": "7a94c4d912c638e6aac9be44a833980c4f6f3209",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc3258a7_655fa91b",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileGeneric",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-04-25T17:51:27Z",
+      "side": 1,
+      "message": "\"please gather the result and process them after \u0027parallel runningSet\u0027 line, rather than throw exception here.\" - please disregard this part. Still use utils.runBuild",
+      "parentUuid": "78c6837e_13f68919",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 33
+      },
+      "revId": "7a94c4d912c638e6aac9be44a833980c4f6f3209",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
