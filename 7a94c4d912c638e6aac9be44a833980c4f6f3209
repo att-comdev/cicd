@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "40127089_5f8b0f40",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-04-25T12:37:10Z",
+      "side": 1,
+      "message": "subject is too long. please follow https://wiki.openstack.org/wiki/GitCommitMessages",
+      "revId": "7a94c4d912c638e6aac9be44a833980c4f6f3209",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fd67890_6980c4e5",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileGeneric",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-04-25T12:37:10Z",
+      "side": 1,
+      "message": "please move to seed and pass via environment variables",
+      "revId": "7a94c4d912c638e6aac9be44a833980c4f6f3209",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7d7ef0b6_b211e5ba",
         "filename": "images/openstack/loci/mos-review/JenkinsfileGeneric",
         "patchSetId": 1
@@ -35,6 +69,29 @@
         "startChar": 20,
         "endLine": 85,
         "endChar": 84
+      },
+      "revId": "7a94c4d912c638e6aac9be44a833980c4f6f3209",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d660c48_5a44a2f2",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileGeneric",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-04-25T12:37:10Z",
+      "side": 1,
+      "message": "JOB_CLAIR",
+      "range": {
+        "startLine": 88,
+        "startChar": 38,
+        "endLine": 88,
+        "endChar": 50
       },
       "revId": "7a94c4d912c638e6aac9be44a833980c4f6f3209",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
