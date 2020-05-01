@@ -38,14 +38,16 @@ def cmd (String creds, String ip, String cmd) {
  * Function used to wait and retry execution of a command.
  * Good for waiting on the node to boot/restart and become available
  */
-def wait (String creds, String ip, String command, attempts = 12, timeout = 60) {
+def wait (String creds, String ip, String command, attempts = 12, _timeout = 60) {
     retry (attempts) {
+      timeout(2) {
         try {
             cmd (creds, ip, command)
         } catch (err) {
-            sleep timeout
+            sleep _timeout
             error(err.getMessage())
         }
+      }
     }
 }
 
