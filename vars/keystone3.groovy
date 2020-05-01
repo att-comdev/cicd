@@ -15,6 +15,7 @@ import groovy.json.JsonSlurperClassic
  * @param retryTimeout
  */
 def token(Map map) {
+    def token
 
     if (!map.containsKey('keystoneUrl')) {
         error("Must provide Keystone URL 'keystoneUrl'")
@@ -62,6 +63,7 @@ def token(Map map) {
 
     def jreq = new JsonOutput().toJson(req)
 
+    def ie
     retry(retryCount) {
         try {
             def res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
@@ -70,13 +72,20 @@ def token(Map map) {
                                   quiet: true,
                                   requestBody: jreq)
             print "Keystone token request succeesful: ${res.status}"
-            return res.getHeaders()["X-Subject-Token"][0]
+            token = res.getHeaders()["X-Subject-Token"][0]
+        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | java.lang.InterruptedException err) {
+            ie = err
+            echo "Stop retry"
         } catch(error) {
             print "Keystone token request failed: ${error}"
             sleep retryTimeout
             throw error
         }
     }
+    if (ie) {
+        throw ie
+    }
+    return token
 }
 
 /**
@@ -142,6 +151,8 @@ def getServiceId(Map map) {
     // optional with defaults
     def retryCount = map.retryCount ?: 5.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
+    def service_id
+    def ie
     retry (retryCount) {
         try {
 
@@ -152,14 +163,20 @@ def getServiceId(Map map) {
                                    quiet: true)
             services = new JsonSlurperClassic().parseText(res.content)
             service_id = services.services[0]["id"]
-            return service_id
 
+        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | java.lang.InterruptedException err) {
+            ie = err
+            echo "Stop retry"
         } catch (err) {
             print "Failed to get ${map.serviceType} service id: ${err}"
             sleep retryTimeout
             error(err)
         }
     }
+    if (ie) {
+        throw ie
+    }
+    return service_id
 }
 
 
@@ -193,6 +210,8 @@ def _getServiceEndpoint(Map map) {
     def retryCount = map.retryCount ?: 5.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
     def serviceInterface = map.serviceInterface ?: "public"
+    def ie
+    def endpoint
     retry (retryCount) {
         try {
 
@@ -202,14 +221,21 @@ def _getServiceEndpoint(Map map) {
                                    customHeaders: [[name: "X-Auth-Token", value: map.token]],
                                    quiet: true)
             endpoints = new JsonSlurperClassic().parseText(res.content)
-            return endpoints.endpoints[0]["url"]
+            endpoint = endpoints.endpoints[0]["url"]
 
+        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | java.lang.InterruptedException err) {
+            ie = err
+            echo "Stop retry"
         } catch (err) {
             print "Failed to get endpoint for service ${map.serviceId}: ${err}"
             sleep retryTimeout
             error(err)
         }
     }
+    if (ie) {
+        throw ie
+    }
+    return endpoint
 }
 
 /**
