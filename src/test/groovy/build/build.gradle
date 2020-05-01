@@ -71,6 +71,7 @@ repositories {
 
 dependencies {
     compile "org.codehaus.groovy:groovy-all:2.5.0"
+    testCompile "org.jenkinsci.plugins.workflow:workflow-step-api:2.13"
     testCompile "org.yaml:snakeyaml:1.24"
     testCompile "com.lesfurets:jenkins-pipeline-unit:1.1"
     testCompile "junit:junit:4.12"
