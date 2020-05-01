@@ -27,6 +27,7 @@ def _printError(code, res) {
  */
 def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode) {
     def res = null
+    ie = null
     retry(5) {
         try {
             res = httpRequest (url: shipyardUrl + "/configdocs/${bucketName}?buffermode=${bufferMode}",
@@ -38,11 +39,16 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
                                requestBody: filePath,
                                validResponseCodes: '200:503')
             _printError(201, res)
+        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | java.lang.InterruptedException ie) {
+            echo "Stop retry"
         } catch (err) {
             print "Shipyard 'create configdocs' failed: ${err}"
             sleep 120
             error(err.getMessage())
         }
+    }
+    if (ie) {
+        throw ie
     }
     return res
 }
@@ -58,6 +64,7 @@ def _createConfigdocs(uuid, token, filePath, shipyardUrl, bucketName, bufferMode
  */
 def commitConfigdocs(uuid, token, shipyardUrl) {
     def res = null
+    ie = null
     retry(5) {
         try {
             res = httpRequest(url: shipyardUrl + "/commitconfigdocs",
@@ -67,11 +74,16 @@ def commitConfigdocs(uuid, token, shipyardUrl) {
                               quiet: true,
                               validResponseCodes: '200:503')
             _printError(200, res)
+        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | java.lang.InterruptedException ie) {
+            echo "Stop retry"
         } catch (err) {
             print "Shipyard 'commit configdocs' failed: ${err}"
             sleep 120
             error(err.getMessage())
         }
+    }
+    if (ie) {
+        throw ie
     }
     return res
 }
@@ -96,6 +108,7 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
     def jreq = new JsonOutput().toJson(req)
     def res = null
 
+    ie = null
     retry(5) {
         try {
             res = httpRequest(url: shipyardUrl + "/actions?allow-intermediate-commits=true",
@@ -107,11 +120,16 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
                               requestBody: jreq,
                               validResponseCodes: '200:503')
             _printError(201, res)
+        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | java.lang.InterruptedException ie) {
+            echo "Stop retry"
         } catch (err) {
             print "Shipyard 'create action' failed: ${err}"
             sleep 120
             error(err.getMessage())
         }
+    }
+    if (ie) {
+        throw ie
     }
     return res
 }
@@ -134,6 +152,7 @@ def createAction(uuid, token, shipyardUrl, action, parameters = null) {
 def _getAction(Map map) {
 
     def res = null
+    ie = null
     retry(5) {
 
         def token = keystone3.token(keystoneCreds: map.keystoneCreds,
@@ -148,11 +167,16 @@ def _getAction(Map map) {
                                customHeaders: [[name: "X-Auth-Token", value: token]],
                                validResponseCodes: '200:503')
             _printError(200, res)
+        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | java.lang.InterruptedException ie) {
+            echo "Stop retry"
         } catch (err) {
             print "Shipyard 'get action' failed: ${err}"
             sleep 120
             error(err.getMessage())
         }
+    }
+    if (ie) {
+        throw ie
     }
 
     if (res.status != 200) {

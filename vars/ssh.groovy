@@ -39,13 +39,19 @@ def cmd (String creds, String ip, String cmd) {
  * Good for waiting on the node to boot/restart and become available
  */
 def wait (String creds, String ip, String command, attempts = 12, timeout = 60) {
+    ie = null
     retry (attempts) {
         try {
             cmd (creds, ip, command)
+        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | java.lang.InterruptedException ie) {
+            echo "Stop retry"
         } catch (err) {
             sleep timeout
             error(err.getMessage())
         }
+    }
+    if (ie) {
+        throw ie
     }
 }
 
