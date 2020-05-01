@@ -36,12 +36,7 @@ def retrier(int retries, Closure body) {
         } catch (err) {
             echo "${err}"
             sleep 1
-            lastLog = currentBuild.rawBuild.getLog(100).join()
-            if (lastLog.find(Params.ABORT_ON.join("|"))) {
-                echo "Abort detected. Marking job as ABORTED."
-                currentBuild.result = 'ABORTED'
-                throw err
-            }
+            checkIfAborted(currentBuild, err)
             lastError = err
             continue
         }
@@ -50,4 +45,13 @@ def retrier(int retries, Closure body) {
         throw lastError
     }
     return result
+}
+
+def checkIfAborted(buildForCheck, err) {
+    lastLog = buildForCheck.rawBuild.getLog(100).join()
+    if (lastLog.find(Params.ABORT_ON.join("|"))) {
+        echo "Abort detected. Marking job as ABORTED."
+        currentBuild.result = 'ABORTED'
+        throw err
+    }
 }
