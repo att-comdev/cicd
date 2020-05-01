@@ -62,6 +62,7 @@ def token(Map map) {
 
     def jreq = new JsonOutput().toJson(req)
 
+    def ie
     retry(retryCount) {
         try {
             def res = httpRequest(url: map.keystoneUrl + "/v3/auth/tokens",
@@ -71,11 +72,17 @@ def token(Map map) {
                                   requestBody: jreq)
             print "Keystone token request succeesful: ${res.status}"
             return res.getHeaders()["X-Subject-Token"][0]
+        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | java.lang.InterruptedException err) {
+            ie = err
+            echo "Stop retry"
         } catch(error) {
             print "Keystone token request failed: ${error}"
             sleep retryTimeout
             throw error
         }
+    }
+    if (ie) {
+        throw ie
     }
 }
 
@@ -142,6 +149,7 @@ def getServiceId(Map map) {
     // optional with defaults
     def retryCount = map.retryCount ?: 5.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
+    def ie
     retry (retryCount) {
         try {
 
@@ -154,11 +162,17 @@ def getServiceId(Map map) {
             service_id = services.services[0]["id"]
             return service_id
 
+        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | java.lang.InterruptedException err) {
+            ie = err
+            echo "Stop retry"
         } catch (err) {
             print "Failed to get ${map.serviceType} service id: ${err}"
             sleep retryTimeout
             error(err)
         }
+    }
+    if (ie) {
+        throw ie
     }
 }
 
@@ -193,6 +207,7 @@ def _getServiceEndpoint(Map map) {
     def retryCount = map.retryCount ?: 5.toInteger()
     def retryTimeout = map.retryTimeout ?: 120.toInteger()
     def serviceInterface = map.serviceInterface ?: "public"
+    def ie
     retry (retryCount) {
         try {
 
@@ -204,11 +219,17 @@ def _getServiceEndpoint(Map map) {
             endpoints = new JsonSlurperClassic().parseText(res.content)
             return endpoints.endpoints[0]["url"]
 
+        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | java.lang.InterruptedException err) {
+            ie = err
+            echo "Stop retry"
         } catch (err) {
             print "Failed to get endpoint for service ${map.serviceId}: ${err}"
             sleep retryTimeout
             error(err)
         }
+    }
+    if (ie) {
+        throw ie
     }
 }
 
