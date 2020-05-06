@@ -67,13 +67,9 @@ check.dependsOn jacocoTestCoverageVerification
 
 repositories {
     mavenCentral()
-    maven {
-        url 'https://repo.jenkins-ci.org/public'
-    }
 }
 
 dependencies {
-    compile group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-step-api', version: '2.7', ext: 'jar'
     compile "org.codehaus.groovy:groovy-all:2.5.0"
     testCompile "org.yaml:snakeyaml:1.24"
     testCompile "com.lesfurets:jenkins-pipeline-unit:1.1"
