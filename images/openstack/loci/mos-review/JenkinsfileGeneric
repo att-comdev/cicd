@@ -74,39 +74,41 @@ PROJECT_MAP.each { projectName, buildTypes ->
                                 value: REQUIREMENTS_LOCI_IMAGE),
                     stringParam(name: 'EVENT_TYPE', value: EVENT_TYPE),
                 ]
-                print "Building image for ${buildType} with ${parameters}"
+                println "Building image for ${buildType} with ${parameters}"
                 results[buildType] = utils.runBuild(
                     "${JOB_BASE}/mos-${buildType}",
                     parameters,
                     RETRY_COUNT
-                )
-                if (EVENT_TYPE == 'manual' && 
-                    (RELEASE == 'stein' || RELEASE == 'ocata')) {
-                    IMAGE_NAME = results[buildType].getBuildVariables()["IMAGE_SHA"]
-                    print "invoking Clair scan on IMAGE: ${IMAGE_NAME}"
-                    try {
-                          build job: JOB_CLAIR, parameters: [
-                          string(name: 'docker_image', value: IMAGE_NAME),
-                          booleanParam(name: 'open_img', value: true)
-                          ], wait: true
-                    } catch (e) {
-                          print "==== Security vulnerability found. Please check the "+
-                                "console log for detailed information.==="
-                          throw e
-                    }
-                }
+                ).getBuildVariables()
+                println "results[buildType]: "+results[buildType]
             }
         }
         i++
     }
 }
 
-parallel runningSet
+results.each { buildType, buildVars ->
+    if (EVENT_TYPE == 'patchset-created' &&
+    (RELEASE == 'stein' || RELEASE == 'ocata')) {
+        IMAGE_NAME = buildVars["IMAGE_SHA"]
+        println "invoking Clair scan on IMAGE: ${IMAGE_NAME}"
+        try {
+              build job: JOB_CLAIR, parameters: [
+              string(name: 'docker_image', value: IMAGE_NAME),
+              booleanParam(name: 'open_img', value: true)
+              ], wait: true
+        } catch (e) {
+              print "==== Security vulnerability found. Please check the "+
+                    "console log for detailed information.==="
+              throw e
+        }
+    }
+}
 
 overrideImages = [:]
 imagesVersions = [:]
-results.each { buildType, job ->
-    buildVars = job.getBuildVariables()
+results.each { buildType, buildVars ->
+    //buildVars = job.getBuildVariables()
     overrideImages[buildVars["LOCI_IMAGE_VAR"]] = buildVars["IMAGE_SHA"]
     imagesVersions[buildType] = [
         'vcsRef': buildVars["PROJECT_VERSION"],
@@ -114,6 +116,7 @@ results.each { buildType, job ->
         'url': buildVars["IMAGE_SHA"],
     ]
 }
+print "after results.each { buildType, buildVars ->...\n"
 overrideImagesJSON = JsonOutput.toJson(overrideImages)
 parameters = [
     stringParam(name: "OVERRIDE_IMAGES", value: overrideImagesJSON),
@@ -129,6 +132,7 @@ currentBuild.description = images
 
 if (EVENT_TYPE != 'change-merged' && params.RUN_DEPLOYMENT) {
     stage("Test Deployment") {
+        print "in Test Deployment...\n"
         utils.runBuild(
             "${JOB_BASE}/TestDeploymentPipeline",
             parameters,
