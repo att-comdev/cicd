@@ -58,7 +58,8 @@ def cloneOSH() {
 
 def imageOverrides(Map images, Map debugOverrides=[:]) {
     imageTypes = ['nova', 'nova-1804', 'neutron', 'neutron-sriov', 'glance',
-                  'cinder', 'heat', 'horizon', 'keystone']
+                  'cinder', 'heat', 'horizon', 'keystone', 'placement',
+                  'barbican']
     // populate images with default values
     imageTypes.each {
         key = "${it.replace('-', '_').toUpperCase()}_LOCI"
@@ -116,8 +117,11 @@ def imageOverrides(Map images, Map debugOverrides=[:]) {
             }
             dir (chartDir) {
                 overrideYaml = "${chart}/values_overrides/${RELEASE}-ubuntu_${DISTRO_VERSION}.yaml"
+                def overrideData = (fileExists(overrideYaml) ?
+                    readYaml(file: overrideYaml) : [:])
+                overrideData['images'] = ["tags": overrides]
                 sh "rm -rf ${overrideYaml}"
-                writeYaml file: overrideYaml, data: ["images": ["tags": overrides]]
+                writeYaml file: overrideYaml, data: overrideData
             }
         }
     }
