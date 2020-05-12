@@ -179,6 +179,7 @@ pipelineJob("${JOB_BASE}/GenericPipeline") {
         "UPLIFT_IMAGES":                  false,
         "UPLIFT_COMMIT_MESSAGE_TEMPLATE": UPLIFT_COMMIT_MESSAGE_TEMPLATE,
         "UPLIFT_TOPIC_TEMPLATE":          UPLIFT_TOPIC_TEMPLATE,
+        "JOB_CLAIR":                      images/clair-check,
     )
     definition {
         cps {
