@@ -37,6 +37,7 @@ PROJECT_MAP = [
         'mos-neutron':         ['neutron', 'neutron-sriov'],
         'mos-nova':            ['nova', 'nova-1804'],
         'mos-barbican':        [],
+        'mos-placement':       [],
     ],
     "train": [
         "${REQ_PROJECT_NAME}": [],
@@ -48,6 +49,7 @@ PROJECT_MAP = [
         'mos-neutron':         ['neutron', 'neutron-sriov'],
         'mos-nova':            ['nova', 'nova-1804'],
         'mos-barbican':        [],
+        'mos-placement':       [],
     ]
 ]
 
@@ -179,6 +181,7 @@ pipelineJob("${JOB_BASE}/GenericPipeline") {
         "UPLIFT_IMAGES":                  false,
         "UPLIFT_COMMIT_MESSAGE_TEMPLATE": UPLIFT_COMMIT_MESSAGE_TEMPLATE,
         "UPLIFT_TOPIC_TEMPLATE":          UPLIFT_TOPIC_TEMPLATE,
+        "JOB_CLAIR":                      images/clair-check,
     )
     definition {
         cps {
@@ -187,6 +190,7 @@ pipelineJob("${JOB_BASE}/GenericPipeline") {
         }
     }
 }
+
 
 MERGED_MAP.each { projectName, buildTypes ->
     buildTypes.each { buildType ->
@@ -386,11 +390,6 @@ pipelineJob("${JOB_BASE}/DebugPipeline") {
                 }
             }
             triggerOnEvents {
-                patchsetCreated {
-                    excludeDrafts(true)
-                    excludeTrivialRebase(true)
-                    excludeNoCodeChange(true)
-                }
                 commentAddedContains {
                     commentAddedCommentContains('^[Dd]ebug.*')
                 }
