@@ -3,9 +3,11 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
 
 conf = new config(env).CONF
+json = new JsonSlurperClassic()
 
 EVENT_TYPE = env.EVENT_TYPE ? env.EVENT_TYPE : 'manual'
 RETRY_COUNT = env.RETRY_COUNT.toInteger()
+SUPPORTED_RELEASES = json.parseText(env.SUPPORTED_RELEASES)
 
 def getProjName(String project) {
     project.split('/')[-1]
@@ -44,7 +46,7 @@ stage("${REQ_PROJECT_NAME} image build") {
     }
 }
 
-PROJECT_MAP = new JsonSlurperClassic().parseText(env.PROJECT_MAP)[RELEASE]
+PROJECT_MAP = json.parseText(env.PROJECT_MAP)[RELEASE]
 results = [:]
 runningSet = [:]
 def i = 0
@@ -78,7 +80,24 @@ PROJECT_MAP.each { projectName, buildTypes ->
                     "${JOB_BASE}/mos-${buildType}",
                     parameters,
                     RETRY_COUNT
-                )
+                ).getBuildVariables()
+                if (EVENT_TYPE == 'patchset-created' && 
+                        SUPPORTED_RELEASES.contains(RELEASE)) {
+                    IMAGE_NAME = results[buildType]["IMAGE_SHA"]
+                    print "invoking Clair scan on IMAGE: ${IMAGE_NAME}"
+                    try {
+                        utils.runBuild( 
+                            env.JOB_CLAIR, 
+                            [stringParam(name: 'docker_image', value: IMAGE_NAME),
+                             booleanParam(name: 'open_img', value: true)]
+                            RETRY_COUNT 
+                        )
+                    } catch (e) {
+                          print "==== Security vulnerability found. Please check the "+
+                                "console log for detailed information.==="
+                          throw e
+                    }
+                }
             }
         }
         i++
@@ -89,8 +108,7 @@ parallel runningSet
 
 overrideImages = [:]
 imagesVersions = [:]
-results.each { buildType, job ->
-    buildVars = job.getBuildVariables()
+results.each { buildType, buildVars ->
     overrideImages[buildVars["LOCI_IMAGE_VAR"]] = buildVars["IMAGE_SHA"]
     imagesVersions[buildType] = [
         'vcsRef': buildVars["PROJECT_VERSION"],

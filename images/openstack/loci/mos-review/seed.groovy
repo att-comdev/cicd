@@ -13,6 +13,7 @@ SUPPORTED_RELEASES = RELEASE_BRANCH_MAP.keySet() as List
 EVENT_TYPES = ['manual', 'patchset-created', 'change-merged']
 UPLIFT_COMMIT_MESSAGE_TEMPLATE = "[Uplift] %s %s loci update"
 UPLIFT_TOPIC_TEMPLATE = "%s-loci-update"
+JOB_CLAIR = "images/clair-check"
 
 MIRRORS_PREFIX = 'mirrors/mos/'
 REQ_PROJECT_NAME = 'mos-requirements'
@@ -181,6 +182,8 @@ pipelineJob("${JOB_BASE}/GenericPipeline") {
         "UPLIFT_IMAGES":                  false,
         "UPLIFT_COMMIT_MESSAGE_TEMPLATE": UPLIFT_COMMIT_MESSAGE_TEMPLATE,
         "UPLIFT_TOPIC_TEMPLATE":          UPLIFT_TOPIC_TEMPLATE,
+        "JOB_CLAIR":                      JOB_CLAIR,
+        "SUPPORTED_RELEASES":             JsonOutput.toJson(SUPPORTED_RELEASES),  
     )
     definition {
         cps {
