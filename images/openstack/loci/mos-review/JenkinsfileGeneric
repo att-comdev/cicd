@@ -89,7 +89,7 @@ PROJECT_MAP.each { projectName, buildTypes ->
                         utils.runBuild(
                             env.JOB_CLAIR,
                             [stringParam(name: 'docker_image', value: IMAGE_NAME),
-                             booleanParam(name: 'open_img', value: true)]
+                             booleanParam(name: 'open_img', value: true)],
                             RETRY_COUNT
                         )
                     } catch (e) {
