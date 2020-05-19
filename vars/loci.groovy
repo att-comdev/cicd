@@ -195,7 +195,7 @@ def getDependencies(String release, String projectName) {
                               'DIST_PACKAGES': 'ethtool lshw jq'],
             'placement':     ['PROFILES': 'apache',
                               'PIP_PACKAGES': '',
-                              'DIST_PACKAGES': ''],
+                              'DIST_PACKAGES': 'mysql-client'],
         ],
     ]
 
