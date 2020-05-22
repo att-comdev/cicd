@@ -610,6 +610,9 @@ def setupHugepages = {
 
 def setupNode = {
     vm.setKnownHosts()
+    if (env.VM_PRE_HOOK_CMD) {
+        sh VM_PRE_HOOK_CMD
+    }
     updateHost()
     sh "sudo cp ${HOME}/.ssh/known_hosts /etc/ssh/ssh_known_hosts"
     exportPipEnv()
