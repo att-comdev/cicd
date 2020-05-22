@@ -135,6 +135,9 @@ def imageOverrides(Map images, Map debugOverrides=[:]) {
 
 def installPackages() {
     packages = 'apt-transport-https ca-certificates curl software-properties-common'
+    if (RELEASE != 'ocata') {
+        packages += 'python3-dev python3-pip libffi-dev'
+    }
     sh "sudo apt-get update && sudo apt-get install -y ${packages}"
     REPOS.each { component, data ->
         sh "sudo bash -c 'echo \"${data.source}\" >> /etc/apt/sources.list.d/${component}.list'"
@@ -225,7 +228,9 @@ def installOpenstackClient() {
             )
             writeFile file: "upper-constraints.txt", text: upperConstraints
         }
-        if (!sh (returnStatus: true, script: "sudo pip uninstall python-openstackclient -y")) {
+        pip = 'pip3'
+        if (RELEASE == ocata) { pip = 'pip' }
+        if (!sh (returnStatus: true, script: "sudo ${pip} uninstall python-openstackclient -y")) {
             dir ("openstack-helm") {
                 withEnv (["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/mos-requirements/upper-constraints.txt"]) {
                     sh ("./tools/deployment/developer/ceph/020-setup-client.sh")
