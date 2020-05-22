@@ -1,0 +1,8 @@
+Workflow+1: Andrii Ostapenko <andrii.ostapenko@att.com>
+Verified+1: Jenkins <attcomdev.jenkins@gmail.com>
+Code-Review+2: <ss233c@att.com>
+Submitted-by: Andrii Ostapenko <andrii.ostapenko@att.com>
+Submitted-at: Fri, 22 May 2020 04:16:43 +0000
+Reviewed-on: https://review.gerrithub.io/c/att-comdev/cicd/+/493969
+Project: att-comdev/cicd
+Branch: refs/heads/master
