@@ -179,6 +179,8 @@ def tweakOSH() {
         }
     }
 
+    // downstream mariadb image does not have py3 yet
+    sh 'sed -i "s:#!/usr/bin/python3:#!/usr/bin/python:g" openstack-helm-infra/mariadb/templates/bin/_start.py.tpl ||:'
     // This is the most dirty part to make OSH AIO to use customizied artifacts location for k8s
     // Apparenly avialability of configuration overriding should be addressed upstream
     sh '''sed -i "/external_dns_nameservers:/a\\      - ${DNS_SERVER_2}\\n      - ${DNS_SERVER_1}" \
@@ -232,6 +234,7 @@ def installOpenstackClient() {
         if (RELEASE == 'ocata') { pip = 'pip' }
         if (!sh (returnStatus: true, script: "sudo ${pip} uninstall python-openstackclient -y")) {
             dir ("openstack-helm") {
+                sh "sudo ${pip} install pip -U"
                 withEnv (["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/mos-requirements/upper-constraints.txt"]) {
                     sh ("./tools/deployment/developer/ceph/020-setup-client.sh")
                 }
