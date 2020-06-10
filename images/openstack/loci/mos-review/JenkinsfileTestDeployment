@@ -179,8 +179,6 @@ def tweakOSH() {
         }
     }
 
-    // downstream mariadb image does not have py3 yet
-    sh 'sed -i "s:#!/usr/bin/python3:#!/usr/bin/python:g" openstack-helm-infra/mariadb/templates/bin/_start.py.tpl ||:'
     // This is the most dirty part to make OSH AIO to use customizied artifacts location for k8s
     // Apparenly avialability of configuration overriding should be addressed upstream
     sh '''sed -i "/external_dns_nameservers:/a\\      - ${DNS_SERVER_2}\\n      - ${DNS_SERVER_1}" \
