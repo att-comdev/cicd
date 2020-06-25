@@ -116,29 +116,47 @@ def call(Map map, Closure body) {
     def port = "22"
 
     try {
-        stage ('Node Launch') {
-
-            node(launch_node) {
-                tmpl = libraryResource "${stack_template}"
-                writeFile file: 'template.yaml', text: tmpl
-
-                data = libraryResource "heat/stack/${initScript}"
-                writeFile file: 'cloud-config', text: data
-
-                heat.stack_create(name, "${WORKSPACE}/template.yaml", parameters)
-                ip = heat.stack_output(name, 'floating_ip')
-                if (useJumphost) {
-                    port = (ip.split('\\.')[-1].toInteger() + 10000).toString()
-                    ip = OS_JUMPHOST_PUBLIC_IP
+        utils.retrier(
+            3,
+            {
+                node('master') {
+                    jenkins.node_delete(name)
+                }
+                node(launch_node) {
+                    heat.stack_delete(name)
                 }
             }
+        ) {
+            stage ('Node Launch') {
 
-            node('master') {
-                jenkins.node_create (name, ip, port)
+                node(launch_node) {
+                    tmpl = libraryResource "${stack_template}"
+                    writeFile file: 'template.yaml', text: tmpl
 
-                timeout (14) {
-                    node(name) {
-                        sh 'cloud-init status --wait'
+                    data = libraryResource "heat/stack/${initScript}"
+                    writeFile file: 'cloud-config', text: data
+
+                    utils.retrier(3, { heat.stack_delete(name) }) {
+                        heat.stack_create(name,
+                                          "${WORKSPACE}/template.yaml",
+                                          parameters)
+                    }
+                    ip = heat.stack_output(name, 'floating_ip')
+                    if (useJumphost) {
+                        port = (ip.split('\\.')[-1].toInteger() + 10000).toString()
+                        ip = OS_JUMPHOST_PUBLIC_IP
+                    }
+                }
+
+                node('master') {
+                    utils.retrier(3, { jenkins.node_delete(name) }) {
+                        jenkins.node_create (name, ip, port)
+                    }
+
+                    timeout (5) {
+                        node(name) {
+                            sh 'cloud-init status --wait'
+                        }
                     }
                 }
             }
