@@ -26,7 +26,7 @@ def runBuild(name, parameters, retries=1) {
              ...
          }
 */
-def retrier(int retries, Closure body) {
+def retrier(int retries, Closure failCleanup={}, Closure body) {
     def lastError
     for(int i=0; i<retries; i++) {
         lastError = null
@@ -35,6 +35,7 @@ def retrier(int retries, Closure body) {
             break
         } catch (err) {
             echo "${err}"
+            failCleanup()
             sleep 1
             checkIfAborted(currentBuild, err)
             lastError = err
@@ -48,7 +49,7 @@ def retrier(int retries, Closure body) {
 }
 
 def checkIfAborted(buildForCheck, err) {
-    lastLog = buildForCheck.rawBuild.getLog(100).join()
+    lastLog = buildForCheck.rawBuild.getLog(100).join("")
     if (lastLog.find(Params.ABORT_ON.join("|"))) {
         echo "Abort detected. Marking job as ABORTED."
         currentBuild.result = 'ABORTED'

@@ -330,31 +330,51 @@ def TestVm(Map map, Closure body) {
 
     timestamps {
         try {
-            stage ('Node Launch') {
-
-                node(launch_node) {
-                    tmpl = libraryResource "${stack_template}"
-                    writeFile file: 'template.yaml', text: tmpl
-
-                    if (initScript) {
-                        data = libraryResource "heat/stack/${initScript}"
-                        writeFile file: 'cloud-config', text: data
+            utils.retrier(
+                3,
+                {
+                    node('master') {
+                        jenkins.node_delete(name)
                     }
-
-                    heat.stack_create(name, "${WORKSPACE}/template.yaml", parameters)
-                    ip = heat.stack_output(name, 'floating_ip')
-                    if (useJumphost) {
-                        port = (ip.split('\\.')[-1].toInteger() + 10000).toString()
-                        ip = OS_JUMPHOST_PUBLIC_IP
+                    node(launch_node) {
+                        heat.stack_delete(name)
                     }
                 }
+            ) {
+                stage ('Node Launch') {
 
-                node('master') {
-                    jenkins.node_create (name, ip, port)
+                    node(launch_node) {
+                        tmpl = libraryResource "${stack_template}"
+                        writeFile file: 'template.yaml', text: tmpl
 
-                    timeout (14) {
-                        node(name) {
-                            sh 'cloud-init status --wait'
+                        if (initScript) {
+                            data = libraryResource "heat/stack/${initScript}"
+                            writeFile file: 'cloud-config', text: data
+                        }
+
+                        utils.retrier(3, { heat.stack_delete(name) }) {
+                            heat.stack_create(
+                                name,
+                                "${WORKSPACE}/template.yaml",
+                                parameters
+                            )
+                        }
+                        ip = heat.stack_output(name, 'floating_ip')
+                        if (useJumphost) {
+                            port = (ip.split('\\.')[-1].toInteger() + 10000).toString()
+                            ip = OS_JUMPHOST_PUBLIC_IP
+                        }
+                    }
+
+                    node('master') {
+                        utils.retrier(3, { jenkins.node_delete(name) }) {
+                            jenkins.node_create (name, ip, port)
+                        }
+
+                        timeout (14) {
+                            node(name) {
+                                sh 'cloud-init status --wait'
+                            }
                         }
                     }
                 }
