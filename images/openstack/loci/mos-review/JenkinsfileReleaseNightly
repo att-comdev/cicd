@@ -190,7 +190,7 @@ vm (initScript: 'loci-bootstrap.sh',
     // Create ssh config on slave to control what login is used for
     // what resource
     writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
-    sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
+    sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_TWO}\" > /etc/resolv.conf'"
 
     sh 'sudo service docker stop ||:'
     sh 'sudo apt-get update && sudo apt-get install -y runc containerd docker.io'

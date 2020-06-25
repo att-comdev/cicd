@@ -438,7 +438,7 @@ vm (initScript: 'loci-bootstrap.sh',
     // workaround to support existing requirements images that has old address hard-coded
     sh "sudo ip a a ${LOCAL_WEB_ADDR} dev docker0"
 
-    sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
+    sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_TWO}\" > /etc/resolv.conf'"
     sh 'sudo service docker stop ||:'
     sh 'sudo apt-get update && sudo apt-get install -y runc containerd docker.io'
     sh 'sudo service docker start ||:'

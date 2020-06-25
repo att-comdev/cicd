@@ -181,7 +181,7 @@ def tweakOSH() {
 
     // This is the most dirty part to make OSH AIO to use customizied artifacts location for k8s
     // Apparenly avialability of configuration overriding should be addressed upstream
-    sh '''sed -i "/external_dns_nameservers:/a\\      - ${DNS_SERVER_2}\\n      - ${DNS_SERVER_1}" \
+    sh '''sed -i "/external_dns_nameservers:/a\\      - ${DNS_SERVER_TWO}\\n      - ${DNS_SERVER_ONE}" \
           ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml'''
     def defaults = './openstack-helm-infra/roles/build-images/defaults/main.yml'
     def amap = readYaml file: defaults
@@ -545,7 +545,7 @@ def setupHostsConfiguration() {
 }
 
 def setupDNSConfiguration() {
-    sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_2}\" > /etc/resolv.conf'"
+    sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_TWO}\" > /etc/resolv.conf'"
 }
 
 def deleteInitialSnapshot = {
