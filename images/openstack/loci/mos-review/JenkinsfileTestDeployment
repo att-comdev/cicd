@@ -179,6 +179,10 @@ def tweakOSH() {
         }
     }
 
+    // until https://review.opendev.org/#/c/738141/ is merged
+    sh 'sed -i \'/OSH_EXTRA_HELM_ARGS_NOVA/a export OSH_EXTRA_HELM_ARGS_NOVA=\"${OSH_EXTRA_HELM_ARGS_NOVA} '
+       '$(./tools/deployment/common/get-values-overrides.sh nova)\"\'
+       ./openstack-helm/tools/deployment/developer/ceph/160-compute-kit.sh'
     // This is the most dirty part to make OSH AIO to use customizied artifacts location for k8s
     // Apparenly avialability of configuration overriding should be addressed upstream
     sh '''sed -i "/external_dns_nameservers:/a\\      - ${DNS_SERVER_TWO}\\n      - ${DNS_SERVER_ONE}" \
