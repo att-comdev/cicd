@@ -7,8 +7,27 @@ REQUIREMENT_REPO = "mos-requirements"
 currentBuild.displayName = "#${BUILD_NUMBER} ${PROJECT_NAME}"
 
 TOX_CHECK = 'OS_LOG_PATH=.; tox -epep8,py27'
-if (GERRIT_BRANCH != conf.OCATA_BRANCH) {
+if (PROJECT_BRANCH != conf.OCATA_BRANCH) {
     TOX_CHECK = 'OS_LOG_PATH=.; tox'
+}
+
+def compileSshData() {
+    sshConfig = ""
+    keys = []
+    parseSshData().each { entry ->
+        sshConfig += "Host $entry.value.resource\n" +
+                     "User $entry.value.user\n"
+        keys.add(entry.key)
+    }
+    return [keys, sshConfig]
+}
+
+// Parse json containing
+// {'<credential_name>': {'user': '<user>', 'resource': '<resource>'}}, ...}
+// The source of data what credentials to use in ssh-agent with what user
+// to what resource
+def parseSshData() {
+    return new groovy.json.JsonSlurper().parseText(SSH_DATA)
 }
 
 // Compile ssh-agent key names and ssh config from SSH_DATA to be used
@@ -20,14 +39,14 @@ vm () {
     writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
 
     stage('Project Checkout') {
-        gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
+        gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${PROJECT_NAME}",
                              PROJECT_REF,
                              "test-repo",
                              INTERNAL_GERRIT_KEY,
                              REFS)
         gerrit.cloneProject("${INTERNAL_GERRIT_SSH}/${REQUIREMENT_REPO}",
                              PROJECT_BRANCH,
-                             "refs/heads/${GERRIT_BRANCH}",
+                             "refs/heads/${PROJECT_BRANCH}",
                              REQUIREMENT_REPO,
                              INTERNAL_GERRIT_KEY)
 
