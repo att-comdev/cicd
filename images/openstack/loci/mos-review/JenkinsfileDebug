@@ -34,7 +34,8 @@ RELEASE_BRANCH_MAP = json.parseText(RELEASE_BRANCH_MAP)
 RELEASE = keyForValue(RELEASE_BRANCH_MAP, GERRIT_BRANCH)
 
 def setPubKey() {
-    node (LABEL) {
+    def keys
+    node (LAUNCH_NODE) {
         withCredentials([usernamePassword(credentialsId: 'gerrit_http_creds',
                                           usernameVariable: 'USERNAME',
                                           passwordVariable: 'PASSWORD')]) {
@@ -42,11 +43,15 @@ def setPubKey() {
                    "https://${INTERNAL_GERRIT_URL}/a/accounts/" +
                    "${GERRIT_CHANGE_OWNER_EMAIL}/sshkeys")
             sh cmd
+            keys = json.parseText(sh(script: 'tail -n +2 sshkeys',
+                                     returnStdout: true))
+            sh 'rm sshkeys'
         }
-        json.parseText(sh(script: 'tail -n +2 sshkeys', returnStdout: true)).each {
+    }
+    node (LABEL) {
+        keys.each {
             sh "echo \"${it.ssh_public_key}\" >> ${HOME}/.ssh/authorized_keys"
         }
-        sh 'rm sshkeys'
     }
 }
 
