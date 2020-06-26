@@ -1,0 +1,45 @@
+import com.att.nccicd.config.conf as config
+conf = new config(env).CONF
+
+REFS = "+refs/heads/*:refs/remotes/origin/* +refs/changes/*:refs/changes/*"
+REQUIREMENT_REPO = "mos-requirements"
+
+currentBuild.displayName = "#${BUILD_NUMBER} ${PROJECT_NAME}"
+
+TOX_CHECK = 'OS_LOG_PATH=.; tox -epep8,py27'
+if (GERRIT_BRANCH != conf.OCATA_BRANCH) {
+    TOX_CHECK = 'OS_LOG_PATH=.; tox'
+}
+
+// Compile ssh-agent key names and ssh config from SSH_DATA to be used
+// for fetching projects to internal mirror
+(KEY_NAMES, SSH_CONFIG) = compileSshData()
+
+
+vm () {
+    writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
+
+    stage('Project Checkout') {
+        gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${GERRIT_PROJECT}",
+                             PROJECT_REF,
+                             "test-repo",
+                             INTERNAL_GERRIT_KEY,
+                             REFS)
+        gerrit.cloneProject("${INTERNAL_GERRIT_SSH}/${REQUIREMENT_REPO}",
+                             PROJECT_BRANCH,
+                             "refs/heads/${GERRIT_BRANCH}",
+                             REQUIREMENT_REPO,
+                             INTERNAL_GERRIT_KEY)
+
+    }
+    def ucPath = "${WORKSPACE}/${REQUIREMENT_REPO}/upper-constraints.txt"
+    stage('Tox') {
+        dir("${WORKSPACE}/test-repo") {
+            withEnv(["UPPER_CONSTRAINTS_FILE=${ucPath}"]) {
+                sshagent([INTERNAL_GERRIT_KEY]) {
+                    sh TOX_CHECK
+                }
+            }
+        }
+    }
+}
