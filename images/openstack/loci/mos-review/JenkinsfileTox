@@ -7,8 +7,19 @@ REQUIREMENT_REPO = "mos-requirements"
 currentBuild.displayName = "#${BUILD_NUMBER} ${PROJECT_NAME}"
 
 TOX_CHECK = 'OS_LOG_PATH=.; tox -epep8,py27'
-if (GERRIT_BRANCH != conf.OCATA_BRANCH) {
+if (PROJECT_BRANCH != conf.OCATA_BRANCH) {
     TOX_CHECK = 'OS_LOG_PATH=.; tox'
+}
+
+def compileSshData() {
+    sshConfig = ""
+    keys = []
+    parseSshData().each { entry ->
+        sshConfig += "Host $entry.value.resource\n" +
+                     "User $entry.value.user\n"
+        keys.add(entry.key)
+    }
+    return [keys, sshConfig]
 }
 
 // Compile ssh-agent key names and ssh config from SSH_DATA to be used
