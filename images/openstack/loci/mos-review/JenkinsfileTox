@@ -42,8 +42,9 @@ vm (image: IMAGE, flavor: 'm1.large') {
         writeFile file: "${HOME}/.ssh/config", text: SSH_CONFIG
         sh "sudo apt-get update"
         sh "sudo bash -c 'export DEBIAN_FRONTEND=noninteractive; " +
-                         "apt-get -y install python3-pip'"
+                         "apt-get -y install python3-pip gettext'"
         sh "sudo pip3 install --index-url ${ARTF_PIP_INDEX_URL} tox"
+        sh "sudo bash -c 'mkdir -p /opt/stack; chown ubuntu:ubuntu /opt/stack'"
     }
 
     stage('Project Checkout') {
