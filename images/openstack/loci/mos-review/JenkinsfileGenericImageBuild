@@ -143,7 +143,9 @@ def create_mirrors(projectList, keyList) {
                     def url, name
                     (url, name) = [getProjectRepoUrl(it), it.split("/")[-1]]
                     runningSet[name] = {
-                        sh "git clone --mirror ${url} ${name}"
+                        utils.retrier(NET_RETRY_COUNT, { sleep 10 }) {
+                            sh "git clone --mirror ${url} ${name}"
+                        }
                         sh "git --git-dir ${name} update-server-info"
                     }
                 }
