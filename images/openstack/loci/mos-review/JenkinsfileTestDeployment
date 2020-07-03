@@ -541,11 +541,6 @@ def deleteImage(image) {
     openstackExec("openstack image delete ${image}")
 }
 
-def setupHostsConfiguration() {
-    sh 'sudo bash -c \'echo "127.0.0.1 localhost" > /etc/hosts\''
-    sh 'sudo bash -c \'echo "172.17.0.1 \$(hostname)" >> /etc/hosts\''
-}
-
 def setupDNSConfiguration() {
     sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_TWO}\" > /etc/resolv.conf'"
 }
@@ -647,7 +642,6 @@ K8S_DEPLOY_STEPS = [
     {
         stage('Setup host') {
             setupDNSConfiguration()
-            setupHostsConfiguration()
         }
     },
     {
@@ -1015,7 +1009,6 @@ TestVm(initScript: '',
     if (INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) {
         K8S_DEPLOY_STEPS.each { it() }
     } else {
-        setupHostsConfiguration()
         stage('Authenticate docker repo') {
             utils.retrier(NET_RETRY_COUNT) {
                 osh.dockerAuth(ARTF_READONLY_CREDS)
