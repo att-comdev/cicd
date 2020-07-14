@@ -291,6 +291,36 @@ stage("Test Deployment") {
 
 currentBuild.description = images
 
+IMAGES_VERSIONS_EXCLUDED = [:]
+IMAGES_VERSIONS.each { key, value ->
+    if (key =~ /(neutron|nova)/) { return }
+    IMAGES_VERSIONS_EXCLUDED[key] = value
+}
+
+[
+    [
+        images: IMAGES_VERSIONS_EXCLUDED,
+        topic: TOPIC,
+        COMMIT_MESSAGE: MESSAGE
+    ],
+    [
+        images: IMAGES_VERSIONS,
+        topic: TOPIC + '-full',
+        COMMIT_MESSAGE: MESSAGE + '-full'
+    ],
+].each {
+    parameters = [
+        stringParam(name: "IMAGES", value: JsonOutput.toJson(it.images)),
+        stringParam(name: "RELEASE", value: RELEASE),
+        stringParam(name: "TOPIC", value: it.topic),
+        stringParam(name: "COMMIT_MESSAGE", value: it.message),
+    ]
+    utils.runBuild(
+        "${JOB_BASE}/UpliftPipeline",
+        parameters,
+        RETRY_COUNT
+    )
+}
 parameters = [
     stringParam(name: "IMAGES", value: JsonOutput.toJson(IMAGES_VERSIONS)),
     stringParam(name: "RELEASE", value: RELEASE),
