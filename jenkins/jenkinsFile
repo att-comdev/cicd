@@ -1,24 +1,11 @@
-Jenkinsfile (Declarative Pipeline)
+Jenkinsfile
 pipeline {
-    agent any
-    options {
-        skipStagesAfterUnstable()
+  agent any
+  stages {
+    stage ('Initialize') {
+      steps {
+        echo 'Placeholder.'
+      }
     }
-    stages {
-        stage('Build') {
-            steps {
-                echo 'Building'
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying'
-            }
-        }
-    }
+  }
 }
