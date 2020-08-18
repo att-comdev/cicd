@@ -1,0 +1,53 @@
+    podTemplate(yaml: """
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      labels:
+        provider: capd 
+    spec:
+      containers:
+      - name: ubuntu-bionic
+        image: ubuntu:18.04
+        command:
+        - cat
+        tty: true
+    """
+    ) {
+        node(POD_LABEL) {
+          container('ubuntu-bionic') {
+            sh "hostname"
+            sh 'apt-get update; apt-get install -y sshpass git'
+            sh label: '', script: '''sshpass -p "airship" ssh -tt -o StrictHostKeyChecking=no airship@"${targetVM}" /bin/bash <<-EOF
+            sudo apt-get update
+            sudo apt-get install -y make git curl sudo wget
+
+            # Manifests
+            sudo rm -rf /home/zuul/src/opendev.org/airship
+            mkdir -p /home/zuul/src/opendev.org/airship/
+            cd /home/zuul/src/opendev.org/airship/
+            git clone https://opendev.org/airship/airshipctl.git
+            cd airshipctl/
+            git fetch https://review.opendev.org/airship/airshipctl refs/changes/71/737871/15 && git checkout FETCH_HEAD
+
+            # Scripts
+            sudo rm -rf /home/airship/capd
+            mkdir -p /home/airship/capd
+            cp -r /home/zuul/src/opendev.org/airship/airshipctl/ /home/airship/capd
+            cd /home/airship/capd/airshipctl/
+            git fetch https://review.opendev.org/airship/airshipctl refs/changes/82/738682/60 && git checkout FETCH_HEAD			
+
+            ./tools/deployment/docker/00_install_kind.sh | cat
+            ./tools/deployment/01_install_kubectl.sh | cat
+            ./tools/deployment/docker/02_install_go.sh | cat
+            ./tools/deployment/docker/03_install_kustomize_docker.sh | cat
+            ./tools/deployment/docker/11_build_kind_cluster.sh | cat
+            ./tools/deployment/21_systemwide_executable.sh | cat
+            ./tools/deployment/docker/31_create_configs.sh | cat
+            ./tools/deployment/docker/41_initialize_management_cluster.sh | cat
+            ./tools/deployment/docker/51_deploy_workload_cluster.sh | cat
+            exit;
+            EOF'''
+        }
+      }
+    }
+
