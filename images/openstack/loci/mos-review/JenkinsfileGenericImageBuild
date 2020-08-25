@@ -213,14 +213,28 @@ def commit(gitArg, message) {
 // mirror, that would simplify current code, but having single source of
 // truth is tempting
 def prepare_local_mirrors = {
-    projectList = [PROJECT_NAME]
-    // We always need requirements project as upper-constraints.txt is
-    // a single source of truth of a dependeny list
+    // Determine if we need to create mirrors for non-requirements build
+    // to avoid unnecessary clone of dozens dependency components
+    def createDepMirrors = true
     if (!PROJECT_NAME.contains('requirements')) {
+        loci.exportWheels("", WHEELS_LATEST)
+        sh 'tar xf web/images/wheels.tar upper-constraints.txt'
+        if (sh (returnStatus: true, script: "grep '^git+' upper-constraints.txt")) {
+            createDepMirrors = false
+        }
+    }
+
+    projectList = [PROJECT_NAME]
+    // We need requirements project as upper-constraints.txt is
+    // a single source of truth of a dependency list
+    if (!PROJECT_NAME.contains('requirements') && CREATE_DEP_MIRRORS) {
         projectList.add(REQ_PROJECT_NAME)
     }
     sh "mkdir -p ${REPO_BASE_PATH}"
     create_mirrors(projectList, [INTERNAL_GERRIT_KEY])
+
+    if (!CREATE_DEP_MIRRORS) { return }
+
     sh 'mkdir -p worktree'
 
     gitArg = ("--git-dir ${REPO_BASE_PATH}/${REQ_PROJECT_NAME} " +
@@ -465,7 +479,6 @@ vm (initScript: 'loci-bootstrap.sh',
         if (PROJECT_NAME.contains('requirements')) {
             env.IMAGE_SHA = buildLociMos()
         } else {
-            loci.exportWheels("", WHEELS_LATEST)
             WHEELS_ARG = ['WHEELS': "${LOCAL_WEB_URL}/images/wheels.tar"]
             env.IMAGE_SHA = buildLociMos(
                 loci.getDependencies(RELEASE, BUILD_TYPE),
