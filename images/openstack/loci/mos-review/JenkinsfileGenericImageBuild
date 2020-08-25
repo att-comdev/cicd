@@ -102,6 +102,7 @@ DEFAULT_ARGS = [
 //  'SPICE_REPO':      "${getProjectRepoInternalUrl("spice-html5")}",
   'PROJECT_REPO':    getProjectRepoInternalUrl(PROJECT_NAME),
   'PYTHON3'     :    PY3,
+  'KEEP_ALL_WHEELS': "True",
 ]
 
 // keep proxy for nova and requirements as they multiple dependencies that need special
