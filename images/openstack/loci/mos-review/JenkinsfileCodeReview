@@ -22,12 +22,17 @@ params = [
     stringParam(name: 'PROJECT_REF', value: GERRIT_REFSPEC),
     stringParam(name: 'PROJECT_BRANCH', value: GERRIT_BRANCH),
 ]
-stage("Code-review") {
-    if (GERRIT_EVENT_TYPE != 'change-merged' &&
-            !conf.UT_SKIP_LIST.contains(GERRIT_PROJECT)) {
-        job = utils.runBuild("${JOB_BASE}/code-review", params)
-    } else {
-        print "Skipping checks"
+
+runningSet = [:]
+
+runningSet['codeReview'] = {
+    stage("Code-review") {
+        if (GERRIT_EVENT_TYPE != 'change-merged' &&
+                !conf.UT_SKIP_LIST.contains(GERRIT_PROJECT)) {
+            job = utils.runBuild("${JOB_BASE}/code-review", params)
+        } else {
+            print "Skipping checks"
+        }
     }
 }
 
@@ -57,8 +62,12 @@ if (projectList.contains(GERRIT_PROJECT)) {
 params.add(stringParam(name: 'EVENT_TYPE', value: GERRIT_EVENT_TYPE))
 params.add(stringParam(name: 'RELEASE', value: RELEASE))
 
-print "Building Generic Pipeline with ${params}"
-stage("Generic Pipeline") {
-    job = utils.runBuild("${JOB_BASE}/GenericPipeline", params)
-    currentBuild.description = job.getBuildVariables()["IMAGES"]
+runningSet['genericPipeline'] = {
+    print "Building Generic Pipeline with ${params}"
+    stage("Generic Pipeline") {
+        job = utils.runBuild("${JOB_BASE}/GenericPipeline", params)
+        currentBuild.description = job.getBuildVariables()["IMAGES"]
+    }
 }
+
+parallel runningSet
