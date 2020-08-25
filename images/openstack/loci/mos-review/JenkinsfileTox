@@ -64,6 +64,7 @@ vm (image: IMAGE, flavor: 'm1.large') {
     stage('Tox') {
         dir("${WORKSPACE}/test-repo") {
             withEnv(["UPPER_CONSTRAINTS_FILE=${ucPath}",
+                     "TOX_CONSTRAINTS_FILE=${ucPath}",
                      "PIP_INDEX_URL=${ARTF_PIP_INDEX_URL}",
                      "HTTPS_PROXY=", "HTTP_PROXY="]) {
                 sshagent([INTERNAL_GERRIT_KEY]) {
