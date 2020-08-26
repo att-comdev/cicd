@@ -301,12 +301,12 @@ IMAGES_VERSIONS.each { key, value ->
     [
         images: IMAGES_VERSIONS_EXCLUDED,
         topic: TOPIC,
-        COMMIT_MESSAGE: MESSAGE
+        message: MESSAGE
     ],
     [
         images: IMAGES_VERSIONS,
         topic: TOPIC + '-full',
-        COMMIT_MESSAGE: MESSAGE + '-full'
+        message: MESSAGE + '-full'
     ],
 ].each {
     parameters = [
