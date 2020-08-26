@@ -187,7 +187,7 @@ pipelineJob("${JOB_BASE}/GenericPipeline") {
     )
     definition {
         cps {
-            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileGeneric"))
+            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileGeneric.groovy"))
             sandbox(false)
         }
     }
@@ -205,7 +205,7 @@ MERGED_MAP.each { projectName, buildTypes ->
             definition {
                 cps {
                     script(readFileFromWorkspace(
-                               "${JOB_BASE}/JenkinsfileGenericImageBuild")
+                               "${JOB_BASE}/JenkinsfileGenericImageBuild.groovy")
                     )
                     sandbox(false)
                 }
@@ -270,7 +270,7 @@ pipelineJob("${JOB_BASE}/TestDeploymentPipeline") {
     definition {
         cps {
             script(readFileFromWorkspace(
-                      "${JOB_BASE}/JenkinsfileTestDeployment")
+                      "${JOB_BASE}/JenkinsfileTestDeployment.groovy")
             )
             sandbox(false)
         }
@@ -319,7 +319,7 @@ pipelineJob("${JOB_BASE}/DebugDeploymentPipeline") {
     definition {
         cps {
             script(readFileFromWorkspace(
-                      "${JOB_BASE}/JenkinsfileTestDeployment")
+                      "${JOB_BASE}/JenkinsfileTestDeployment.groovy")
             )
             sandbox(false)
         }
@@ -362,7 +362,7 @@ pipelineJob("${JOB_BASE}/DebugPipeline") {
     }
     definition {
         cps {
-            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileDebug"))
+            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileDebug.groovy"))
             sandbox(false)
         }
     }
@@ -438,7 +438,7 @@ pipelineJob("${JOB_BASE}/CodeReviewPipeline") {
     }
     definition {
         cps {
-            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileCodeReview"))
+            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileCodeReview.groovy"))
             sandbox(false)
         }
     }
@@ -512,7 +512,7 @@ SUPPORTED_RELEASES.each { release ->
         definition {
             cps {
                 script(readFileFromWorkspace(
-                           "${JOB_BASE}/JenkinsfileReleaseNightly")
+                           "${JOB_BASE}/JenkinsfileReleaseNightly.groovy")
                 )
                 sandbox(false)
             }
@@ -545,7 +545,7 @@ SUPPORTED_RELEASES.each { release ->
         definition {
             cps {
                 script(readFileFromWorkspace(
-                           "${JOB_BASE}/JenkinsfileReleaseNightly")
+                           "${JOB_BASE}/JenkinsfileReleaseNightly.groovy")
                 )
                 sandbox(false)
             }
@@ -573,7 +573,7 @@ pipelineJob("${JOB_BASE}/UpdateMirrors") {
     }
     definition {
         cps {
-            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileUpdateMirrors"))
+            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileUpdateMirrors.groovy"))
             sandbox(false)
         }
     }
@@ -615,7 +615,7 @@ pipelineJob("${JOB_BASE}/UpliftPipeline") {
     }
     definition {
         cps {
-            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileUplift"))
+            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileUplift.groovy"))
             sandbox(false)
         }
     }
@@ -650,7 +650,7 @@ pipelineJob("${JOB_BASE}/code-review") {
     }
     definition {
         cps {
-            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileTox"))
+            script(readFileFromWorkspace("${JOB_BASE}/JenkinsfileTox.groovy"))
             sandbox()
         }
     }
