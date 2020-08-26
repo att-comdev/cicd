@@ -22,6 +22,30 @@
       "revId": "a28a75d48f583d942a6e7628888ec263e1abf6ac",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80cebde3_8cde3b01",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileGenericImageBuild",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-08-26T14:18:39Z",
+      "side": 1,
+      "message": "Thanks",
+      "parentUuid": "ba1e1b20_7d20290f",
+      "range": {
+        "startLine": 218,
+        "startChar": 8,
+        "endLine": 218,
+        "endChar": 24
+      },
+      "revId": "a28a75d48f583d942a6e7628888ec263e1abf6ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
