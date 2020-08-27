@@ -1053,7 +1053,7 @@ TestVm(initScript: '',
                 installOSHAIO(it)
             }
         } catch (Exception e) {
-            osh.artifactLogs()
+            artifactLogs()
             error "OSH AIO deployment failed with exception ${e}"
         }
     }
@@ -1063,13 +1063,24 @@ TestVm(initScript: '',
             try {
                 runHelmTests(['nova', 'cinder', 'glance', 'heat', 'keystone', 'neutron'])
             } catch (Exception e) {
-                osh.artifactLogs()
+                artifactLogs()
                 throw e
             }
         }
     }
 }
 
+
+def artifactLogs() {
+    pip = 'pip3'
+    if (RELEASE == 'ocata') { pip = 'pip' }
+    sh "${pip} install 'ansible==2.5.5'"
+    sh "sed -i 's/hosts: primary/hosts: localhost/g' openstack-helm-infra/playbooks/osh-infra-collect-logs.yaml"
+    sh "ansible-playbook openstack-helm-infra/playbooks/osh-infra-collect-logs.yaml"
+    cmd = "sudo tar --warning=no-file-changed -czf ${WORKSPACE}/artifacts/${BUILD_TAG}.tar.gz /tmp/logs"
+    sh(script: cmd)
+    archiveArtifacts 'artifacts/*'
+}
 
 def initConfig(nodeName) {
     node (nodeName) {

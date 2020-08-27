@@ -285,17 +285,6 @@ def parseTestLogs() {
     return 0
 }
 
-/**
- * Archive var/log to assist in debugging failures
- * Archive 'artifacts' directory to allow access from jenkins job
- * @return status 0 for success
- *                1 for failure
- */
-def artifactLogs() {
-    cmd = "sudo tar --warning=no-file-changed -czf ${WORKSPACE}/artifacts/${BUILD_TAG}.tar.gz /var/log"
-    sh(script: cmd)
-    archiveArtifacts 'artifacts/*'
-}
 
 /**
  * Deploy Kubernetes AIO
