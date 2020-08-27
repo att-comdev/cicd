@@ -103,6 +103,9 @@ DEFAULT_ARGS = [
   'PROJECT_REPO':    getProjectRepoInternalUrl(PROJECT_NAME),
   'PYTHON3'     :    PY3,
   'KEEP_ALL_WHEELS': "True",
+// Cool way to mitigate artifactory index lookup failures
+// so make pip look couple more times to the same place
+  'PIP_WHEEL_ARGS':  "--extra-index-url ${ARTF_PIP_INDEX_URL} --extra-index-url ${ARTF_PIP_INDEX_URL}"
 ]
 
 // keep proxy for nova and requirements as they multiple dependencies that need special
