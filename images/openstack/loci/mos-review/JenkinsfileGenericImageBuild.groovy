@@ -309,7 +309,7 @@ def getChangeUrl(proj, projRevision) {
     sshagent([INTERNAL_GERRIT_KEY]) {
          queryResult = sh(returnStdout: true, script: cmd)
     }
-    json.parseText(queryResult).get('url', '')
+    json.parseText(queryResult).get('url', "https://${INTERNAL_GERRIT_URL}/${PROJECT_NAME}")
 }
 
 def compileSshData() {
