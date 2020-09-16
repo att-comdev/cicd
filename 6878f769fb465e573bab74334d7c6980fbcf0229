@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "103c5dcc_08d762bf",
+        "filename": "eric-cicd/jenkins_capd",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1017588
+      },
+      "writtenOn": "2020-09-16T14:20:49Z",
+      "side": 1,
+      "message": "please use the image from conf, this will not get downloaded in NC cloud.",
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bf51df2_40b2a5ad",
+        "filename": "eric-cicd/jenkins_capd",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1017588
+      },
+      "writtenOn": "2020-09-16T14:20:49Z",
+      "side": 1,
+      "message": "From where the value of this env variable will come?",
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "843bd28b_e4c5171d",
         "filename": "eric-cicd/jenkins_capd",
         "patchSetId": 1
@@ -25,6 +59,23 @@
     },
     {
       "key": {
+        "uuid": "2d84c99b_94a4ed66",
+        "filename": "eric-cicd/jenkins_capd",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1017588
+      },
+      "writtenOn": "2020-09-16T14:20:49Z",
+      "side": 1,
+      "message": "remove sudo",
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0293e121_89d7a085",
         "filename": "eric-cicd/jenkins_capd",
         "patchSetId": 1
@@ -42,6 +93,40 @@
         "endLine": 94,
         "endChar": 34
       },
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe6f69de_21e62ca1",
+        "filename": "eric-cicd/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1017588
+      },
+      "writtenOn": "2020-09-16T14:20:49Z",
+      "side": 1,
+      "message": "Do we have the job folder like this? I guess not. Folder name can not be like this.",
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7ba60b4_87280810",
+        "filename": "eric-cicd/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1017588
+      },
+      "writtenOn": "2020-09-16T14:20:49Z",
+      "side": 1,
+      "message": "Do you want to give this much give job name?",
       "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
