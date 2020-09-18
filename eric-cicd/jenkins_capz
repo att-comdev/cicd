@@ -1,0 +1,125 @@
+podTemplate(yaml: """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    provider: capz
+spec:
+  securityContext:
+    runAsUser: 0
+  containers:
+  - name: ubuntu-bionic
+    image: ubuntu:18.04
+    command:
+    - cat
+    tty: true
+    env:
+    - name: DOCKER_HOST
+      value: tcp://localhost:2375
+    - name: AIRSHIP
+      value: /home/zuul/src/opendev.org/airship/
+    - name: AIRSHIPDIR
+      value: /home/zuul/src/opendev.org/airship/airshipctl
+    - name: AIRSHIPCTL_WS
+      value: /home/zuul/src/opendev.org/airship/airshipctl
+    - name: CAPZ_DOCKER_IMAGE
+      value: "quay.io/sshiba/capz-bootstrap:latest"
+    - name: CAPG_DOCKER_IMAGE
+      value: "quay.io/sshiba/capg-bootstrap:latest"
+    volumeMounts:
+    - name: docker-sock-shared
+      mountPath: /var/run
+    - name: home
+      mountPath: /root
+  - name: dind
+    image: docker:dind
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - name: dind-storage
+      mountPath: /var/lib/docker
+    - name: docker-sock-shared
+      mountPath: /var/run
+    - name: home
+      mountPath: /root
+    env:
+    - name: DOCKER_TLS_CERTDIR
+      value: ""
+  volumes:
+  - name: dind-storage
+    emptyDir: {}
+  - name: docker-sock-shared
+    emptyDir: {}
+  - name: home
+    emptyDir: {}
+"""
+) {
+    node(POD_LABEL) {
+      container('ubuntu-bionic') {
+        stage("Setting up Host Container") {
+          sh "hostname"
+          sh label: '', script: '''apt-get update; apt-get install -y git sudo make curl wget systemd vim && \\
+            curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst && chmod +x envsubst && mv envsubst /usr/local/bin && \\
+            apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common && \\
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && apt-key fingerprint 0EBFCD88 && \\
+            add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \\
+            export USER=`whoami` && apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io && usermod -aG docker $USER'''
+        }
+        stage("Cloning Repo") {
+          sh label: '', script: '''mkdir -p $AIRSHIP && cd $AIRSHIP && \\
+            git clone https://opendev.org/airship/airshipctl.git && \\
+            export PATH=$PATH:/usr/local/go/bin/ && \\
+            cd $AIRSHIPCTL_WS && git fetch https://review.opendev.org/airship/airshipctl refs/changes/64/737864/49 && git checkout FETCH_HEAD && \\
+			export JOBNAME=$(echo "${JOB_NAME}" | tr '[:upper:]' '[:lower:]') && \\
+            sed -i "/env-vars/s/^# //g" manifests/site/az-test-site/shared/clusterctl/clusterctl.yaml && \\
+            sed -i "/AZURE_/s/^/#/g" manifests/site/az-test-site/shared/clusterctl/clusterctl.yaml && \\
+            sed -i "/gcp_config/s//gcp-config/g" tools/deployment/azure/32_create_bootstrap_configs.sh && \\
+            sed -i "/replicas.*/s//replicas: 1/g" manifests/function/k8scontrol-capz/* && \\
+            sed -i "/az-target-cluster/s//az-target-cluster-${JOBNAME}-${BUILD_NUMBER}/g" tools/deployment/azure/* && \\
+            sed -i "/az-target-cluster/s//az-target-cluster-${JOBNAME}-${BUILD_NUMBER}/g" manifests/function/k8scontrol-capz/* && \\
+            sed -i "/azure-workload/s//azure-workload-${JOBNAME}-${BUILD_NUMBER}/g" manifests/function/k8scontrol-capz/* && \\
+            sed -i "/name.*/s//name: capi-azure-${JOBNAME}-${BUILD_NUMBER}/g" tools/deployment/templates/azure-config.yaml && \\
+            sed -i "/resourceGroup.*/s//resourceGroup: airship2-${JOBNAME}-${BUILD_NUMBER}-rg/" tools/deployment/templates/azure-config.yaml && \\
+			sed -i "/set-context.*/s//set-context capi-azure-${JOBNAME}-${BUILD_NUMBER} --manifest azure_manifest/" tools/deployment/azure/41_deploy_azure_ephemeral_cluster.sh'''
+        }
+        stage("Install Kubectl") {
+          sh label: '', script: '''cd $AIRSHIPCTL_WS && ./tools/deployment/azure/01_install_kubectl.sh'''
+        }
+        stage("Install GO") {
+          sh label: '', script: '''cd $AIRSHIPCTL_WS && ./tools/deployment/azure/02_install_go.sh'''
+        }
+        stage("Install Kustomize") {
+          sh label: '', script: '''cd $AIRSHIPCTL_WS && ./tools/deployment/azure/03_install_kustomize_docker.sh'''
+        }
+        withCredentials([azureServicePrincipal('AzureCloud')]) {
+          stage("Configure Bootstrap") {
+            sh label: '', script: '''cd $AIRSHIPCTL_WS && ./tools/deployment/azure/21_systemwide_executable.sh && \\
+            ./tools/deployment/azure/31_create_configs.sh && ./tools/deployment/azure/32_create_bootstrap_configs.sh'''
+          }
+          stage("Deploying Empheral Cluster") {
+            sh label: '', script: '''cd $AIRSHIPCTL_WS && ./tools/deployment/azure/41_deploy_azure_ephemeral_cluster.sh'''
+          }
+          stage("Deploying Management Cluster") {
+            sh label: '', script: '''export AZURE_SUBSCRIPTION_ID_B64="$(echo -n "$AZURE_SUBSCRIPTION_ID" | base64 | tr -d \'\\n\')" && \\
+            export AZURE_TENANT_ID_B64="$(echo -n "$AZURE_TENANT_ID" | base64 | tr -d \'\\n\')" && \\
+            export AZURE_CLIENT_ID_B64="$(echo -n "$AZURE_CLIENT_ID" | base64 | tr -d \'\\n\')" && \\
+            export AZURE_CLIENT_SECRET_B64="$(echo -n "$AZURE_CLIENT_SECRET" | base64 | tr -d \'\\n\')" &&\\
+			cd $AIRSHIPCTL_WS && ./tools/deployment/azure/41_initialize_management_cluster.sh'''
+          }
+          stage("Deploying Workload Cluster") {
+            sh label: '', script: '''cd $AIRSHIPCTL_WS && ./tools/deployment/azure/51_deploy_workload_cluster.sh'''
+            for (int i = 0; i < 3; i++) {
+              sh label: '', script: '''kubectl get nodes --kubeconfig /root/.airship/capz.kubeconfig; \\
+			  kubectl get machines --kubeconfig /root/.airship/capz.kubeconfig; sleep 360'''
+            }	
+          }
+          stage("Cleanup resources") {
+            sh label: '', script: '''cd $AIRSHIPCTL_WS && kubectl get machines --kubeconfig /root/.airship/capz.kubeconfig && \\
+              kubectl get nodes --kubeconfig /root/.airship/capz.kubeconfig && \\
+              head -n -7 tools/deployment/azure/100_clean_up_resources.sh | tee tmp && cp tmp tools/deployment/azure/100_clean_up_resources.sh && \\
+              ./tools/deployment/azure/100_clean_up_resources.sh'''
+          }
+        }
+      }
+    }
+}
