@@ -1,6 +1,16 @@
+JOB_NAME="DeployOnCAPD"
+SCRIPT_NAME="eric-cicd/CAPD/jenkins_capd"
+pipelineJob("${JOB_NAME}") {
+    configureJob("${SCRIPT_NAME}")
+}
 
-JOB_FOLDER="Deploy Work Load Cluster_CAPD"
-pipelineJob("${JOB_FOLDER}") {
+JOB_NAME="DeployOnCAPZ"
+SCRIPT_NAME="eric-cicd/CAPZ/jenkins_capz"
+pipelineJob("${JOB_NAME}") {
+    configureJob("${SCRIPT_NAME}")
+}
+
+def configureJob(scriptName) {
     properties {
         disableConcurrentBuilds()
     }
@@ -41,9 +51,8 @@ pipelineJob("${JOB_FOLDER}") {
     }
     definition {
         cps {
-          script(readFileFromWorkspace("${JOB_FOLDER}/Jenkins_CAPD"))
+          script(readFileFromWorkspace("${scriptName}"))
             sandbox(false)
         }
     }
 }
-
