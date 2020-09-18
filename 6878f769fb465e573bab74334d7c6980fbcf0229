@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9d059dac_76b48dec",
+        "filename": "eric-cicd/jenkins_capd",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1018291
+      },
+      "writtenOn": "2020-09-18T15:19:29Z",
+      "side": 1,
+      "message": "As discussed with Narendra this will be only used in upstream and not needed in downstream",
+      "parentUuid": "103c5dcc_08d762bf",
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0bf51df2_40b2a5ad",
         "filename": "eric-cicd/jenkins_capd",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2020-09-16T14:20:49Z",
       "side": 1,
       "message": "From where the value of this env variable will come?",
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0b89668_7ba0f307",
+        "filename": "eric-cicd/jenkins_capd",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1018291
+      },
+      "writtenOn": "2020-09-18T15:19:29Z",
+      "side": 1,
+      "message": "This is the configuration parameter from General section in Jenkins",
+      "parentUuid": "0bf51df2_40b2a5ad",
       "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "7cebc696_0f54010b",
+        "filename": "eric-cicd/jenkins_capd",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1018291
+      },
+      "writtenOn": "2020-09-18T15:19:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "843bd28b_e4c5171d",
+      "range": {
+        "startLine": 34,
+        "startChar": 24,
+        "endLine": 34,
+        "endChar": 28
+      },
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d84c99b_94a4ed66",
         "filename": "eric-cicd/jenkins_capd",
         "patchSetId": 1
@@ -73,6 +133,24 @@
       "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dd3cb1b_58e8a28c",
+        "filename": "eric-cicd/jenkins_capd",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1018291
+      },
+      "writtenOn": "2020-09-18T15:19:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2d84c99b_94a4ed66",
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -99,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "d7ac787e_e9d5c19f",
+        "filename": "eric-cicd/jenkins_capd",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1018291
+      },
+      "writtenOn": "2020-09-18T15:19:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0293e121_89d7a085",
+      "range": {
+        "startLine": 93,
+        "startChar": 4,
+        "endLine": 94,
+        "endChar": 34
+      },
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe6f69de_21e62ca1",
         "filename": "eric-cicd/seed.groovy",
         "patchSetId": 1
@@ -116,6 +218,24 @@
     },
     {
       "key": {
+        "uuid": "1e261c07_20c2a274",
+        "filename": "eric-cicd/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1018291
+      },
+      "writtenOn": "2020-09-18T15:19:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fe6f69de_21e62ca1",
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7ba60b4_87280810",
         "filename": "eric-cicd/seed.groovy",
         "patchSetId": 1
@@ -130,6 +250,24 @@
       "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9394a3f9_f8ccf909",
+        "filename": "eric-cicd/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1018291
+      },
+      "writtenOn": "2020-09-18T15:19:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a7ba60b4_87280810",
+      "revId": "6878f769fb465e573bab74334d7c6980fbcf0229",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
