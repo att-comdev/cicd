@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a13e95c_29e9e530",
+        "filename": "eric-cicd/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-09-21T18:32:07Z",
+      "side": 1,
+      "message": "JOB_Folder is not there and this would fail (re-test this)",
+      "revId": "8386e109a7c3dfd10fff33be7a1f590ef544c29e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
