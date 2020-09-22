@@ -38,12 +38,18 @@ def cloneToBranch(String url, String refspec, String targetDirectory){
 //branch and then rebase it locally with the current master before we build and test
     checkout poll: false,
             scm: [$class: 'GitSCM',
-                  branches: [[name: refspec]],
+                  branches: [[name: "FETCH_HEAD"]],
                   doGenerateSubmoduleConfigurations: false,
                   extensions: [[$class: 'LocalBranch',
                                 localBranch: 'jenkins'],
                                [$class: 'RelativeTargetDirectory',
-                                relativeTargetDir: targetDirectory]],
+                                relativeTargetDir: targetDirectory],
+                               [$class: 'CloneOption',
+                                depth: 2,
+                                honorRefspec: true,
+                                noTags: false,
+                                reference: '',
+                                shallow: true]],
                   submoduleCfg: [],
                   userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
                                        url: url ]]]
@@ -61,16 +67,25 @@ def cloneToBranch(String url, String refspec, String targetDirectory){
  * @param gerritRefspec Overridden refspec value
  */
 def cloneToBranch(String url, String refspec, String targetDirectory, String creds, String gerritRefspec) {
+    if (refspec == "FETCH_HEAD") {
+        refspec = gerritRefspec
+    }
     checkout poll: false,
             scm: [$class                           : 'GitSCM',
-                  branches                         : [[name: refspec]],
+                  branches                         : [[name: "FETCH_HEAD"]],
                   doGenerateSubmoduleConfigurations: false,
                   extensions                       : [[$class     : 'LocalBranch',
                                                        localBranch: 'jenkins'],
                                                       [$class           : 'RelativeTargetDirectory',
-                                                       relativeTargetDir: targetDirectory]],
+                                                       relativeTargetDir: targetDirectory],
+                                                      [$class: 'CloneOption',
+                                                       depth: 2,
+                                                       honorRefspec: true,
+                                                       noTags: false,
+                                                       reference: '',
+                                                       shallow: true]],
                   submoduleCfg                     : [],
-                  userRemoteConfigs                : [[refspec      : gerritRefspec,
+                  userRemoteConfigs                : [[refspec      : refspec,
                                                        url          : url,
                                                        credentialsId: creds]]]
 }
@@ -88,12 +103,18 @@ def cloneToBranch(String url, String refspec, String targetDirectory, String cre
 def cloneToBranch(String url, String refspec, String targetDirectory, String creds){
     checkout poll: false,
             scm: [$class: 'GitSCM',
-                  branches: [[name: refspec]],
+                  branches: [[name: "FETCH_HEAD"]],
                   doGenerateSubmoduleConfigurations: false,
                   extensions: [[$class: 'LocalBranch',
                                 localBranch: 'jenkins'],
                                [$class: 'RelativeTargetDirectory',
-                                relativeTargetDir: targetDirectory]],
+                                relativeTargetDir: targetDirectory],
+                               [$class: 'CloneOption',
+                                depth: 2,
+                                honorRefspec: true,
+                                noTags: false,
+                                reference: '',
+                                shallow: true]],
                   submoduleCfg: [],
                   userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
                                        url: url,
@@ -123,16 +144,25 @@ def checkout(String revision, String branchToClone, String refspec, String targe
 def cloneProject(String url, String branch, String refspec, String targetDirectory){
 //This method is used so that we can checkout different project
 //from any patchset in different pipelines
+    if (branch == "FETCH_HEAD") {
+        branch = refspec
+    }
     checkout poll: false,
             scm: [$class: 'GitSCM',
-                  branches: [[name: "${branch}"]],
+                  branches: [[name: "FETCH_HEAD"]],
                   doGenerateSubmoduleConfigurations: false,
                   extensions: [[$class: 'LocalBranch',
                                 localBranch: 'jenkins'],
                                [$class: 'RelativeTargetDirectory',
-                                relativeTargetDir: targetDirectory]],
+                                relativeTargetDir: targetDirectory],
+                               [$class: 'CloneOption',
+                                depth: 2,
+                                honorRefspec: true,
+                                noTags: false,
+                                reference: '',
+                                shallow: true]],
                   submoduleCfg: [],
-                  userRemoteConfigs: [[refspec: "${refspec}",
+                  userRemoteConfigs: [[refspec: "${branch}",
                                        url: url ]]]
 }
 
@@ -148,16 +178,25 @@ def cloneProject(String url, String branch, String refspec, String targetDirecto
  * @param creds jenkins SSH credentials ID
  */
 def cloneProject(String url, String branch, String refspec, String targetDirectory, String creds){
+    if (branch == "FETCH_HEAD") {
+        branch = refspec
+    }
     checkout poll: false,
             scm: [$class: 'GitSCM',
-                  branches: [[name: "${branch}"]],
+                  branches: [[name: "FETCH_HEAD"]],
                   doGenerateSubmoduleConfigurations: false,
                   extensions: [[$class: 'LocalBranch',
                                 localBranch: 'jenkins'],
                                [$class: 'RelativeTargetDirectory',
-                                relativeTargetDir: targetDirectory]],
+                                relativeTargetDir: targetDirectory],
+                               [$class: 'CloneOption',
+                                depth: 2,
+                                honorRefspec: true,
+                                noTags: false,
+                                reference: '',
+                                shallow: true]],
                   submoduleCfg: [],
-                  userRemoteConfigs: [[refspec: "${refspec}",
+                  userRemoteConfigs: [[refspec: "${branch}",
                                        url: url,
                                        credentialsId: creds ]]]
 }
