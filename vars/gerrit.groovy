@@ -33,20 +33,45 @@ def clone(String url, String refspec, String creds){
                                        credentialsId: creds ]]]
 }
 
+def _clone(String url, String refspec, String targetDirectory){
+    sh "mkdir -p ${targetDirectory}"
+    dir("${WORKSPACE}/${targetDirectory}") {
+        sh """
+          set -x
+          git init
+          git config remote.origin.url ${url}
+          git fetch --depth=2 ${url} ${refspec} && git checkout FETCH_HEAD
+        """
+    }
+}
+def _clone(String url, String refspec, String targetDirectory, String creds){
+    sh "mkdir -p ${targetDirectory}"
+    dir("${WORKSPACE}/${targetDirectory}") {
+       withCredentials([sshUserPrivateKey(credentialsId: "${creds}",
+           keyFileVariable: 'SSH_KEY')]) {
+           sh """
+             set -x
+             export GIT_SSH_COMMAND="ssh -i ${SSH_KEY} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+             git init
+             git config remote.origin.url ${url}
+             git fetch --depth=2 ${url} ${refspec} && git checkout FETCH_HEAD
+           """
+       }
+    }
+}
+
+def _clone(String url, String refspec, String targetDirectory, String creds, String gerritRefspec){
+    if ( refspec == "FETCH_HEAD") {
+        refspec = gerritRefspec
+    }
+    _clone(url, refspec, targetDirectory, creds)
+}
+
+
 def cloneToBranch(String url, String refspec, String targetDirectory){
 //This method is used so that we can checkout the patchset to a local
 //branch and then rebase it locally with the current master before we build and test
-    checkout poll: false,
-            scm: [$class: 'GitSCM',
-                  branches: [[name: refspec]],
-                  doGenerateSubmoduleConfigurations: false,
-                  extensions: [[$class: 'LocalBranch',
-                                localBranch: 'jenkins'],
-                               [$class: 'RelativeTargetDirectory',
-                                relativeTargetDir: targetDirectory]],
-                  submoduleCfg: [],
-                  userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-                                       url: url ]]]
+    _clone(url, refspec, targetDirectory)
 }
 
 /**
@@ -61,18 +86,7 @@ def cloneToBranch(String url, String refspec, String targetDirectory){
  * @param gerritRefspec Overridden refspec value
  */
 def cloneToBranch(String url, String refspec, String targetDirectory, String creds, String gerritRefspec) {
-    checkout poll: false,
-            scm: [$class                           : 'GitSCM',
-                  branches                         : [[name: refspec]],
-                  doGenerateSubmoduleConfigurations: false,
-                  extensions                       : [[$class     : 'LocalBranch',
-                                                       localBranch: 'jenkins'],
-                                                      [$class           : 'RelativeTargetDirectory',
-                                                       relativeTargetDir: targetDirectory]],
-                  submoduleCfg                     : [],
-                  userRemoteConfigs                : [[refspec      : gerritRefspec,
-                                                       url          : url,
-                                                       credentialsId: creds]]]
+    _clone(url, refspec, targetDirectory, creds, gerritRefspec)
 }
 
 /**
@@ -86,18 +100,7 @@ def cloneToBranch(String url, String refspec, String targetDirectory, String cre
  * @param creds jenkins SSH credentials ID
  */
 def cloneToBranch(String url, String refspec, String targetDirectory, String creds){
-    checkout poll: false,
-            scm: [$class: 'GitSCM',
-                  branches: [[name: refspec]],
-                  doGenerateSubmoduleConfigurations: false,
-                  extensions: [[$class: 'LocalBranch',
-                                localBranch: 'jenkins'],
-                               [$class: 'RelativeTargetDirectory',
-                                relativeTargetDir: targetDirectory]],
-                  submoduleCfg: [],
-                  userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-                                       url: url,
-                                       credentialsId: creds ]]]
+    _clone(url, refspec, targetDirectory, creds)
 }
 
 def rebase(){
@@ -123,17 +126,7 @@ def checkout(String revision, String branchToClone, String refspec, String targe
 def cloneProject(String url, String branch, String refspec, String targetDirectory){
 //This method is used so that we can checkout different project
 //from any patchset in different pipelines
-    checkout poll: false,
-            scm: [$class: 'GitSCM',
-                  branches: [[name: "${branch}"]],
-                  doGenerateSubmoduleConfigurations: false,
-                  extensions: [[$class: 'LocalBranch',
-                                localBranch: 'jenkins'],
-                               [$class: 'RelativeTargetDirectory',
-                                relativeTargetDir: targetDirectory]],
-                  submoduleCfg: [],
-                  userRemoteConfigs: [[refspec: "${refspec}",
-                                       url: url ]]]
+    _clone(url, branch, targetDirectory, creds)
 }
 
 /**
@@ -148,18 +141,7 @@ def cloneProject(String url, String branch, String refspec, String targetDirecto
  * @param creds jenkins SSH credentials ID
  */
 def cloneProject(String url, String branch, String refspec, String targetDirectory, String creds){
-    checkout poll: false,
-            scm: [$class: 'GitSCM',
-                  branches: [[name: "${branch}"]],
-                  doGenerateSubmoduleConfigurations: false,
-                  extensions: [[$class: 'LocalBranch',
-                                localBranch: 'jenkins'],
-                               [$class: 'RelativeTargetDirectory',
-                                relativeTargetDir: targetDirectory]],
-                  submoduleCfg: [],
-                  userRemoteConfigs: [[refspec: "${refspec}",
-                                       url: url,
-                                       credentialsId: creds ]]]
+    _clone(url, branch, targetDirectory, creds, refspec)
 }
 
 /**
