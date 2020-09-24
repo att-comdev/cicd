@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "1b6cd073_0d4c57d8",
+        "filename": "eric-cicd/CAPZ/jenkins_capz",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1017588
+      },
+      "writtenOn": "2020-09-24T12:44:25Z",
+      "side": 1,
+      "message": "Do you think it can be passed as Jenkins parameters instead of hard coding",
+      "revId": "24e050564ea033b0f00fa20b0f8678c5f2c00a3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b348a1ca_f6b15eca",
+        "filename": "eric-cicd/CAPZ/jenkins_capz",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1017588
+      },
+      "writtenOn": "2020-09-24T12:44:25Z",
+      "side": 1,
+      "message": "Whats the reason of explicitly defining the volume mounts?",
+      "revId": "24e050564ea033b0f00fa20b0f8678c5f2c00a3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "552736e0_20f52848",
+        "filename": "eric-cicd/CAPZ/jenkins_capz",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1017588
+      },
+      "writtenOn": "2020-09-24T12:44:25Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "24e050564ea033b0f00fa20b0f8678c5f2c00a3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9fac46fa_fec3d95c",
         "filename": "eric-cicd/CAPZ/jenkins_capz",
         "patchSetId": 3
