@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "84ad5977_347c83aa",
+        "filename": "eric-cicd/CAPZ/jenkins_capz",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-09-24T16:02:28Z",
+      "side": 1,
+      "message": "Tried passing it as Jenkins params but no luck with that. Let me know if you have pointers on how to do that.",
+      "parentUuid": "1b6cd073_0d4c57d8",
+      "revId": "24e050564ea033b0f00fa20b0f8678c5f2c00a3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b348a1ca_f6b15eca",
         "filename": "eric-cicd/CAPZ/jenkins_capz",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2020-09-24T12:44:25Z",
       "side": 1,
       "message": "Whats the reason of explicitly defining the volume mounts?",
+      "revId": "24e050564ea033b0f00fa20b0f8678c5f2c00a3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39101795_50f7b96d",
+        "filename": "eric-cicd/CAPZ/jenkins_capz",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-09-24T16:02:28Z",
+      "side": 1,
+      "message": "This was necessary for dind so the k8s POD has its own docker daemon and wouldn\u0027t use the one on the host. This ensures the temporary images that gets created during the run reside within the POD and not on the host docker instance.",
+      "parentUuid": "b348a1ca_f6b15eca",
       "revId": "24e050564ea033b0f00fa20b0f8678c5f2c00a3f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
@@ -67,6 +103,24 @@
       "revId": "24e050564ea033b0f00fa20b0f8678c5f2c00a3f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92de8cc2_ea7baa1c",
+        "filename": "eric-cicd/CAPZ/jenkins_capz",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-09-24T16:02:28Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "9fac46fa_fec3d95c",
+      "revId": "24e050564ea033b0f00fa20b0f8678c5f2c00a3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
