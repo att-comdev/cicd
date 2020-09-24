@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbc6495a_ba890731",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 5
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-09-24T21:23:11Z",
+      "side": 1,
+      "message": "can we remove the support of this use case changing calling pipelines?",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 183,
+        "endChar": 5
+      },
+      "revId": "569cdb3822be3f136d86678fae59a141677e8255",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
