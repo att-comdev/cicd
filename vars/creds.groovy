@@ -44,9 +44,9 @@ def createGlobalCred(id, description, user, pass) {
  * @param user the username of the global credential you're creating
  * @param key the private key of the global credential you're creating
 */
-def createGlobalSshCred(id, description, user, key) {
+def createGlobalSshCredWithPassphrase(id, description, user, key, passphrase) {
     def privateKeySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(key)
-    def secret = new BasicSSHUserPrivateKey(CredentialsScope.GLOBAL, id, user, privateKeySource, "", id)
+    def secret = new BasicSSHUserPrivateKey(CredentialsScope.GLOBAL, id, user, privateKeySource, passphrase, id)
     SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), secret)
 }
 
