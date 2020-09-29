@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7754fdc7_60dc6526",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-09-29T16:52:54Z",
+      "side": 1,
+      "message": "why do we need it? you fetch from url anyway",
+      "range": {
+        "startLine": 46,
+        "startChar": 10,
+        "endLine": 46,
+        "endChar": 45
+      },
+      "revId": "fed5493025a7530d2abba2d34fbe5393e425f135",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77053d13_bb9b2f69",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-09-29T16:52:54Z",
+      "side": 1,
+      "message": "\u003e\nAlso this does not seem multithread friendly",
+      "range": {
+        "startLine": 72,
+        "startChar": 43,
+        "endLine": 72,
+        "endChar": 45
+      },
+      "revId": "fed5493025a7530d2abba2d34fbe5393e425f135",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3ba07de_5fc8f29f",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-09-29T16:52:54Z",
+      "side": 1,
+      "message": "can we not duplicate it at least on method level",
+      "range": {
+        "startLine": 376,
+        "startChar": 35,
+        "endLine": 376,
+        "endChar": 108
+      },
+      "revId": "fed5493025a7530d2abba2d34fbe5393e425f135",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c80530e_97a80a61",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-09-29T16:52:54Z",
+      "side": 1,
+      "message": "dup?",
+      "range": {
+        "startLine": 425,
+        "startChar": 1,
+        "endLine": 427,
+        "endChar": 133
+      },
+      "revId": "fed5493025a7530d2abba2d34fbe5393e425f135",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
