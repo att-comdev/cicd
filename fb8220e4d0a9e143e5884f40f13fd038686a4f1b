@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a981bff1_0727c875",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-09-29T17:56:08Z",
+      "side": 1,
+      "message": "i still feel a bit nervous here about parallelization. Lets keep it simple and just use:\nhomeSshDir \u003d sh(script: \u0027mktemp -d tmp.ssh-XXXXXXXXX\u0027, returnStdout: true)",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 5
+      },
+      "revId": "fb8220e4d0a9e143e5884f40f13fd038686a4f1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b9363ef_585b7023",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-09-29T17:56:08Z",
+      "side": 1,
+      "message": "\\n",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 4
+      },
+      "revId": "fb8220e4d0a9e143e5884f40f13fd038686a4f1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
