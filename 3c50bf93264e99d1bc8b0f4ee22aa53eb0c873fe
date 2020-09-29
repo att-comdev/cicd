@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85ac08dd_a4b28347",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-09-29T02:08:02Z",
+      "side": 1,
+      "message": "any particular need to put it here? since you\u0027re specifying a location maybe some temp location works better?",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 31
+      },
+      "revId": "3c50bf93264e99d1bc8b0f4ee22aa53eb0c873fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
