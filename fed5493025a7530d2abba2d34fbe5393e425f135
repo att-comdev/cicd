@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "aca92681_df8d834e",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2020-09-29T17:11:22Z",
+      "side": 1,
+      "message": "It is done to allow user to perform other git command, like git rebase/pull/push",
+      "parentUuid": "7754fdc7_60dc6526",
+      "range": {
+        "startLine": 46,
+        "startChar": 10,
+        "endLine": 46,
+        "endChar": 45
+      },
+      "revId": "fed5493025a7530d2abba2d34fbe5393e425f135",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "77053d13_bb9b2f69",
         "filename": "vars/gerrit.groovy",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "fed5493025a7530d2abba2d34fbe5393e425f135",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6405882_5f6872c7",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2020-09-29T17:11:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77053d13_bb9b2f69",
+      "range": {
+        "startLine": 72,
+        "startChar": 43,
+        "endLine": 72,
+        "endChar": 45
+      },
+      "revId": "fed5493025a7530d2abba2d34fbe5393e425f135",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "84052437_cb840d4e",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2020-09-29T17:11:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3ba07de_5fc8f29f",
+      "range": {
+        "startLine": 376,
+        "startChar": 35,
+        "endLine": 376,
+        "endChar": 108
+      },
+      "revId": "fed5493025a7530d2abba2d34fbe5393e425f135",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9c80530e_97a80a61",
         "filename": "vars/gerrit.groovy",
         "patchSetId": 6
@@ -91,6 +163,30 @@
       "revId": "fed5493025a7530d2abba2d34fbe5393e425f135",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c632cd8_f7f9b30b",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2020-09-29T17:11:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c80530e_97a80a61",
+      "range": {
+        "startLine": 425,
+        "startChar": 1,
+        "endLine": 427,
+        "endChar": 133
+      },
+      "revId": "fed5493025a7530d2abba2d34fbe5393e425f135",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
