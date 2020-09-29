@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f44ced0a_49c2154c",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2020-09-29T18:27:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a981bff1_0727c875",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 5
+      },
+      "revId": "fb8220e4d0a9e143e5884f40f13fd038686a4f1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b9363ef_585b7023",
         "filename": "vars/gerrit.groovy",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "fb8220e4d0a9e143e5884f40f13fd038686a4f1b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87899296_2fa7f58f",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1014546
+      },
+      "writtenOn": "2020-09-29T18:27:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b9363ef_585b7023",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 4
+      },
+      "revId": "fb8220e4d0a9e143e5884f40f13fd038686a4f1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
