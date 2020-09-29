@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b45d1c2d_09b8d902",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-09-29T17:14:02Z",
+      "side": 1,
+      "message": "why do we need to mask known_hosts?",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 111
+      },
+      "revId": "8279bc5c3930c9a4779529be87cb9e78c5f9c67a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
