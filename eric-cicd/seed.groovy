@@ -82,14 +82,6 @@ pipelineJob("${JOB_NAME}") {
                 }
             }
             triggerOnEvents {
-                patchsetCreated {
-                    excludeDrafts(false)
-                    excludeTrivialRebase(false)
-                    excludeNoCodeChange(true)
-                    excludePrivateState(false)
-                    excludeWipState(false)
-                }
-                changeMerged()
                 commentAddedContains {
                    commentAddedCommentContains('recheck')
                 }
