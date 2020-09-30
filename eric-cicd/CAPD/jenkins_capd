@@ -81,6 +81,16 @@ def trigger = {
                     writeFile file: 'deployworkloadcluster.sh', text: 'cd /home/airship/capd/airshipctl/; ./tools/deployment/docker/51_deploy_workload_cluster.sh'
                     sshScript remote: remote, script: "deployworkloadcluster.sh"
                 }
+		stage("Cleanup cluster and remove directories") {
+                    def cmdoutput=sshCommand remote: remote, command: """kubectl --kubeconfig /home/airship/.airship/kubeconfig get pods -A; echo "";\\
+                    kubectl --kubeconfig /home/airship/.airship/kubeconfig get nodes -A;echo "";\\
+                    kubectl --kubeconfig /home/airship/.airship/kubeconfig get machines -A;echo "";\\
+                    kind get clusters;echo "";\\
+                    kind delete cluster --name capi-docker;echo "";\\
+                    kind delete cluster --name dtc;echo "";\\
+                    sudo rm -rf /home/zuul/src/opendev.org/airship && sudo rm -rf /home/airship/capd"""
+                    println cmdoutput
+                }
             }
         }
     }
