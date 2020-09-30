@@ -106,10 +106,16 @@ def _cloneWithCreds(url, branch, targetDirectory, creds, refspec) {
                                                        credentialsId: creds]]]
 }
 
+def checkShallowVariable() {
+    shallowEnabled = env.SHALLOW_CLONE != null ? env.SHALLOW_CLONE : true
+    return shallowEnabled.toBoolean()
+}
+
 def cloneToBranch(String url, String refspec, String targetDirectory){
 //This method is used so that we can checkout the patchset to a local
 //branch and then rebase it locally with the current master before we build and test
-    if (env.SHALLOW_CLONE) {
+    shallowEnabled = checkShallowVariable()
+    if (shallowEnabled) {
         _cloneShallow(url, refspec, targetDirectory)
     } else {
         _clone(url, refspec, targetDirectory)
@@ -128,7 +134,8 @@ def cloneToBranch(String url, String refspec, String targetDirectory){
  * @param gerritRefspec Overridden refspec value
  */
 def cloneToBranch(String url, String refspec, String targetDirectory, String creds, String gerritRefspec) {
-    if (env.SHALLOW_CLONE) {
+    shallowEnabled = checkShallowVariable()
+    if (shallowEnabled) {
         _cloneWithCredsShallow(url, refspec, targetDirectory, creds, gerritRefspec)
     } else {
         _cloneWithCreds(url, refspec, targetDirectory, creds, gerritRefspec)
@@ -146,7 +153,8 @@ def cloneToBranch(String url, String refspec, String targetDirectory, String cre
  * @param creds jenkins SSH credentials ID
  */
 def cloneToBranch(String url, String refspec, String targetDirectory, String creds){
-    if (env.SHALLOW_CLONE) {
+    shallowEnabled = checkShallowVariable()
+    if (shallowEnabled) {
         _cloneWithCredsShallow(url, refspec, targetDirectory, creds, '${GERRIT_REFSPEC}')
     } else {
         _cloneWithCreds(url, refspec, targetDirectory, creds, '${GERRIT_REFSPEC}')
@@ -176,7 +184,8 @@ def checkout(String revision, String branchToClone, String refspec, String targe
 def cloneProject(String url, String branch, String refspec, String targetDirectory){
 //This method is used so that we can checkout different project
 //from any patchset in different pipelines
-    if (env.SHALLOW_CLONE) {
+    shallowEnabled = checkShallowVariable()
+    if (shallowEnabled) {
         _cloneShallow(url, branch, targetDirectory)
     } else {
         _clone(url, branch, targetDirectory, refspec)
@@ -195,7 +204,8 @@ def cloneProject(String url, String branch, String refspec, String targetDirecto
  * @param creds jenkins SSH credentials ID
  */
 def cloneProject(String url, String branch, String refspec, String targetDirectory, String creds){
-    if (env.SHALLOW_CLONE) {
+    shallowEnabled = checkShallowVariable()
+    if (shallowEnabled) {
         _cloneWithCredsShallow(url, branch, targetDirectory, creds, refspec)
     } else {
         _cloneWithCreds(url, branch, targetDirectory, creds, refspec)
@@ -341,18 +351,20 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
     sshParams = "-i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
-        sh """
-             export GIT_SSH_COMMAND="ssh ${sshParams}"
-             git config user.email '${userEmail}'
-             git config user.name '${userName}'
-             git config --global push.default matching
-             git status
-             git add .
-             git commit -m "${commitMessage}"
-             scp ${sshParams} -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks
-             git commit --amend --no-edit
-             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
-           """
+        dir(repoName) {
+            sh """
+                 export GIT_SSH_COMMAND="ssh ${sshParams}"
+                 git config user.email '${userEmail}'
+                 git config user.name '${userName}'
+                 git config --global push.default matching
+                 git status
+                 git add .
+                 git commit -m "${commitMessage}"
+                 scp ${sshParams} -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks
+                 git commit --amend --no-edit
+                 git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
+               """
+        }
     }
     sh "rm ${knownHostsFile}"
 }
@@ -373,18 +385,20 @@ def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, ger
     sshParams = "-i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
-        sh """
-             export GIT_SSH_COMMAND="ssh ${sshParams}"
-             git config user.email '${userEmail}'
-             git config user.name '${userName}'
-             git config --global push.default matching
-             git status
-             git add .
-             git commit -m "${commitMessage}"
-             scp ${sshParams} -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks
-             git commit --amend --no-edit
-             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec} -o topic=${gerritTopic}
+        dir(repoName) {
+            sh """
+                 export GIT_SSH_COMMAND="ssh ${sshParams}"
+                 git config user.email '${userEmail}'
+                 git config user.name '${userName}'
+                 git config --global push.default matching
+                 git status
+                 git add .
+                 git commit -m "${commitMessage}"
+                 scp ${sshParams} -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks
+                 git commit --amend --no-edit
+                 git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec} -o topic=${gerritTopic}
            """
+        }
     }
     sh "rm ${knownHostsFile}"
 }
@@ -403,16 +417,18 @@ def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, refspec
     knownHostsFile = _setupKnownHosts()
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
-        sh """
-             export GIT_SSH_COMMAND="ssh -i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
-             git config user.email '${userEmail}'
-             git config user.name '${userName}'
-             git config --global push.default matching
-             git status
-             git add .
-             git commit --amend --no-edit
-             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
-           """
+        dir(repoName) {
+            sh """
+                 export GIT_SSH_COMMAND="ssh -i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
+                 git config user.email '${userEmail}'
+                 git config user.name '${userName}'
+                 git config --global push.default matching
+                 git status
+                 git add .
+                 git commit --amend --no-edit
+                 git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
+               """
+        }
     }
     sh "rm ${knownHostsFile}"
 }
@@ -432,16 +448,18 @@ def amendPatchsetWithTopic(credentials, userEmail, userName, gerritUrl, repoName
     knownHostsFile = _setupKnownHosts()
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
-        sh """
-             export GIT_SSH_COMMAND="ssh -i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
-             git config user.email '${userEmail}'
-             git config user.name '${userName}'
-             git config --global push.default matching
-             git status
-             git add .
-             git commit --amend --no-edit
-             git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec} -o topic=${gerritTopic}
-           """
+        dir(repoName) {
+            sh """
+                 export GIT_SSH_COMMAND="ssh -i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
+                 git config user.email '${userEmail}'
+                 git config user.name '${userName}'
+                 git config --global push.default matching
+                 git status
+                 git add .
+                 git commit --amend --no-edit
+                 git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec} -o topic=${gerritTopic}
+               """
+        }
     }
     sh "rm ${knownHostsFile}"
 }
