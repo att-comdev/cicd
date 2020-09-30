@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "683622f8_4cd81bdf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2020-09-30T17:44:09Z",
+      "side": 1,
+      "message": "SHALLOW_CLONE",
+      "range": {
+        "startLine": 9,
+        "startChar": 19,
+        "endLine": 9,
+        "endChar": 31
+      },
+      "revId": "69410dfd3a9b774f0d46ee587692456e49056b62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7a44a97d_07b163d4",
         "filename": "vars/gerrit.groovy",
         "patchSetId": 1
