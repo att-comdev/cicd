@@ -34,18 +34,25 @@ def clone(String url, String refspec, String creds){
                                        credentialsId: creds ]]]
 }
 
+def _cloneShallowCmd(url, branch, gitSshCommand="") {
+    depth = env.SHALLOW_DEPTH ? env.SHALLOW_DEPTH : 2
+    sh """
+      set -x
+      ${gitSshCommand}
+      git init
+      git config remote.origin.url ${url}
+      git fetch --depth=${depth} ${url} ${branch} && git checkout FETCH_HEAD
+    """
+}
 
 def _cloneShallow(url, branch, targetDirectory, gitSshCommand="") {
-    depth = env.SHALLOW_DEPTH ? env.SHALLOW_DEPTH : 2
-    sh "mkdir -p ${WORKSPACE}/${targetDirectory}"
-    dir("${WORKSPACE}/${targetDirectory}") {
-        sh """
-          set -x
-          ${gitSshCommand}
-          git init
-          git config remote.origin.url ${url}
-          git fetch --depth=${depth} ${url} ${branch} && git checkout FETCH_HEAD
-        """
+    if ( targetDirectory ) {
+        sh "mkdir -p ${targetDirectory}"
+        dir("${targetDirectory}") {
+            _cloneShallowCmd(url, branch, gitSshCommand)
+        }
+    } else {
+        _cloneShallowCmd(url, branch, gitSshCommand)
     }
 }
 
