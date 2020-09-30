@@ -37,8 +37,8 @@ def clone(String url, String refspec, String creds){
 
 def _cloneShallow(url, branch, targetDirectory, gitSshCommand="") {
     depth = env.SHALLOW_DEPTH ? env.SHALLOW_DEPTH : 2
-    sh "mkdir -p ${WORKSPACE}/${targetDirectory}"
-    dir("${WORKSPACE}/${targetDirectory}") {
+    sh "mkdir -p \$(pwd)/${targetDirectory}"
+    dir("${targetDirectory}") {
         sh """
           set -x
           ${gitSshCommand}
