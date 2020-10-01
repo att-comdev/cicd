@@ -346,12 +346,13 @@ EOF"""
  * @param repoName name of the repository being pushed to
  * @param refspec "xxxx/master" or other refspec
  */
-def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master") {
+def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master", workDir=null) {
+    workDir = workDir != null ? workDir: repoName
     knownHostsFile = _setupKnownHosts()
     sshParams = "-i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
-        dir(repoName) {
+        dir(workDir) {
             sh """
                  export GIT_SSH_COMMAND="ssh ${sshParams}"
                  git config user.email '${userEmail}'
@@ -380,12 +381,13 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
  * @param gerritTopic topic for submitted patchset
  * @param refspec "xxxx/master" or other refspec
  */
-def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "") {
+def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "", workDir=null) {
+    workDir = workDir != null ? workDir: repoName
     knownHostsFile = _setupKnownHosts()
     sshParams = "-i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
-        dir(repoName) {
+        dir(workDir) {
             sh """
                  export GIT_SSH_COMMAND="ssh ${sshParams}"
                  git config user.email '${userEmail}'
@@ -413,11 +415,12 @@ def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, ger
  * @param repoName name of the repository being pushed to
  * @param refspec "xxxx/master" or other refspec
  */
-def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, refspec = "refs/for/master") {
+def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, refspec = "refs/for/master", workDir=null) {
+    workDir = workDir != null ? workDir: repoName
     knownHostsFile = _setupKnownHosts()
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
-        dir(repoName) {
+        dir(workDir) {
             sh """
                  export GIT_SSH_COMMAND="ssh -i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
                  git config user.email '${userEmail}'
@@ -444,11 +447,12 @@ def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, refspec
  * @param gerritTopic topic for submitted patchset
  * @param refspec "xxxx/master" or other refspec
  */
-def amendPatchsetWithTopic(credentials, userEmail, userName, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "") {
+def amendPatchsetWithTopic(credentials, userEmail, userName, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "", workDir=null) {
+    workDir = workDir != null ? workDir: repoName
     knownHostsFile = _setupKnownHosts()
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
-        dir(repoName) {
+        dir(workDir) {
             sh """
                  export GIT_SSH_COMMAND="ssh -i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
                  git config user.email '${userEmail}'
