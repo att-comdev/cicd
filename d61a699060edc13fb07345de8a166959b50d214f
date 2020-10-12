@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5cae2ef5_4d97bda9",
+        "filename": "eric-cicd/METAL3/jenkins_metal3",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-10-12T20:59:23Z",
+      "side": 1,
+      "message": "remove white spaces",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 2
+      },
+      "revId": "d61a699060edc13fb07345de8a166959b50d214f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c6437cc_ef0b723a",
+        "filename": "eric-cicd/METAL3/jenkins_metal3",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-10-12T20:59:23Z",
+      "side": 1,
+      "message": "Combine \"SSH key generation\", \"modify worker node configuration\" and \"add ssh key\" into a single stage.",
+      "range": {
+        "startLine": 15,
+        "startChar": 8,
+        "endLine": 26,
+        "endChar": 9
+      },
+      "revId": "d61a699060edc13fb07345de8a166959b50d214f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03404904_98edda2f",
+        "filename": "eric-cicd/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-10-12T20:59:23Z",
+      "side": 1,
+      "message": "call it jenkins_m3",
+      "range": {
+        "startLine": 143,
+        "startChar": 62,
+        "endLine": 143,
+        "endChar": 68
+      },
+      "revId": "d61a699060edc13fb07345de8a166959b50d214f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
