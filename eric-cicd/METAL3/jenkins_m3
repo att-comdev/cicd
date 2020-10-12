@@ -1,0 +1,67 @@
+def AIRSHIPCTL
+def HOME_DIR
+def BUILDGATEYML
+def KUBEADMCONFIGTEMPLATE
+
+    node(targetVM) {
+        AIRSHIPCTL = sh(script: """echo ~/airshipctl/""", returnStdout:true).trim()
+        HOME_DIR = sh(script: """echo ~""", returnStdout:true).trim()
+        BUILDGATEYML = sh(script: """echo ~/airshipctl/playbooks/airship-airshipctl-build-gate.yaml""", returnStdout:true).trim()
+        KUBEADMCONFIGTEMPLATE = sh(script: """echo ~/airshipctl/manifests/site/test-site/target/workers/kubeadmconfigtemplate.yaml""", returnStdout:true).trim()
+        stage("cloning Airshipctl") {
+          sh label: '', script: """git clone https://opendev.org/airship/airshipctl.git ${AIRSHIPCTL}"""
+        }
+        stage("Modify Config && SSH key generation"){
+          sh label: '', script: """[ -f ~/.ssh/id_rsa ] && echo "ssh key exists" || ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -P "" && \\
+          sed -i "s/\\(\\s*worker_disk_size\\):\\s*[0-9]*/\\1: 120/" ${BUILDGATEYML} && \\
+          sed -i "s/\\(\\s*worker_vm_memory_mb\\):\\s*[0-9]*/\\1: 35840/" ${BUILDGATEYML} && \\
+          sed -i "s/\\(\\s*worker_vm_vcpus\\):\\s*[0-9]*/\\1: 20/" ${BUILDGATEYML} && \\
+          ssh_key=`cat ~/.ssh/id_rsa.pub` && \\
+          sed -i "s|\\(ssh-rsa\\).*|\$ssh_key|" ${KUBEADMCONFIGTEMPLATE}"""
+        } 
+        stage("Install setup.sh") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/gate/00_setup.sh"""
+        }
+        stage("Install build_gate.sh") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/gate/10_build_gate.sh"""
+        }
+        stage("Install kubectl.sh") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/01_install_kubectl.sh"""
+        }
+        stage("Install clusterctl.sh") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/02_install_clusterctl.sh"""
+        }
+        stage("Install systemwide_executable") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/21_systemwide_executable.sh"""
+        }
+        stage("Modify test_configs.sh") {
+          sh label: '', script: """cd $AIRSHIPCTL && sudo sed -i "s|/tmp/airship|${HOME_DIR}|g" ./tools/deployment/22_test_configs.sh"""
+        }
+        stage("Install test_configs.sh") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/22_test_configs.sh"""
+        }
+        stage("Build Ephermal Node") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/24_build_ephemeral_iso.sh"""
+        }
+        stage("Deploy Ephermal Node") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/25_deploy_ephemeral_node.sh"""
+        }
+        stage("Deploy metal3_capi_ephemeral_node") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/26_deploy_metal3_capi_ephemeral_node.sh"""
+        }
+        stage("Install Control Plane") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/30_deploy_controlplane.sh"""
+        }
+        stage("Deploy initinfra_target_node") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/31_deploy_initinfra_target_node.sh"""
+        }
+        stage("Install cluster_init_target_node") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/32_cluster_init_target_node.sh"""
+        }
+        stage("Move Target Node") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/33_cluster_move_target_node.sh"""
+        }
+        stage("Deploy Worker Node") {
+          sh label: '', script: """cd $AIRSHIPCTL &&  sudo -S ./tools/deployment/34_deploy_worker_node.sh"""
+        }
+    }
