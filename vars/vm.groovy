@@ -86,7 +86,7 @@ def call(Map map, Closure body) {
     // Name of public network that is used to allocate floating IPs
     def publicNet = useJumphost ? '' : (map.publicNet ?:
                                         env.OS_PUBLIC_NET ?:
-                                        'public')
+                                        'routable')
 
     // Name of private network for the VM
     def privateNet = map.privateNet ?: 'private'
@@ -141,7 +141,7 @@ def call(Map map, Closure body) {
                                           "${WORKSPACE}/template.yaml",
                                           parameters)
                     }
-                    ip = heat.stack_output(name, 'floating_ip')
+                    ip = heat.stack_output(name, 'routable_ip')
                     if (useJumphost) {
                         port = (ip.split('\\.')[-1].toInteger() + 10000).toString()
                         ip = OS_JUMPHOST_PUBLIC_IP
