@@ -18,20 +18,19 @@ resources:
           params:
             $message: Hello World!
 
-  server_port:
+  private_port:
     type: OS::Neutron::Port
     properties:
       network_id: private
       security_groups: [jenkins-security]
 
-  server_floating_ip:
-    type: OS::Neutron::FloatingIP
+  routable_port:
+    type: OS::Neutron::Port
     properties:
-      floating_network_id: public
-      port_id: { get_resource: server_port }
+      network_id: routable
+      security_groups: [jenkins-security]
 
 outputs:
-  floating_ip:
+  routable_ip:
     description: The external IP associated to the server
-    value: { get_attr: [server_floating_ip, floating_ip_address] }
-
+    value: { get_attr: [routable_port, fixed_ips, 0, ip_address] }
