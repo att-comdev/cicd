@@ -28,8 +28,8 @@ backend ${backend}
 }
 
 
-def compileConfig() {
-    def config = CONFIG_HEADER
+def compileConfig(configHeader) {
+    def config = configHeader
     for (it in 2..254) {
         config += getConfigSection(it)
     }
@@ -38,8 +38,28 @@ def compileConfig() {
 
 
 vm (doNotDeleteNode: true, useJumphost: false) {
-    sh "sudo bash -c 'apt-get update && apt-get install haproxy -y'"
-    compileConfig()
-    sh "sudo cp myhaproxy.cfg /etc/haproxy/haproxy.cfg"
-    sh "sudo service haproxy restart"
+    compileConfig(CONFIG_HEADER)
+    sh '''
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt-get update
+        sudo apt-get install haproxy iptables-persistent -y'"
+        sudo cp myhaproxy.cfg /etc/haproxy/haproxy.cfg"
+        sudo service haproxy restart"
+
+        echo "====== Setup insterfaces ======"
+        netfile=$(find /etc/network/interfaces.d -name "*.cfg")
+        for interface in $(ls -1 /sys/class/net | grep ens); do
+          if [ $interface != "ens3" ];then
+            sudo bash -c "echo 'auto $interface' >> ${netfile}"
+            sudo bash -c "echo 'iface $interface inet dhcp' >> ${netfile}"
+            sudo ifdown $interface
+            sudo ifup $interface
+          fi
+        done
+
+        sudo iptables -A FORWARD -i ens4 -o ens3 -j ACCEPT
+        sudo iptables -A FORWARD -i ens3 -o ens4 -m state --state ESTABLISHED,RELATED -j ACCEPT
+        sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE
+        sudo iptables-save > /etc/iptables/rules.v4
+    '''
 }
