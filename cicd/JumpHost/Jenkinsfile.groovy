@@ -28,8 +28,8 @@ backend ${backend}
 }
 
 
-def compileConfig() {
-    def config = CONFIG_HEADER
+def compileConfig(configHeader) {
+    def config = configHeader
     for (it in 2..254) {
         config += getConfigSection(it)
     }
@@ -39,7 +39,7 @@ def compileConfig() {
 
 vm (doNotDeleteNode: true, useJumphost: false) {
     sh "sudo bash -c 'apt-get update && apt-get install haproxy -y'"
-    compileConfig()
+    compileConfig(CONFIG_HEADER)
     sh "sudo cp myhaproxy.cfg /etc/haproxy/haproxy.cfg"
     sh "sudo service haproxy restart"
 }
