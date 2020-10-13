@@ -141,7 +141,7 @@ def call(Map map, Closure body) {
                                           "${WORKSPACE}/template.yaml",
                                           parameters)
                     }
-                    ip = heat.stack_output(name, 'floating_ip')
+                    ip = heat.stack_output(name, 'routable_ip')
                     if (useJumphost) {
                         port = (ip.split('\\.')[-1].toInteger() + 10000).toString()
                         ip = OS_JUMPHOST_PUBLIC_IP
