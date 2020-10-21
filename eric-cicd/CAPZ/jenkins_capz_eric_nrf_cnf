@@ -1,0 +1,343 @@
+podTemplate(yaml: """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    provider: capz
+    cnf: ericsson-nrf
+spec:
+  securityContext:
+    runAsUser: 0
+  containers:
+  - name: ubuntu-bionic
+    image: ubuntu:18.04
+    command:
+    - cat
+    tty: true
+    env:
+    - name: DOCKER_HOST
+      value: tcp://localhost:2375
+    volumeMounts:
+    - name: home
+      mountPath: /root
+  volumes:
+  - name: home
+    emptyDir: {}
+"""
+) {
+  node(POD_LABEL) {
+    try{
+      def az = [:]
+      env.JOBNAME = JOB_NAME.toLowerCase()
+      container('ubuntu-bionic') {
+        stage("Deploy Host VM") {
+          sh label: '', script: '''apt-get update; apt-get install -y git sudo make curl wget systemd vim jq && \\
+            curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash'''
+          withCredentials([azureServicePrincipal('AzureCloud')]) {
+            sh label: '', script: '''#!/bin/bash
+              az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID;
+              az group create --name capi-${JOBNAME}-${BUILD_NUMBER}-rg --location ${AZURE_LOCATION};
+              NIC_ID=$(az vm show -n 5gNrfTestVM -g JEN-REGISTRY-RG --query \\
+                \'networkProfile.networkInterfaces[].id\' -o tsv);
+
+              host=$(az vm create -g capi-${JOBNAME}-${BUILD_NUMBER}-rg \\
+                -n capi-host-${JOBNAME}-${BUILD_NUMBER} --image UbuntuLTS \\
+                --generate-ssh-keys --query publicIpAddress \\
+                --size ${AZURE_HOST_TYPE} -o tsv)
+              echo $host >az-host-info
+              cp /root/.ssh/id_rsa az-identity; ls -ltr '''
+          }
+          az.host=readFile('az-host-info').trim()
+          az.name='azure-host'
+          az.user='azureuser'
+          az.allowAnyHosts=true
+          az.identity=readFile('az-identity').trim()
+          az.logLevel='INFO'
+
+          writeFile file: 'setup.sh', text: 'sudo apt-get update && sudo apt-get install -y git sudo make wget systemd vim && \
+            sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common && \
+            sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && sudo apt-key fingerprint 0EBFCD88 && \
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
+            export USER=`whoami` && sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io && \
+            sudo usermod -aG docker $USER && mkdir -p clusterctl_ws'
+
+          sshScript remote: az, script: "setup.sh"
+        }
+        stage("Install Kind") {
+          writeFile file: 'installKind.sh', text: 'cd clusterctl_ws && \
+            curl -sSLo ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-$(uname)-amd64 && \
+            chmod +x ./kind && \
+            sudo mv ./kind /usr/bin/kind'
+          sshScript remote: az, script: "installKind.sh"
+        }
+        stage("Install Kubectl") {
+          writeFile file: 'installKubectl.sh', text: 'cd clusterctl_ws && \
+            curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" && \
+            chmod +x ./kubectl && \
+            sudo mv ./kubectl /usr/local/bin/kubectl && \
+            kubectl version --client'
+          sshScript remote: az, script: "installKubectl.sh"
+          sh label: '', script: '''mkdir -p clusterctl_ws && chmod +x ./installKubectl.sh && ./installKubectl.sh'''
+        }
+        stage("Install ClusterCtl") {
+          writeFile file: 'installClusterCtl.sh', text: 'cd clusterctl_ws && \
+            curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v0.3.10/clusterctl-linux-amd64 -o clusterctl && \
+            chmod +x ./clusterctl && \
+            sudo mv ./clusterctl /usr/local/bin/clusterctl && \
+            clusterctl version'
+          sshScript remote: az, script: "installClusterCtl.sh"
+        }
+        stage("Install Kustomize") {
+          writeFile file: 'installKustomize.sh', text: 'cd clusterctl_ws && \
+            curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash && \
+            sudo mv kustomize /usr/bin/'
+          sshScript remote: az, script: "installKustomize.sh"
+          sh label: '', script: '''chmod +x ./installKustomize.sh && ./installKustomize.sh'''
+        }
+        stage("Deploy Bootstrap Cluster") {
+          writeFile file: 'installBootstrap.sh', text: 'cd clusterctl_ws && \
+            export KIND_EXPERIMENTAL_DOCKER_NETWORK=bridge && \
+            kind create cluster && \
+            kubectl cluster-info'
+          sshScript remote: az, script: "installBootstrap.sh"
+        }
+        withCredentials([azureServicePrincipal('AzureCloud')]) {
+          stage("Init Azure Provider") {
+            writeFile file: 'env.sh', text: 'export AZURE_ENVIRONMENT="AzurePublicCloud" && \
+               export AZURE_SUBSCRIPTION_ID='+ env.AZURE_SUBSCRIPTION_ID +' && \
+               export AZURE_TENANT_ID='+ env.AZURE_TENANT_ID +' && \
+               export AZURE_CLIENT_ID='+ env.AZURE_CLIENT_ID +' && \
+               export AZURE_CLIENT_SECRET='+ env.AZURE_CLIENT_SECRET +' && \
+               export AZURE_SUBSCRIPTION_ID_B64="$(echo "${AZURE_SUBSCRIPTION_ID}" | base64 | tr -d \'\\n\')" && \
+               export AZURE_TENANT_ID_B64="$(echo "${AZURE_TENANT_ID}" | base64 | tr -d \'\\n\')" && \
+               export AZURE_CLIENT_ID_B64="$(echo "${AZURE_CLIENT_ID}" | base64 | tr -d \'\\n\')" && \
+               export AZURE_CLIENT_SECRET_B64="$(echo "${AZURE_CLIENT_SECRET}" | base64 | tr -d \'\\n\')"'
+            sshPut remote: az, from: 'env.sh', into: 'clusterctl_ws'
+
+            writeFile file: 'initAzureProvider.sh', text: '''#!/bin/bash
+              cd clusterctl_ws && source ./env.sh && \
+              clusterctl init --infrastructure azure --v 5'''
+            sshScript remote: az, script: "initAzureProvider.sh"
+          }
+          stage("Deploy Target Cluster") {
+            writeFile file: 'deployTgtCluster.sh', text:  '''#!/bin/bash
+
+              wait_until() {
+                itr="0"
+                echo "Waiting for $1 to be UP"
+                while [[ $(kubectl get $1 --all-namespaces -o jsonpath=\"{$2}\") != $3 ]] && [[ $itr -lt 30 ]]
+                do
+                  echo "Waiting for $1 to be UP - ($itr/30)"
+                  sleep 30
+                  itr=$((itr+1))
+                done
+              }
+
+              wait_until_node_is_ready() {
+                itr="0"
+                echo "Waiting for $1 to be Ready"
+                while [[ $(kubectl --kubeconfig=./capi-${JOB_BUILD_NUMBER}.kubeconfig get nodes -l $1 -o jsonpath=\"{$2}\") != "Ready" ]] && [[ $itr -lt 30 ]]
+                do
+                  echo "Waiting for $1 to be Ready - ($itr/30)"
+                  sleep 30
+                  itr=$((itr+1))
+                done
+              }
+
+              sleep 30 && \\
+              export AZURE_LOCATION="eastus2" && \\
+              export AZURE_CONTROL_PLANE_MACHINE_TYPE=Standard_D32as_v4 && \\
+              export AZURE_NODE_MACHINE_TYPE=Standard_D32as_v4 && \\
+              export JOB_BUILD_NUMBER=$(hostname | cut -d- -f3-) && \\
+
+              ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa && \\
+              export SSHKEYS=`base64 ~/.ssh/id_rsa.pub | tr -d \'\\n\'`  && \\
+
+              cd clusterctl_ws && source ./env.sh && \\
+              clusterctl config cluster capi-${JOB_BUILD_NUMBER} --kubernetes-version v1.18.2 --control-plane-machine-count=1 --worker-machine-count=1 > capi-${JOB_BUILD_NUMBER}.yaml && \\
+              sed -i "/resourceGroup.*/s//resourceGroup: capi-${JOB_BUILD_NUMBER}-rg/" capi-${JOB_BUILD_NUMBER}.yaml && \\
+              sed -i "/sshPublicKey.*/s//sshPublicKey: ${SSHKEYS}/g" capi-${JOB_BUILD_NUMBER}.yaml  && \\
+              kubectl apply -f capi-${JOB_BUILD_NUMBER}.yaml
+
+              if [ $? -eq 0 ]; then
+                echo OK
+              else
+                sleep 150 && kubectl apply -f capi-${JOB_BUILD_NUMBER}.yaml
+              fi
+
+              wait_until "cluster"  ".items[*].status.phase" "Provisioned" && \\
+              wait_until "kubeadmcontrolplane" ".items[*].status.initialized" "true" && \\
+
+              clusterctl get kubeconfig capi-${JOB_BUILD_NUMBER} > capi-${JOB_BUILD_NUMBER}.kubeconfig && \\
+              kubectl --kubeconfig=./capi-${JOB_BUILD_NUMBER}.kubeconfig \
+                apply -f https://raw.githubusercontent.com/kubernetes-sigs/cluster-api-provider-azure/master/templates/addons/calico.yaml && \\
+
+              wait_until_node_is_ready "node-role.kubernetes.io/master=" \\
+                  ".items[*].status.conditions[?(@.status==\'True\')].type" && \\
+              wait_until_node_is_ready "node-role.kubernetes.io/master!=" \\
+                  ".items[*].status.conditions[?(@.status==\'True\')].type"'''
+            sshScript remote: az, script: "deployTgtCluster.sh"
+          }
+
+          stage("Deploy Workload - Ericsson NRF") {
+            def kubeconfig_src = "/home/azureuser/clusterctl_ws/capi-${JOBNAME}-${BUILD_NUMBER}.kubeconfig"
+            def kubeconfig_dst = "capi-${JOBNAME}-${BUILD_NUMBER}.kubeconfig"
+            sshGet remote: az, from: kubeconfig_src, into: kubeconfig_dst, override: true
+
+            sh label: 'workloadDeploy.sh', script: '''#!/bin/bash
+
+              wait_for_pod() {
+                itr="0"
+                kubectl -n $1 get pods -l $2
+                while [[ $(kubectl -n $1 get pods -l $2 -o \\
+                  'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]] \\
+                  && [[ $itr -lt \"$3\" ]]; \\
+                  do echo "waiting for pod: $2 to be ready - ($itr/$3)" && \\
+                  sleep $4 && itr=$((itr+1)); done
+                kubectl -n $1 get pods -l $2
+              }
+
+              export KUBECONFIG=`pwd`"/capi-${JOBNAME}-${BUILD_NUMBER}.kubeconfig" && \\
+              echo $KUBECONFIG && \\
+
+              workerIpAddress=$(kubectl get nodes -l node-role.kubernetes.io/master!= \\
+                -o jsonpath=\'{.items[*].status.addresses[?(@.type=="InternalIP")].address}\') && \\
+
+              git clone "$MANIFEST_GIT_HOST" && \\
+
+              regInfo='"'"$(echo "${AZURE_CLIENT_ID}:${AZURE_CLIENT_SECRET}" | base64 | tr -d \'\\n\')"'"' && \\
+              authToken='"auth": '$regInfo && \\
+              authSearchStr='"auth":.*' && \\
+              echo $authToken && \\
+              sed -i -e "s|$authSearchStr|$authToken|g" demo/azure/manifests/workload/servMesh/config.json && \\
+
+              find demo -name helm*yaml -exec sed -i -e "s|\\${HELM_REPO_HOST}|$HELM_REPO_HOST|g" {} \\; && \\
+              find demo -name helm*yaml -exec grep -i "repository" {} \\; && \\
+
+              cd demo/azure/manifests/workload/servMesh/CCRC_certs/ && \\
+              ./create.sh $workerIpAddress admin && \\
+              echo "" && echo "" && echo "" && \\
+
+              echo "Deploying Tiller" && \\
+              cd - && cd demo/azure/manifests/function/tiller && \\
+              kustomize build . | kubectl apply -f - && \\
+              wait_for_pod "kube-system" "name=tiller" "30" "10" && \\
+              echo "" && echo "" && echo "" && \\
+
+              echo "Deploying local-path-provisioner" && \\
+              cd - && cd demo/azure/manifests/function/localstorage && \\
+              kustomize build . | kubectl apply -f - && \\
+              wait_for_pod "local-path-storage" "app=local-path-provisioner" "30"  "10" && \\
+              echo "" && echo "" && echo "" && \\
+
+              echo "Deploying helm-operator" && \\
+              cd - && cd demo/azure/manifests/function/helm-operator && \\
+              kustomize build . | kubectl apply -f - && \\
+              wait_for_pod "flux" "name=helm-operator" "30"  "10" && \\
+              echo "" && echo "" && echo "" && \\
+
+              echo "Deploying ServiceMesh" && \\
+              cd - && cd demo/azure/manifests/workload/servMesh && \\
+              kustomize build . | kubectl apply -f - && \\
+              wait_for_pod "eric-ccrc" "app=eric-mesh-controller" "15" "60" && \\
+              echo "" && echo "" && echo "" && \\
+
+              echo "Deploying ADP" && \\
+              cd - && cd demo/azure/manifests/workload/adp && \\
+              kustomize build . | kubectl apply -f - && sleep 60 && \\
+              kubectl get pvc -n eric-ccrc -l release=eric-ccrc-eric-adp-5g-udm && \\
+
+              echo "Waiting for job/eric-cm-mediator-key-init to complete" && \\
+              kubectl wait --for=condition=complete job/eric-cm-mediator-key-init\\
+                -n eric-ccrc --timeout=1200s && \\
+              kubectl get pvc,pods -n eric-ccrc -l release=eric-ccrc-eric-adp-5g-udm && \\
+              kubectl get job -n eric-ccrc && \\
+              echo "" && echo "" && echo "" && \\
+
+              echo "Deploying NRF" && \\
+              cd - && cd demo/azure/manifests/workload/nrf && \\
+              kustomize build . | kubectl apply -f - && sleep 15 && \\
+
+              kubectl get pvc -n eric-ccrc -l release=eric-ccrc-eric-nrf && \\
+              kubectl get job -n eric-ccrc && \\
+
+              echo "Waiting for job/eric-nrf-common-cm-init to complete" && \\
+              kubectl wait --for=condition=complete job/eric-nrf-common-cm-init\\
+                -n eric-ccrc --timeout=1200s && \\
+
+              echo "Waiting for job/eric-nrf-common-kvdb-init to complete" && \\
+              kubectl wait --for=condition=complete job/eric-nrf-common-kvdb-init\\
+                -n eric-ccrc --timeout=1200s && \\
+
+              echo "job/eric-nrf-pm-job-loader to complete" && \\
+              kubectl wait --for=condition=complete job/eric-nrf-pm-job-loader\\
+                -n eric-ccrc --timeout=1200s && \\
+
+              kubectl get pvc,pods -n eric-ccrc -l release=eric-ccrc-eric-nrf && \\
+              echo "" && echo "" && echo "" && \\
+
+              echo "================= NRF Jobs =====================" && \\
+              kubectl get job -n eric-ccrc && \\
+
+              echo "================= NRF PODS =====================" && \\
+              kubectl get pods -n eric-ccrc && \\
+
+              echo "================= NRF PVC =====================" && \\
+              kubectl get pvc -n eric-ccrc && \\
+              echo "" && echo "" && echo "" '''
+            }
+          }
+
+          stage('Validate - Ericsson NRF') {
+            sh label: 'validateNRF.sh', script: '''#!/bin/bash
+
+              export KUBECONFIG=`pwd`"/capi-${JOBNAME}-${BUILD_NUMBER}.kubeconfig" && \\
+
+              kubectl patch service eric-cm-mediator -n eric-ccrc --type=json \\
+                -p=\'[{"op": "replace","path": "/spec/type","value": "LoadBalancer"}]\' && \\
+
+              cmMediatorIP=""
+              while [ -z $cmMediatorIP ]; do
+                echo "Waiting for end point..."
+                cmMediatorIP=$(kubectl get svc eric-cm-mediator -n eric-ccrc \\
+                  --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
+                [ -z "$cmMediatorIP" ] && sleep 10
+              done
+
+              cmMediatorPort=$(kubectl get svc eric-cm-mediator -n eric-ccrc -o \\
+                  \'jsonpath={.spec.ports[?(@.name=="http")].port}\') && \\
+
+              echo "CM-Mediator-IP: $cmMediatorIP" && \\
+              echo "CM-Mediator-PORT: $cmMediatorPort" && \\
+              echo "" && echo "" && echo "" && \\
+
+              echo "=========================== Schemas ===========================" && \\
+              echo "curl -i -s http://$cmMediatorIP:$cmMediatorPort/cm/api/v1/schemas" && \\
+              curl -v -i -s http://$cmMediatorIP:$cmMediatorPort/cm/api/v1/schemas && \\
+              sleep 15 && \\
+              echo "" && echo "" && echo "" && \\
+
+              echo "===================  Post CM Configuration  ===================" && \\
+              echo "curl -v -i -X POST -d@./demo/validation/NRF_cm_init_config.json -H Content-Type:application/json" && \\
+              echo -n " http://$cmMediatorIP:$cmMediatorPort/cm/api/v1/configurations" && \\
+              echo "" && echo "" && echo "" && \\
+              curl -v -i -X POST -d@./demo/validation/NRF_cm_init_config.json -H \\
+                  Content-Type:application/json http://$cmMediatorIP:$cmMediatorPort/cm/api/v1/configurations && \\
+              sleep 15 && \\
+              echo "" && echo "" && echo "" && \\
+
+              echo "====================  Fetch configuration  ==========================" && \\
+              echo "curl -v -s http://$cmMediatorIP:$cmMediatorPort/cm/api/v1/configurations/ericsson-nrf" && \\
+              curl -v -s http://$cmMediatorIP:$cmMediatorPort/cm/api/v1/configurations/ericsson-nrf && \\
+              echo "" && echo "" && echo "" && sleep 300'''
+          }
+          stage("Release resources") {
+            sh label: '', script: '''az group delete -n capi-${JOBNAME}-${BUILD_NUMBER}-rg -y'''
+          }
+        }
+      }catch (err) {
+        echo "Failed: ${err}"
+        currentBuild.result = 'FAILURE'
+    }
+  }
+}
