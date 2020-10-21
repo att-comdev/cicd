@@ -89,6 +89,61 @@ pipelineJob("${JOB_NAME}") {
     }
 }
 
+JOB_NAME="DeployEricNrfOnAZ"
+JOB_FOLDER="eric-cicd/CAPZ"
+pipelineJob("${JOB_NAME}") {
+    properties {
+        disableConcurrentBuilds()
+    }
+    logRotator{
+        daysToKeep(90)
+    }
+    parameters {
+        stringParam {
+            name ('AZURE_LOCATION')
+            defaultValue('East US 2')
+            description('Azure Region - "Central US", "West Europe", "North Central US", etc..')
+            trim(true)
+        }
+        stringParam {
+            name ('AZURE_HOST_TYPE')
+            defaultValue('Standard_B4ms')
+            description('Azure Host VM Type - "Standard_DS2_v2", "Standard_D32s_v3", etc..')
+            trim(true)
+        }
+        stringParam {
+            name ('AZURE_CONTROL_PLANE_MACHINE_TYPE')
+            defaultValue('Standard_D32as_v4')
+            description('Azure Target cluster Control Plane Machine Type - "Standard_DS2_v2", "Standard_D32s_v3", etc..')
+            trim(true)
+        }
+        stringParam {
+            name ('AZURE_NODE_MACHINE_TYPE')
+            defaultValue('Standard_D32as_v4')
+            description('Azure Target cluster Worker Machine Type - "Standard_DS2_v2", "Standard_D32s_v3", etc..')
+            trim(true)
+        }
+        stringParam {
+            name ('HELM_REPO_HOST')
+            defaultValue('http://13.94.241.73:8081')
+            description('Helm Repo uri that hosts helm charts')
+            trim(true)
+        }
+        stringParam {
+            name ('MANIFEST_GIT_HOST')
+            defaultValue('http://10.1.1.35:3000/airship/demo.git')
+            description('GIT URL that hosts Eric NRF CNF manifests')
+            trim(true)
+        }
+    }
+    definition {
+        cps {
+          script(readFileFromWorkspace("${JOB_FOLDER}/jenkins_capz_eric_nrf_cnf"))
+            sandbox(false)
+        }
+    }
+}
+
 JOB_FOLDER="eric-cicd/METAL3"
 JOB_NAME="DeployOnBaremetal"
 pipelineJob("${JOB_NAME}") {
