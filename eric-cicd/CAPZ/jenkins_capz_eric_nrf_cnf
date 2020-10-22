@@ -30,7 +30,7 @@ spec:
       def az = [:]
       env.JOBNAME = JOB_NAME.toLowerCase()
       container('ubuntu-bionic') {
-        stage("Deploy Host VM") {
+        stage("Setup Host Container") {
           sh label: '', script: '''apt-get update; apt-get install -y git sudo make curl wget systemd vim jq && \\
             curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash'''
           withCredentials([azureServicePrincipal('AzureCloud')]) {
