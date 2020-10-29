@@ -208,7 +208,6 @@ spec:
               regInfo='"'"$(echo "${AZURE_CLIENT_ID}:${AZURE_CLIENT_SECRET}" | base64 | tr -d \'\\n\')"'"' && \\
               authToken='"auth": '$regInfo && \\
               authSearchStr='"auth":.*' && \\
-              echo $authToken && \\
               sed -i -e "s|$authSearchStr|$authToken|g" demo/azure/manifests/workload/servMesh/config.json && \\
 
               find demo -name helm*yaml -exec sed -i -e "s|\\${HELM_REPO_HOST}|''' +env.HELM_REPO_HOST + '''|g" {} \\; && \\
