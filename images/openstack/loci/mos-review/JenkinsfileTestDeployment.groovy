@@ -49,7 +49,9 @@ def cloneOSH() {
     for (proj in ['openstack-helm', 'openstack-helm-infra']) {
         git_url = "${INTERNAL_GERRIT_SSH}/mirrors/opendev/${proj}.git"
         branch = "master"
-        gerrit.cloneProject(git_url, branch, "", "${WORKSPACE}/${proj}", INTERNAL_GERRIT_KEY)
+        withEnv(["SHALLOW_CLONE=false"]) {
+            gerrit.cloneProject(git_url, branch, "", "${WORKSPACE}/${proj}", INTERNAL_GERRIT_KEY)
+        }
         version = gerrit.getVersion(git_url, branch, INTERNAL_GERRIT_KEY)
         sh "echo ${proj} head is at ${version} | tee -a ${WORKSPACE}/artifacts/OSH_version.txt"
     }
