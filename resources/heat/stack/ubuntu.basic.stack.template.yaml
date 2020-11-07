@@ -34,7 +34,7 @@ resources:
       networks:
         if:
           - add_routable_ip
-          - [port: { get_resource: routable_port }, port: { get_resource: private_port }]
+          - [port: { get_resource: routable_port }]
           - [port: { get_resource: private_port }]
 
       user_data:
