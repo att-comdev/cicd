@@ -34,7 +34,7 @@ resources:
       networks:
         if:
           - add_routable_ip
-          - [port: { get_resource: routable_port }, port: { get_resource: private_port }]
+          - [port: { get_resource: routable_port }]
           - [port: { get_resource: private_port }]
 
       user_data:
@@ -45,6 +45,7 @@ resources:
             $message: Hello World!
 
   private_port:
+    condition: not add_routable_ip
     type: OS::Neutron::Port
     properties:
       network_id: { get_param: private_net }
