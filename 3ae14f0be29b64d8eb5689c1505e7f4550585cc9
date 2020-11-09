@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4078edc3_1b250be4",
+        "filename": "eric-cicd/METAL3/BareMetal-Gate.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-11-09T17:22:18Z",
+      "side": 1,
+      "message": "- Remove the empty line.",
+      "revId": "3ae14f0be29b64d8eb5689c1505e7f4550585cc9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "871ea441_baa931a6",
+        "filename": "eric-cicd/METAL3/BareMetal-Gate.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-11-09T17:22:18Z",
+      "side": 1,
+      "message": "Remove the empty line.",
+      "revId": "3ae14f0be29b64d8eb5689c1505e7f4550585cc9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3774bf0_ddedd4d3",
+        "filename": "eric-cicd/METAL3/BareMetal-Gate.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-11-09T17:22:18Z",
+      "side": 1,
+      "message": "Remove white space",
+      "revId": "3ae14f0be29b64d8eb5689c1505e7f4550585cc9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8c33db2_59f448fd",
+        "filename": "eric-cicd/METAL3/BareMetal-Gate.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-11-09T17:22:18Z",
+      "side": 1,
+      "message": "Remove the empty line.",
+      "revId": "3ae14f0be29b64d8eb5689c1505e7f4550585cc9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e9672ab_6e751163",
+        "filename": "eric-cicd/METAL3/BareMetal-Gate.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-11-09T17:22:18Z",
+      "side": 1,
+      "message": "Remove the empty line.",
+      "revId": "3ae14f0be29b64d8eb5689c1505e7f4550585cc9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7014e4b5_287bdf5f",
+        "filename": "eric-cicd/METAL3/BareMetal-Gate.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-11-09T17:22:18Z",
+      "side": 1,
+      "message": "Re-use by calling cleanup.sh script from \"Cloning Airshipctl\" stage here.",
+      "revId": "3ae14f0be29b64d8eb5689c1505e7f4550585cc9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf3e6e94_e4dd4a94",
+        "filename": "eric-cicd/METAL3/BareMetal-VPP-CNF.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-11-09T17:22:18Z",
+      "side": 1,
+      "message": "Remove empty lines and whitepsaces",
+      "revId": "3ae14f0be29b64d8eb5689c1505e7f4550585cc9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57387fd7_a99caf02",
+        "filename": "eric-cicd/METAL3/BareMetal-VPP-CNF.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-11-09T17:22:18Z",
+      "side": 1,
+      "message": "Re-use by calling cleanup.sh script from \"Cloning Airshipctl\" stage here.",
+      "revId": "3ae14f0be29b64d8eb5689c1505e7f4550585cc9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
