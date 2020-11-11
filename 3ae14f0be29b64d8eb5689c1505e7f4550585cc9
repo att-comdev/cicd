@@ -104,6 +104,23 @@
     },
     {
       "key": {
+        "uuid": "c8bf2448_0e1ea2b5",
+        "filename": "eric-cicd/METAL3/BareMetal-VPP-CNF.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-11-11T21:11:24Z",
+      "side": 1,
+      "message": "Where is the workload coming from ?\nIf this is on the host, please move it to git repository (git tea). And clone it from git repository.",
+      "revId": "3ae14f0be29b64d8eb5689c1505e7f4550585cc9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf3e6e94_e4dd4a94",
         "filename": "eric-cicd/METAL3/BareMetal-VPP-CNF.sh",
         "patchSetId": 1
