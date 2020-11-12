@@ -124,7 +124,7 @@ copy_seed(){
 find_seed(){
 
     if [ -z "${SEED_PATH}" ]; then
-        if [ "${GERRIT_REFSPEC}" = "origin/master" ]; then
+        if [[ "${GERRIT_REFSPEC}" == origin* ]]; then
             echo "ERROR: empty SEED_PATH parameter."
             exit 1
         fi
