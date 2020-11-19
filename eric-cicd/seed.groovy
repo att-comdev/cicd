@@ -89,7 +89,7 @@ pipelineJob("${JOB_NAME}") {
     }
 }
 
-JOB_NAME="DeployEricNrfOnAZ"
+JOB_NAME="DeployEricNrfOnAZClusterCtl"
 JOB_FOLDER="eric-cicd/CAPZ"
 pipelineJob("${JOB_NAME}") {
     properties {
@@ -124,9 +124,58 @@ pipelineJob("${JOB_NAME}") {
             trim(true)
         }
         stringParam {
-            name ('HELM_REPO_HOST')
-            defaultValue('http://13.94.241.73:8081')
-            description('Helm Repo uri hosting helm charts')
+            name ('MANIFEST_GIT_URL')
+            defaultValue('http://10.1.1.35:3000/airship/demo.git')
+            description('GIT URL hosting Eric NRF CNF manifests')
+            trim(true)
+        }
+    }
+    definition {
+        cps {
+          script(readFileFromWorkspace("${JOB_FOLDER}/jenkins_capz_eric_nrf_cnf_clusterctl"))
+            sandbox(false)
+        }
+    }
+}
+
+JOB_NAME="DeployEricNrfOnAZ"
+JOB_FOLDER="eric-cicd/CAPZ"
+pipelineJob("${JOB_NAME}") {
+    properties {
+        disableConcurrentBuilds()
+    }
+    logRotator{
+        daysToKeep(90)
+    }
+    parameters {
+        stringParam {
+            name ('AZURE_LOCATION')
+            defaultValue('East US 2')
+            description('Azure Region - "Central US", "West Europe", "North Central US", etc..')
+            trim(true)
+        }
+        stringParam {
+            name ('AZURE_HOST_TYPE')
+            defaultValue('Standard_D32as_v4')
+            description('Azure Host VM Type - "Standard_DS2_v2", "Standard_D32s_v3", etc..')
+            trim(true)
+        }
+        stringParam {
+            name ('REF_SPEC_MANIFESTS')
+            defaultValue('refs/changes/48/761448/13')
+            description('Manifests to be used for deploying target cluster')
+            trim(true)
+        }
+        stringParam {
+            name ('REF_SPEC_SCRIPTS')
+            defaultValue('refs/changes/82/738682/186')
+            description('Scripts to be used for deploying target cluster')
+            trim(true)
+        }
+        stringParam {
+            name ('CONTAINER_REG_URL')
+            defaultValue('capicontainerregistry.azurecr.io/armdocker.rnd.ericsson.se')
+            description('Azure Container registry hosting workload images')
             trim(true)
         }
         stringParam {
