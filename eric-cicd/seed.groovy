@@ -64,6 +64,32 @@ pipelineJob("${JOB_NAME}") {
     logRotator{
         daysToKeep(90)
     }
+    parameters {
+        stringParam {
+            name ('AZURE_LOCATION')
+            defaultValue('East US 2')
+            description('Azure Region - "Central US", "West Europe", "North Central US", etc..')
+            trim(true)
+        }
+        stringParam {
+            name ('AZURE_HOST_TYPE')
+            defaultValue('Standard_D32as_v4')
+            description('Azure Host VM Type - "Standard_DS2_v2", "Standard_D32s_v3", etc..')
+            trim(true)
+        }
+        stringParam {
+            name ('REF_SPEC_MANIFESTS')
+            defaultValue('refs/changes/48/761448/13')
+            description('Manifests to be used for deploying target cluster')
+            trim(true)
+        }
+        stringParam {
+            name ('REF_SPEC_SCRIPTS')
+            defaultValue('refs/changes/82/738682/186')
+            description('Scripts to be used for deploying target cluster')
+            trim(true)
+        }
+    }
     definition {
         cps {
           script(readFileFromWorkspace("${JOB_FOLDER}/jenkins_capz"))
