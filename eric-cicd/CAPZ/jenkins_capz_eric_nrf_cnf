@@ -121,7 +121,7 @@ spec:
             sudo -E ./tools/deployment/21_systemwide_executable.sh'''
             sshScript remote: az, script: "installAirshipCtl.sh"
           }
-          stage("Deploy Empheral Cluster") {
+          stage("Deploy Ephemeral Cluster") {
             writeFile file: 'deployEphemeral.sh', text: '''#!/bin/bash
             cd airship && source env.sh && cd airshipctl && sudo -E \
             AIRSHIP_SRC=`pwd`/../ KIND_CONFIG=./tools/deployment/templates/kind-cluster-with-extramounts \
@@ -181,7 +181,7 @@ spec:
               authToken='"auth": '$regInfo && \
               authSearchStr='"auth":.*' && \
               sed -i -e "s|$authSearchStr|$authToken|g" demo/azure/ericsson-5g/function/chart-collator/config.json && \
-              sed -i -e "s|$authSearchStr|$authToken|g" demo/azure/ericsson-5g/workload/servMesh/config.json '''
+              sed -i -e "s|$authSearchStr|$authToken|g" demo/azure/ericsson-5g/workload/5g-ccrc-nrf/common/config.json '''
             sh label: '', script: '''chmod +x ./updateNrfRepo.sh && ./updateNrfRepo.sh'''
             sshPut remote: az, from: 'demo/azure/ericsson-5g', into: 'airship/airshipctl/manifests/site/az-test-site/', override: true
 
