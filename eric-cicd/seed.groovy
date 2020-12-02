@@ -14,6 +14,12 @@ pipelineJob("${JOB_NAME}") {
             description('Target VM to deploy')
             trim(true)
         }
+        stringParam {
+            name ('REF_SPEC_SCRIPTS')
+            defaultValue('refs/changes/32/763232/8')
+            description('Manifests to be used for deploying target cluster')
+            trim(true)
+        }
     }
     triggers {
         gerritTrigger {
@@ -73,7 +79,7 @@ pipelineJob("${JOB_NAME}") {
         }
         stringParam {
             name ('AZURE_HOST_TYPE')
-            defaultValue('Standard_D32as_v4')
+            defaultValue('Standard_DS4_v2')
             description('Azure Host VM Type - "Standard_DS2_v2", "Standard_D32s_v3", etc..')
             trim(true)
         }
