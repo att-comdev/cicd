@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e3fae2c_7bc986a3",
+        "filename": "eric-cicd/CAPD/jenkins_capd",
+        "patchSetId": 8
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-03T14:33:30Z",
+      "side": 1,
+      "message": "Change it to \u0027Clone AirshipCtl\u0027",
+      "range": {
+        "startLine": 22,
+        "startChar": 9,
+        "endLine": 22,
+        "endChar": 17
+      },
+      "revId": "9dbed52627db96edf0c8dc94fca236f6e679113f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21ca18d4_ce26e8bb",
+        "filename": "eric-cicd/CAPD/jenkins_capd",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-03T14:33:30Z",
+      "side": 1,
+      "message": "How is the \u0027RevisionNum\u0027 variable getting populated ?",
+      "range": {
+        "startLine": 30,
+        "startChar": 61,
+        "endLine": 30,
+        "endChar": 72
+      },
+      "revId": "9dbed52627db96edf0c8dc94fca236f6e679113f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa4e44ad_2e53bd92",
+        "filename": "eric-cicd/CAPD/jenkins_capd",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-03T14:33:30Z",
+      "side": 1,
+      "message": "Change it to \u0027Install Kustomize, Kind and KubeCtl\u0027",
+      "range": {
+        "startLine": 32,
+        "startChar": 9,
+        "endLine": 32,
+        "endChar": 32
+      },
+      "revId": "9dbed52627db96edf0c8dc94fca236f6e679113f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d601dc6a_e35b4ed9",
+        "filename": "eric-cicd/CAPD/jenkins_capd",
+        "patchSetId": 8
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-03T14:33:30Z",
+      "side": 1,
+      "message": "Why are we changing the versions ?",
+      "range": {
+        "startLine": 38,
+        "startChar": 13,
+        "endLine": 38,
+        "endChar": 19
+      },
+      "revId": "9dbed52627db96edf0c8dc94fca236f6e679113f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd7aa54b_a1007a2e",
+        "filename": "eric-cicd/CAPD/jenkins_capd",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-03T14:33:30Z",
+      "side": 1,
+      "message": "Why are we changing the versions ?",
+      "range": {
+        "startLine": 39,
+        "startChar": 13,
+        "endLine": 39,
+        "endChar": 20
+      },
+      "revId": "9dbed52627db96edf0c8dc94fca236f6e679113f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83a6306a_b30789d4",
+        "filename": "eric-cicd/CAPD/jenkins_capd",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-03T14:33:30Z",
+      "side": 1,
+      "message": "Deleting the clusters - should already be handled in \u0027start_kind.sh\u0027 script ?",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 57
+      },
+      "revId": "9dbed52627db96edf0c8dc94fca236f6e679113f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db0c6587_967036dd",
+        "filename": "eric-cicd/CAPD/jenkins_capd",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-03T14:33:30Z",
+      "side": 1,
+      "message": "This and the following stage can be combined. Name it as \u0027Initialize Kind Cluster\u0027",
+      "range": {
+        "startLine": 49,
+        "startChar": 9,
+        "endLine": 49,
+        "endChar": 19
+      },
+      "revId": "9dbed52627db96edf0c8dc94fca236f6e679113f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "208498ab_56fca5ac",
+        "filename": "eric-cicd/CAPD/jenkins_capd",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-03T14:33:30Z",
+      "side": 1,
+      "message": "If you plan on using writefile and sh command, please update the previous stages to keep it consistent.",
+      "range": {
+        "startLine": 50,
+        "startChar": 3,
+        "endLine": 50,
+        "endChar": 17
+      },
+      "revId": "9dbed52627db96edf0c8dc94fca236f6e679113f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a1901e4_9ae1d7c6",
+        "filename": "eric-cicd/CAPD/jenkins_capd",
+        "patchSetId": 8
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-03T14:33:30Z",
+      "side": 1,
+      "message": "Combine \u0027Cluster Init\u0027 and \u0027Cluster Move\u0027 stages. Call it \u0027Cluster Move\u0027",
+      "range": {
+        "startLine": 69,
+        "startChar": 9,
+        "endLine": 69,
+        "endChar": 21
+      },
+      "revId": "9dbed52627db96edf0c8dc94fca236f6e679113f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
