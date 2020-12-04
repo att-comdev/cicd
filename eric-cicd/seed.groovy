@@ -275,3 +275,34 @@ pipelineJob("${JOB_NAME}") {
         }
     }
 }
+JOB_NAME="DeployONCAPD"
+JOB_FOLDER="eric-cicd/CAPD"
+pipelineJob("${JOB_NAME}") {
+    properties {
+        disableConcurrentBuilds()
+    }
+    logRotator{
+        daysToKeep(90)
+    }
+    parameters {
+        stringParam {
+            name ('targetVM')
+            defaultValue('10.1.1.31')
+            description('target VM to deploy CAPD')
+            trim(true)
+        }
+        stringParam {
+            name ('REF_SPEC_SCRIPTS')
+            defaultValue('refs/changes/32/763232/8')
+            description('code patch set for CAPD')
+            trim(true)
+        }
+        }
+    }
+    definition {
+        cps {
+          script(readFileFromWorkspace("${JOB_FOLDER}/jenkins_capd"))
+            sandbox(false)
+        }
+    }
+}
