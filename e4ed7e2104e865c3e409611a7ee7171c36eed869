@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef8fd650_5f32d7b1",
+        "filename": "eric-cicd/CAPD/jenkins_capd",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-04T14:14:23Z",
+      "side": 1,
+      "message": "How do you get the RevisionNum value ?",
+      "range": {
+        "startLine": 18,
+        "startChar": 16,
+        "endLine": 18,
+        "endChar": 27
+      },
+      "revId": "e4ed7e2104e865c3e409611a7ee7171c36eed869",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "226995d2_5afd853b",
+        "filename": "eric-cicd/CAPD/jenkins_capd",
+        "patchSetId": 9
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-04T14:14:23Z",
+      "side": 1,
+      "message": "deleting the clusters - isn\u0027t this done by start_kind.sh ?",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 66
+      },
+      "revId": "e4ed7e2104e865c3e409611a7ee7171c36eed869",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
