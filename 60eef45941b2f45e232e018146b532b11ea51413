@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b585d7fb_9de13f9f",
+        "filename": "eric-cicd/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-05T00:56:11Z",
+      "side": 1,
+      "message": "1. Changes needs to be on the original PS not as a separate PS.\n2. There is already a Job named \u0027DeployONCAPD\u0027, update the job to add new parameter",
+      "range": {
+        "startLine": 278,
+        "startChar": 10,
+        "endLine": 278,
+        "endChar": 22
+      },
+      "revId": "60eef45941b2f45e232e018146b532b11ea51413",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09227a6d_bd032780",
+        "filename": "eric-cicd/seed.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2020-12-05T00:56:11Z",
+      "side": 1,
+      "message": "Did you test this ?\nSeems you have an extra brace.",
+      "range": {
+        "startLine": 300,
+        "startChar": 8,
+        "endLine": 300,
+        "endChar": 9
+      },
+      "revId": "60eef45941b2f45e232e018146b532b11ea51413",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
