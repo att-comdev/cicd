@@ -24,6 +24,8 @@ if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
 
 if (JOB_BASE_NAME.contains('ceph-')) {
     BUILD_ARGS += [
+        "--build-arg CEPH_RELEASE=${conf.CEPH_RELEASE['release']}",
+        "--build-arg CEPH_RELEASE_TAG=${conf.CEPH_RELEASE['tag']}",
         "--build-arg CEPH_REPO=${conf.CEPH_REPO['repo']}",
         "--build-arg CEPH_KEY=${conf.CEPH_REPO['key']}",]
 }

@@ -1,95 +1,81 @@
-def trigger = {
-    podTemplate(yaml: """
-    apiVersion: v1
-    kind: Pod
-    metadata:
-      labels:
-        provider: capd
-    spec:
-      containers:
-      - name: ubuntu-bionic
-        image: ubuntu:18.04
-        command:
-        - cat
-        tty: true
-    """
-    ) {
-        node(POD_LABEL) {
-            def remote = [:]
-            container('ubuntu-bionic') {
-                withCredentials([usernamePassword(credentialsId: 'TARGET_CREDENTIALS', usernameVariable: 'USER', passwordVariable: 'PASSWORD')]) {
-                    remote.name = 'hostVM'
-                    remote.host = "${targetVM}"
-                    remote.user = "${USER}"
-                    remote.password = "${PASSWORD}"
-                    remote.allowAnyHosts = true
-                }
-                stage("Setting up Host VM") {
-                    sh "hostname"
-                    writeFile file: 'setup.sh', text: 'sudo apt-get update;sudo apt-get install -y make git curl sudo wget'
-                    sshScript remote: remote, script: "setup.sh"
-                }
-                stage("Clone manifest") {
-                    writeFile file: 'clonemanifest.sh', text: '\
-                        sudo rm -rf /home/zuul/src/opendev.org/airship && \
-                        mkdir -p /home/zuul/src/opendev.org/airship/ && \
-                        cd /home/zuul/src/opendev.org/airship/ && \
-                        git clone https://opendev.org/airship/airshipctl.git && \
-                        cd airshipctl/ && \
-                        git fetch https://review.opendev.org/airship/airshipctl refs/changes/71/737871/15 && git checkout FETCH_HEAD'
-                    sshScript remote: remote, script: "clonemanifest.sh"
-                }
-                stage("Clone scripts") {
-                    writeFile file: 'clonescripts.sh', text: '\
-                        sudo rm -rf /home/airship/capd && \
-                        mkdir -p /home/airship/capd && \
-                        cp -r /home/zuul/src/opendev.org/airship/airshipctl/ /home/airship/capd && \
-                        cd /home/airship/capd/airshipctl/ && \
-                        git fetch https://review.opendev.org/airship/airshipctl refs/changes/82/738682/60 && git checkout FETCH_HEAD'
-                    sshScript remote: remote, script: "clonescripts.sh"
-                }
-                stage("Install Kind") {
-                    writeFile file: 'Installkind.sh', text: 'cd /home/airship/capd/airshipctl/; ./tools/deployment/docker/00_install_kind.sh'
-                    sshScript remote: remote, script: "Installkind.sh"
-                }
-                stage("Install Kubectl") {
-                    writeFile file: 'Installkubectl.sh', text: 'cd /home/airship/capd/airshipctl/; ./tools/deployment/01_install_kubectl.sh'
-                    sshScript remote: remote, script: "Installkubectl.sh"
-                }
-                stage("Install GO") {
-                    writeFile file: 'Installgo.sh', text: 'cd /home/airship/capd/airshipctl/; ./tools/deployment/docker/02_install_go.sh'
-                    sshScript remote: remote, script: "Installgo.sh"
-                }
-                stage("Install Kustomize") {
-                    writeFile file: 'Installkustomize.sh', text: 'cd /home/airship/capd/airshipctl/; ./tools/deployment/docker/03_install_kustomize_docker.sh | cat'
-                    sshScript remote: remote, script: "Installkustomize.sh"
-                }
-                stage("Deploy Kind cluster") {
-                    writeFile file: 'deploykindcluster.sh', text: 'cd /home/airship/capd/airshipctl/; ./tools/deployment/docker/11_build_kind_cluster.sh'
-                    sshScript remote: remote, script: "deploykindcluster.sh"
-                }
-                stage("Configure") {
-                    writeFile file: 'configure.sh', text: 'cd /home/airship/capd/airshipctl/; ./tools/deployment/21_systemwide_executable.sh;\
-                                                       ./tools/deployment/docker/31_create_configs.sh'
-                    sshScript remote: remote, script: "configure.sh"
-                }
-                stage("Deploy Management Cluster") {
-                    writeFile file: 'deploymanagementcluster.sh', text: 'cd /home/airship/capd/airshipctl/; ./tools/deployment/docker/41_initialize_management_cluster.sh'
-                    sshScript remote: remote, script: "deploymanagementcluster.sh"
-                }
-                stage("Deploy Workload Cluster") {
-                    writeFile file: 'deployworkloadcluster.sh', text: 'cd /home/airship/capd/airshipctl/; ./tools/deployment/docker/51_deploy_workload_cluster.sh'
-                    sshScript remote: remote, script: "deployworkloadcluster.sh"
-                }
-            }
-        }
-    }
+def AIRSHIPCTL
+def AIRSHIP_SRC
+def KUBECONFIG
+def WORKERS_COUNT
+def CONTROLPLANE_COUNT
+def TEST_SITE
+def TARGET_CLUSTER_NAME
+def KIND_EXPERIMENTAL_DOCKER_NETWORK
+def PROVIDER
+node(targetVM) {
+	withEnv(['AIRSHIP_SRC=/tmp/airship',
+		'KUBECONFIG=$HOME/.airship/kubeconfig',
+		'WORKERS_COUNT=2',
+		'CONTROLPLANE_COUNT=1',
+		'TEST_SITE=docker-test-site',
+		'TARGET_CLUSTER_NAME=target-cluster',
+		'KIND_EXPERIMENTAL_DOCKER_NETWORK=bridge',
+		'AIRSHIPCTL=/tmp/airship/airshipctl',
+		'PROVIDER=default' ]){
+	try{
+		AIRSHIPCTL = sh(script: """echo /tmp/airship/airshipctl""", returnStdout:true).trim()
+		stage("Clone Airshipctl") {
+			writeFile file: 'clone.sh', text: '''#!/bin/bash
+			sudo swapoff -a
+			sudo rm -rf ~/.airship
+			sudo rm -rf /tmp/airship
+			mkdir /tmp/airship
+			cd /tmp/airship
+			git clone https://opendev.org/airship/airshipctl.git $AIRSHIPCTL
+			cd $AIRSHIPCTL
+			git fetch https://review.opendev.org/airship/airshipctl '''+ env.REF_SPEC_SCRIPTS +''' && git checkout FETCH_HEAD'''
+			sh 'bash ./clone.sh'
+		}
+		stage("Install Kustomize, Kind and KubeCtl") {
+			writeFile file: 'install.sh', text: '''#!/bin/bash
+			cd $AIRSHIPCTL &&  ./tools/gate/00_setup.sh
+			curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v3.8.5/kustomize_v3.8.5_linux_amd64.tar.gz | tar -C /tmp -xzf -
+			sudo install /tmp/kustomize /usr/local/bin
+			kustomize version
+			./tools/deployment/provider_common/01_install_kind.sh
+			./tools/deployment/01_install_kubectl.sh'''
+			sh 'bash ./install.sh'
+		}
+		stage("install Airshipctl") {
+			writeFile file: 'airshipctl.sh', text: '''#!/bin/bash
+			cd $AIRSHIPCTL && ./tools/deployment/21_systemwide_executable.sh'''
+			sh 'bash ./airshipctl.sh'
+		}
+		stage("Initialize Kind Cluster"){
+			writeFile file: 'kind.sh', text: '''#!/bin/bash
+			echo "deleting existing clusters" && kind delete cluster --name ephemeral-cluster && kind delete cluster --name target-cluster
+			cd $AIRSHIPCTL && CLUSTER=ephemeral-cluster KIND_CONFIG=./tools/deployment/templates/kind-cluster-with-extramounts ./tools/document/start_kind.sh
+			./tools/deployment/provider_common/03-init-airship-config.sh'''
+			sh 'bash ./kind.sh'
+		}
+		stage("Deploy Ephermal"){
+			writeFile file: 'epheremal.sh', text: '''#!/bin/bash
+			cd $AIRSHIPCTL && PROVIDER=default TEST_SITE=docker-test-site PROVIDER_MANIFEST=docker_manifest ./tools/deployment/26_deploy_capi_ephemeral_node.sh'''
+			sh 'bash ./epheremal.sh'
+		}
+		stage("Deploy Control Plane"){
+			writeFile file: 'control-plane.sh', text: '''#!/bin/bash
+ 			cd $AIRSHIPCTL && CONTROLPLANE_COUNT=1 TEST_SITE=docker-test-site ./tools/deployment/provider_common/30_deploy_controlplane.sh'''
+			sh 'bash ./control-plane.sh'
+		}
+		stage("Cluster Move"){
+			writeFile file: 'cluster-init.sh', text: '''#!/bin/bash
+			cd $AIRSHIPCTL && KUBECONFIG=/tmp/target-cluster.kubeconfig ./tools/deployment/provider_common/32_cluster_init_target_node.sh && ./tools/deployment/provider_common/33_cluster_move_target_node.sh'''
+			sh 'bash ./cluster-init.sh'
+		}
+		stage("Deploy Worker Node"){
+			writeFile file: 'worker-node.sh', text: '''#!/bin/bash
+			cd $AIRSHIPCTL && WORKERS_COUNT="2" KUBECONFIG="/tmp/target-cluster.kubeconfig" TEST_SITE="docker-test-site" ./tools/deployment/provider_common/34_deploy_worker_node.sh'''
+			sh 'bash ./worker-node.sh'
+		}
+	}catch (err) {
+		echo "Failed: ${err}"
+		currentBuild.result = 'FAILURE'
+	}
 }
-
-//// main flow
-try {
-    trigger()
-} catch (error) {
-    println error
-    currentBuild.result = 'FAILURE'
 }
