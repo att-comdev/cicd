@@ -281,3 +281,67 @@ pipelineJob("${JOB_NAME}") {
         }
     }
 }
+
+JOB_FOLDER="eric-cicd/CAPO)"
+JOB_NAME="DeployOnCAPO"
+pipelineJob("${JOB_NAME}") {
+    properties {
+        disableConcurrentBuilds()
+    }
+    logRotator{
+        daysToKeep(90)
+    }
+    parameters {
+        stringParam {
+            name ('targetVM')
+            defaultValue('10.1.1.13')
+            description('Target VM to deploy')
+            trim(true)
+        }
+        stringParam {
+            name ('REF_SPEC_SCRIPTS')
+            defaultValue('refs/changes/32/763232/8')
+            description('Manifests to be used for deploying target cluster')
+            trim(true)
+        }
+    }
+    triggers {
+        gerritTrigger {
+            silentMode(true)
+            serverName('airship-ci')
+            gerritProjects {
+                gerritProject {
+                    compareType('PLAIN')
+                    pattern("airship/airshipctl")
+                    branches {
+                        branch {
+                            compareType('ANT')
+                            pattern("**")
+                        }
+                    }
+                    disableStrictForbiddenFileVerification(false)
+                }
+            }
+            triggerOnEvents {
+                patchsetCreated {
+                    excludeDrafts(false)
+                    excludeTrivialRebase(false)
+                    excludeNoCodeChange(true)
+                    excludePrivateState(false)
+                    excludeWipState(false)
+                }
+                changeMerged()
+                commentAddedContains {
+                   commentAddedCommentContains('recheck')
+                }
+            }
+        }
+    }
+    definition {
+        cps {
+          script(readFileFromWorkspace("${JOB_FOLDER}/jenkins_capo"))
+            sandbox(false)
+        }
+    }
+}
+
