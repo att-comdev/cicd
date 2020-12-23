@@ -35,10 +35,10 @@ spec:
           withCredentials([azureServicePrincipal('AZURE_CLOUD_ERIC')]) {
             sh label: '', script: '''#!/bin/bash
               az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID;
-              az group create --name capz-${JOBNAME}-${BUILD_NUMBER}-rg --location "${REMOTE_VM_REGION}";
+              az group create --name capg-${JOBNAME}-${BUILD_NUMBER}-rg --location "${REMOTE_VM_REGION}";
 
-              host=$(az vm create -g capz-${JOBNAME}-${BUILD_NUMBER}-rg \\
-                -n capz-${JOBNAME}-${BUILD_NUMBER}-vm --image UbuntuLTS \\
+              host=$(az vm create -g capg-${JOBNAME}-${BUILD_NUMBER}-rg \\
+                -n capg-${JOBNAME}-${BUILD_NUMBER}-vm --image UbuntuLTS \\
                 --authentication-type all \\
                 --admin-username azureuser \\
                 --admin-password "Azure-12345!" \\
@@ -70,37 +70,43 @@ spec:
             export PATH=$PATH:/usr/local/go/bin/ && \
             cd airship && git clone https://opendev.org/airship/airshipctl.git && \
             cd airshipctl && git fetch https://review.opendev.org/airship/airshipctl '''+ env.REF_SPEC_MANIFESTS +''' && git checkout FETCH_HEAD
-            sed -i 's/edge-5g-cluster/'''+ env.CLUSTER_NAME +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/location:.*/s//location: '''+ env.TARGET_REGION.toLowerCase().replaceAll("\\s","") +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/k8sVersion:.*/s//k8sVersion: '''+ env.TARGET_K8S_VERSION +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/controlPlaneVMSize:.*/s//controlPlaneVMSize: '''+ env.CONTROLPLANE_VM_TYPE +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/controlPlaneReplicas:.*/s//controlPlaneReplicas: '''+ env.CONTROLPLANE_COUNT +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/workerVMSize:.*/s//workerVMSize: '''+ env.WORKER_VM_TYPE +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/workerReplicas:.*/s//workerReplicas: '''+ env.WORKER_COUNT +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
+            sed -i 's/"value":.*/"value": "'''+ env.GCP_PROJECT +'''"}/g' manifests/site/gcp-test-site/ephemeral/controlplane/project_name.json
+            sed -i 's/"value":.*/"value": "'''+ env.GCP_NETWORK_NAME +'''"}/g' manifests/site/gcp-test-site/ephemeral/controlplane/network_name.json
+            sed -i 's/"value":.*/"value": "'''+ env.GCP_REGION +'''"}/g' manifests/site/gcp-test-site/ephemeral/controlplane/region_name.json
+            sed -i 's/"value":.*/"value": "'''+ env.GCP_CONTROL_PLANE_MACHINE_TYPE +'''"}/g' manifests/site/gcp-test-site/ephemeral/controlplane/machine_type.json
+            sed -i 's/"value":.*/"value": "'''+ env.GCP_NODE_MACHINE_TYPE +'''"}/g' manifests/site/gcp-test-site/target/workers/machine_type.json
+            sed -i 's/"value":.*/"value": '''+ env.GCP_CONTROL_PLANE_MACHINE_COUNT +'''}/g' manifests/site/gcp-test-site/ephemeral/controlplane/machine_count.json
+            sed -i 's/"value":.*/"value": '''+ env.GCP_NODE_MACHINE_COUNT +'''}/g' manifests/site/gcp-test-site/target/workers/machine_count.json
             '''
           sshScript remote: az, script: "cloneRepo.sh"
           sh label: '', script: '''chmod +x ./cloneRepo.sh && ./cloneRepo.sh'''
+          sshPut remote: az, from: 'cloneRepo.sh', into: 'airship'
         }
-        withCredentials([azureServicePrincipal('AZURE_CLOUD_ERIC')]) {
+        withCredentials([string(credentialsId: 'gcp-service-account', variable: 'GCP_B64ENCODED_CREDENTIALS')]) {
           stage("Setup Env Vars") {
-            writeFile file: 'env.sh', text: 'export AZURE_ENVIRONMENT="AzurePublicCloud" && \
-               export AZURE_SUBSCRIPTION_ID='+ env.AZURE_SUBSCRIPTION_ID +' && \
-               export AZURE_TENANT_ID='+ env.AZURE_TENANT_ID +' && \
-               export AZURE_CLIENT_ID='+ env.AZURE_CLIENT_ID +' && \
-               export AZURE_CLIENT_SECRET='+ env.AZURE_CLIENT_SECRET +' && \
-               export AZURE_SUBSCRIPTION_ID_B64="$(echo "${AZURE_SUBSCRIPTION_ID}" | base64 | tr -d \'\\n\')" && \
-               export AZURE_TENANT_ID_B64="$(echo "${AZURE_TENANT_ID}" | base64 | tr -d \'\\n\')" && \
-               export AZURE_CLIENT_ID_B64="$(echo "${AZURE_CLIENT_ID}" | base64 | tr -d \'\\n\')" && \
-               export AZURE_CLIENT_SECRET_B64="$(echo "${AZURE_CLIENT_SECRET}" | base64 | tr -d \'\\n\')"'
+            writeFile file: 'env.sh', text: 'export GCP_B64ENCODED_CREDENTIALS='+ env.GCP_B64ENCODED_CREDENTIALS +''
             writeFile file: 'site.sh', text: '''
-               export TEST_SITE="az-cluster-test-site"
-               export PROVIDER_MANIFEST="azure_manifest"
+               export GCP_PROJECT='''+ env.GCP_PROJECT +'''
+               export GCP_REGION='''+ env.GCP_REGION +'''
+               export GCP_NETWORK_NAME='''+ env.GCP_NETWORK_NAME +'''
+               export GCP_CONTROL_PLANE_MACHINE_TYPE='''+ env.GCP_CONTROL_PLANE_MACHINE_TYPE +'''
+               export GCP_NODE_MACHINE_TYPE='''+ env.GCP_NODE_MACHINE_TYPE +'''
+
+               export GCP_PROJECT_B64=$( echo ${GCP_PROJECT} | base64 )
+               export GCP_REGION_B64=$( echo ${GCP_REGION} | base64 )
+               export GCP_NETWORK_NAME_B64=$( echo ${GCP_NETWORK_NAME} | base64 )
+               export GCP_CONTROL_PLANE_MACHINE_TYPE_B64=$( echo ${GCP_CONTROL_PLANE_MACHINE_TYPE} | base64 )
+               export GCP_NODE_MACHINE_TYPE_B64=$( echo ${GCP_NODE_MACHINE_TYPE} | base64 )
+
+               export SITE="gcp-test-site"
+               export TEST_SITE=${SITE}
+               export PROVIDER_MANIFEST="gcp_manifest"
                export PROVIDER="default"
                export CLUSTER="ephemeral-cluster"
                export EPHEMERAL_KUBECONFIG_CONTEXT="${CLUSTER}"
                export EPHEMERAL_CLUSTER_NAME="kind-${EPHEMERAL_KUBECONFIG_CONTEXT}"
                export EPHEMERAL_KUBECONFIG="${HOME}/.airship/kubeconfig"
-               export TARGET_CLUSTER_NAME='''+ env.CLUSTER_NAME +'''
+               export TARGET_CLUSTER_NAME="target-cluster"
                export TARGET_KUBECONFIG_CONTEXT="${TARGET_CLUSTER_NAME}"
                export TARGET_KUBECONFIG="/tmp/${TARGET_CLUSTER_NAME}.kubeconfig"'''
             sh label: '', script: '''
@@ -168,8 +174,8 @@ spec:
             sh label: '', script: '''#!/bin/bash
               echo "+++++++++++ Cleaning up Resources ...."
               az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID;
-              az group delete --name capz-${JOBNAME}-${BUILD_NUMBER}-rg --yes
-              az group delete --name '''+ env.CLUSTER_NAME +'''-rg --yes
+              az group delete --name capg-${JOBNAME}-${BUILD_NUMBER}-rg --yes
+              # Replace by Google Cloud CLI here [az group delete --name '''+ env.CLUSTER_NAME +'''-rg --yes]
               '''
           }
         }
