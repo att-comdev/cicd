@@ -33,13 +33,12 @@ spec:
         stage("Setup Host Container") {
           sh label: '', script: '''apt-get update; apt-get install -y git sudo make curl wget systemd vim jq && \\
             curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash'''
-          withCredentials([azureServicePrincipal('AzureCloud')]) {
+          withCredentials([azureServicePrincipal(env.AZURE_ID)]) {
             sh label: '', script: '''#!/bin/bash
               az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID;
               az group create --name capi-${JOBNAME}-${BUILD_NUMBER}-rg --location "${AZURE_LOCATION}";
-
               host=$(az vm create -g capi-${JOBNAME}-${BUILD_NUMBER}-rg \\
-                -n capi-host-${JOBNAME}-${BUILD_NUMBER} --image UbuntuLTS \\
+                -n capi-${JOBNAME}-${BUILD_NUMBER}-vm --image UbuntuLTS \\
                 --generate-ssh-keys --query publicIpAddress \\
                 --size ${AZURE_HOST_TYPE} -o tsv)
               echo $host >az-host-info
@@ -51,14 +50,12 @@ spec:
           az.allowAnyHosts=true
           az.identity=readFile('az-identity').trim()
           az.logLevel='INFO'
-
           writeFile file: 'setup.sh', text: 'sudo apt-get update && sudo apt-get install -y git sudo make wget systemd vim && \
             sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common jq && \
             sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && sudo apt-key fingerprint 0EBFCD88 && \
             sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
             export USER=`whoami` && sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io && \
             sudo usermod -aG docker $USER && mkdir -p airship'
-
           sshScript remote: az, script: "setup.sh"
           sh label: '', script: '''chmod +x ./setup.sh && ./setup.sh'''
         }
@@ -93,14 +90,13 @@ spec:
             && ./tools/deployment/provider_common/01_install_kind.sh'''
           sshScript remote: az, script: "installKind.sh"
           sh label: '', script: '''chmod +x ./installKind.sh && ./installKind.sh'''
-
           writeFile file: 'installKubectl.sh', text: '''#!/bin/bash
             cd airship/airshipctl && ./tools/deployment/01_install_kubectl.sh && \
             kubectl version --client'''
           sshScript remote: az, script: "installKubectl.sh"
           sh label: '', script: '''chmod +x ./installKubectl.sh && ./installKubectl.sh'''
         }
-        withCredentials([azureServicePrincipal('AzureCloud')]) {
+        withCredentials([azureServicePrincipal(env.AZURE_ID)]) {
           stage("Install AirshipCtl") {
             writeFile file: 'env.sh', text: 'export AZURE_ENVIRONMENT="AzurePublicCloud" && \
                export AZURE_SUBSCRIPTION_ID='+ env.AZURE_SUBSCRIPTION_ID +' && \
@@ -112,7 +108,6 @@ spec:
                export AZURE_CLIENT_ID_B64="$(echo "${AZURE_CLIENT_ID}" | base64 | tr -d \'\\n\')" && \
                export AZURE_CLIENT_SECRET_B64="$(echo "${AZURE_CLIENT_SECRET}" | base64 | tr -d \'\\n\')"'
             sshPut remote: az, from: 'env.sh', into: 'airship'
-
             writeFile file: 'installAirshipCtl.sh', text: '''#!/bin/bash
             pwd && cd airship && chmod +x env.sh && source env.sh && \
             cd airshipctl && \
@@ -173,33 +168,27 @@ spec:
             kubectl get pods -A '''
             sshScript remote: az, script: "deployWorker.sh"
           }
-          stage("Deploy Workload - Ericsson NRF") {
-            writeFile file: 'updateNrfRepo.sh', text: '''#!/bin/bash
-              source env.sh && git clone ''' + env.MANIFEST_GIT_URL + ''' && \
-
-              regInfo='"'"$(echo "${AZURE_CLIENT_ID}:${AZURE_CLIENT_SECRET}" | base64 | tr -d \'\\n\')"'"' && \
-              authToken='"auth": '$regInfo && \
-              authSearchStr='"auth":.*' && \
-              sed -i -e "s|$authSearchStr|$authToken|g" demo/azure/ericsson-5g/function/chart-collator/config.json && \
-              sed -i -e "s|$authSearchStr|$authToken|g" demo/azure/ericsson-5g/workload/5g-ccrc-nrf/common/config.json '''
-            sh label: '', script: '''chmod +x ./updateNrfRepo.sh && ./updateNrfRepo.sh'''
-            sshPut remote: az, from: 'demo/azure/ericsson-5g', into: 'airship/airshipctl/manifests/site/az-test-site/', override: true
-
+        }
+        withCredentials([usernamePassword(credentialsId: env.CNF_CONTAINER_REG_CRED, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+          stage("Deploy CNF - Ericsson NRF") {
+            writeFile file: 'cnf-env.sh', text: 'export USERNAME='+ env.USERNAME +' && \
+               export PASSWORD='+ env.PASSWORD +' && \
+               export CONTAINER_REG_URL='+ env.CONTAINER_REG_URL +' && \
+               export CNF_DEPLOY_IMAGE='+ env.CNF_DEPLOY_IMAGE +' && \
+               export USERNAME_B64="$(echo "${USERNAME}" | base64 | tr -d \'\\n\')" && \
+               export PASSWORD_B64="$(echo "${PASSWORD}" | base64 | tr -d \'\\n\')"'
+            sshPut remote: az, from: 'cnf-env.sh', into: 'airship'
             writeFile file: 'deploy5GNRF.sh', text: '''#!/bin/bash
-              cd airship && source env.sh && cd airshipctl && \
-              sudo chown -R root:root ./manifests/site/az-test-site/ericsson-5g && \
-              sudo find . -name *.pem -exec chmod 644 {} \\; && \
-              sudo chmod +x ./manifests/site/az-test-site/ericsson-5g/deploy-ericsson-5g-nrf.sh && \
-              sudo -E TEST_SITE=az-test-site AIRSHIP_SRC=`pwd`/../ \
-              REG_URL=''' + env.CONTAINER_REG_URL + '''  \
-              ./manifests/site/az-test-site/ericsson-5g/deploy-ericsson-5g-nrf.sh'''
+              cd airship && chmod +x cnf-env.sh && source cnf-env.sh && \
+              source env.sh && mkdir -p /home/azureuser/.airship/ && \
+              sudo cp /tmp/target-cluster.kubeconfig /home/azureuser/.airship/ && \
+              sudo mv /home/azureuser/scripts/airshipctl /home/azureuser/scripts/scripts-airshipctl && \
+              docker login -u $USERNAME -p $PASSWORD $CONTAINER_REG_URL && \
+              sudo docker run -e TEST_SITE=az-test-site -e CONTAINER_REG_URL=$CONTAINER_REG_URL \
+                -e USER_B64=$USERNAME_B64 -e PASSWD_B64=$PASSWORD_B64 \
+                -v /home/azureuser/.airship/:/kubeconfig -v /home/azureuser/:/home/azureuser/ \
+                -v /usr/local/bin:/usr/local/bin $CONTAINER_REG_URL/$CNF_DEPLOY_IMAGE'''
             sshScript remote: az, script: "deploy5GNRF.sh"
-          }
-          stage('Validate - Ericsson NRF') {
-            writeFile file: 'validateNRF.sh', text: '''#!/bin/bash
-              sudo chmod +x ./airship/airshipctl/manifests/site/az-test-site/ericsson-5g/validate-ericsson-5g-nrf.sh && \
-              sudo -E ./airship/airshipctl/manifests/site/az-test-site/ericsson-5g/validate-ericsson-5g-nrf.sh'''
-            sshScript remote: az, script: "validateNRF.sh"
           }
           stage("Release resources") {
             writeFile file: 'releaseResources.sh', text: '''#!/bin/bash

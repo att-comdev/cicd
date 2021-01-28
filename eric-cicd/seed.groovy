@@ -79,7 +79,7 @@ pipelineJob("${JOB_NAME}") {
         }
         stringParam {
             name ('AZURE_HOST_TYPE')
-            defaultValue('Standard_DS4_v2')
+            defaultValue('Standard_D32as_v4')
             description('Azure Host VM Type - "Standard_DS2_v2", "Standard_D32s_v3", etc..')
             trim(true)
         }
@@ -181,6 +181,12 @@ pipelineJob("${JOB_NAME}") {
     }
     parameters {
         stringParam {
+            name ('AZURE_ID')
+            defaultValue('AZURE_CLOUD_ERIC')
+            description('Azure account to be used for deploying target cluster. Azure Credentials ID to be defined in Jenkins credentials.')
+            trim(true)
+        }
+        stringParam {
             name ('AZURE_LOCATION')
             defaultValue('East US 2')
             description('Azure Region - "Central US", "West Europe", "North Central US", etc..')
@@ -206,14 +212,20 @@ pipelineJob("${JOB_NAME}") {
         }
         stringParam {
             name ('CONTAINER_REG_URL')
-            defaultValue('capicontainerregistry.azurecr.io/armdocker.rnd.ericsson.se')
-            description('Azure Container registry hosting workload images')
+            defaultValue('ericssoncontainerregistry.azurecr.io')
+            description('Azure Container registry hosting CNF/workload images')
             trim(true)
         }
         stringParam {
-            name ('MANIFEST_GIT_URL')
-            defaultValue('http://10.1.1.35:3000/airship/demo.git')
-            description('GIT URL hosting Eric NRF CNF manifests')
+            name ('CNF_CONTAINER_REG_CRED')
+            defaultValue('ERIC_CONTAINER_REG')
+            description('Credentials for CONTAINER_REG_URL docker registry. To be defined in Jenkins credentials.')
+            trim(true)
+        }
+        stringParam {
+            name ('CNF_DEPLOY_IMAGE')
+            defaultValue('nrf-deploy:latest')
+            description('Docker image to be used for deploying CNF.')
             trim(true)
         }
     }
