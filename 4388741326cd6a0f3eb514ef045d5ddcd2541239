@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba8614c2_f8977b7c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2021-01-28T18:24:51Z",
+      "side": 1,
+      "message": "Jenkins pipeline updated to accept credential ID\u0027s as parameters for deploying target cluster on Azure platform and also to fetch CNF deployment images from container registry. ",
+      "revId": "4388741326cd6a0f3eb514ef045d5ddcd2541239",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
