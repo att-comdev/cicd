@@ -36,6 +36,7 @@ if ("${JOB_BASE_NAME}" == 'elasticsearch-s3') {
 
 if ("${JOB_BASE_NAME}" == 'fluentd') {
     SUFFIX = "debian"
+    BASE_IMAGE = conf.FLUENTD_BASE_IMAGE
 }
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
