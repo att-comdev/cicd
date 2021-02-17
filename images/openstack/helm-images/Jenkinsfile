@@ -36,6 +36,7 @@ if ("${JOB_BASE_NAME}" == 'elasticsearch-s3') {
 
 if ("${JOB_BASE_NAME}" == 'fluentd') {
     SUFFIX = "debian"
+    BASE_IMAGE = "docker.io/fluent/fluentd-kubernetes-daemonset:v1.11-debian-elasticsearch7-1"
 }
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_EVENT_TYPE}"
