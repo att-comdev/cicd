@@ -43,7 +43,8 @@ vm (image: IMAGE, flavor: 'm1.large') {
         sh "sudo apt-get update"
         sh "sudo bash -c 'export DEBIAN_FRONTEND=noninteractive; " +
                          "apt-get -y install python3-pip gettext libpq-dev " +
-                         "libssl-dev libsasl2-dev libldap2-dev bandit'"
+                         "libssl-dev libsasl2-dev libldap2-dev bandit " +
+                         "libpython2.7-dev'"
         sh "sudo pip3 install --index-url ${ARTF_PIP_INDEX_URL} tox"
         sh "sudo bash -c 'mkdir -p /opt/stack; chown ubuntu:ubuntu /opt/stack'"
     }
@@ -66,6 +67,7 @@ vm (image: IMAGE, flavor: 'm1.large') {
             withEnv(["UPPER_CONSTRAINTS_FILE=${ucPath}",
                      "TOX_CONSTRAINTS_FILE=${ucPath}",
                      "PIP_INDEX_URL=${ARTF_PIP_INDEX_URL}",
+                     "PIP_USE_DEPRECATED=legacy-resolver",
                      "HTTPS_PROXY=", "HTTP_PROXY="]) {
                 sshagent([INTERNAL_GERRIT_KEY]) {
                     sh TOX_CHECK
