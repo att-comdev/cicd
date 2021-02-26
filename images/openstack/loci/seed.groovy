@@ -22,7 +22,8 @@ MOS_PROJECTS = ['mos-requirements': 'master',
                 'mos-nova': 'master',
                 'mos-horizon': 'master',
                 'mos-neutron-sriov': 'master',
-                'mos-nova-1804': 'master']
+                'mos-nova-1804': 'master',
+                'mos-ironic': 'master']
 COMMUNITY_PROJECTS.each { project, ref ->
     pipelineJob("${JOB_BASE}/community/${project}") {
         logRotator{
