@@ -196,6 +196,9 @@ def getDependencies(String release, String projectName) {
             'placement':     ['PROFILES': 'apache',
                               'PIP_PACKAGES': '',
                               'DIST_PACKAGES': 'mysql-client'],
+            'ironic':        ['PROFILES': 'fluent ipxe ipmi qemu tftp',
+                              'PIP_PACKAGES': '',
+                              'DIST_PACKAGES': 'ethtool lshw iproute2'],
         ],
     ]
 

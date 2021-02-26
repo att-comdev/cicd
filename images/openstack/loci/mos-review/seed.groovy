@@ -51,7 +51,8 @@ PROJECT_MAP = [
         'mos-nova':            ['nova', 'nova-1804'],
         'mos-barbican':        [],
         'mos-placement':       [],
-    ]
+        'mos-ironic':          [],
+    ],
 ]
 
 MERGED_MAP = [:]
