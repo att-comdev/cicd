@@ -12,15 +12,7 @@ DEFAULT_NAMESPACE="${ARTF_DOCKER_URL}"
 def label = "worker-${UUID.randomUUID().toString()}"
 try {
     podTemplate(label: label,
-                yaml: """
-                    apiVersion: v1
-                    kind: Pod
-                    spec:
-                      securityContext:
-                        runAsUser: 0
-                      nodeSelector:
-                        jenkins-node: enabled
-                """,
+                yaml: cicd_helper.podExecutorConfig(conf.JNLP_IMAGE, "0", "jenkins-nodes", "jenkins-nodes"),
                 containers: [containerTemplate(name: "ubuntu",
                                           image: conf.POD_IMAGE_1804,
                                           command: "cat",
