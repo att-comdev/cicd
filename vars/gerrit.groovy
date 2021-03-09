@@ -41,8 +41,8 @@ def _cloneShallowCmd(url, branch, gitSshCommand="") {
       ${gitSshCommand}
       git init
       git config remote.origin.url ${url}
-      git fetch --depth=${depth} ${url}
-      git fetch ${url} ${branch} && git checkout FETCH_HEAD
+      git fetch --depth=${depth} ${url} ${branch} && git checkout FETCH_HEAD
+      [ $? -ne 0 ] && git fetch ${url} && git checkout ${branch}
     """
 }
 
