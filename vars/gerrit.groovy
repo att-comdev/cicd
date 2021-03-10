@@ -42,6 +42,9 @@ def _cloneShallowCmd(url, branch, gitSshCommand="") {
       git init
       git config remote.origin.url ${url}
       git fetch --depth=${depth} ${url} ${branch} && git checkout FETCH_HEAD
+      if [ \${?} -eq 128 ]; then
+        git fetch ${url} && git checkout ${branch}
+      fi
     """
 }
 
