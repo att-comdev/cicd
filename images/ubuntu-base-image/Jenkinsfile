@@ -29,19 +29,19 @@ aptsources=xenial xenial-updates xenial-security
 
 [xenial]
 packages=apt apt-transport-https ca-certificates libssl1.0.0 openssl
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.zc1.cti.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=xenial
 components=main multiverse restricted universe
 
 [xenial-updates]
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.zc1.cti.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=xenial-updates
 components=main multiverse restricted universe
 
 [xenial-security]
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.zc1.cti.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=xenial-security
 components=main multiverse restricted universe
@@ -59,21 +59,51 @@ aptsources=bionic bionic-updates bionic-security
 
 [bionic]
 packages=apt ca-certificates
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.zc1.cti.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=bionic
 components=main multiverse restricted universe
 
 [bionic-updates]
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.zc1.cti.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=bionic-updates
 components=main multiverse restricted universe
 
 [bionic-security]
-source=https://artifacts-nc.auk3.cci.att.com/artifactory/archive-ubuntu
+source=https://artifacts-nc.zc1.cti.att.com/artifactory/archive-ubuntu
 keyring=ubuntu-keyring
 suite=bionic-security
+components=main multiverse restricted universe
+EOF"""
+sh """cat << EOF | sudo tee ~/focal.conf
+[General]
+arch=amd64
+directory=ubuntu_focal
+cleanup=true
+noauth=false
+explicitsuite=false
+unpack=true
+bootstrap=focal focal-updates focal-security
+aptsources=focal focal-updates focal-security
+
+[focal]
+packages=apt ca-certificates
+source=https://artifacts-nc.zc1.cti.att.com/artifactory/archive-ubuntu
+keyring=ubuntu-keyring
+suite=focal
+components=main multiverse restricted universe
+
+[focal-updates]
+source=https://artifacts-nc.zc1.cti.att.com/artifactory/archive-ubuntu
+keyring=ubuntu-keyring
+suite=focal-updates
+components=main multiverse restricted universe
+
+[focal-security]
+source=https://artifacts-nc.zc1.cti.att.com/artifactory/archive-ubuntu
+keyring=ubuntu-keyring
+suite=focal-security
 components=main multiverse restricted universe
 EOF"""
         sh "sudo multistrap -f ~/${IMAGE_TAG}.conf"
@@ -84,5 +114,28 @@ EOF"""
     }
     stage('Image Publish') {
         publish.artifactory (IMAGE, "${JOB_BASE_NAME}:${IMAGE_TAG}-${BUILD_TIMESTAMP}")
+    }
+    stage('Get Image SHA') {
+        IMAGE_SHA=sh(script: "sudo docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE}", returnStdout: true)
+        print "${IMAGE_SHA}"
+    }
+    stage('Invoke Clair job')
+    {
+        build job: '../clair-check',
+        propagate: false,
+        wait: false,
+        parameters: [
+            string(name: 'IMAGES_NAME', value: String.valueOf(IMAGE_SHA)),
+            booleanParam(name: 'SCAN_MANUAL', value: true)
+        ]
+    }
+    stage('Invoke Package-list job')
+    {
+        build job: '../package-list',
+        propagate: false,
+        wait: false,
+        parameters: [
+            string(name: 'DOCKER_IMAGES', value: String.valueOf(IMAGE_SHA))
+        ]
     }
 }
