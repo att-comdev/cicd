@@ -11,7 +11,7 @@ projects.each { project_name ->
             daysToKeep(90)
         }
         parameters {
-            stringParam("IMAGETAG", "xenial", "Ubuntu Release Name")
+            stringParam("IMAGETAG", "bionic", "Ubuntu Release Name. Example, xenial, bionic, focal")
         }
         triggers {
             definition {
