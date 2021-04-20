@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "66b359c4_081453dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013469
+      },
+      "writtenOn": "2021-04-20T21:47:41Z",
+      "side": 1,
+      "message": "I even saw update sh scripts. Is it reason to use old specific version of helm and update components on the fly? It looks not like solution. It looks like manual temporary workaround.\nHonestly before last changes it was the same way.",
+      "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "37a65e85_ad0d1d31",
@@ -43,6 +60,29 @@
         "startChar": 13,
         "endLine": 27,
         "endChar": 33
+      },
+      "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d5a6b11_28036df5",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileTestDeployment.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1013469
+      },
+      "writtenOn": "2021-04-20T21:47:41Z",
+      "side": 1,
+      "message": "Is it really best way to pass variable to helm?",
+      "range": {
+        "startLine": 133,
+        "startChar": 1,
+        "endLine": 136,
+        "endChar": 59
       },
       "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
