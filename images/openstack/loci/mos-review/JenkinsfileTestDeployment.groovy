@@ -24,13 +24,13 @@ VERSIONS_PATH = conf.VERSIONS_PATH
 IMAGE_BASE_URL = String.format(conf.MOS_IMAGES_BASE_URL, "", RELEASE)
 RELEASES_REGEX = "(${json.parseText(env.SUPPORTED_RELEASES).join("|")})"
 RELEASE_OVERRIDES = conf.OSH_AIO_RELEASE_OVERRIDES
-REPOS = conf.OSH_AIO_REPOS
+REPOS = conf.OSH_AIO_REPOS_BIONIC
 BUILD_KUBEADM = true
 SNAPSHOT_NAME = "osh-aio-${RELEASE}-initial"
 OLD_SNAPSHOT_ID = ""
 INITIAL_DEPLOYMENT = INITIAL_DEPLOYMENT.toBoolean()
 CREATE_SNAPSHOT = INITIAL_DEPLOYMENT && CREATE_SNAPSHOT.toBoolean()
-BASE_IMAGE = 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+BASE_IMAGE = 'cicd-ubuntu-18.04-server-cloudimg-amd64'
 TROUBLESHOOTING = TROUBLESHOOTING.toBoolean()
 AVAILABLE_IMAGES = []
 DEFAULT_IMAGES = [:]
@@ -132,6 +132,8 @@ def imageOverrides(Map images, Map debugOverrides=[:]) {
     // replacing the url string for now
     sh """sed -i -e "s|http://download.cirros-cloud.net/0.3.5/|${conf.CIRROS_IMAGE_PATH}|" \\
           ${WORKSPACE}/openstack-helm/glance/values.yaml"""
+    sh """sed -i -e "s|image_location: .*cirros-.*img|image_location: ${conf.CIRROS_IMAGE_PATH}cirros-0.3.5-x86_64-disk.img|" \\
+          ${WORKSPACE}/openstack-helm/glance/values.yaml"""
 }
 
 
@@ -181,6 +183,11 @@ def tweakOSH() {
         }
     }
 
+    // To fix issues with latest pip
+    sh 'sed -i "s/upgrade pip/upgrade pip===20.3.4/g" ./openstack-helm-infra/tools/gate/devel/start.sh'
+    sh 'sed -i "s/pip==[0-9.]*/pip==20.3.4/g" ./openstack-helm-infra/tools/images/kubeadm-aio/Dockerfile'
+    sh 'sed -i "/^ENV PIP_TRUSTED_HOST=.*/a ENV PIP_USE_DEPRECATED=legacy-resolver" ./openstack-helm-infra/tools/images/kubeadm-aio/Dockerfile'
+    sh 'sed -i "/pyopenssl/a \\ \\ sudo -H -E pip3 install --upgrade alembic==1.4.3" ./openstack-helm-infra/tools/gate/devel/start.sh'
     // until https://review.opendev.org/#/c/738141/ is merged
     sh 'sed -i \'/OSH_EXTRA_HELM_ARGS_NOVA/a export OSH_EXTRA_HELM_ARGS_NOVA=\"${OSH_EXTRA_HELM_ARGS_NOVA} $(./tools/deployment/common/get-values-overrides.sh nova)\"\' ./openstack-helm/tools/deployment/developer/ceph/160-compute-kit.sh'
     // This is the most dirty part to make OSH AIO to use customizied artifacts location for k8s
@@ -207,11 +214,11 @@ def tweakOSH() {
 
     def kubeadmDockerfileName = "./openstack-helm-infra/tools/images/kubeadm-aio/Dockerfile"
     def kubeadmDockerfile = readFile kubeadmDockerfileName
-    kubeadmDockerfile = kubeadmDockerfile.replace(
-        'FROM docker.io/ubuntu:xenial', "FROM ${conf.LOCI_BASE_IMAGE}").replaceAll(
+    kubeadmDockerfile = kubeadmDockerfile.replaceAll(
+        'FROM docker.io/ubuntu:.*', "FROM ${conf.UBUNTU_BIONIC_BASE_IMAGE}").replaceAll(
         'ENV PIP_INDEX_URL.*', "ENV PIP_INDEX_URL=${ARTF_PIP_INDEX_URL}").replaceAll(
         '.*PIP_TRUSTED_HOST.*', '').replaceAll(
-        'ARG UBUNTU_URL=.*', "ARG UBUNTU_URL=https://${ARTF_UBUNTU_REPO}/")
+        'ARG UBUNTU_URL=.*', "ARG UBUNTU_URL=${ARTF_UBUNTU_REPO}/")
     writeFile file: kubeadmDockerfileName, text: kubeadmDockerfile
 
     // we cover this part from internal ceph repo
@@ -236,8 +243,8 @@ def installOpenstackClient() {
         if (RELEASE == 'ocata') { pip = 'pip' }
         if (!sh (returnStatus: true, script: "sudo ${pip} uninstall python-openstackclient -y")) {
             dir ("openstack-helm") {
-                sh "sudo ${pip} install pip -U"
-                withEnv (["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/mos-requirements/upper-constraints.txt"]) {
+                sh "sudo ${pip} install pip===20.3.4 -U"
+                withEnv (["UPPER_CONSTRAINTS_FILE=${WORKSPACE}/mos-requirements/upper-constraints.txt", "PIP_USE_DEPRECATED=legacy-resolver"]) {
                     sh ("./tools/deployment/developer/ceph/020-setup-client.sh")
                 }
             }
@@ -479,6 +486,7 @@ def installOSHAIO(List steps, concurrent=true) {
         'OS_PROJECT_DOMAIN_NAME=',
         'OS_USER_DOMAIN_NAME=',
         'OS_AUTH_URL=',
+        'PIP_USE_DEPRECATED=legacy-resolver',
         "OPENSTACK_RELEASE=${RELEASE}",
         "CONTAINER_DISTRO_VERSION=${DISTRO_VERSION}",
         "UPPER_CONSTRAINTS_FILE=${WORKSPACE}/mos-requirements/upper-constraints.txt",
@@ -602,8 +610,16 @@ def exportPipEnv = {
 
 
 def updateHost = {
-    sh 'sudo apt-get remove -y runc containerd docker.io'
+    ['runc', 'containerd', 'docker.io'].each {
+        try {
+            sh "sudo apt-get remove -y ${it}"
+        catch (Throwable err) {
+            echo "${err}"
+        }}
+    }
     sh 'sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y'
+    sh 'sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" --force-yes upgrade -y && sudo DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y'
+    sh "sudo bash -c 'echo DefaultLimitMEMLOCK=16386 >> /etc/systemd/system.conf; systemctl daemon-reexec'"
 }
 
 
@@ -993,7 +1009,7 @@ def troubleshooting = { nodeName ->
 }
 
 
-TestVm(initScript: '',
+TestVm(initScript: 'bootstrap.sh',
        image: ((INITIAL_DEPLOYMENT && !CREATE_SNAPSHOT) ? BASE_IMAGE :
                 SNAPSHOT_NAME << (CREATE_SNAPSHOT ? "-tmp": "")),
        flavor: 'm1.xlarge',
