@@ -89,6 +89,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "47b17b18_05cec844",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileTestDeployment.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1016322
+      },
+      "writtenOn": "2021-04-20T22:15:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40ed4e30_f9e2c8fe",
+      "range": {
+        "startLine": 27,
+        "startChar": 13,
+        "endLine": 27,
+        "endChar": 33
+      },
+      "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3d5a6b11_28036df5",
@@ -196,6 +220,30 @@
       "side": 1,
       "message": "After boot of VM we will have wrong definition for 127.0.1.1 in /etc/hosts. By adding the script we resolve the issue.",
       "parentUuid": "20e22380_8c189757",
+      "range": {
+        "startLine": 1012,
+        "startChar": 20,
+        "endLine": 1012,
+        "endChar": 32
+      },
+      "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6a1a416_bdcdc563",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileTestDeployment.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 1016322
+      },
+      "writtenOn": "2021-04-20T22:15:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39421f7e_def54a41",
       "range": {
         "startLine": 1012,
         "startChar": 20,
