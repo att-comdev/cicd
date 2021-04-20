@@ -160,6 +160,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b0f41e6_13a57182",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileTestDeployment.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1016322
+      },
+      "writtenOn": "2021-04-20T22:19:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3c02a35_cbe50e08",
+      "range": {
+        "startLine": 133,
+        "startChar": 1,
+        "endLine": 136,
+        "endChar": 59
+      },
+      "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9259ebfb_b8382042",
@@ -173,6 +197,30 @@
       "writtenOn": "2021-04-20T21:48:39Z",
       "side": 1,
       "message": "we\u0027ll need to move to anyway. you may copy logic to handle issues you have with new resolver from\nhttps://opendev.org/openstack/loci/src/branch/master/scripts/requirements.sh#L61-L64",
+      "range": {
+        "startLine": 246,
+        "startChar": 1,
+        "endLine": 247,
+        "endChar": 144
+      },
+      "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5be4b784_d25c5737",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileTestDeployment.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 1016322
+      },
+      "writtenOn": "2021-04-20T22:19:06Z",
+      "side": 1,
+      "message": "Are you insist to make it in scope of this PS? My point is to make it in the next PS.\nI\u0027d like to check such changes carefully.",
+      "parentUuid": "9259ebfb_b8382042",
       "range": {
         "startLine": 246,
         "startChar": 1,
