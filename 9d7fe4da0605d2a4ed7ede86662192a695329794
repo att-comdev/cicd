@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb5f89b7_7ae0fbb8",
+        "filename": "images/openstack/loci/mos-review/seed.groovy",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2021-04-20T21:52:16Z",
+      "side": 1,
+      "message": "could you also update vars/loci.groovy and use profiles and dist packages corresponding to \nhttps://opendev.org/openstack/openstack-helm-images/src/branch/master/zuul.d/openstack-loci.yaml#L301-L313",
+      "range": {
+        "startLine": 54,
+        "startChar": 8,
+        "endLine": 54,
+        "endChar": 33
+      },
+      "revId": "9d7fe4da0605d2a4ed7ede86662192a695329794",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
