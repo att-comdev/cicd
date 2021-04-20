@@ -22,6 +22,30 @@
       },
       "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e01c11e1_d81cf458",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileTestDeployment.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1016322
+      },
+      "writtenOn": "2021-04-20T21:43:04Z",
+      "side": 1,
+      "message": "Because I\u0027d like to have a possibility to quickly switch back if we need so for some reason.",
+      "parentUuid": "37a65e85_ad0d1d31",
+      "range": {
+        "startLine": 27,
+        "startChar": 13,
+        "endLine": 27,
+        "endChar": 33
+      },
+      "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
