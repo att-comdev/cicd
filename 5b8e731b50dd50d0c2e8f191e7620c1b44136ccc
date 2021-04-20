@@ -67,6 +67,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "40ed4e30_f9e2c8fe",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileTestDeployment.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2021-04-20T21:48:39Z",
+      "side": 1,
+      "message": "i would modify OSH_AIO_REPOS instead to include multiple releases. but it\u0027s ok to me",
+      "parentUuid": "e01c11e1_d81cf458",
+      "range": {
+        "startLine": 27,
+        "startChar": 13,
+        "endLine": 27,
+        "endChar": 33
+      },
+      "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3d5a6b11_28036df5",
         "filename": "images/openstack/loci/mos-review/JenkinsfileTestDeployment.groovy",
         "patchSetId": 1
@@ -83,6 +107,52 @@
         "startChar": 1,
         "endLine": 136,
         "endChar": 59
+      },
+      "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9259ebfb_b8382042",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileTestDeployment.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2021-04-20T21:48:39Z",
+      "side": 1,
+      "message": "we\u0027ll need to move to anyway. you may copy logic to handle issues you have with new resolver from\nhttps://opendev.org/openstack/loci/src/branch/master/scripts/requirements.sh#L61-L64",
+      "range": {
+        "startLine": 246,
+        "startChar": 1,
+        "endLine": 247,
+        "endChar": 144
+      },
+      "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20e22380_8c189757",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileTestDeployment.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2021-04-20T21:48:39Z",
+      "side": 1,
+      "message": "could you remind me why?",
+      "range": {
+        "startLine": 1012,
+        "startChar": 20,
+        "endLine": 1012,
+        "endChar": 32
       },
       "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
