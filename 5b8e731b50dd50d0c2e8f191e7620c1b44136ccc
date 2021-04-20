@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37a65e85_ad0d1d31",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileTestDeployment.groovy",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1013469
+      },
+      "writtenOn": "2021-04-20T21:36:14Z",
+      "side": 1,
+      "message": "why do we need separate variable for BIONIC?",
+      "range": {
+        "startLine": 27,
+        "startChar": 13,
+        "endLine": 27,
+        "endChar": 33
+      },
+      "revId": "5b8e731b50dd50d0c2e8f191e7620c1b44136ccc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
