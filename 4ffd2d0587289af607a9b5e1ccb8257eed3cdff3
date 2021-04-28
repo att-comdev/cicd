@@ -50,6 +50,24 @@
       "message": "looks like this block is repeated. Could you please double check.",
       "revId": "4ffd2d0587289af607a9b5e1ccb8257eed3cdff3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60d06350_074f77cb",
+        "filename": "nc/seed.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2021-04-28T16:41:45Z",
+      "side": 1,
+      "message": "Each job will have it\u0027s own trigger section. The other trigger is for a different job.",
+      "parentUuid": "6e95e274_39271ba5",
+      "revId": "4ffd2d0587289af607a9b5e1ccb8257eed3cdff3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
