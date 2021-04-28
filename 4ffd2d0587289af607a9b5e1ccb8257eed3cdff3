@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd49ae17_bf730049",
+        "filename": "nc/Treasuremap/Treasuremapv2-AirshipctlKnownState.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1015017
+      },
+      "writtenOn": "2021-04-28T13:56:26Z",
+      "side": 1,
+      "message": "can u read this from param instead of hard coding here.",
+      "revId": "4ffd2d0587289af607a9b5e1ccb8257eed3cdff3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b406499b_0d67cee4",
+        "filename": "nc/Treasuremap/Treasuremapv2-AirshipctlMaster.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1015017
+      },
+      "writtenOn": "2021-04-28T13:56:26Z",
+      "side": 1,
+      "message": "can we get this as Job parameter",
+      "revId": "4ffd2d0587289af607a9b5e1ccb8257eed3cdff3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e95e274_39271ba5",
+        "filename": "nc/seed.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 1015017
+      },
+      "writtenOn": "2021-04-28T13:56:26Z",
+      "side": 1,
+      "message": "looks like this block is repeated. Could you please double check.",
+      "revId": "4ffd2d0587289af607a9b5e1ccb8257eed3cdff3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
