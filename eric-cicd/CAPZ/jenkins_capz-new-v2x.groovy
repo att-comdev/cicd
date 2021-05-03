@@ -35,14 +35,15 @@ spec:
           withCredentials([azureServicePrincipal('AZURE_CLOUD_ERIC')]) {
             sh label: '', script: '''#!/bin/bash
               az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID;
-              az group create --name capz-${JOBNAME}-${BUILD_NUMBER}-rg --location "${REMOTE_VM_REGION}";
+              az group create --name capz-${JOBNAME}-${BUILD_NUMBER}-rg --location "${AZURE_LOCATION}";
+
               host=$(az vm create -g capz-${JOBNAME}-${BUILD_NUMBER}-rg \\
                 -n capz-${JOBNAME}-${BUILD_NUMBER}-vm --image UbuntuLTS \\
                 --authentication-type all \\
                 --admin-username azureuser \\
                 --admin-password "Azure-12345!" \\
                 --generate-ssh-keys --query publicIpAddress \\
-                --size ${REMOTE_VM_TYPE} -o tsv)
+                --size ${AZURE_HOST_TYPE} -o tsv)
               echo $host >az-host-info
               cp /root/.ssh/id_rsa az-identity;
               ls -ltr '''
@@ -53,12 +54,14 @@ spec:
           az.allowAnyHosts=true
           az.identity=readFile('az-identity').trim()
           az.logLevel='INFO'
+
           writeFile file: 'setup.sh', text: 'sudo apt-get update && sudo apt-get install -y git sudo make wget systemd vim && \
             sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common jq && \
             sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && sudo apt-key fingerprint 0EBFCD88 && \
             sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
             export USER=`whoami` && sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io && \
             sudo usermod -aG docker $USER && mkdir -p airship'
+
           sshScript remote: az, script: "setup.sh"
           sh label: '', script: '''chmod +x ./setup.sh && ./setup.sh'''
         }
@@ -67,13 +70,6 @@ spec:
             export PATH=$PATH:/usr/local/go/bin/ && \
             cd airship && git clone https://opendev.org/airship/airshipctl.git && \
             cd airshipctl && git fetch https://review.opendev.org/airship/airshipctl '''+ env.REF_SPEC_MANIFESTS +''' && git checkout FETCH_HEAD
-            sed -i 's/edge-5g-cluster/'''+ env.CLUSTER_NAME +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/location:.*/s//location: '''+ env.TARGET_REGION.toLowerCase().replaceAll("\\s","") +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/k8sVersion:.*/s//k8sVersion: '''+ env.TARGET_K8S_VERSION +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/controlPlaneVMSize:.*/s//controlPlaneVMSize: '''+ env.CONTROLPLANE_VM_TYPE +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/controlPlaneReplicas:.*/s//controlPlaneReplicas: '''+ env.CONTROLPLANE_COUNT +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/workerVMSize:.*/s//workerVMSize: '''+ env.WORKER_VM_TYPE +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
-            sed -i '/workerReplicas:.*/s//workerReplicas: '''+ env.WORKER_COUNT +'''/g' manifests/site/az-cluster-test-site/config/variable-catalogue.yaml
             '''
           sshScript remote: az, script: "cloneRepo.sh"
           sh label: '', script: '''chmod +x ./cloneRepo.sh && ./cloneRepo.sh'''
@@ -81,25 +77,27 @@ spec:
         withCredentials([azureServicePrincipal('AZURE_CLOUD_ERIC')]) {
           stage("Setup Env Vars") {
             writeFile file: 'env.sh', text: 'export AZURE_ENVIRONMENT="AzurePublicCloud" && \
-               export AZURE_SUBSCRIPTION_ID='+ env.AZURE_SUBSCRIPTION_ID +' && \
-               export AZURE_TENANT_ID='+ env.AZURE_TENANT_ID +' && \
-               export AZURE_CLIENT_ID='+ env.AZURE_CLIENT_ID +' && \
-               export AZURE_CLIENT_SECRET='+ env.AZURE_CLIENT_SECRET +' && \
-               export AZURE_SUBSCRIPTION_ID_B64="$(echo "${AZURE_SUBSCRIPTION_ID}" | base64 | tr -d \'\\n\')" && \
-               export AZURE_TENANT_ID_B64="$(echo "${AZURE_TENANT_ID}" | base64 | tr -d \'\\n\')" && \
-               export AZURE_CLIENT_ID_B64="$(echo "${AZURE_CLIENT_ID}" | base64 | tr -d \'\\n\')" && \
-               export AZURE_CLIENT_SECRET_B64="$(echo "${AZURE_CLIENT_SECRET}" | base64 | tr -d \'\\n\')"'
+              export AZURE_SUBSCRIPTION_ID='+ env.AZURE_SUBSCRIPTION_ID +' && \
+              export AZURE_TENANT_ID='+ env.AZURE_TENANT_ID +' && \
+              export AZURE_CLIENT_ID='+ env.AZURE_CLIENT_ID +' && \
+              export AZURE_CLIENT_SECRET='+ env.AZURE_CLIENT_SECRET +' && \
+              export AZURE_ENVIRONMENT=AzurePublicCloud && \
+              export AZURE_SUBSCRIPTION_ID_B64="$(echo "${AZURE_SUBSCRIPTION_ID}" | base64 | tr -d \'\\n\')" && \
+              export AZURE_TENANT_ID_B64="$(echo "${AZURE_TENANT_ID}" | base64 | tr -d \'\\n\')" && \
+              export AZURE_CLIENT_ID_B64="$(echo "${AZURE_CLIENT_ID}" | base64 | tr -d \'\\n\')" && \
+              export AZURE_CLIENT_SECRET_B64="$(echo "${AZURE_CLIENT_SECRET}" | base64 | tr -d \'\\n\')"'
             writeFile file: 'site.sh', text: '''
-               export TEST_SITE="az-cluster-test-site"
-               export PROVIDER_MANIFEST="azure_manifest"
-               export PROVIDER="default"
-               export CLUSTER="ephemeral-cluster"
-               export EPHEMERAL_KUBECONFIG_CONTEXT="${CLUSTER}"
-               export EPHEMERAL_CLUSTER_NAME="kind-${EPHEMERAL_KUBECONFIG_CONTEXT}"
-               export EPHEMERAL_KUBECONFIG="${HOME}/.airship/kubeconfig"
-               export TARGET_CLUSTER_NAME='''+ env.CLUSTER_NAME +'''
-               export TARGET_KUBECONFIG_CONTEXT="${TARGET_CLUSTER_NAME}"
-               export TARGET_KUBECONFIG="/tmp/${TARGET_CLUSTER_NAME}.kubeconfig"'''
+              sudo curl -fsSL -o /tmp/key.asc https://raw.githubusercontent.com/mozilla/sops/master/pgp/sops_functional_tests_key.asc
+              export SOPS_IMPORT_PGP="$(cat /tmp/key.asc)"
+              export SOPS_PGP_FP="FBC7B9E2A4F9289AC0C1D4843D16CEE4A27381B4"
+
+              export PROVIDER=azure
+              export CLUSTER=ephemeral-cluster
+              export KUBECONFIG=$HOME/.airship/kubeconfig
+              export EXTERNAL_KUBECONFIG=$KUBECONFIG
+              export AIRSHIP_CONFIG_METADATA_PATH=manifests/site/az-test-site/metadata.yaml
+              export AIRSHIP_CONFIG_MANIFEST_DIRECTORY=/home/azureuser/airship
+              '''
             sh label: '', script: '''
               cat site.sh | sed -e 's/^[ \t]*//' >> env.sh
             '''
@@ -109,15 +107,41 @@ spec:
             writeFile file: 'configureTools.sh', text: '''#!/bin/bash
             source airship/env.sh
             cd airship/airshipctl
-            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/azure/202_install_tools.sh
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/01_install_kubectl.sh
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/azure/10_install_essentials.sh
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/azure/get_kind.sh
             '''
             sshScript remote: az, script: "configureTools.sh"
+          }
+          stage("Create Airship Config File") {
+            writeFile file: 'createAirshipConfigFile.sh', text: '''#!/bin/bash
+            source airship/env.sh
+            cd airship/airshipctl
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/22_test_configs.sh
+            '''
+            sshScript remote: az, script: "createAirshipConfigFile.sh"
+          }
+          stage("Deploy (Kind) Ephemeral cluster") {
+            writeFile file: 'deployEphemeralCluster.sh', text: '''#!/bin/bash
+            source airship/env.sh
+            cd airship/airshipctl
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/document/start_kind.sh
+            '''
+            sshScript remote: az, script: "deployEphemeralCluster.sh"
+          }
+          stage("Build airshipctl Binary") {
+            writeFile file: 'buildAirshipctlCmd.sh', text: '''#!/bin/bash
+            source airship/env.sh
+            cd airship/airshipctl
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/21_systemwide_executable.sh
+            '''
+            sshScript remote: az, script: "buildAirshipctlCmd.sh"
           }
           stage("CAPI & CAPZ Init on Ephemeral Cluster") {
             writeFile file: 'initEphemeral.sh', text: '''#!/bin/bash
             source airship/env.sh
             cd airship/airshipctl
-            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/phases/phase-clusterctl-init-ephemeral-script.sh
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/26_deploy_capi_ephemeral_node.sh
             '''
             sshScript remote: az, script: "initEphemeral.sh"
           }
@@ -125,7 +149,7 @@ spec:
             writeFile file: 'deployControlPlane.sh', text: '''#!/bin/bash
             source airship/env.sh
             cd airship/airshipctl
-            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/phases/phase-controlplane-ephemeral-script.sh
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/provider_common/30_deploy_controlplane.sh
             '''
             sshScript remote: az, script: "deployControlPlane.sh"
           }
@@ -133,7 +157,7 @@ spec:
             writeFile file: 'initInfra.sh', text: '''#!/bin/bash
             source airship/env.sh
             cd airship/airshipctl
-            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/phases/phase-initinfra-target-script.sh
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/provider_common/31_deploy_initinfra_target_node.sh
             '''
             sshScript remote: az, script: "initInfra.sh"
           }
@@ -141,7 +165,7 @@ spec:
             writeFile file: 'initTarget.sh', text: '''#!/bin/bash
             source airship/env.sh
             cd airship/airshipctl
-            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/phases/phase-clusterctl-init-target-script.sh
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/provider_common/32_cluster_init_target_node.sh
             '''
             sshScript remote: az, script: "initTarget.sh"
           }
@@ -149,7 +173,7 @@ spec:
             writeFile file: 'moveResources.sh', text: '''#!/bin/bash
             source airship/env.sh
             cd airship/airshipctl
-            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/phases/phase-clusterctl-move-script.sh
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/provider_common/33_cluster_move_target_node.sh
             '''
             sshScript remote: az, script: "moveResources.sh"
           }
@@ -157,16 +181,22 @@ spec:
             writeFile file: 'deployWorkers.sh', text: '''#!/bin/bash
             source airship/env.sh
             cd airship/airshipctl
-            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/phases/phase-workers-target-script.sh
+            sudo -E AIRSHIP_SRC=`pwd`/../ AIRSHIPCTL_WS=`pwd` ./tools/deployment/provider_common/35_deploy_worker_node.sh
             '''
             sshScript remote: az, script: "deployWorkers.sh"
+          }
+          stage("Sleep 5 min Before Cleanup") {
+            sh label: '', script: '''#!/bin/bash
+              echo "+++++++++++ Waiting for 5 minutes before cleanup ...."
+              sleep 5m
+              '''
           }
           stage("Cleanup Resources") {
             sh label: '', script: '''#!/bin/bash
               echo "+++++++++++ Cleaning up Resources ...."
               az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID;
               az group delete --name capz-${JOBNAME}-${BUILD_NUMBER}-rg --yes
-              az group delete --name '''+ env.CLUSTER_NAME +'''-rg --yes
+              az group delete --name azure-target --yes
               '''
           }
         }
