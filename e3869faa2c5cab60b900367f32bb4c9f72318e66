@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c75db5fb_e32cfb9f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1018240
+      },
+      "writtenOn": "2021-05-13T17:21:59Z",
+      "side": 1,
+      "message": "As discussed, please remove following files \n- https://review.gerrithub.io/plugins/gitiles/att-comdev/cicd/+/refs/heads/master/eric-cicd/CAPZ/jenkins_capz\n- https://review.gerrithub.io/plugins/gitiles/att-comdev/cicd/+/refs/heads/master/eric-cicd/CAPZ/jenkins_capz-new.groovy\n- https://review.gerrithub.io/plugins/gitiles/att-comdev/cicd/+/refs/heads/master/eric-cicd/CAPZ/jenkins_capz_merged.groovy",
+      "revId": "e3869faa2c5cab60b900367f32bb4c9f72318e66",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
