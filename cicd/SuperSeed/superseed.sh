@@ -46,8 +46,8 @@ get_seed(){
     SEED=''
     dir_path=$1
     set +e
-    FILE=`ls ${WORKSPACE}/${dir_path}/ | egrep "*seed*.groovy"`
-    if [ $FILE ]; then
+    FILE=($(ls ${WORKSPACE}/${dir_path}/ | egrep "*seed*.groovy"))
+    if [ "$FILE" ]; then
        # found seed for the Jenkinsfile
        SEED="${dir_path}/$FILE"
         return
