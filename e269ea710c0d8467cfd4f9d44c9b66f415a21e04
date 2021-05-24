@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b29627a_d864849a",
+        "filename": "nc/seed.groovy",
+        "patchSetId": 16
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1015017
+      },
+      "writtenOn": "2021-05-24T14:31:43Z",
+      "side": 1,
+      "message": "Can you please expand this section with more filters. For example you can add zuul.d folder as well to ignore jenkins run. zuul will validate those changes.",
+      "revId": "e269ea710c0d8467cfd4f9d44c9b66f415a21e04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
