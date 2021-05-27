@@ -16,7 +16,7 @@ pipelineJob("${FOLDER}/${JOB_NAME}") {
         stringParam {
             name ('NODE_LABEL')
             defaultValue('airship1')
-            description('The node label of the slave')
+            description('The node label of the worker')
             trim(true)
         }
     }
@@ -104,7 +104,7 @@ pipelineJob("${FOLDER}/${JOB_NAME}") {
         stringParam {
             name ('NODE_LABEL')
             defaultValue('airship12')
-            description('The node label of the slave')
+            description('The node label of the worker')
             trim(true)
         }
         stringParam {
@@ -306,6 +306,120 @@ TphrOfnfTO1YCkg1nEB5E2Raj/KV+ohqPvjE+KhE7Q==
           }
         }
         scriptPath("${JOB_FOLDER}/Treasuremapv2-AirshipctlKnownState.groovy")
+        lightweight()
+      }
+    }
+}
+
+JOB_FOLDER="nc/Maintenance"
+JOB_NAME="Airshipctl_StatusReport"
+FOLDER="Maintenance"
+folder("${FOLDER}") {
+    displayName("${FOLDER}")
+    description("Folder for ${FOLDER}")
+}
+pipelineJob("${FOLDER}/${JOB_NAME}") {
+    parameters {
+        stringParam {
+            name ('NO_OF_DAYS')
+            defaultValue('1')
+            description('Number of Days for which report needs to be extracted')
+            trim(true)
+        }
+        stringParam {
+            name ('LIMIT')
+            defaultValue('50')
+            description('Build Limit')
+            trim(true)
+        }
+        stringParam {
+            name ('NODE_LABEL')
+            defaultValue('airship12')
+            description('The node label of the worker')
+            trim(true)
+        }
+    }
+    definition {
+      cpsScm {
+        scm {
+          git {
+            remote {
+              url('https://review.gerrithub.io/att-comdev/cicd.git')
+            }
+            branch('*/master')
+          }
+        }
+        scriptPath("${JOB_FOLDER}/AirshipctlStatusReport.groovy")
+        lightweight()
+      }
+    }
+}
+
+JOB_NAME="CleanupOldBuildLogs"
+pipelineJob("${FOLDER}/${JOB_NAME}") {
+    parameters {
+        stringParam {
+            name ('NO_OF_DAYS_TO_CLEANUP')
+            defaultValue('5')
+            description('Number of days for which logs to be cleaned up')
+            trim(true)
+        }
+        stringParam {
+            name ('HOST')
+            defaultValue('10.254.125.160')
+            description('Host to run cleanup script on')
+            trim(true)
+        }
+        stringParam {
+            name ('NODE_LABEL')
+            defaultValue('stl3')
+            description('The node label of the worker')
+            trim(true)
+        }
+    }
+    triggers {
+        cron("H 0 * * *")
+    }
+    definition {
+      cpsScm {
+        scm {
+          git {
+            remote {
+              url('https://review.gerrithub.io/att-comdev/cicd.git')
+            }
+            branch('*/master')
+          }
+        }
+        scriptPath("${JOB_FOLDER}/CleanupOldBuildLogs.groovy")
+        lightweight()
+      }
+    }
+}
+
+JOB_NAME="WorkerMaintenance"
+pipelineJob("${FOLDER}/${JOB_NAME}") {
+    parameters {
+        stringParam {
+            name ('WORKER_LABEL')
+            defaultValue('airship12')
+            description('Worker Node label')
+            trim(true)
+        }
+    }
+    triggers {
+        cron("H 0 * * *")
+    }
+    definition {
+      cpsScm {
+        scm {
+          git {
+            remote {
+              url('https://review.gerrithub.io/att-comdev/cicd.git')
+            }
+            branch('*/master')
+          }
+        }
+        scriptPath("${JOB_FOLDER}/WorkerMaintenance.groovy")
         lightweight()
       }
     }
