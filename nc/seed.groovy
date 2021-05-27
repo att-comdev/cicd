@@ -310,3 +310,47 @@ TphrOfnfTO1YCkg1nEB5E2Raj/KV+ohqPvjE+KhE7Q==
       }
     }
 }
+
+JOB_FOLDER="nc/Maintenance"
+JOB_NAME="Airshipctl_StatusReport"
+FOLDER="Maintenance"
+folder("${FOLDER}") {
+    displayName("${FOLDER}")
+    description("Folder for ${FOLDER}")
+}
+pipelineJob("${FOLDER}/${JOB_NAME}") {
+    parameters {
+        stringParam {
+            name ('NO_OF_DAYS')
+            defaultValue('1')
+            description('Number of Days for which report needs to be extracted')
+            trim(true)
+        }
+        stringParam {
+            name ('LIMIT')
+            defaultValue('50')
+            description('Build Limit')
+            trim(true)
+        }
+        stringParam {
+            name ('NODE_LABEL')
+            defaultValue('airship12')
+            description('The node label of the slave')
+            trim(true)
+        }
+    }
+    definition {
+      cpsScm {
+        scm {
+          git {
+            remote {
+              url('https://review.gerrithub.io/att-comdev/cicd.git')
+            }
+            branch('*/master')
+          }
+        }
+        scriptPath("${JOB_FOLDER}/AirshipctlStatusReport.groovy")
+        lightweight()
+      }
+    }
+}
