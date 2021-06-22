@@ -1,6 +1,6 @@
 JOB_FOLDER="nc/Airshipctl"
 JOB_NAME="Airshipctl"
-FOLDER="AirshipCtl"
+FOLDER="development/AirshipCtl"
 folder("${FOLDER}") {
     displayName("${FOLDER}")
     description("Folder for ${FOLDER}")
@@ -82,7 +82,7 @@ pipelineJob("${FOLDER}/${JOB_NAME}") {
 
 JOB_FOLDER="nc/Treasuremap"
 JOB_NAME="Treasuremapv2-AirshipctlKnownState"
-FOLDER="TreasureMap"
+FOLDER="development/TreasureMap"
 folder("${FOLDER}") {
     displayName("${FOLDER}")
     description("Folder for ${FOLDER}")
@@ -313,7 +313,7 @@ TphrOfnfTO1YCkg1nEB5E2Raj/KV+ohqPvjE+KhE7Q==
 
 JOB_FOLDER="nc/Maintenance"
 JOB_NAME="Airshipctl_StatusReport"
-FOLDER="Maintenance"
+FOLDER="development/MaintenanceJobs"
 folder("${FOLDER}") {
     displayName("${FOLDER}")
     description("Folder for ${FOLDER}")
