@@ -1,11 +1,17 @@
 JOB_FOLDER="nc/Airshipctl"
 JOB_NAME="Airshipctl"
-FOLDER="development/AirshipCtl"
-folder("${FOLDER}") {
+PARENT_FOLDER="development"
+folder("${PARENT_FOLDER}") {
+    displayName("${PARENT_FOLDER}")
+    description("Folder for ${PARENT_FOLDER}")
+}
+FOLDER="AirshipCtl"
+PATH="${PARENT_FOLDER}/${FOLDER}"
+folder("${PATH}") {
     displayName("${FOLDER}")
     description("Folder for ${FOLDER}")
 }
-pipelineJob("${FOLDER}/${JOB_NAME}") {
+pipelineJob("${PATH}/${JOB_NAME}") {
     parameters {
         stringParam {
             name ('GERRIT_REFSPEC')
@@ -82,12 +88,13 @@ pipelineJob("${FOLDER}/${JOB_NAME}") {
 
 JOB_FOLDER="nc/Treasuremap"
 JOB_NAME="Treasuremapv2-AirshipctlKnownState"
-FOLDER="development/TreasureMap"
-folder("${FOLDER}") {
+FOLDER="TreasureMap"
+PATH="${PARENT_FOLDER}/${FOLDER}"
+folder("${PATH}") {
     displayName("${FOLDER}")
     description("Folder for ${FOLDER}")
 }
-pipelineJob("${FOLDER}/${JOB_NAME}") {
+pipelineJob("${PATH}/${JOB_NAME}") {
     parameters {
         stringParam {
             name ('GERRIT_REFSPEC')
@@ -313,12 +320,13 @@ TphrOfnfTO1YCkg1nEB5E2Raj/KV+ohqPvjE+KhE7Q==
 
 JOB_FOLDER="nc/Maintenance"
 JOB_NAME="Airshipctl_StatusReport"
-FOLDER="development/MaintenanceJobs"
-folder("${FOLDER}") {
+FOLDER="MaintenanceJobs"
+PATH="${PARENT_FOLDER}/${FOLDER}"
+folder("${PATH}") {
     displayName("${FOLDER}")
     description("Folder for ${FOLDER}")
 }
-pipelineJob("${FOLDER}/${JOB_NAME}") {
+pipelineJob("${PATH}/${JOB_NAME}") {
     parameters {
         stringParam {
             name ('NO_OF_DAYS')
@@ -356,7 +364,7 @@ pipelineJob("${FOLDER}/${JOB_NAME}") {
 }
 
 JOB_NAME="CleanupOldBuildLogs"
-pipelineJob("${FOLDER}/${JOB_NAME}") {
+pipelineJob("${PATH}/${JOB_NAME}") {
     parameters {
         stringParam {
             name ('NO_OF_DAYS_TO_CLEANUP')
@@ -397,7 +405,7 @@ pipelineJob("${FOLDER}/${JOB_NAME}") {
 }
 
 JOB_NAME="WorkerMaintenance"
-pipelineJob("${FOLDER}/${JOB_NAME}") {
+pipelineJob("${PATH}/${JOB_NAME}") {
     parameters {
         stringParam {
             name ('WORKER_LABEL')
@@ -426,7 +434,7 @@ pipelineJob("${FOLDER}/${JOB_NAME}") {
 }
 
 JOB_NAME="AirshipCtlBot"
-pipelineJob("${FOLDER}/${JOB_NAME}") {
+pipelineJob("${PATH}/${JOB_NAME}") {
     parameters {
         stringParam {
             name ('NODE_LABEL')
@@ -461,7 +469,7 @@ pipelineJob("${FOLDER}/${JOB_NAME}") {
 }
 
 JOB_NAME="VinoBot"
-pipelineJob("${FOLDER}/${JOB_NAME}") {
+pipelineJob("${PATH}/${JOB_NAME}") {
     parameters {
         stringParam {
             name ('NODE_LABEL')
