@@ -7,7 +7,7 @@ def node_create(String name, String host, String port = '22',
                                       usernameVariable: 'JENKINS_USER',
                                       passwordVariable: 'JENKINS_TOKEN')]) {
 
-        opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+        opts = "-s http://\$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
         cmd = "echo '${config}' | java -jar \$JENKINS_CLI ${opts} create-node ${name}"
         sh (script: cmd, returnStatus: true)
     }
@@ -19,7 +19,7 @@ def node_delete(String name) {
                                       usernameVariable: 'JENKINS_USER',
                                       passwordVariable: 'JENKINS_TOKEN')]) {
 
-        opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+        opts = "-s http://\$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
         cmd = "java -jar \$JENKINS_CLI $opts delete-node $name"
         code = sh (script: cmd , returnStatus: true)
         // todo: handle exit code properly
