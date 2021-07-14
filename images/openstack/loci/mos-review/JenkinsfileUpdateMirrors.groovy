@@ -131,13 +131,15 @@ vm (initScript: 'loci-bootstrap.sh',
             changeId = changes[0]["id"]
         }
         utils.retrier (NET_RETRY_COUNT) {
-            gerrit.cloneToBranch(
-                getProjectRepoUrl(REQ_PROJECT_NAME),
-                BRANCH,
-                REQ_PROJECT_NAME,
-                INTERNAL_GERRIT_KEY,
-                null
-            )
+            withEnv(["SHALLOW_CLONE=False"]) {
+                gerrit.cloneToBranch(
+                    getProjectRepoUrl(REQ_PROJECT_NAME),
+                    BRANCH,
+                    REQ_PROJECT_NAME,
+                    INTERNAL_GERRIT_KEY,
+                    null
+                )
+            }
         }
         // Find all mirrors in upper_constraints.txt
         dir(REQ_PROJECT_NAME) {
@@ -178,7 +180,7 @@ vm (initScript: 'loci-bootstrap.sh',
                     msg = msg.replace('"', "'")
                     sh "git ${COMMIT_ARGS} commit -a -m \"$msg\""
                     sh "git show HEAD"
-                    sh "git push origin HEAD:refs/for/${BRANCH}/${TOPIC}"
+                    sh "git push origin HEAD:refs/for/${BRANCH}%topic=${TOPIC}"
                 }
             }
         }
