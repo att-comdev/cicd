@@ -178,7 +178,7 @@ vm (initScript: 'loci-bootstrap.sh',
                     msg = msg.replace('"', "'")
                     sh "git ${COMMIT_ARGS} commit -a -m \"$msg\""
                     sh "git show HEAD"
-                    sh "git push origin HEAD:refs/for/${BRANCH}/${TOPIC}"
+                    sh "git push origin HEAD:refs/for/${BRANCH}%topic=${TOPIC}"
                 }
             }
         }

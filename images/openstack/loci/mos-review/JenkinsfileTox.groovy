@@ -49,11 +49,13 @@ vm (image: IMAGE, flavor: 'm1.large') {
         sh "sudo bash -c 'mkdir -p /opt/stack; chown ubuntu:ubuntu /opt/stack'"
     }
     stage('Project Checkout') {
-        gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${PROJECT_NAME}",
-                             PROJECT_REF,
-                             "test-repo",
-                             INTERNAL_GERRIT_KEY,
-                             REFS)
+        withEnv(["SHALLOW_CLONE=False"]) {
+            gerrit.cloneToBranch("${INTERNAL_GERRIT_SSH}/${PROJECT_NAME}",
+                                 PROJECT_REF,
+                                 "test-repo",
+                                 INTERNAL_GERRIT_KEY,
+                                 REFS)
+        }
         gerrit.cloneProject("${INTERNAL_GERRIT_SSH}/${REQUIREMENT_REPO}",
                              PROJECT_BRANCH,
                              "refs/heads/${PROJECT_BRANCH}",
