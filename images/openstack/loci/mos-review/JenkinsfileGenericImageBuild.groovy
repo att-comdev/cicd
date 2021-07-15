@@ -190,7 +190,7 @@ def pushRequirements() {
         // pushing commit to repo creating Gerrit change first
         sh "git ${gitArg} ${COMMIT_ARGS} commit --amend -C HEAD"
         sh "git ${gitArg} config --unset remote.origin.mirror"
-        sh "git ${gitArg} push origin HEAD:refs/for/${PROJECT_BRANCH}/${UPDATE_TOPIC}"
+        sh "git ${gitArg} push origin HEAD:refs/for/${PROJECT_BRANCH}%topic=${UPDATE_TOPIC}"
         sh "git ${gitArg} push origin HEAD:${PROJECT_BRANCH}"
         sh "git ${gitArg} config --local remote.origin.mirror true"
     }

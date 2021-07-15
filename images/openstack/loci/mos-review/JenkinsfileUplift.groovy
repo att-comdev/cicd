@@ -106,7 +106,7 @@ vm (initScript: 'loci-bootstrap.sh',
                     }
                     sh "git ${COMMIT_ARGS} commit -a -m '${msg}'"
                     sh "git show HEAD"
-                    sh "git push origin HEAD:refs/for/${MANIFESTS_BRANCH}/${TOPIC}"
+                    sh "git push origin HEAD:refs/for/${MANIFESTS_BRANCH}%topic=${TOPIC}"
                 }
             }
         }
