@@ -22,6 +22,30 @@
       },
       "revId": "f79223a25361b568c9909863de3b6677b567b2ee",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f9a333f_6f1c04ea",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileGenericImageBuild.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 1016322
+      },
+      "writtenOn": "2021-07-16T19:07:28Z",
+      "side": 1,
+      "message": "Yes, we have to use \"%topic\u003d...\" or \" -o topic\u003d...\" according to https://gerrit-review.googlesource.com/Documentation/intro-user.html",
+      "parentUuid": "83c7a5cc_1cadf92c",
+      "range": {
+        "startLine": 193,
+        "startChar": 69,
+        "endLine": 193,
+        "endChar": 91
+      },
+      "revId": "f79223a25361b568c9909863de3b6677b567b2ee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
