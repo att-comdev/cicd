@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83c7a5cc_1cadf92c",
+        "filename": "images/openstack/loci/mos-review/JenkinsfileGenericImageBuild.groovy",
+        "patchSetId": 4
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2021-07-16T19:01:14Z",
+      "side": 1,
+      "message": "does old way stop working with new git? if not i suggest to keep it",
+      "range": {
+        "startLine": 193,
+        "startChar": 69,
+        "endLine": 193,
+        "endChar": 91
+      },
+      "revId": "f79223a25361b568c9909863de3b6677b567b2ee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
