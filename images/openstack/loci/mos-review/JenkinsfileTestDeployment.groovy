@@ -610,15 +610,17 @@ def exportPipEnv = {
 
 
 def updateHost = {
-    ['runc', 'containerd', 'docker.io'].each {
-        try {
-            sh "sudo apt-get remove -y ${it}"
-        } catch (Throwable err) {
-            echo "${err}"
-        }
-    }
-    sh 'sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" --force-yes upgrade -y && sudo DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y'
-    sh "sudo bash -c 'echo DefaultLimitMEMLOCK=16386 >> /etc/systemd/system.conf; systemctl daemon-reexec'"
+    def cmd = ['export DEBIAN_FRONTEND=noninteractive',
+               'export apt_opts="-o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"',
+               'apt-get update',
+               'apt-get remove -y runc containerd docker.io',
+               'apt-get \${apt_opts} upgrade -y',
+               'apt-get dist-upgrade -y',
+               'apt autoremove -y',
+               'echo DefaultLimitMEMLOCK=16386 >> /etc/systemd/system.conf',
+               'systemctl daemon-reexec'].join('; ')
+
+    sh "sudo bash -c \'${cmd}\'"
 }
 
 
