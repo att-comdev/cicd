@@ -48,7 +48,7 @@ if (EVENT_TYPE != 'change-merged') {
 PROJECT_SUFFIX = env.PROJECT_NAME.split('-')[-1]
 IMAGE_NAME = "mos-" + BUILD_TYPE
 
-if (['stein', 'train'].contains(RELEASE)) {
+if (['stein', 'train', 'ussuri'].contains(RELEASE)) {
     PY3 = 'affirmative'
 }
 
@@ -65,15 +65,14 @@ currentBuild.displayName = (
 
 CEPH_REPO = null
 LIBVIRT_REPO = null
-if (['stein', 'train'].contains(RELEASE) ||
+LOCI_BASE_IMAGE = conf.LOCI_BASE_IMAGE
+OVS_REPO = conf.OVS_REPOS['xenial']
+if (['stein', 'train', 'ussuri'].contains(RELEASE) ||
         ["neutron-sriov", "nova-1804"].contains(BUILD_TYPE)) {
     LOCI_BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
     OVS_REPO = conf.OVS_REPOS['bionic']
     CEPH_REPO = conf.LOCI_CEPH_REPOS['bionic']
     LIBVIRT_REPO = conf.LIBVIRT_REPOS['bionic']
-} else {
-    LOCI_BASE_IMAGE = conf.LOCI_BASE_IMAGE
-    OVS_REPO = conf.OVS_REPOS['xenial']
 }
 
 REQ_PROJECT_NAME = 'mos-requirements'
@@ -191,7 +190,7 @@ def pushRequirements() {
         // pushing commit to repo creating Gerrit change first
         sh "git ${gitArg} ${COMMIT_ARGS} commit --amend -C HEAD"
         sh "git ${gitArg} config --unset remote.origin.mirror"
-        sh "git ${gitArg} push origin HEAD:refs/for/${PROJECT_BRANCH}/${UPDATE_TOPIC}"
+        sh "git ${gitArg} push origin HEAD:refs/for/${PROJECT_BRANCH}%topic=${UPDATE_TOPIC}"
         sh "git ${gitArg} push origin HEAD:${PROJECT_BRANCH}"
         sh "git ${gitArg} config --local remote.origin.mirror true"
     }
