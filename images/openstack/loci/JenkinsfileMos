@@ -85,6 +85,7 @@ def create_mirrors(projectList, keyList) {
 }
 
 def getRequirementsImageVersion() {
+    dockerfunc.login("${ARTF_SECURE_DOCKER_URL}","jenkins-artifactory")
     sh "${DIND} docker pull ${WHEELS_LATEST}"
     cmd="${DIND} docker inspect --format='{{index .Config.Labels \"org.label-schema.vcs-ref\"}}' ${WHEELS_LATEST}"
     return sh(returnStdout: true, script: cmd).trim()
@@ -149,7 +150,7 @@ def parseSshData() {
 }
 
 def buildLociMos(projConfArgs = null, wheelArgs = null) {
-
+    dockerfunc.login("${ARTF_DOCKER_URL}","jenkins-artifactory")
     sh "${DIND} docker pull ${LOCI_BASE_IMAGE}"
     def cmd="${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${LOCI_BASE_IMAGE}"
     def base_sha256 = sh(returnStdout: true, script: cmd).trim()
@@ -178,6 +179,7 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
       --label org.label-schema.version=${SEMANTIC_RELEASE_VERSION}.${BUILD_NUMBER}"
 
     if (!PROJECT.contains('requirements')) {
+        dockerfunc.login("${ARTF_SECURE_DOCKER_URL}","jenkins-artifactory") 
         sh "${DIND} docker pull ${WHEELS_LATEST}"
         cmd="${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${WHEELS_LATEST}"
         def requirements_sha256 = sh(returnStdout: true, script: cmd).trim()
@@ -300,6 +302,7 @@ if (!PROJECT.contains('requirements') && PROJECT_RELEASE == 'ocata') {
                     print "Promoting $IMAGE_LOCI to latest..."
                     def image_latest = "${IMAGE_BASE}/${PROJECT}:latest"
                     sh "sudo docker tag $IMAGE_LOCI ${image_latest}"
+                    dockerfunc.login("${ARTF_SECURE_DOCKER_URL}","jenkins-artifactory") 
                     sh "sudo docker push ${image_latest}"
                 }
             }
