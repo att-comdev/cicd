@@ -65,7 +65,7 @@ DIND_CONTAINER = "locibuildcont"
 DIND = "sudo docker exec ${DIND_CONTAINER}"
 
 def buildLoci(projConfArgs = null, wheelArgs = null) {
-
+    dockerfunc.login("${ARTF_DOCKER_URL}","jenkins-artifactory")
     def argsMap = loci.mergeArgs([DEFAULT_ARGS, projConfArgs, wheelArgs])
     def args = loci.buildParameters(argsMap)
     def image_tag = "${IMAGE_BASE}/${PROJECT}:${PROJECT_VERSION}"

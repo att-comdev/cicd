@@ -450,7 +450,7 @@ vm (initScript: 'loci-bootstrap.sh',
     flavor: ('m1.' << (PROJECT_NAME.contains('requirements') ? 'large' : 'medium')),
     nodePostfix: '',
     doNotDeleteNode: false) {
-
+    dockerfunc.login("${ARTF_SECURE_DOCKER_URL}","jenkins-artifactory")
     // workaround to support existing requirements images that has old address hard-coded
     sh "sudo ip a a ${LOCAL_WEB_ADDR} dev docker0"
 

@@ -50,6 +50,7 @@ def getProjectRepoUrl(prj) {
 
 def getImageVersions(url) {
     versions = [:]
+    dockerfunc.login("${ARTF_SECURE_DOCKER_URL}","jenkins-artifactory")
     utils.retrier(NET_RETRY_COUNT) {
         sh "${SHELL} docker pull ${url}"
     }

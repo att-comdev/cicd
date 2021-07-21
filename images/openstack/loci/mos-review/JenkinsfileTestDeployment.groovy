@@ -699,6 +699,7 @@ K8S_DEPLOY_STEPS = [
         stage('Download precreated kubeadm-aio image') {
             if (!BUILD_KUBEADM) {
                 // Pulls kubeadm image and disables it's build saving ~1h
+                dockerfunc.login("${ARTF_SECURE_DOCKER_URL}","jenkins-artifactory")
                 utils.retrier(NET_RETRY_COUNT) {
                     sh "sudo docker pull ${conf.OSH_AIO_KUBEADM_IMAGE}"
                 }
