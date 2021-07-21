@@ -16,6 +16,23 @@
       "message": "Please do not touch Loci pipeline.",
       "revId": "a12af942a70135de9ee9833fae0a63a74208d7d4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7bbc06c9_be53b731",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1016322
+      },
+      "writtenOn": "2021-07-21T18:50:23Z",
+      "side": 1,
+      "message": "Why not to use osh.dockerAuth()",
+      "revId": "a12af942a70135de9ee9833fae0a63a74208d7d4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
