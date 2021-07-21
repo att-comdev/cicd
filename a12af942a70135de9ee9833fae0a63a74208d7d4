@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31c23ece_1fec59e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1016322
+      },
+      "writtenOn": "2021-07-21T18:45:25Z",
+      "side": 1,
+      "message": "Please do not touch Loci pipeline.",
+      "revId": "a12af942a70135de9ee9833fae0a63a74208d7d4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
