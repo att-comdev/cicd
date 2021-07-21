@@ -24,6 +24,20 @@ def installDockerCE() {
  *
  * @param creds Artifactory credentials ID
  */
+def dockerAuth(String[] docker_repos = ["${ARTF_SECURE_DOCKER_URL}"],String creds = 'jenkins-artifactory') {
+    docker_repos.each {
+    withCredentials([usernamePassword(credentialsId: "${creds}",
+                     usernameVariable: 'ARTIFACTORY_USER',
+                     passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+        opts = '-u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD'
+        sh "sudo docker login ${opts} ${it}"
+
+        // Allow kubectl to pull images, requires auth config to be on / directory
+        sh 'sudo cp -R ~/.docker /'
+    }
+  }
+}
+
 def dockerAuth(String creds = 'jenkins-artifactory') {
     withCredentials([usernamePassword(credentialsId: creds,
                      usernameVariable: 'ARTIFACTORY_USER',
