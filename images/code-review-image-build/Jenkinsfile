@@ -69,6 +69,7 @@ EOF"""
                 sh 'cat  Dockerfile-code-review'
             }
             stage('Build image'){
+                dockerfunc.login("${ARTF_DOCKER_URL}","jenkins-artifactory")
                 sh "sudo docker pull ${BASE_IMAGE}"
                 def cmd="sudo docker inspect --format='{{index .RepoDigests 0}}' ${BASE_IMAGE}"
                 def base_sha256 = sh(returnStdout: true, script: cmd).trim()

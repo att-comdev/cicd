@@ -149,7 +149,6 @@ def parseSshData() {
 }
 
 def buildLociMos(projConfArgs = null, wheelArgs = null) {
-
     sh "${DIND} docker pull ${LOCI_BASE_IMAGE}"
     def cmd="${DIND} docker inspect --format='{{index .RepoDigests 0}}' ${LOCI_BASE_IMAGE}"
     def base_sha256 = sh(returnStdout: true, script: cmd).trim()

@@ -450,7 +450,6 @@ vm (initScript: 'loci-bootstrap.sh',
     flavor: ('m1.' << (PROJECT_NAME.contains('requirements') ? 'large' : 'medium')),
     nodePostfix: '',
     doNotDeleteNode: false) {
-
     // workaround to support existing requirements images that has old address hard-coded
     sh "sudo ip a a ${LOCAL_WEB_ADDR} dev docker0"
 
