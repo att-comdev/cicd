@@ -236,7 +236,7 @@ def uploadConfig(uuid, token, shipyardUrl, siteName) {
  *
  *  @param action Shipyard action from requet json.
  */
-def _printActionSteps(action) {
+def _printActionSteps(action, toPrint=false) {
     def steps = action.steps
     def status = []
     def failed = []
@@ -250,7 +250,9 @@ def _printActionSteps(action) {
             running += it.id.toString()
         }
     }
-    print status.join("\n")
+    if (toPrint) {
+        print status.join("\n")
+    }
     return [failed, running]
 }
 
@@ -297,32 +299,28 @@ def waitAction(Map map) {
         def cont = new JsonSlurperClassic().parseText(res.content)
         actionId = cont.id
     }
-    action = _getAction(actionId: actionId,
-                        shipyardUrl: map.shipyardUrl,
-                        keystoneCreds: map.keystoneCreds,
-                        keystoneUrl: map.keystoneUrl,
-                        keystoneDomain: map.keystoneDomain)
+    action = _getActionResponse(map, actionId)
     def String status = action.action_lifecycle
     def failedSteps = []
     def runningSteps = []
     def stages = []
-    // We would like to skip stage creation for some steps since they have subtusks
-    // and stages will be created for them.
-    def skipSteps = ['drydock_build', 'armada_build']
-
+    def sleepTime = 15
+    def timeSinceLastStatus = 0
+    def printStatus = false
     while (status == "Pending" || status == "Processing") {
-        sleep 240
+        if (timeSinceLastStatus % 240 == 0 || timeSinceLastStatus == 0) {
+            timeSinceLastStatus = 0
+            printStatus = true
+        }
+        sleep sleepTime
+        timeSinceLastStatus += sleepTime
 
-        action = _getAction(actionId: actionId,
-                            shipyardUrl: map.shipyardUrl,
-                            keystoneCreds: map.keystoneCreds,
-                            keystoneUrl: map.keystoneUrl,
-                            keystoneDomain: map.keystoneDomain)
+        action = _getActionResponse(map, actionId)
         status = action.action_lifecycle
         print "Wait until action is complete. Currently in ${status} state."
-        (failedSteps, runningSteps) = _printActionSteps(action)
+        (failedSteps, runningSteps) = _printActionSteps(action, printStatus)
         // For drydock_build step check nodes state. For all other check pods state.
-        if (map.genesisCreds && map.genesisIp) {
+        if (map.genesisCreds && map.genesisIp && printStatus) {
             if ('drydock_build' in failedSteps || 'drydock_build' in runningSteps) {
                 ssh.wait (map.genesisCreds, map.genesisIp, 'sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get nodes')
             } else {
@@ -345,7 +343,7 @@ def waitAction(Map map) {
             }
         }
         runningSteps.each() {
-            if ( !(it in stages) & !(it in skipSteps)) {
+            if (!(it in stages)) {
                 stages += it
                 stage "Step ${it}"
                 // In case of few steps in running state we may get a situation when few
@@ -355,6 +353,7 @@ def waitAction(Map map) {
                 sleep 5
             }
         }
+        printStatus = false
     }
 
     if (status != "Complete") {
