@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "75f6efb9_5023b307",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1017588
+      },
+      "writtenOn": "2021-07-26T13:00:30Z",
+      "side": 1,
+      "message": "We dont need this, please do add this functionality in below one and then delete this function.",
+      "revId": "b0a6b2c34bf3e04bd049693c29aa0b55b398529b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bb7514fb_3c20f448",
         "filename": "vars/osh.groovy",
         "patchSetId": 6
@@ -14,6 +31,24 @@
       "writtenOn": "2021-07-26T12:56:11Z",
       "side": 1,
       "message": "We dont need this function please remove it.",
+      "revId": "b0a6b2c34bf3e04bd049693c29aa0b55b398529b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18ccb0f3_fda185fb",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1017588
+      },
+      "writtenOn": "2021-07-26T13:00:30Z",
+      "side": 1,
+      "message": "please do edit this function as per above instead of delete. and delete the above one.",
+      "parentUuid": "bb7514fb_3c20f448",
       "revId": "b0a6b2c34bf3e04bd049693c29aa0b55b398529b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
