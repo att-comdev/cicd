@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb7514fb_3c20f448",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1017588
+      },
+      "writtenOn": "2021-07-26T12:56:11Z",
+      "side": 1,
+      "message": "We dont need this function please remove it.",
+      "revId": "b0a6b2c34bf3e04bd049693c29aa0b55b398529b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
