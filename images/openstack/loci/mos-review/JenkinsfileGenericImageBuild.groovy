@@ -17,6 +17,11 @@ PY3 = 'no'
 
 NET_RETRY_COUNT = env.NET_RETRY_COUNT.toInteger()
 
+IMAGE = 'cicd-ubuntu-18.04-server-cloudimg-amd64'
+if (['ocata'].contains(RELEASE)) {
+    IMAGE = 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+}
+
 SEMANTIC_RELEASE_VERSION = "0.9.0"
 
 def getOriginalCause(cause) {
@@ -446,18 +451,22 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
 }
 
 vm (initScript: 'loci-bootstrap.sh',
-    image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
+    image: IMAGE,
     flavor: ('m1.' << (PROJECT_NAME.contains('requirements') ? 'large' : 'medium')),
     nodePostfix: '',
     doNotDeleteNode: false) {
 
-    // workaround to support existing requirements images that has old address hard-coded
-    sh "sudo ip a a ${LOCAL_WEB_ADDR} dev docker0"
-
-    sh "sudo bash -c 'echo \"nameserver ${DNS_SERVER_TWO}\" > /etc/resolv.conf'"
-    sh 'sudo service docker stop ||:'
-    sh 'sudo apt-get update && sudo apt-get install -y runc containerd docker.io'
-    sh 'sudo service docker start ||:'
+    def cmd = ["echo \'DNS=${DNS_SERVER_TWO}\' >> /etc/systemd/resolved.conf",
+               'systemctl daemon-reload',
+               'systemctl restart systemd-networkd',
+               'systemctl restart systemd-resolved',
+               'systemctl stop docker.service ||:',
+               'apt-get update && apt-get install -y runc containerd docker.io',
+               // workaround to support existing requirements images
+               // that has old address hard-coded
+               "ip a a ${LOCAL_WEB_ADDR} dev docker0",
+               'systemctl start docker.service ||:'].join('; ')
+    sh "sudo bash -c \'${cmd}\'"
 
     stage('Init env') {
         loci.initEnv(ARTF_SECURE_DOCKER_URL, "jenkins-artifactory",
