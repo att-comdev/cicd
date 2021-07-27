@@ -17,6 +17,11 @@ PY3 = 'no'
 
 NET_RETRY_COUNT = env.NET_RETRY_COUNT.toInteger()
 
+IMAGE = 'cicd-ubuntu-18.04-server-cloudimg-amd64'
+if (['ocata'].contains(RELEASE)) {
+    IMAGE = 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+}
+
 SEMANTIC_RELEASE_VERSION = "0.9.0"
 
 def getOriginalCause(cause) {
@@ -446,7 +451,7 @@ def buildLociMos(projConfArgs = null, wheelArgs = null) {
 }
 
 vm (initScript: 'loci-bootstrap.sh',
-    image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
+    image: IMAGE,
     flavor: ('m1.' << (PROJECT_NAME.contains('requirements') ? 'large' : 'medium')),
     nodePostfix: '',
     doNotDeleteNode: false) {

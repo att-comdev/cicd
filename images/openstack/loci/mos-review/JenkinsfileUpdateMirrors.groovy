@@ -57,7 +57,7 @@ def getProjectsNotes(ucVersions, mirrorsVersions) {
     utils.retrier (NET_RETRY_COUNT) {
         gerrit.cloneToBranch(
             getProjectRepoUrl('cicd-tools'),
-            'master',
+            'main',
             'cicd-tools',
             INTERNAL_GERRIT_KEY,
             null
@@ -105,7 +105,7 @@ def getProjectsNotes(ucVersions, mirrorsVersions) {
 
 
 vm (initScript: 'loci-bootstrap.sh',
-        image: 'cicd-ubuntu-16.04-server-cloudimg-amd64',
+        image: 'cicd-ubuntu-18.04-server-cloudimg-amd64',
         flavor: 'm1.medium',
         nodePostfix: '',
         doNotDeleteNode: false) {
