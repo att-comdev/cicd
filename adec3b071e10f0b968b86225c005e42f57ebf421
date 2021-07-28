@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a111bd7_e80b8ad9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013469
+      },
+      "writtenOn": "2021-07-28T18:08:58Z",
+      "side": 1,
+      "message": "I agree with function itself. I just worry about potential injection.\nIf we need this change as soon as possible we can merge as is just create task for improvement.\nSuch change should not affect usage of the function, because it should be internal change.",
+      "revId": "adec3b071e10f0b968b86225c005e42f57ebf421",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}

@@ -57,6 +57,30 @@
       },
       "revId": "ec315cbc7f45cf1446fbf3e9f3d198ae48f44c52",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d083e0bf_cd618202",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1013469
+      },
+      "writtenOn": "2021-07-28T18:08:58Z",
+      "side": 1,
+      "message": "passwords are managed via additional variable OPT, what about injection via docker_repo? It is root call via sudo so if you provide repository name like\ndocker_repo\u003d\"docker-open.zc1.cti.att.com;ls /root\"\nYou can run other commands too.",
+      "parentUuid": "a58a1953_7ac05197",
+      "range": {
+        "startLine": 32,
+        "startChar": 11,
+        "endLine": 32,
+        "endChar": 12
+      },
+      "revId": "ec315cbc7f45cf1446fbf3e9f3d198ae48f44c52",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

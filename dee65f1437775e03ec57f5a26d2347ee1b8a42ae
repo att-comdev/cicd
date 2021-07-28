@@ -34,6 +34,24 @@
       "parentUuid": "a0b265e2_57be4cf2",
       "revId": "dee65f1437775e03ec57f5a26d2347ee1b8a42ae",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a471c9c_8b6fee07",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 11
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1013469
+      },
+      "writtenOn": "2021-07-28T18:08:58Z",
+      "side": 1,
+      "message": "it would work different way. I agree with Dinesh No sense to add anything there if it is just string variable in groovy env.",
+      "parentUuid": "42548a87_474d912e",
+      "revId": "dee65f1437775e03ec57f5a26d2347ee1b8a42ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
