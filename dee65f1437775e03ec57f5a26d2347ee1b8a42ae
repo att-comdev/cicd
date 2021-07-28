@@ -16,6 +16,24 @@
       "message": "Why you want to interpolate creds as bash env variable instead of groovy env variable? Why we need this change?",
       "revId": "dee65f1437775e03ec57f5a26d2347ee1b8a42ae",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42548a87_474d912e",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 11
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1018776
+      },
+      "writtenOn": "2021-07-28T10:24:08Z",
+      "side": 1,
+      "message": "its a string , what is the issue if we pass \"${creds}\" instead of creds ?",
+      "parentUuid": "a0b265e2_57be4cf2",
+      "revId": "dee65f1437775e03ec57f5a26d2347ee1b8a42ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
