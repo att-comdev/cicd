@@ -36,6 +36,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2660268_7d5dc4f4",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1018776
+      },
+      "writtenOn": "2021-07-30T05:05:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9f989b7_33012860",
+      "revId": "b0a6b2c34bf3e04bd049693c29aa0b55b398529b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bb7514fb_3c20f448",
