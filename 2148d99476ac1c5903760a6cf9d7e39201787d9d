@@ -24,6 +24,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c60193a_c64ae38d",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 13
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1018776
+      },
+      "writtenOn": "2021-08-02T18:06:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "437f9277_5443e432",
+      "range": {
+        "startLine": 33,
+        "startChar": 8,
+        "endLine": 33,
+        "endChar": 11
+      },
+      "revId": "2148d99476ac1c5903760a6cf9d7e39201787d9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e24d51b8_9efc65df",
@@ -61,6 +85,30 @@
       "side": 1,
       "message": "If this method is executed multiple times , each time it ll update details inside ~/.docker only preserving the existing ones in ~/.docker , same will be copied to / ?",
       "parentUuid": "e24d51b8_9efc65df",
+      "range": {
+        "startLine": 36,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 35
+      },
+      "revId": "2148d99476ac1c5903760a6cf9d7e39201787d9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b484a609_d9b570b8",
+        "filename": "vars/osh.groovy",
+        "patchSetId": 13
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1018776
+      },
+      "writtenOn": "2021-08-02T18:06:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e7094482_7939c3ae",
       "range": {
         "startLine": 36,
         "startChar": 8,
