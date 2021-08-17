@@ -181,6 +181,49 @@ def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0", priAf
     secLabel = secAffinityKey.trim()
     image = jnlpImage.trim()
 
+    if ( env.jenkins_tls_enabled && env.jenkins_tls_enabled == "true") {
+
+    return """
+    apiVersion: v1
+    kind: Pod
+    spec:
+      containers:
+      - name: jnlp
+        image: '${image}'
+        args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
+      securityContext:
+        runAsUser: ${uid}
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: ${priLabel}
+                operator: In
+                values:
+                - enabled
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: ${secLabel}
+                operator: In
+                values:
+                - enabled
+        volumeMounts:
+          - name: jenkins-cert
+            readOnly: true
+            mountPath: /home/jenkins/certificate/ca.crt
+            subPath: ca.crt
+      volumes:
+        - name: jenkins-cert
+          secret:
+            secretName: jenkins-internal-tls
+            defaultMode: 384
+    """
+
+    } else {
+
     return """
     apiVersion: v1
     kind: Pod
@@ -209,6 +252,7 @@ def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0", priAf
                 values:
                 - enabled
     """
+ }
 }
 
 /**
