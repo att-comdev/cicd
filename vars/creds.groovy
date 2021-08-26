@@ -1,3 +1,6 @@
+import jenkins.model.*;
+import com.cloudbees.hudson.plugins.folder.*;
+import com.cloudbees.hudson.plugins.folder.properties.*;
 import hudson.plugins.sshslaves.*;
 import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
 import com.cloudbees.plugins.credentials.impl.*;
@@ -11,6 +14,14 @@ def getGlobalCreds() {
     return SystemCredentialsProvider.getInstance().getStore().getCredentials(Domain.global())
 }
 
+def getFolderCreds(root) {
+    root.getAllItems(com.cloudbees.hudson.plugins.folder.Folder.class).each{ f ->
+        creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+                com.cloudbees.plugins.credentials.Credentials.class, f)
+    }
+    return creds
+}
+
 /**
  * Return a list of Global credential IDs defined within Jenkins
 */
@@ -21,6 +32,15 @@ def getGlobalCredIds() {
         credIds.add(cred.id.toString())
     }
     return credIds
+}
+
+def getFolderCredIds() {
+    def folderCreds = getFolderCreds()
+    def credsIds = []
+    for (cred in folderCreds) {
+        credsIds.add(cred.id.toString())
+    }
+    return credsIds
 }
 
 /**
@@ -36,6 +56,11 @@ def createGlobalCred(id, description, user, pass) {
     SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), c)
 }
 
+def createFolderCred(id, description, user, pass) {
+    Credentials c = (Credentials) new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, id, description, user, pass)
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.deploys(), c)
+}
+
 /**
  * Create a Global SSH user/key credential within Jenkins
  *
@@ -47,7 +72,13 @@ def createGlobalCred(id, description, user, pass) {
 def createGlobalSshCred(id, description, user, key) {
     def privateKeySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(key)
     def secret = new BasicSSHUserPrivateKey(CredentialsScope.GLOBAL, id, user, privateKeySource, "", id)
-    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), secret)
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.deploys(), secret)
+}
+
+def createFolderSshCred(id, description, user, key) {
+    def privateKeySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(key)
+    def secret = new BasicSSHUserPrivateKey(CredentialsScope.GLOBAL, id, user, privateKeySource, "", id)
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.deploys(), secret)
 }
 
 /**
@@ -60,6 +91,14 @@ def deleteGlobalSshCred(id) {
     def c = globalCreds.findResult { it.id == id ? it : null }
     if (c) {
         SystemCredentialsProvider.getInstance().getStore().removeCredentials(Domain.global(), c)
+    }
+}
+
+def deleteFolderSshCred(id) {
+    def globalCreds = getFolderCreds()
+    def c = globalCreds.findResult { it.id == id ? it : null }
+    if (c) {
+        SystemCredentialsProvider.getInstance().getStore().removeCredentials(deploys.global(), c)
     }
 }
 
@@ -76,6 +115,11 @@ def deleteGlobalCred(id, description, user, pass) {
     SystemCredentialsProvider.getInstance().getStore().removeCredentials(Domain.global(), c)
 }
 
+def deleteFolderCred(id, description, user, pass) {
+    Credentials c = (Credentials) new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, id, description, user, pass)
+    SystemCredentialsProvider.getInstance().getStore().removeCredentials(Domain.deploys(), c)
+}
+
 /**
  * Recreate a Global user/password credential within Jenkins (delete -> create)
  * Note: delete should not fail if the credential does not already exist
@@ -88,6 +132,11 @@ def deleteGlobalCred(id, description, user, pass) {
 def recreateGlobalCred(id, description, user, pass) {
     deleteGlobalCred(id, description, user, pass)
     createGlobalCred(id, description, user, pass)
+}
+
+def recreateFolderCred(id, description, user, pass) {
+    deleteFolderCred(id, description, user, pass)
+    createFolderCred(id, description, user, pass)
 }
 
 /** Helper for update ssh key for jenkins slave
