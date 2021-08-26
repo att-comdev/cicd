@@ -1,3 +1,6 @@
+import jenkins.model.*;
+import com.cloudbees.hudson.plugins.folder.*;
+import com.cloudbees.hudson.plugins.folder.properties.*;
 import hudson.plugins.sshslaves.*;
 import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
 import com.cloudbees.plugins.credentials.impl.*;
@@ -9,6 +12,14 @@ import com.cloudbees.plugins.credentials.domains.*;
 */
 def getGlobalCreds() {
     return SystemCredentialsProvider.getInstance().getStore().getCredentials(Domain.global())
+}
+
+def getFolderCreds(root) {
+    root.getAllItems(com.cloudbees.hudson.plugins.folder.Folder.class).each{ f ->
+        creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+                com.cloudbees.plugins.credentials.Credentials.class, f)
+    }
+    return creds
 }
 
 /**
