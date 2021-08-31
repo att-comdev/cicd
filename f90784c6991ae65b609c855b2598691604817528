@@ -16,6 +16,23 @@
       "message": "Can we use a template way instead of such dynamic hack?",
       "revId": "f90784c6991ae65b609c855b2598691604817528",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3e569b1_00ff2ad8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1019274
+      },
+      "writtenOn": "2021-08-31T14:26:38Z",
+      "side": 1,
+      "message": "Looks good to me.",
+      "revId": "f90784c6991ae65b609c855b2598691604817528",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
