@@ -12,14 +12,13 @@ REFS = "+refs/heads/*:refs/remotes/origin/* +refs/changes/*:refs/changes/*"
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${GERRIT_PROJECT}-${GERRIT_EVENT_TYPE}"
 
-TOX_CHECK = ("set +e; res=0; for check in pep8 'py27 -- --concurrency=8';" +
-             'do tox -e$check; res=$(( $res | $? )); done; exit $res')
-POD_IMAGE = conf.CODE_REVIEW_IMAGE
-if (GERRIT_BRANCH == conf.STEIN_BRANCH) {
-    POD_IMAGE = conf.CODE_REVIEW_IMAGE_1804
-    TOX_CHECK = 'OS_LOG_PATH=.; tox -- --concurrency=8'
+POD_IMAGE = conf.CODE_REVIEW_IMAGE_1804
+TOX_CHECK = 'OS_LOG_PATH=.; tox -- --concurrency=8'
+if (GERRIT_BRANCH == conf.OCATA_BRANCH) {
+    POD_IMAGE = conf.CODE_REVIEW_IMAGE
+    TOX_CHECK = ("set +e; res=0; for check in pep8 'py27 -- --concurrency=8';" +
+                 'do tox -e$check; res=$(( $res | $? )); done; exit $res')
 }
-
 def compileSshData() {
     sshConfig = ""
     keys = []
@@ -45,15 +44,9 @@ def parseSshData() {
 
 def label = "worker-${UUID.randomUUID().toString()}"
 try {
-    podTemplate(label: label,yaml: """
-                apiVersion: v1
-                kind: Pod
-                spec:
-                  securityContext:
-                    runAsUser: 0
-                  nodeSelector:
-                    dind-node: enabled
-                """, containers: [
+    podTemplate(label: label, showRawYaml: false,
+                yaml: cicd_helper.podExecutorConfig(conf.JNLP_IMAGE, "0", "jenkins-nodes", "jenkins-nodes"),
+                containers: [
                     containerTemplate(name: "ubuntu",
                                       image: POD_IMAGE,
                                       command: "cat",
@@ -103,8 +96,8 @@ try {
                     // Create ssh config on slave to control what login is used for
                     // what resource
                     // writeFile works only within workspace, so copying into root ssh dir
-                    writeFile file: "/home/jenkins/config", text: SSH_CONFIG
-                    sh "cp /home/jenkins/config ${ssh_dir}/config"
+                    writeFile file: "${WORKSPACE}/config", text: SSH_CONFIG
+                    sh "cp ${WORKSPACE}/config ${ssh_dir}/config"
                 }
                 dir("${WORKSPACE}/jenkins"){
                     stage('Code-Review'){
