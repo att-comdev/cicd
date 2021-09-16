@@ -90,7 +90,7 @@ try {
                         UPDATED_IMAGE_TAG = "${IMAGE_TAG}-${SUFFIX}.${BUILD_TIMESTAMP}"
                         IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${UPDATED_IMAGE_TAG}"
 
-                        sh """docker build -f Dockerfile.${SUFFIX} --network host \
+                        sh """docker build -f Dockerfile.${SUFFIX} --no-cache --network host \
                                 ${BUILD_ARGS.join(' ')} ${EXTRA_BUILD_ARGS.join(' ')} \
                                 -t ${IMAGE} ."""
                     }
