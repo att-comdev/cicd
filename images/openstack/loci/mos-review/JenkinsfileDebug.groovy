@@ -39,7 +39,7 @@ def setPubKey() {
         withCredentials([usernamePassword(credentialsId: 'gerrit_http_creds',
                                           usernameVariable: 'USERNAME',
                                           passwordVariable: 'PASSWORD')]) {
-            cmd = ("wget  --http-user ${USERNAME} --http-password ${PASSWORD} " +
+            cmd = ("wget --no-proxy --http-user ${USERNAME} --http-password ${PASSWORD} " +
                    "https://${INTERNAL_GERRIT_URL}/a/accounts/" +
                    "${GERRIT_CHANGE_OWNER_EMAIL}/sshkeys")
             sh cmd
