@@ -183,10 +183,6 @@ def tweakOSH() {
         }
     }
 
-    // To fix issues with latest pip
-    sh 'sed -i "s/upgrade pip/upgrade pip===20.3.4/g" ./openstack-helm-infra/tools/gate/devel/start.sh'
-    sh 'sed -i "s/pip==[0-9.]*/pip==20.3.4/g" ./openstack-helm-infra/tools/images/kubeadm-aio/Dockerfile'
-    sh 'sed -i "/^ENV PIP_TRUSTED_HOST=.*/a ENV PIP_USE_DEPRECATED=legacy-resolver" ./openstack-helm-infra/tools/images/kubeadm-aio/Dockerfile'
     sh 'sed -i "/pyopenssl/a \\ \\ sudo -H -E pip3 install --upgrade alembic==1.4.3" ./openstack-helm-infra/tools/gate/devel/start.sh'
     // until https://review.opendev.org/#/c/738141/ is merged
     sh 'sed -i \'/OSH_EXTRA_HELM_ARGS_NOVA/a export OSH_EXTRA_HELM_ARGS_NOVA=\"${OSH_EXTRA_HELM_ARGS_NOVA} $(./tools/deployment/common/get-values-overrides.sh nova)\"\' ./openstack-helm/tools/deployment/developer/ceph/160-compute-kit.sh'
@@ -615,7 +611,7 @@ def updateHost = {
                'apt-get update',
                'apt-get remove -y runc containerd docker.io',
                'apt-get \${apt_opts} upgrade -y',
-               'apt-get dist-upgrade -y',
+               'apt-get \${apt_opts} dist-upgrade -y',
                'apt autoremove -y',
                'echo DefaultLimitMEMLOCK=16386 >> /etc/systemd/system.conf',
                'systemctl daemon-reexec'].join('; ')
