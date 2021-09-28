@@ -141,6 +141,8 @@ if (EVENT_TYPE != 'change-merged' && params.RUN_DEPLOYMENT) {
 
 env.IMAGES = images
 
+print JsonOutput.toJson(imagesVersions)
+
 if (UPLIFT_IMAGES.toBoolean()) {
     def upliftCommitMessage, upliftTopic
     if (EVENT_TYPE == 'change-merged') {
