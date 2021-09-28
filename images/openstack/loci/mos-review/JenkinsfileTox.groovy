@@ -45,7 +45,7 @@ vm (image: IMAGE, flavor: 'm1.large') {
                          "apt-get -y install python3-pip gettext libpq-dev " +
                          "libssl-dev libsasl2-dev libldap2-dev bandit " +
                          "libpython2.7-dev'"
-        sh "sudo pip3 install --index-url ${ARTF_PIP_INDEX_URL} tox"
+        sh "sudo pip3 install --index-url ${ARTF_PIP_INDEX_URL} 'virtualenv<20.8.0' tox"
         sh "sudo bash -c 'mkdir -p /opt/stack; chown ubuntu:ubuntu /opt/stack'"
     }
     stage('Project Checkout') {
@@ -65,11 +65,31 @@ vm (image: IMAGE, flavor: 'm1.large') {
     }
     def ucPath = "${WORKSPACE}/${REQUIREMENT_REPO}/upper-constraints.txt"
     stage('Tox') {
+        dir("${WORKSPACE}/${REQUIREMENT_REPO}") {
+            sshagent([INTERNAL_GERRIT_KEY]) {
+                sh ('''mkdir /tmp/wheels;
+                       virtualenv .venv;
+                       . .venv/bin/activate;
+                       pip install pkginfo;
+                       for item in $(grep '^git+' upper-constraints.txt); do
+                         pip wheel --no-deps --wheel-dir /tmp/wheels ${item}
+                       done;
+                       sed -i '/^git+/d' upper-constraints.txt;
+                       for wheel in $(ls /tmp/wheels/*.whl); do
+                         cmd=\"import pkginfo; \
+                               wheel = pkginfo.Wheel('${wheel}'); \
+                               msg = "{}==={}".format(wheel.name, \
+                                                      wheel.version); \
+                               print(msg)\"
+                         python -c "${cmd}" >> upper-constraints.txt
+                       done;''')
+            }
+        }
         dir("${WORKSPACE}/test-repo") {
             withEnv(["UPPER_CONSTRAINTS_FILE=${ucPath}",
                      "TOX_CONSTRAINTS_FILE=${ucPath}",
                      "PIP_INDEX_URL=${ARTF_PIP_INDEX_URL}",
-                     "PIP_USE_DEPRECATED=legacy-resolver",
+                     "PIP_FIND_LINKS=/tmp/wheels",
                      "HTTPS_PROXY=", "HTTP_PROXY="]) {
                 sshagent([INTERNAL_GERRIT_KEY]) {
                     sh TOX_CHECK
