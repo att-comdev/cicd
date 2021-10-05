@@ -16,6 +16,24 @@
       "message": "i guess this was not maintained good enough. We want to run code-review job at least on bionic for \u003estein releases.",
       "revId": "f90784c6991ae65b609c855b2598691604817528",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea0adade_7c889527",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1016322
+      },
+      "writtenOn": "2021-10-05T20:53:47Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "465b34ef_36e37893",
+      "revId": "f90784c6991ae65b609c855b2598691604817528",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
