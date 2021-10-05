@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "465b34ef_36e37893",
+        "filename": "code-review/Jenkinsfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1015253
+      },
+      "writtenOn": "2021-10-05T16:38:13Z",
+      "side": 0,
+      "message": "i guess this was not maintained good enough. We want to run code-review job at least on bionic for \u003estein releases.",
+      "revId": "f90784c6991ae65b609c855b2598691604817528",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
