@@ -78,7 +78,7 @@ vm (image: IMAGE, flavor: 'm1.large') {
                        for wheel in $(ls /tmp/wheels/*.whl); do
                          cmd=\"import pkginfo; \
                                wheel = pkginfo.Wheel('${wheel}'); \
-                               msg = "{}==={}".format(wheel.name, \
+                               msg = '{}==={}'.format(wheel.name, \
                                                       wheel.version); \
                                print(msg)\"
                          python -c "${cmd}" >> upper-constraints.txt
