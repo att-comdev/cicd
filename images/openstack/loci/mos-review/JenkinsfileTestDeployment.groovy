@@ -169,11 +169,6 @@ def tweakOSH() {
         sh "bash -c 'git checkout 97ac0575ba1127a2a16a35fba9a57ddeda1acc26 -- tools/deployment/common/{get-values-overrides,env-variables}.sh'"
     }
 
-    dir ("openstack-helm-infra") {
-        sh 'git config user.email "T-850@model.101"'
-        sh 'git config user.name "T-850 Model 101"'
-        sh "bash -c 'git revert --no-edit b2adfeadd8adbf5d99187106cf5d2956f0afeeab | true'"
-    }
     if (TROUBLESHOOTING) {
         // add tty: true and stding true to each service pod template
         dir ('openstack-helm') {
