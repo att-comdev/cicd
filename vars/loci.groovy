@@ -176,7 +176,7 @@ def getDependencies(String release, String projectName) {
                               'PIP_PACKAGES': 'python-swiftclient',
                               'DIST_PACKAGES': ' '],
             'horizon':       ['PROFILES': 'fluent horizon apache',
-                              'PIP_PACKAGES': '',
+                              'PIP_PACKAGES': 'heat-dashboard',
                               'DIST_PACKAGES': ' '],
             'cinder':        ['PROFILES': 'fluent cinder lvm ceph qemu apache purestorage',
                               'PIP_PACKAGES': 'python-swiftclient',
