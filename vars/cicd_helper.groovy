@@ -198,6 +198,7 @@ def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0", priAf
             subPath: ca.crt
       securityContext:
         runAsUser: ${uid}
+        fsGroup: ${uid}
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
