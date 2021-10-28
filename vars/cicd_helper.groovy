@@ -220,7 +220,7 @@ def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0", priAf
         - name: jenkins-cert
           secret:
             secretName: jenkins-internal-tls
-            defaultMode: 384
+            defaultMode: 292
     """
 
     } else {
