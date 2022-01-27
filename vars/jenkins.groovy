@@ -12,7 +12,7 @@ def node_create(String name, String host, String port = '22',
         } else {
             opts = "-s http://\$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
         }
-        cmd = "echo '${config}' | java -jar \$JENKINS_CLI ${opts} create-node ${name}"
+        cmd = "keytool -importkeystore -srckeystore /var/jenkins_home/jenkins.jks -destkeystore /tmp/jenkins.p12 -deststoretype PKCS12; openssl pkcs12 -in /tmp/jenkins.p12 -nokeys -out /tmp/ca.crt; keytool -delete -alias JENKINS-CONTROLLER-CERT -keystore myKeystore -storepass changeit || true; keytool -import -alias JENKINS-CONTROLLER-CERT -keystore myKeystore -file /tmp/ca.crt -storepass changeit -noprompt; echo '${config}' | java -Djavax.net.ssl.trustStore=myKeystore -Djavax.net.ssl.trustStorePassword=changeit -jar \$JENKINS_CLI ${opts} create-node ${name}"
         sh (script: cmd, returnStatus: true)
     }
 }
@@ -28,7 +28,7 @@ def node_delete(String name) {
         } else {
             opts = "-s http://\$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
         }
-        cmd = "java -jar \$JENKINS_CLI $opts delete-node $name"
+        cmd = "java -Djavax.net.ssl.trustStore=myKeystore -Djavax.net.ssl.trustStorePassword=changeit -jar \$JENKINS_CLI $opts delete-node $name"
         code = sh (script: cmd , returnStatus: true)
         // todo: handle exit code properly
     }
