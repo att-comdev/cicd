@@ -8,9 +8,9 @@ def node_create(String name, String host, String port = '22',
                                       passwordVariable: 'JENKINS_TOKEN')]) {
 
         if ( JENKINS_CLI_URL =~ "http[s://|://].*" ) {
-            opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+            opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN -noCertificateCheck"
         } else {
-            opts = "-s http://\$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+            opts = "-s http://\$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN -noCertificateCheck"
         }
         cmd = "echo '${config}' | java -jar \$JENKINS_CLI ${opts} create-node ${name}"
         sh (script: cmd, returnStatus: true)
@@ -24,9 +24,9 @@ def node_delete(String name) {
                                       passwordVariable: 'JENKINS_TOKEN')]) {
 
         if ( JENKINS_CLI_URL =~ "http[s://|://].*" ) {
-            opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+            opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN -noCertificateCheck"
         } else {
-            opts = "-s http://\$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+            opts = "-s http://\$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN -noCertificateCheck"
         }
         cmd = "java -jar \$JENKINS_CLI $opts delete-node $name"
         code = sh (script: cmd , returnStatus: true)
