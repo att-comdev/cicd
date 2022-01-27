@@ -192,12 +192,14 @@ lint_jenkins_files(){
             echo "INFO:[JENKINS-42730] Skipping linter for file ""${file}""..." && \
             continue
         echo "INFO: linting file ""${file}""..."
-        if [[ "$JENKINS_CLI_URL" == "http://"* || "$JENKINS_CLI_URL" == "https://"* ]]; then
+        if [[ "$JENKINS_CLI_URL" == "https://"* ]]; then
             opts="-s ${JENKINS_CLI_URL} -auth ${JENKINS_USER}:${JENKINS_TOKEN}"
+	    java_args="-Djavax.net.ssl.trustStore=/var/jenkins_home/JenkinsKeystore -Djavax.net.ssl.trustStorePassword=changeit -jar"
         else
             opts="-s http://${JENKINS_CLI_URL} -auth ${JENKINS_USER}:${JENKINS_TOKEN}"
+	    java_args="-jar"
         fi
-        cat "${file}" | java -jar ${JENKINS_CLI} ${opts} declarative-linter
+        cat "${file}" | java ${java_args} ${JENKINS_CLI} ${opts} declarative-linter
     done
 }
 

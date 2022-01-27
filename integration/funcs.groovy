@@ -125,9 +125,16 @@ def jenkins_node_create(String name, String host) {
                                       usernameVariable: 'JENKINS_USER',
                                       passwordVariable: 'JENKINS_TOKEN')]) {
 
+    if ( JENKINS_URL =~ "http[s://|://].*" ) {
         opts = "-s \$JENKINS_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
-        cmd = "echo '${config}' | java -jar \$JENKINS_CLI ${opts} create-node ${name}"
-        sh (script: cmd, returnStatus: true)
+        java_args = "-Djavax.net.ssl.trustStore=/var/jenkins_home/JenkinsKeystore -Djavax.net.ssl.trustStorePassword=changeit -jar"
+    } else {
+        opts = "-s http://\$JENKINS_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+        java_args = "-jar"
+    }
+    cmd = "echo '${config}' | java ${java_args} \$JENKINS_CLI ${opts} create-node ${name}"
+    sh (script: cmd, returnStatus: true)
+
     }
 }
 
@@ -137,10 +144,16 @@ def jenkins_node_delete(String name) {
                                       usernameVariable: 'JENKINS_USER',
                                       passwordVariable: 'JENKINS_TOKEN')]) {
 
+    if ( JENKINS_URL =~ "http[s://|://].*" ) {
         opts = "-s \$JENKINS_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
-        cmd = "java -jar \$JENKINS_CLI $opts delete-node $name"
-        code = sh (script: cmd , returnStatus: true)
-        // todo: handle exit code properly
+        java_args = "-Djavax.net.ssl.trustStore=/var/jenkins_home/JenkinsKeystore -Djavax.net.ssl.trustStorePassword=changeit -jar"
+    } else {
+        opts = "-s http://\$JENKINS_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+        java_args = "-jar"
+    }
+    cmd = "java ${java_args} \$JENKINS_CLI ${opts} delete-node ${name}"
+    sh (script: cmd, returnStatus: true)
+    // todo: handle exit code properly
     }
 }
 
