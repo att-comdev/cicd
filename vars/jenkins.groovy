@@ -9,10 +9,12 @@ def node_create(String name, String host, String port = '22',
 
         if ( JENKINS_CLI_URL =~ "http[s://|://].*" ) {
             opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+            java_args = "-Djavax.net.ssl.trustStore=/var/jenkins_home/JenkinsKeystore -Djavax.net.ssl.trustStorePassword=changeit -jar"
         } else {
             opts = "-s http://\$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+            java_args = "-jar"
         }
-        cmd = "echo '${config}' | java -jar \$JENKINS_CLI ${opts} create-node ${name}"
+        cmd = "echo '${config}' | java ${java_args} \$JENKINS_CLI ${opts} create-node ${name}"
         sh (script: cmd, returnStatus: true)
     }
 }
@@ -25,10 +27,12 @@ def node_delete(String name) {
 
         if ( JENKINS_CLI_URL =~ "http[s://|://].*" ) {
             opts = "-s \$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+            java_args = "-Djavax.net.ssl.trustStore=/var/jenkins_home/JenkinsKeystore -Djavax.net.ssl.trustStorePassword=changeit -jar"
         } else {
             opts = "-s http://\$JENKINS_CLI_URL -auth \$JENKINS_USER:\$JENKINS_TOKEN"
+            java_args = "-jar"
         }
-        cmd = "java -jar \$JENKINS_CLI $opts delete-node $name"
+        cmd = "java ${java_args} \$JENKINS_CLI $opts delete-node $name"
         code = sh (script: cmd , returnStatus: true)
         // todo: handle exit code properly
     }
