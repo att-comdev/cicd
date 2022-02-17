@@ -36,6 +36,7 @@ def clone(String url, String refspec, String creds){
 
 def _cloneShallowCmd(url, branch, gitSshCommand="") {
     depth = env.SHALLOW_DEPTH ? env.SHALLOW_DEPTH : 2
+    opts = env.GIT_OPTIONS ? env.GIT_OPTIONS : '-q'
     sh """
       set -x
       ${gitSshCommand}
@@ -43,7 +44,7 @@ def _cloneShallowCmd(url, branch, gitSshCommand="") {
       git config remote.origin.url ${url}
       git fetch --depth=${depth} ${url} ${branch} && git checkout FETCH_HEAD
       if [ \${?} -eq 128 ]; then
-        git fetch ${url} && git checkout ${branch}
+        git fetch ${url} ${opts} && git checkout ${branch}
       fi
     """
 }
