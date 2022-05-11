@@ -53,7 +53,7 @@ if (EVENT_TYPE != 'change-merged') {
 PROJECT_SUFFIX = env.PROJECT_NAME.split('-')[-1]
 IMAGE_NAME = "mos-" + BUILD_TYPE
 
-if (['train', 'ussuri'].contains(RELEASE)) {
+if (['train', 'ussuri', 'victoria'].contains(RELEASE)) {
     PY3 = 'affirmative'
 }
 
@@ -72,7 +72,7 @@ CEPH_REPO = null
 LIBVIRT_REPO = null
 LOCI_BASE_IMAGE = conf.LOCI_BASE_IMAGE
 OVS_REPO = conf.OVS_REPOS['xenial']
-if (['train', 'ussuri'].contains(RELEASE) ||
+if (['train', 'ussuri', 'victoria'].contains(RELEASE) ||
         ["neutron-sriov", "nova-1804"].contains(BUILD_TYPE)) {
     LOCI_BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
     OVS_REPO = conf.OVS_REPOS['bionic']

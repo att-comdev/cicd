@@ -723,7 +723,7 @@ K8S_DEPLOY_STEPS = [
                 }
                 installOSHAIO(['Ingress', 'Ceph', 'Ceph NS'], concurrent=false)
             } catch (Exception e) {
-                osh.artifactLogs()
+                artifactLogs()
                 error "k8s deployment failed with exception ${e}"
             }
         }
@@ -1099,7 +1099,7 @@ TestVm(initScript: 'bootstrap.sh',
 def artifactLogs() {
     pip = 'pip3'
     if (RELEASE == 'ocata') { pip = 'pip' }
-    sh "${pip} install 'ansible==2.5.5'"
+    sh "${pip} install 'ansible==2.9'"
     sh "sed -i 's/hosts: primary/hosts: localhost/g' openstack-helm-infra/playbooks/osh-infra-collect-logs.yaml"
     sh "ansible-playbook openstack-helm-infra/playbooks/osh-infra-collect-logs.yaml"
     cmd = "sudo tar --warning=no-file-changed -czf ${WORKSPACE}/artifacts/${BUILD_TAG}.tar.gz /tmp/logs"
