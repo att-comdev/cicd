@@ -723,7 +723,7 @@ K8S_DEPLOY_STEPS = [
                 }
                 installOSHAIO(['Ingress', 'Ceph', 'Ceph NS'], concurrent=false)
             } catch (Exception e) {
-                osh.artifactLogs()
+                artifactLogs()
                 error "k8s deployment failed with exception ${e}"
             }
         }
