@@ -44,7 +44,7 @@ vm (image: IMAGE, flavor: 'm1.large') {
         sh "sudo bash -c 'export DEBIAN_FRONTEND=noninteractive; " +
                          "apt-get -y install python3-pip gettext libpq-dev " +
                          "libssl-dev libsasl2-dev libldap2-dev bandit " +
-                         "libpython2.7-dev'"
+                         "libpython2.7-dev qemu-utils'"
         sh "sudo pip3 install --index-url ${ARTF_PIP_INDEX_URL} 'virtualenv<20.8.0' tox"
         sh "sudo bash -c 'mkdir -p /opt/stack; chown ubuntu:ubuntu /opt/stack'"
     }
