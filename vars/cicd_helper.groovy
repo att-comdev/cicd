@@ -272,16 +272,34 @@ def podExecutorConfig(jnlpImage="jenkins/jnlp-slave:alpine", runAsUid="0", priAf
  *                                        users in someGroup)
  *         "authenticated, bob" (permited for authenticated users,
  *                               bob user will be rejected because of space)
+ * @param nonAuthorOnly Boolean. Restrict a person who started the pipeline from
+ *     self-approvaling the execution. If true, a pipeline starter can not approve
+ *     the action.
+ *     Default value is false.
  */
 
-def approveAction(actionName, comment="", submitter=null) {
+def approveAction(actionName, comment="", submitter=null, nonAuthorOnly=false) {
     if (env.SUBMITTER) {
-        submitter = submitter ? submitter: SUBMITTER
+        allowedSubmitters = submitter ? submitter : SUBMITTER
     }
     message = "\n\n\n\nPlease approve the action '${actionName}'. ${comment}"
     ok = "Start '${actionName}'"
+    String startedByUser = ''
 
-    input(message: message, ok:ok, submitter: submitter)
+    if (nonAuthorOnly) {
+        buildCause = currentBuild.rawBuild.getCause(hudson.model.Cause.UserIdCause)
+        if (buildCause != null) {
+            startedByUser = buildCause.getUserId()
+            buildCause = null
+            message = message + "\nSomeone else than ${startedByUser} must approve the action"
+        }
+    }
+    String approver = startedByUser
+
+    while (approver == startedByUser) {
+        echo message
+        approver = input(message: message, ok: ok, submitter: allowedSubmitters, submitterParameter: 'approver')
+    }
 }
 
 /**
