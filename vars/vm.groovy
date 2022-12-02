@@ -150,6 +150,7 @@ def call(Map map, Closure body) {
 
                 node('master') {
                     utils.retrier(3, { jenkins.node_delete(name) }) {
+                        print "Pipeline testing 123"
                         jenkins.node_create (name, ip, port)
                     }
 
