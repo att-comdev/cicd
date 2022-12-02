@@ -11,7 +11,12 @@ HELM_IMAGES_HOME = ""
 BUILD_ARGS = []
 EXTRA_BUILD_ARGS = []
 BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
-SUFFIX = "ubuntu_bionic"
+SUFFIX = env.UBUNTU_VERSION ?: "ubuntu_bionic"
+BUILD_DIR_NAME = env.DIR_NAME ?: JOB_BASE_NAME
+
+if (SUFFIX.contains('focal')) {
+    BASE_IMAGE = conf.UBUNTU_FOCAL_BASE_IMAGE
+}
 
 if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
     BASE_IMAGE = "calico/ctl:${CALICOCTL_VERSION}"
@@ -23,9 +28,15 @@ if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
 }
 
 if (JOB_BASE_NAME.contains('ceph-')) {
+    RELEASE_NAME = 'release'
+    RELEASE_TAG = 'tag'
+    if(SUFFIX.contains('focal')) {
+        RELEASE_NAME = 'release_focal'
+        RELEASE_TAG = 'tag_focal'
+    }
     BUILD_ARGS += [
-        "--build-arg CEPH_RELEASE=${conf.CEPH_RELEASE['release']}",
-        "--build-arg CEPH_RELEASE_TAG=${conf.CEPH_RELEASE['tag']}",
+        "--build-arg CEPH_RELEASE=${conf.CEPH_RELEASE[RELEASE_NAME]}",
+        "--build-arg CEPH_RELEASE_TAG=${conf.CEPH_RELEASE[RELEASE_TAG]}",]
         "--build-arg CEPH_REPO=${conf.CEPH_REPO['repo']}",
         "--build-arg CEPH_KEY=${conf.CEPH_REPO['key']}",]
 }
@@ -86,7 +97,7 @@ try {
                 }
 
                 stage('Build') {
-                    dir ("${HELM_IMAGES_HOME}/${JOB_BASE_NAME}") {
+                    dir ("${HELM_IMAGES_HOME}/${BUILD_DIR_NAME}") {
                         UPDATED_IMAGE_TAG = "${IMAGE_TAG}-${SUFFIX}.${BUILD_TIMESTAMP}"
                         IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${UPDATED_IMAGE_TAG}"
 
