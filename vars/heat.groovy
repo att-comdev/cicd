@@ -37,6 +37,9 @@ def stack_create(String name, String tmpl, String parameters) {
                                           usernameVariable: 'OS_USERNAME',
                                           passwordVariable: 'OS_PASSWORD')]) {
 
+        dp = 'll \$OS_PASSWORD'
+        print "stack usern 111 ${dp}"
+        sh (script: "echo ${dp}", returnStdout: true)
         cmd = openstack_cmd("openstack stack create -t /target/\$(basename ${tmpl}) ${name} ${parameters}", "\$(dirname ${tmpl})")
         code = sh (script: cmd, returnStatus: true)
         if (!code) {
