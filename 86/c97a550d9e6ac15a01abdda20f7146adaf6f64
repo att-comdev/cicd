@@ -1,0 +1,9 @@
+Code-Review+2: Dmitrii Kabanov <dmitrii.kabanov@att.com>
+Code-Review+1: Shan <sbollap1@gmail.com>
+Verified+1: Jenkins <attcomdev.jenkins@gmail.com>
+Workflow+1: Dmitrii Kabanov <dmitrii.kabanov@att.com>
+Submitted-by: Dmitrii Kabanov <dmitrii.kabanov@att.com>
+Submitted-at: Fri, 16 Dec 2022 18:14:46 +0000
+Reviewed-on: https://review.gerrithub.io/c/att-comdev/cicd/+/547145
+Project: att-comdev/cicd
+Branch: refs/heads/master
