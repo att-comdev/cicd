@@ -30,15 +30,19 @@ if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
 if (JOB_BASE_NAME.contains('ceph-')) {
     RELEASE_NAME = 'release'
     RELEASE_TAG = 'tag'
+    CEPH_REPO = conf.CEPH_REPO['repo']
+    CEPH_REPO_KEY = conf.CEPH_REPO['key']
     if(SUFFIX.contains('focal')) {
         RELEASE_NAME = 'release_focal'
         RELEASE_TAG = 'tag_focal'
+        CEPH_REPO = conf.CEPH_REPO['repo_focal']
+        CEPH_REPO_KEY = conf.CEPH_REPO['key_focal']
     }
     BUILD_ARGS += [
         "--build-arg CEPH_RELEASE=${conf.CEPH_RELEASE[RELEASE_NAME]}",
         "--build-arg CEPH_RELEASE_TAG=${conf.CEPH_RELEASE[RELEASE_TAG]}",
-        "--build-arg CEPH_REPO=${conf.CEPH_REPO['repo']}",
-        "--build-arg CEPH_KEY=${conf.CEPH_REPO['key']}",]
+        "--build-arg CEPH_REPO=${CEPH_REPO}",
+        "--build-arg CEPH_KEY=${CEPH_REPO_KEY}",]
 }
 
 if ("${JOB_BASE_NAME}" == 'elasticsearch-s3') {
