@@ -111,7 +111,7 @@ ceph_focal_projects.each { project_name ->
                         filePaths {
                             filePath {
                                 compareType("ANT")
-                                pattern("**/${JOB_FOLDER}/**")
+                                pattern("**/${project_name}/**")
                             }
                         }
                         disableStrictForbiddenFileVerification(false)
