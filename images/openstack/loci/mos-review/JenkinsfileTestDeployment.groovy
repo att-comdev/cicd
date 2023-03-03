@@ -204,7 +204,8 @@ def tweakOSH() {
     def amap = readYaml file: defaults
     amap['url'] = [
         'google_kubernetes_repo': "${ARTIFACTS_URL}/kubernetes-release/release/{{ version.kubernetes }}/bin/linux/amd64",
-        'google_helm_repo': "${ARTIFACTS_URL}/kubernetes-helm",
+        'google_helm_repo': "${ARTIFACTS_URL}/helm-binaries",
+        'helm_repo': "${ARTIFACTS_URL}/helm-binaries",
         'cni_repo': "${ARTIFACTS_URL}/containernetworking/download/{{ version.cni }}",
     ]
     sh "rm -rf ${defaults}"
@@ -213,7 +214,8 @@ def tweakOSH() {
     defaults = './openstack-helm-infra/roles/build-helm-packages/defaults/main.yml'
     amap = readYaml file: defaults
     amap['url'] = [
-        'google_helm_repo': "${ARTIFACTS_URL}/kubernetes-helm",
+        'google_helm_repo': "${ARTIFACTS_URL}/helm-binaries",
+        'helm_repo': "${ARTIFACTS_URL}/helm-binaries",
     ]
     sh "rm -rf ${defaults}"
     writeYaml file: defaults, data: amap
@@ -494,6 +496,7 @@ def installOSHAIO(List steps, concurrent=true) {
         'OS_AUTH_URL=',
         'PIP_USE_DEPRECATED=legacy-resolver',
         "OPENSTACK_RELEASE=${RELEASE}",
+        "OSH_OPENSTACK_RELEASE=${RELEASE}",
         "CONTAINER_DISTRO_VERSION=${DISTRO_VERSION}",
         "UPPER_CONSTRAINTS_FILE=${WORKSPACE}/mos-requirements/upper-constraints.txt",
     ]

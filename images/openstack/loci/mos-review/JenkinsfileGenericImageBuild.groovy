@@ -112,7 +112,7 @@ DEFAULT_ARGS = [
 // keep proxy for nova and requirements as they multiple dependencies that need special
 // handling (websockify with submodule, novnc, spice-htpm5 with shallow clonning)
 // should be addressed separately switching to more sophisticated git proto
-if (PROJECT_NAME =~ /nova|requirements/) {
+if (PROJECT_NAME =~ /nova|requirements|keystone/) {
     DEFAULT_ARGS << [
         'HTTP_PROXY':      "${HTTP_PROXY}",
         'HTTPS_PROXY':     "${HTTPS_PROXY}",
