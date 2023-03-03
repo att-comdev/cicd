@@ -18,29 +18,6 @@ JOB_CLAIR = "images/clair-check"
 MIRRORS_PREFIX = 'mirrors/mos/'
 REQ_PROJECT_NAME = 'mos-requirements'
 PROJECT_MAP = [
-    "ocata": [
-        "${REQ_PROJECT_NAME}": [],
-        'mos-keystone':        [],
-        'mos-heat':            [],
-        'mos-glance':          [],
-        'mos-cinder':          [],
-        'mos-horizon':         [],
-        'mos-neutron':         ['neutron', 'neutron-sriov'],
-        'mos-nova':            ['nova', 'nova-1804'],
-    ],
-    "train": [
-        "${REQ_PROJECT_NAME}": [],
-        'mos-keystone':        [],
-        'mos-heat':            [],
-        'mos-glance':          [],
-        'mos-cinder':          [],
-        'mos-horizon':         [],
-        'mos-neutron':         ['neutron', 'neutron-sriov'],
-        'mos-nova':            ['nova', 'nova-1804'],
-        'mos-barbican':        [],
-        'mos-placement':       [],
-        'mos-ironic':          [],
-    ],
     "ussuri": [
         "${REQ_PROJECT_NAME}": [],
         'mos-keystone':        [],
@@ -85,25 +62,6 @@ PROJECT_MAP.each { _, projectMap ->
 }
 
 DEPENDENCY_PROJECT_LIST = [
-    "ocata": [
-        'mos-keystoneclient',
-        'mos-neutronclient',
-        'mos-novaclient',
-        'mos-glance-store',
-        'mos-glanceclient',
-        'openstack/tap-as-a-service',
-        'openstack/tap-as-a-service-dashboard',
-    ],
-    "train": [
-        'mos-keystoneclient',
-        'mos-neutronclient',
-        'mos-novaclient',
-        'mos-glanceclient',
-        'mos-glance-store',
-        'mos-neutron-lib',
-        'openstack/tap-as-a-service',
-        'openstack/tap-as-a-service-dashboard',
-    ],
     "ussuri": [
         'mos-keystoneclient',
         'mos-neutronclient',

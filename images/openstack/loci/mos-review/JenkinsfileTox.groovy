@@ -6,12 +6,8 @@ REQUIREMENT_REPO = "mos-requirements"
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${PROJECT_NAME}"
 
-TOX_CHECK = 'OS_LOG_PATH=.; tox -epep8,py27'
-IMAGE = "cicd-ubuntu-16.04-server-cloudimg-amd64"
-if (PROJECT_BRANCH != conf.OCATA_BRANCH) {
-    IMAGE = "cicd-ubuntu-18.04-server-cloudimg-amd64"
-    TOX_CHECK = 'OS_LOG_PATH=.; tox'
-}
+IMAGE = "cicd-ubuntu-18.04-server-cloudimg-amd64"
+TOX_CHECK = 'OS_LOG_PATH=.; tox'
 
 def compileSshData() {
     sshConfig = ""

@@ -18,9 +18,6 @@ PY3 = 'no'
 NET_RETRY_COUNT = env.NET_RETRY_COUNT.toInteger()
 
 IMAGE = 'cicd-ubuntu-18.04-server-cloudimg-amd64'
-if (['ocata'].contains(RELEASE)) {
-    IMAGE = 'cicd-ubuntu-16.04-server-cloudimg-amd64'
-}
 
 SEMANTIC_RELEASE_VERSION = "0.9.0"
 
@@ -53,7 +50,7 @@ if (EVENT_TYPE != 'change-merged') {
 PROJECT_SUFFIX = env.PROJECT_NAME.split('-')[-1]
 IMAGE_NAME = "mos-" + BUILD_TYPE
 
-if (['train', 'ussuri', 'victoria'].contains(RELEASE)) {
+if (['ussuri', 'victoria'].contains(RELEASE)) {
     PY3 = 'affirmative'
 }
 
@@ -68,17 +65,10 @@ currentBuild.displayName = (
     "#${BUILD_NUMBER} ${DISPLAY_PREFIX}"
 )
 
-CEPH_REPO = null
-LIBVIRT_REPO = null
-LOCI_BASE_IMAGE = conf.LOCI_BASE_IMAGE
-OVS_REPO = conf.OVS_REPOS['xenial']
-if (['train', 'ussuri', 'victoria'].contains(RELEASE) ||
-        ["neutron-sriov", "nova-1804"].contains(BUILD_TYPE)) {
-    LOCI_BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
-    OVS_REPO = conf.OVS_REPOS['bionic']
-    CEPH_REPO = conf.LOCI_CEPH_REPOS['bionic']
-    LIBVIRT_REPO = conf.LIBVIRT_REPOS['bionic']
-}
+LOCI_BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
+OVS_REPO = conf.OVS_REPOS['bionic']
+CEPH_REPO = conf.LOCI_CEPH_REPOS['bionic']
+LIBVIRT_REPO = conf.LIBVIRT_REPOS['bionic']
 
 REQ_PROJECT_NAME = 'mos-requirements'
 PROJECT_PREFIX = "loci/mos"

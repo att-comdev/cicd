@@ -8,7 +8,7 @@ json = new JsonSlurperClassic()
 
 overrideImagesMap = json.parseText(OVERRIDE_IMAGES)
 
-DISTRO_VERSION = RELEASE == 'ocata' ? 'xenial' : 'bionic'
+DISTRO_VERSION = 'bionic'
 
 RELEASE_BRANCH_MAP = json.parseText(RELEASE_BRANCH_MAP)
 BRANCH = RELEASE_BRANCH_MAP[RELEASE]
@@ -35,9 +35,6 @@ TROUBLESHOOTING = TROUBLESHOOTING.toBoolean()
 AVAILABLE_IMAGES = []
 DEFAULT_IMAGES = [:]
 EXTRA_CHARTS = ['Barbican']
-if (RELEASE == 'ocata') {
-    EXTRA_CHARTS = []
-}
 
 if (TROUBLESHOOTING) {
     assert !INITIAL_DEPLOYMENT
@@ -138,10 +135,7 @@ def imageOverrides(Map images, Map debugOverrides=[:]) {
 
 
 def installPackages() {
-    packages = 'apt-transport-https ca-certificates curl software-properties-common'
-    if (RELEASE != 'ocata') {
-        packages += ' python3-dev python3-pip libffi-dev'
-    }
+    packages = 'apt-transport-https ca-certificates curl software-properties-common python3-dev python3-pip libffi-dev'
     sh "sudo apt-get update && sudo apt-get install -y ${packages}"
     REPOS.each { component, data ->
         sh "sudo bash -c 'echo \"${data.source}\" >> /etc/apt/sources.list.d/${component}.list'"
@@ -248,7 +242,6 @@ def installOpenstackClient() {
             writeFile file: "upper-constraints.txt", text: upperConstraints
         }
         pip = 'pip3'
-        if (RELEASE == 'ocata') { pip = 'pip' }
         if (!sh (returnStatus: true, script: "sudo ${pip} uninstall python-openstackclient -y")) {
             dir ("openstack-helm") {
                 sh "sudo ${pip} install pip===20.3.4 -U"
@@ -951,7 +944,7 @@ def prepareImages(chart, tags) {
 def createImage(image, overrides, baseImage) {
     def cmd = ""
     def mounts = ""
-    PY = RELEASE == 'ocata' ? 'python' : 'python3'
+    PY = 'python3'
     sshagent ([INTERNAL_GERRIT_KEY]) {
         overrides.each {
             def projectUrl = (it[0].contains("://") ? it[0] : "${INTERNAL_GERRIT_SSH}/${it[0]}")
@@ -1101,7 +1094,6 @@ TestVm(initScript: 'bootstrap.sh',
 
 def artifactLogs() {
     pip = 'pip3'
-    if (RELEASE == 'ocata') { pip = 'pip' }
     sh "${pip} install 'ansible==2.9'"
     sh "sed -i 's/hosts: primary/hosts: localhost/g' openstack-helm-infra/playbooks/osh-infra-collect-logs.yaml"
     sh "ansible-playbook openstack-helm-infra/playbooks/osh-infra-collect-logs.yaml"
