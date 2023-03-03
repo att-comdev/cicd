@@ -204,7 +204,7 @@ def getDependencies(String release, String projectName) {
                               'DIST_PACKAGES': 'ethtool lshw iproute2'],
         ],
         'victoria': [
-            'keystone':      ['PROFILES': 'fluent apache python-ldap',
+            'keystone':      ['PROFILES': 'fluent apache ldap',
                               'PIP_PACKAGES': 'python-openstackclient',
                               'DIST_PACKAGES': ' '],
             'heat':          ['PROFILES': 'fluent apache',
