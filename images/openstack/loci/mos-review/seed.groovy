@@ -44,6 +44,19 @@ PROJECT_MAP = [
         'mos-placement':       [],
         'mos-ironic':          [],
     ],
+    "yoga": [
+        "${REQ_PROJECT_NAME}": [],
+        'mos-keystone':        [],
+        'mos-heat':            [],
+        'mos-glance':          [],
+        'mos-cinder':          [],
+        'mos-horizon':         [],
+        'mos-neutron':         ['neutron', 'neutron-sriov'],
+        'mos-nova':            ['nova', 'nova-1804'],
+        'mos-barbican':        [],
+        'mos-placement':       [],
+        'mos-ironic':          [],
+    ],
 ]
 
 MERGED_MAP = [:]
@@ -73,6 +86,16 @@ DEPENDENCY_PROJECT_LIST = [
         'openstack/tap-as-a-service-dashboard',
     ],
     "victoria": [
+        'mos-keystoneclient',
+        'mos-neutronclient',
+        'mos-novaclient',
+        'mos-glanceclient',
+        'mos-glance-store',
+        'mos-neutron-lib',
+        'openstack/tap-as-a-service',
+        'openstack/tap-as-a-service-dashboard',
+    ],
+    "yoga": [
         'mos-keystoneclient',
         'mos-neutronclient',
         'mos-novaclient',

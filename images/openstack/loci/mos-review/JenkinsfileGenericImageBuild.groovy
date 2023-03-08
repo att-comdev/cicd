@@ -17,7 +17,10 @@ PY3 = 'no'
 
 NET_RETRY_COUNT = env.NET_RETRY_COUNT.toInteger()
 
-IMAGE = 'cicd-ubuntu-18.04-server-cloudimg-amd64'
+IMAGE = 'cicd-ubuntu-20.04-server-cloudimg-amd64'
+if (['ussuri', 'victoria'].contains(RELEASE)) {
+    IMAGE = 'cicd-ubuntu-18.04-server-cloudimg-amd64'
+}
 
 SEMANTIC_RELEASE_VERSION = "0.9.0"
 
@@ -50,7 +53,7 @@ if (EVENT_TYPE != 'change-merged') {
 PROJECT_SUFFIX = env.PROJECT_NAME.split('-')[-1]
 IMAGE_NAME = "mos-" + BUILD_TYPE
 
-if (['ussuri', 'victoria'].contains(RELEASE)) {
+if (['ussuri', 'victoria', 'yoga'].contains(RELEASE)) {
     PY3 = 'affirmative'
 }
 
@@ -69,6 +72,10 @@ LOCI_BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
 OVS_REPO = conf.OVS_REPOS['bionic']
 CEPH_REPO = conf.LOCI_CEPH_REPOS['bionic']
 LIBVIRT_REPO = conf.LIBVIRT_REPOS['bionic']
+if (['yoga'].contains(RELEASE)) {
+    LOCI_BASE_IMAGE = conf.UBUNTU_FOCAL_BASE_IMAGE
+    CEPH_REPO = conf.LOCI_CEPH_REPOS['focal']
+}
 
 REQ_PROJECT_NAME = 'mos-requirements'
 PROJECT_PREFIX = "loci/mos"

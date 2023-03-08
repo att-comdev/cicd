@@ -6,8 +6,11 @@ REQUIREMENT_REPO = "mos-requirements"
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${PROJECT_NAME}"
 
-IMAGE = "cicd-ubuntu-18.04-server-cloudimg-amd64"
+IMAGE = "cicd-ubuntu-20.04-server-cloudimg-amd64"
 TOX_CHECK = 'OS_LOG_PATH=.; tox'
+if (PROJECT_BRANCH != "att/yoga") {
+    IMAGE = "cicd-ubuntu-18.04-server-cloudimg-amd64"
+}
 
 def compileSshData() {
     sshConfig = ""
@@ -40,8 +43,9 @@ vm (image: IMAGE, flavor: 'm1.large') {
         sh "sudo bash -c 'export DEBIAN_FRONTEND=noninteractive; " +
                          "apt-get -y install python3-pip gettext libpq-dev " +
                          "libssl-dev libsasl2-dev libldap2-dev bandit " +
-                         "libpython2.7-dev qemu-utils'"
-        sh "sudo pip3 install --index-url ${ARTF_PIP_INDEX_URL} 'virtualenv<20.8.0' tox"
+                         "qemu-utils'"
+        sh "sudo pip3 install --index-url ${ARTF_PIP_INDEX_URL} virtualenv " +
+          "'tox<4.0.0.a2'"
         sh "sudo bash -c 'mkdir -p /opt/stack; chown ubuntu:ubuntu /opt/stack'"
     }
     stage('Project Checkout') {
