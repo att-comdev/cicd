@@ -646,6 +646,15 @@ pipelineJob("${JOB_BASE}/UpliftPipeline") {
             SUPPORTED_RELEASES,
             "Supported releases: ${SUPPORTED_RELEASES.join(', ')}"
         )
+        booleanParam {
+            defaultValue(true)
+            description('If enabled the pipeline will update the links ' +
+                        '(and comments) to images of the same release only. ' +
+                        'Please disable option if you'd like to update all ' +
+                        'links (for instance when you switching to new ' +
+                        'release of OpenStack).')
+            name('TARGET_RELEASE_ONLY')
+        }
         stringParam {
             description("Images map to uplift")
             defaultValue('{}')
