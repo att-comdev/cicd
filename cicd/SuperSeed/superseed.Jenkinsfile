@@ -14,6 +14,12 @@ node('controller') {
         }
     }
     stage('Clone git repository') {
+        // old SuperSeed job was using 'origin/<branch_name>' instead of refspec when needed to checkout a latest revision from a branch
+        // because it used a raw git checkout command
+        // now we use gerrit SCM plugin that accepts only the name of a branch.
+        // We still allow old format for compatibility but remove 'origin' before passing refspec to the plugin.
+        GERRIT_REFSPEC = GERRIT_REFSPEC.replaceFirst(/^origin\//, '')
+
         // this logic may look odd but it's here for backward compatibility.
         if (GERRIT_HOST.contains('review')) {
             gerrit.cloneToBranch("https://review.gerrithub.io/$GERRIT_PROJECT", GERRIT_REFSPEC, WORKSPACE)
