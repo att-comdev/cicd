@@ -1,6 +1,6 @@
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
-node('controller') {
+node('master') {
     changedJobSeeds = []
     stage('Clean workspace') {
         cleanWs()
