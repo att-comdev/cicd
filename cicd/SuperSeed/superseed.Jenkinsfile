@@ -172,16 +172,17 @@ def findSeedGroovy(file) {
 }
 
 @NonCPS
-def correctDependencyPaths(file) {
+def correctDependencyPaths(seedFile) {
     // Normally, seed files should have correct paths for their dependencies
     // but unfortunately this is not how it was implemeted in the previous SuperSeed job
     // it was finding each file by it's name and copying it into the location
     // specified as an argument for the "evaluate".
     // In the new job this behavior is preserved as a fail safe option but if the dependency file is found
     // in the specified location - job will leave it as is.
-    def dependencyMatcher = file.text =~ /\s*evaluate.*[\"\'](.*?\.groovy)[\"\'].*/
+    def seedScript = seedFile.text
+    def dependencyMatcher = seedScript =~ /\s*evaluate.*?[\"\'](.*?\.groovy)[\"\']/
     if (dependencyMatcher.any()) {
-        println "[Info] Checkinjg dependencies for \"${file}\""
+        println "[Info] Checking dependencies for \"${seedFile}\""
         for (dependencyExpression in dependencyMatcher) {
             def dependencyFilePath = dependencyExpression[1]
 
@@ -189,7 +190,6 @@ def correctDependencyPaths(file) {
             def resolvedFile = new File(getContext(hudson.EnvVars).expand(dependencyFilePath))
             if (resolvedFile.exists()) {
                 println "[Info] Dependency \"$resolvedFile\" has correct path and don't have to be changed."
-                return file.text
             } else {
                 def filesWithMatchingName = new FileNameFinder().getFileNames(WORKSPACE, "**/${resolvedFile.name}")
                 if (filesWithMatchingName.size() != 1) {
@@ -207,10 +207,10 @@ def correctDependencyPaths(file) {
                     println "[Warning] was found at \"${filesWithMatchingName.first()}\"."
                     println '[Warning] The path will be updated for this run but please consider changing dependency path to correct value in the source file.'
 
-                    return file.text.replace(dependencyExpression[0], dependencyExpression[0].replace(dependencyFilePath, filesWithMatchingName.first()))
+                    seedScript = seedScript.replace(dependencyExpression[0], dependencyExpression[0].replace(dependencyFilePath, filesWithMatchingName.first()))
                 }
             }
         }
     }
-    return file.text
+    return seedScript
 }
