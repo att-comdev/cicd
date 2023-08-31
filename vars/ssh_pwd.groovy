@@ -24,9 +24,9 @@ def getRemote (String creds, String ip) {
     }
 }
 
-def cmd (String creds, String ip, String cmd, failOnError = true) {
+def cmd (String creds, String ip, String command, failOnError = true) {
     def remote = getRemote(creds, ip)
-    sshCommand remote: remote, failOnError: failOnError, command: cmd
+    sshCommand remote: remote, failOnError: failOnError, command: command
 }
 
 
