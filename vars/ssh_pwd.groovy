@@ -40,6 +40,8 @@ def wait (String creds, String ip, String command, attempts = 12, timeout = 60) 
             cmd (creds, ip, command)
         } catch (err) {
             sleep timeout
+            println "this is cmd"
+            println cmd
             error(err.getMessage())
         }
     }
