@@ -153,7 +153,7 @@ def call(Map map, Closure body) {
                         jenkins.node_create (name, ip, port)
                     }
 
-                    timeout (5) {
+                    timeout (15) {
                         node(name) {
                             sh 'cloud-init status --wait'
                         }
