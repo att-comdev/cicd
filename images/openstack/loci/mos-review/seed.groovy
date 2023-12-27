@@ -664,6 +664,15 @@ pipelineJob("${JOB_BASE}/UpliftPipeline") {
             name('COMMIT_MESSAGE')
             trim(true)
         }
+        booleanParam {
+            defaultValue(true)
+            description('If enabled the pipeline will update the links ' +
+                        '(and comments) to images of the same release only. ' +
+                        'Please disable option if you would like to update ' +
+                        'all links (for instance when you switching to new ' +
+                        'release of OpenStack).')
+            name('TARGET_RELEASE_ONLY')
+        }
     }
     definition {
         cps {
