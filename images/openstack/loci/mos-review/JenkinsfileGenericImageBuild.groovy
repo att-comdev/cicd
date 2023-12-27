@@ -21,6 +21,9 @@ IMAGE = 'cicd-ubuntu-20.04-server-cloudimg-amd64'
 if (['ussuri', 'victoria'].contains(RELEASE)) {
     IMAGE = 'cicd-ubuntu-18.04-server-cloudimg-amd64'
 }
+if (['antelope'].contains(RELEASE)) {
+    IMAGE = 'cicd-ubuntu-22.04-server-cloudimg-amd64'
+}
 
 SEMANTIC_RELEASE_VERSION = "0.9.0"
 
@@ -75,6 +78,12 @@ if (['yoga', 'wallaby', 'xena'].contains(RELEASE)) {
     OVS_REPO = conf.OVS_REPOS['focal']
     CEPH_REPO = conf.LOCI_CEPH_REPOS['focal']
     LIBVIRT_REPO = conf.LIBVIRT_REPOS['focal']
+}
+if (['antelope'].contains(RELEASE)) {
+    LOCI_BASE_IMAGE = conf.UBUNTU_JAMMY_BASE_IMAGE
+    OVS_REPO = conf.OVS_REPOS['yammy']
+    CEPH_REPO = conf.LOCI_CEPH_REPOS['yammy']
+    LIBVIRT_REPO = conf.LIBVIRT_REPOS['yammy']
 }
 
 REQ_PROJECT_NAME = 'mos-requirements'

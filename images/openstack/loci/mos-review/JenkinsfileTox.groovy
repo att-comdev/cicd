@@ -6,10 +6,13 @@ REQUIREMENT_REPO = "mos-requirements"
 
 currentBuild.displayName = "#${BUILD_NUMBER} ${PROJECT_NAME}"
 
-IMAGE = "cicd-ubuntu-20.04-server-cloudimg-amd64"
+IMAGE = "cicd-ubuntu-18.04-server-cloudimg-amd64"
 TOX_CHECK = 'OS_LOG_PATH=.; tox'
-if ( ![conf.YOGA_BRANCH, conf.WALLABY_BRANCH, conf.XENA_BRANCH].contains(PROJECT_BRANCH) ) {
-    IMAGE = "cicd-ubuntu-18.04-server-cloudimg-amd64"
+if ( [conf.YOGA_BRANCH, conf.WALLABY_BRANCH, conf.XENA_BRANCH].contains(PROJECT_BRANCH) ) {
+    IMAGE = "cicd-ubuntu-20.04-server-cloudimg-amd64"
+}
+if ( [conf.ANTELOPE_BRANCH].contains(PROJECT_BRANCH) ) {
+    IMAGE = "cicd-ubuntu-22.04-server-cloudimg-amd64"
 }
 
 def compileSshData() {
