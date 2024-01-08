@@ -81,9 +81,9 @@ if (['yoga', 'wallaby', 'xena'].contains(RELEASE)) {
 }
 if (['antelope'].contains(RELEASE)) {
     LOCI_BASE_IMAGE = conf.UBUNTU_JAMMY_BASE_IMAGE
-    OVS_REPO = conf.OVS_REPOS['yammy']
-    CEPH_REPO = conf.LOCI_CEPH_REPOS['yammy']
-    LIBVIRT_REPO = conf.LIBVIRT_REPOS['yammy']
+    OVS_REPO = conf.OVS_REPOS['jammy']
+    CEPH_REPO = conf.LOCI_CEPH_REPOS['jammy']
+    LIBVIRT_REPO = conf.LIBVIRT_REPOS['jammy']
 }
 
 REQ_PROJECT_NAME = 'mos-requirements'

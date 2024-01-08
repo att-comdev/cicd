@@ -306,7 +306,7 @@ def getDependencies(String release, String projectName) {
                               'DIST_PACKAGES': 'ethtool lshw jq'],
             'nova':          ['PROFILES': 'fluent nova ceph linuxbridge openvswitch configdrive qemu apache purestorage',
                               'PIP_PACKAGES': '',
-                              'DIST_PACKAGES': 'libssl1.1 net-tools ovmf'],
+                              'DIST_PACKAGES': 'libssl3 net-tools ovmf'],
             'barbican':      ['PROFILES': 'fluent',
                               'PIP_PACKAGES': '',
                               'DIST_PACKAGES': ' '],
