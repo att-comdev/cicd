@@ -124,47 +124,45 @@ def lintWhitespaces(changedFile) {
 }
 
 @NonCPS
-def findFiles(directory, nameRegex) {
-    return directory
-        .listFiles()
-        .findAll { it.isFile() && it.name =~ nameRegex }
-}
+def findSeedGroovy(path) {
+    if (!path) {
+        return []
+    }
+    def file = new File(path)
 
-@NonCPS
-def findSeedGroovy(file) {
+    // if there is a changed seed file - return as is
+    if (file.name =~ /(?i).*seed.*\.groovy$/) {
+        return [path]
+    }
+
     def foundSeeds
-    def fileMatcher = file =~ /(?i)^(.*\/)*(.*?)(?:\.)?(?:jenkinsfile)$/
+    def fileMatcher = file.name =~ /(?i)(?:(.*)(?:\.groovy|\.jenkinsfile))|(?:.*jenkinsfile.*)/
+
     // Try to figure out matching 'seed' file for changed 'jenkinsfile'
     if (fileMatcher.matches()) {
-        def directory = fileMatcher[0][1]
-        def baseFileName = fileMatcher[0][2]
+        def directory = file.parentFile
+        def baseFileName = fileMatcher[0][1]
 
         // First, try to find a file with the same name, that ends with ".seed.groovy"
         if (baseFileName) {
-            foundSeeds = new FileNameFinder().getFileNames(directory, "${baseFileName}.seed.groovy").collect { new File(it) }
+            foundSeeds = new FileNameFinder().getFileNames(directory.absolutePath, "${baseFileName}.seed.groovy").collect { new File(it) }
             if (foundSeeds.size()) {
                 return foundSeeds
             }
         }
-        def parentFolder = new File(directory)
-        while (parentFolder && parentFolder != new File(WORKSPACE)) {
-            println "[Info] Looking for a seed file in the \"$parentFolder\""
-
+        while (directory && directory != new File(WORKSPACE)) {
             // Second, try to find just any seed files in the same folder
-            foundSeeds = new FileNameFinder().getFileNames(parentFolder.absolutePath, "*seed*.groovy").collect { new File(it) }
+            println "[Info] Looking for a seed file in the \"$directory\""
+            foundSeeds = new FileNameFinder().getFileNames(directory.absolutePath, "*seed*.groovy").collect { new File(it) }
             if (foundSeeds.size()) {
                 return foundSeeds
             }
             // Third, try to find seed files in parent folders
-            parentFolder = parentFolder.getParentFile()
+            directory = directory.getParentFile()
         }
 
         // Return null if repository top directory is reached and nothing found.
         return []
-    }
-    // if there is a changed seed file - return as is
-    else if (file =~ /(?i)seed[^\/]*\.groovy$/) {
-        return [file]
     }
 
     // return null if changed file is not related to a job
