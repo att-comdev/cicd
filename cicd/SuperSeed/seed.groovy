@@ -58,6 +58,10 @@ pipelineJob("${job_path}") {
                             excludeNoCodeChange(false)
                         }
 
+                        commentAddedContains {
+                            commentAddedCommentContains('recheck')
+                        }
+
                         /// changeMerged trigger for production:
                         changeMerged()
                     }
