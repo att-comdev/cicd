@@ -58,6 +58,10 @@ pipelineJob("${job_path}") {
                             excludeNoCodeChange(false)
                         }
 
+                        commentAddedContains {
+                            commentAddedCommentContains('(?i)recheck|reverify|rebuild')
+                        }
+
                         /// changeMerged trigger for production:
                         changeMerged()
                     }
