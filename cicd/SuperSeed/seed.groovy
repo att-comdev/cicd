@@ -33,18 +33,18 @@ pipelineJob("${job_path}") {
                             branches {
                                 branch {
                                     compareType('ANT')
-                                    pattern('**/master')
+                                    pattern('**')
                                 }
                             }
                             disableStrictForbiddenFileVerification(false)
                         }
                         gerritProject {
-                            compareType('REG_EXP')
-                            pattern("^nc-cicd\$")
+                            compareType('PLAIN')
+                            pattern("nc-cicd")
                             branches {
                                 branch {
                                     compareType('ANT')
-                                    pattern('**/main')
+                                    pattern('**')
                                 }
                             }
                             disableStrictForbiddenFileVerification(false)
