@@ -46,6 +46,10 @@ node('controller') {
 
             for (file in changedFiles) {
                 println "Checking file $file"
+                if(file.path.startsWith("src/")) {
+                    printl "Files form the shared libraries folder are not seeded. Skipping."
+                    continue
+                }
                 seedFiles = findSeedGroovy(new File(WORKSPACE, file))
                 if (seedFiles != null) {
                     if (seedFiles.size() == 0) {
