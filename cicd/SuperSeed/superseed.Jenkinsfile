@@ -46,7 +46,7 @@ node('controller') {
 
             for (file in changedFiles) {
                 println "Checking file $file"
-                if(file.path.startsWith("src/")) {
+                if(file.startsWith("src/")) {
                     printl "Files form the shared libraries folder are not seeded. Skipping."
                     continue
                 }
