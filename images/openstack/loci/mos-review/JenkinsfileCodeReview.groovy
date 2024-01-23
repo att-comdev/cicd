@@ -60,7 +60,11 @@ if (projectList.contains(GERRIT_PROJECT)) {
         ),
     ]
 }
-parameters.add(stringParam(name: 'EVENT_TYPE', value: GERRIT_EVENT_TYPE))
+
+// if "recheck" comment is added - pretend that a patchset was created
+def eventTypeParam = GERRIT_EVENT_TYPE == 'comment-added' ? 'patchset-created' : GERRIT_EVENT_TYPE
+
+parameters.add(stringParam(name: 'EVENT_TYPE', value: eventTypeParam))
 parameters.add(stringParam(name: 'RELEASE', value: RELEASE))
 
 runningSet['genericPipeline'] = {
