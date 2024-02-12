@@ -336,6 +336,9 @@ def waitAction(Map map) {
                 // Jobs where DESIRED != SUCCESSFUL or COMPLETIONS != n/n
                 ssh.wait (map.genesisCreds, map.genesisIp,
                           "sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get jobs --all-namespaces | grep -vE '([0-9]+)/\\1'")
+                // Armada Charts which are not ready (if appropriate CRD exists)
+                ssh.wait (map.genesisCreds, map.genesisIp,
+                          "sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get crd armadacharts.armada.airshipit.org 2>&1 > /dev/null && sudo kubectl --kubeconfig=/etc/kubernetes/admin/kubeconfig.yaml get armadacharts -A -o wide | awk \'\$4 != \"True\" || NR==1\' || true")
             }
         }
         if (failedSteps) {
