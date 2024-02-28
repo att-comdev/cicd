@@ -10,8 +10,8 @@ HELM_IMAGES_URL = "https://review.opendev.org/openstack/openstack-helm-images"
 HELM_IMAGES_HOME = ""
 BUILD_ARGS = []
 EXTRA_BUILD_ARGS = []
-BASE_IMAGE = conf.UBUNTU_BIONIC_BASE_IMAGE
-SUFFIX = env.UBUNTU_VERSION ?: "ubuntu_bionic"
+BASE_IMAGE = conf.UBUNTU_JAMMY_BASE_IMAGE
+SUFFIX = env.UBUNTU_VERSION ?: "ubuntu_jammy"
 BUILD_DIR_NAME = env.DIR_NAME ?: JOB_BASE_NAME
 
 if (SUFFIX.contains('focal')) {
@@ -28,10 +28,10 @@ if ("${JOB_BASE_NAME}" == 'calicoctl-utility') {
 }
 
 if (JOB_BASE_NAME.contains('ceph-')) {
-    RELEASE_NAME = 'release'
-    RELEASE_TAG = 'tag'
-    CEPH_REPO = conf.CEPH_REPO['repo']
-    CEPH_REPO_KEY = conf.CEPH_REPO['key']
+    RELEASE_NAME = 'release_jammy'
+    RELEASE_TAG = 'tag_jammy'
+    CEPH_REPO = conf.CEPH_REPO['repo_jammy']
+    CEPH_REPO_KEY = conf.CEPH_REPO['key_jammy']
     if(SUFFIX.contains('focal')) {
         RELEASE_NAME = 'release_focal'
         RELEASE_TAG = 'tag_focal'
