@@ -41,7 +41,7 @@ node('controller') {
             changedJobSeeds = SEED_PATH.split(',').collect { new File(WORKSPACE, it.trim()) }
         } else {
             println '[Info] Scanning changed files to find seeds'
-            changedFiles = sh(script: 'git diff --name-only HEAD HEAD~1', returnStdout: true).readLines()
+            changedFiles = sh(script: 'git diff --name-only HEAD HEAD~1 --diff-filter d', returnStdout: true).readLines()
             def lintWhitespacesResults = []
 
             for (file in changedFiles) {
