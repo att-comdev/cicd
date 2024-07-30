@@ -21,7 +21,7 @@ IMAGE = 'cicd-ubuntu-20.04-server-cloudimg-amd64'
 if (['ussuri', 'victoria'].contains(RELEASE)) {
     IMAGE = 'cicd-ubuntu-18.04-server-cloudimg-amd64'
 }
-if (['antelope'].contains(RELEASE)) {
+if (['antelope', 'caracal'].contains(RELEASE)) {
     IMAGE = 'cicd-ubuntu-22.04-server-cloudimg-amd64'
 }
 
@@ -79,7 +79,7 @@ if (['yoga', 'wallaby', 'xena'].contains(RELEASE)) {
     CEPH_REPO = conf.LOCI_CEPH_REPOS['focal']
     LIBVIRT_REPO = conf.LIBVIRT_REPOS['focal']
 }
-if (['antelope'].contains(RELEASE)) {
+if (['antelope', 'caracal'].contains(RELEASE)) {
     LOCI_BASE_IMAGE = conf.UBUNTU_JAMMY_BASE_IMAGE
     OVS_REPO = conf.OVS_REPOS['jammy']
     CEPH_REPO = conf.LOCI_CEPH_REPOS['jammy']
