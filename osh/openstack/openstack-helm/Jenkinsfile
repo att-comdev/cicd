@@ -10,16 +10,10 @@ def funcs
 try{
     stage('Create Jenkins Node'){
         node(JENKINS_VM_LAUNCH) {
-            checkout poll: false,
-            scm: [$class: 'GitSCM',
-                  branches: [[name: '*/master']],
-                  doGenerateSubmoduleConfigurations: false,
-                  extensions: [],
-                  submoduleCfg: [],
-                  userRemoteConfigs: [[url: 'https://review.gerrithub.io/att-comdev/cicd']]]
+            gerrit.cloneUpstream(repo: 'att-comdev/cicd', refspec: 'master', targetDirectory: '.')
 
-                funcs = load "${WORKSPACE}/common/funcs.groovy"
-                funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
+            funcs = load "${WORKSPACE}/integration/funcs.groovy"
+            funcs.jenkins_slave_launch(NODE_NAME, "${env.HOME}/${NODE_TMPL}")
         }
     }
     stage('Nodes Wait'){
@@ -32,14 +26,9 @@ try{
     node(NODE_NAME) {
         ansiColor('xterm') {
             stage('Checkout') {
-                checkout poll: false,
-                scm: [$class: 'GitSCM',
-                    branches: [[name: '$GERRIT_REFSPEC']],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [[$class: 'CleanBeforeCheckout']],
-                    submoduleCfg: [],
-                    userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                        url: 'https://git.openstack.org/openstack/openstack-helm']]]
+                gerrit.cloneRepository url: 'https://git.openstack.org/openstack/openstack-helm',
+                                        refspec: GERRIT_REFSPEC,
+                                        targetDirectory: '.'
             }
             stage('Kubeadm-AIO') {
                 try {
