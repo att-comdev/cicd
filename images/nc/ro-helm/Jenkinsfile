@@ -11,27 +11,8 @@ vm () {
        if (GERRIT_EVENT_TYPE == 'change-merged') {
            IMAGE_TAG="${GERRIT_NEWREV}"
        }
-       checkout poll: false,
-           scm: [$class: 'GitSCM',
-           branches: [[name: "${IMAGE_TAG}"]],
-           doGenerateSubmoduleConfigurations: false,
-           extensions: [[$class: 'RelativeTargetDirectory',
-           relativeTargetDir: 'ro-helm']],
-           submoduleCfg: [],
-           userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-           url: '${INTERNAL_GERRIT_SSH}/ro-helm',
-           credentialsId:'jenkins-gerrit-mtn5-key']]]
-
-       checkout poll: false,
-           scm: [$class: 'GitSCM',
-           branches: [[name: 'master']],
-           doGenerateSubmoduleConfigurations: false,
-           extensions: [[$class: 'RelativeTargetDirectory',
-           relativeTargetDir: 'ro-clcp-inventory']],
-           submoduleCfg: [],
-           userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-           url: '${INTERNAL_GERRIT_SSH}/ro-clcp-inventory',
-           credentialsId:'jenkins-gerrit-mtn5-key']]]
+       gerrit.cloneDownstream(repo: 'ro-helm', refspec: IMAGE_TAG)
+       gerrit.cloneDownstream(repo: 'ro-clcp-inventory', refspec: 'master')
    }
    stage('Init') {
        dir("${WORKSPACE}/ro-helm/scripts"){
