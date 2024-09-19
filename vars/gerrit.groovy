@@ -1,129 +1,73 @@
 import groovy.json.JsonSlurperClassic
 
+def cloneRepository(args) {
+    //String url, String refspec, Boolean shallow = null, String creds = null, String gitCmd = null, String targetDirectory = null, String localBranch = null
+    args.shallow = args.shallow ?: checkShallowVariable()
 
-def clone(String url, String refspec){
-// Usage example: gerrit.clone("gerrit url", "origin/master")
-// clone refspec: gerrit.clone("gerrit url", "${env.GERRIT_REFSPEC}")
-    checkout poll: false,
-            scm: [$class: 'GitSCM',
-                  branches: [[name: refspec]],
-                  doGenerateSubmoduleConfigurations: false,
-                  extensions: [[$class: 'CleanBeforeCheckout']],
-                  submoduleCfg: [],
-                  userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-                                       url: url ]]]
-}
+    def runGit = {
+        sh """
+            set -x
+            $it
+            git init
+            git config remote.origin.url ${args.url}
+            git fetch ${args.shallow ? "--depth=${env.SHALLOW_DEPTH ?: 2}" : ''} ${env.GIT_OPTIONS ?: '-q'} origin ${args.refspec} && git checkout FETCH_HEAD ${args.localBranch ? "-b \"${args.localBranch}\"" : ''}
+        """
+    }
 
-/**
- * Given Jenkins credentials, clones Git repository via SSH
- *
- * @param url "ssh://${GERRIT_HOST}/${GERRIT_PROJECT}" string
- * @param refspec "xxxx/master" or other refspec
- * @param creds jenkins SSH credentials ID
- */
-def clone(String url, String refspec, String creds){
-// Usage example: gerrit.clone("ssh://${GERRIT_HOST}/${GERRIT_PROJECT}", '*/master', "jenkins-gerrit-ssh-creds")
-    checkout poll: false,
-            scm: [$class: 'GitSCM',
-                  branches: [[name: refspec]],
-                  doGenerateSubmoduleConfigurations: false,
-                  extensions: [[$class: 'CleanBeforeCheckout']],
-                  submoduleCfg: [],
-                  userRemoteConfigs: [[refspec: '${GERRIT_REFSPEC}',
-                                       url: url,
-                                       credentialsId: creds ]]]
-}
+    if (args.creds && args.gitCmd) {
+        error("Gerrit cloneRepository: 'creds' and 'gitCmd' parameters should not be defined at the same time")
+    }
 
-def _cloneShallowCmd(url, branch, gitSshCommand="") {
-    depth = env.SHALLOW_DEPTH ? env.SHALLOW_DEPTH : 2
-    opts = env.GIT_OPTIONS ? env.GIT_OPTIONS : '-q'
-    sh """
-      set -x
-      ${gitSshCommand}
-      git init
-      git config remote.origin.url ${url}
-      git fetch --depth=${depth} ${url} ${branch} && git checkout FETCH_HEAD
-      if [ \${?} -eq 128 ]; then
-        git fetch ${url} ${opts} && git checkout ${branch}
-      fi
-    """
-}
-
-def _cloneShallow(url, branch, targetDirectory, gitSshCommand="") {
-    if ( targetDirectory ) {
-        sh "mkdir -p ${targetDirectory}"
-        dir("${targetDirectory}") {
-            _cloneShallowCmd(url, branch, gitSshCommand)
+    if (args.creds) {
+        withCredentials([sshUserPrivateKey(credentialsId: args.creds, keyFileVariable: 'SSH_KEY')])
+        {
+            runGit("export GIT_SSH_COMMAND=\"ssh -i $SSH_KEY -o UserKnownHostsFile=${_setupKnownHosts()} -o StrictHostKeyChecking=yes\"")
         }
+    } else if (args.gitCmd) {
+        runGit(args.gitCmd)
     } else {
-        _cloneShallowCmd(url, branch, gitSshCommand)
+        runGit("export GIT_SSH_COMMAND=\"ssh -o UserKnownHostsFile=${_setupKnownHosts()} -o StrictHostKeyChecking=yes\"")
     }
 }
 
-def _clone(url, branch, targetDirectory, refspec='${GERRIT_REFSPEC}') {
-    checkout poll: false,
-            scm: [$class: 'GitSCM',
-                  branches: [[name: "${branch}"]],
-                  doGenerateSubmoduleConfigurations: false,
-                  extensions: [[$class: 'LocalBranch',
-                                localBranch: 'jenkins'],
-                               [$class: 'RelativeTargetDirectory',
-                                relativeTargetDir: targetDirectory]],
-                  submoduleCfg: [],
-                  userRemoteConfigs: [[refspec: refspec,
-                                       url: url ]]]
-
+@Deprecated
+def clone(String url, String refspec) {
+    cloneRepository(url: url,refspec: GERRIT_REFSPEC)
 }
 
-def _setupKnownHosts() {
-    knownHostsFile = sh(script: 'mktemp /tmp/tmp.ssh-XXXXXXXXX', returnStdout: true).trim()
-    if (env.KNOWN_HOSTS) {
-        sh "set +x; echo \"${KNOWN_HOSTS}\" > ${knownHostsFile}"
-    }
-    echo "Known hosts file ${knownHostsFile} was updated."
-    return knownHostsFile
-
+@Deprecated
+def clone(String url, String refspec, String creds) {
+    cloneRepository(url: url:refspec: url, refspec: GERRIT_REFSPEC, creds: creds)
 }
 
+@Deprecated
+def _cloneShallowCmd(url, branch, gitSshCommand='') {
+    cloneRepository(url: url,refspec: branch, gitCmd: gitSshCommand, shallow: true)
+}
+
+@Deprecated
+def _cloneShallow(url, branch, targetDirectory, gitSshCommand='') {
+    cloneRepository(url: url,refspec: branch, gitCmd: gitSshCommand, shallow: true, targetDirectory: targetDirectory)
+}
+
+@Deprecated
+def _clone(url, branch, targetDirectory, refspec=null) {
+    cloneRepository(url: url,refspec: refspec ?: GERRIT_REFSPEC, targetDirectory: targetDirectory, localBranch: 'jenkins')
+}
+
+@Deprecated
 def _cloneWithCredsShallow(url, branch, targetDirectory, creds, refspec) {
-    knownHostsFile = _setupKnownHosts()
-    withCredentials([sshUserPrivateKey(credentialsId: creds,
-        keyFileVariable: 'SSH_KEY')]) {
-        gitSshCommand = "export GIT_SSH_COMMAND=\"ssh -i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes\""
-        _cloneShallow(url, branch, targetDirectory, gitSshCommand)
-    }
-    sh "rm ${knownHostsFile}"
+    cloneRepository(url: url,refspec: refspec, shallow: true, targetDirectory: targetDirectory, creds: creds)
 }
 
+@Deprecated
 def _cloneWithCreds(url, branch, targetDirectory, creds, refspec) {
-    checkout poll: false,
-            scm: [$class                           : 'GitSCM',
-                  branches                         : [[name: branch]],
-                  doGenerateSubmoduleConfigurations: false,
-                  extensions                       : [[$class     : 'LocalBranch',
-                                                       localBranch: 'jenkins'],
-                                                      [$class           : 'RelativeTargetDirectory',
-                                                       relativeTargetDir: targetDirectory]],
-                  submoduleCfg                     : [],
-                  userRemoteConfigs                : [[refspec      : refspec,
-                                                       url          : url,
-                                                       credentialsId: creds]]]
+    cloneRepository(url: url,refspec: refspec, targetDirectory: targetDirectory, creds: creds, localBranch: 'jenkins')
 }
 
-def checkShallowVariable() {
-    shallowEnabled = env.SHALLOW_CLONE != null ? env.SHALLOW_CLONE : true
-    return shallowEnabled.toBoolean()
-}
-
-def cloneToBranch(String url, String refspec, String targetDirectory){
-//This method is used so that we can checkout the patchset to a local
-//branch and then rebase it locally with the current master before we build and test
-    shallowEnabled = checkShallowVariable()
-    if (shallowEnabled) {
-        _cloneShallow(url, refspec, targetDirectory)
-    } else {
-        _clone(url, refspec, targetDirectory)
-    }
+@Deprecated
+def cloneToBranch(String url, String refspec, String targetDirectory) {
+    cloneRepository(url: url,refspec: refspec, targetDirectory: targetDirectory)
 }
 
 /**
@@ -137,13 +81,9 @@ def cloneToBranch(String url, String refspec, String targetDirectory){
  * @param creds jenkins SSH credentials ID
  * @param gerritRefspec Overridden refspec value
  */
+@Deprecated
 def cloneToBranch(String url, String refspec, String targetDirectory, String creds, String gerritRefspec) {
-    shallowEnabled = checkShallowVariable()
-    if (shallowEnabled) {
-        _cloneWithCredsShallow(url, refspec, targetDirectory, creds, gerritRefspec)
-    } else {
-        _cloneWithCreds(url, refspec, targetDirectory, creds, gerritRefspec)
-    }
+    cloneRepository(url: url,refspec: gerritRefspec, targetDirectory: targetDirectory, creds: creds)
 }
 
 /**
@@ -156,43 +96,20 @@ def cloneToBranch(String url, String refspec, String targetDirectory, String cre
  * @param targetDirectory local directory where to clone repo
  * @param creds jenkins SSH credentials ID
  */
-def cloneToBranch(String url, String refspec, String targetDirectory, String creds){
+@Deprecated
+def cloneToBranch(String url, String refspec, String targetDirectory, String creds) {
+    cloneRepository(url: url,refspec: GERRIT_REFSPEC, targetDirectory: targetDirectory, creds: creds)
+}
+
+@Deprecated
+def cloneProject(String url, String branch, String refspec, String targetDirectory) {
+    //This method is used so that we can checkout different project
+    //from any patchset in different pipelines
     shallowEnabled = checkShallowVariable()
     if (shallowEnabled) {
-        _cloneWithCredsShallow(url, refspec, targetDirectory, creds, '${GERRIT_REFSPEC}')
+        cloneRepository(url: url,refspec: branch, targetDirectory = targetDirectory, shallow = true)
     } else {
-        _cloneWithCreds(url, refspec, targetDirectory, creds, '${GERRIT_REFSPEC}')
-    }
-}
-
-def rebase(){
-//This method will rebase the local checkout with master and then continue build, tests, etc
-    sh '''git config user.email "airship.jenkins@gmail.com"
-          git config user.name "Jenkins"
-          git pull --rebase origin master'''
-}
-
-//Replace clone and rebase methods
-def checkout(String revision, String branchToClone, String refspec, String targetDirectory){
-    if(revision){
-        IMAGE_TAG=revision
-    }
-    cloneToBranch(branchToClone, refspec, targetDirectory)
-    if(!revision) {
-        dir(env.WORKSPACE+"/"+targetDirectory){
-            rebase()
-        }
-    }
-}
-
-def cloneProject(String url, String branch, String refspec, String targetDirectory){
-//This method is used so that we can checkout different project
-//from any patchset in different pipelines
-    shallowEnabled = checkShallowVariable()
-    if (shallowEnabled) {
-        _cloneShallow(url, branch, targetDirectory)
-    } else {
-        _clone(url, branch, targetDirectory, refspec)
+        cloneRepository(url: url,refspec: refspec, targetDirectory = targetDirectory, shallow = false)
     }
 }
 
@@ -207,13 +124,56 @@ def cloneProject(String url, String branch, String refspec, String targetDirecto
  * @param targetDirectory local directory where to clone repo
  * @param creds jenkins SSH credentials ID
  */
-def cloneProject(String url, String branch, String refspec, String targetDirectory, String creds){
-    shallowEnabled = checkShallowVariable()
-    if (shallowEnabled) {
-        _cloneWithCredsShallow(url, branch, targetDirectory, creds, refspec)
-    } else {
-        _cloneWithCreds(url, branch, targetDirectory, creds, refspec)
+@Deprecated
+def cloneProject(String url, String branch, String refspec, String targetDirectory, String creds) {
+    cloneRepository(url: url,refspec: refspec, targetDirectory = targetDirectory, creds = creds)
+}
+
+//Replace clone and rebase methods
+@Deprecated
+def checkout(String revision, String branchToClone, String refspec, String targetDirectory) {
+    if (revision) {
+        IMAGE_TAG = revision
     }
+    cloneToBranch(branchToClone, refspec, targetDirectory)
+    if (!revision) {
+        dir(env.WORKSPACE + '/' + targetDirectory) {
+            rebase()
+        }
+    }
+}
+
+def _setupKnownHosts() {
+    def temp = File.createTempFile('tmp.ssh-', null)
+
+    // Get host keys from git plugin. This can be used as a single source of host keys to avoid duplicated config.
+    def gitPluginKeys = org.jenkinsci.plugins.gitclient.GitHostKeyVerificationConfiguration.get()
+        ?.sshHostKeyVerificationStrategy
+        ?.getApprovedHostKeys()
+
+    if (gitPluginKeys) {
+        temp.write(gitPluginKeys.readLines().join('\n') + '\n')
+    }
+
+    // KNOWN_HOSTS env var is still supported. But we should avoid duplicating data in it.
+    if (env.KNOWN_HOSTS) {
+        temp.write(env.KNOWN_HOSTS.readLines().join('\n'))
+    }
+
+    println "Known hosts file ${temp.absolutePath} was updated."
+    return temp.absolutePath
+}
+
+def checkShallowVariable() {
+    shallowEnabled = env.SHALLOW_CLONE != null ? env.SHALLOW_CLONE : true
+    return shallowEnabled.toBoolean()
+}
+
+def rebase() {
+    //This method will rebase the local checkout with master and then continue build, tests, etc
+    sh '''git config user.email "airship.jenkins@gmail.com"
+          git config user.name "Jenkins"
+          git pull --rebase origin master'''
 }
 
 /**
@@ -228,19 +188,18 @@ def cloneProject(String url, String branch, String refspec, String targetDirecto
  * @return commit The commitId of the "open" patchset with a given topic. If said PS doesn't exist, "master".
  */
 def getTopicCommitId(repo, url, port, creds) {
-    def revision = "master"
-    withCredentials([sshUserPrivateKey(credentialsId: creds,
-            keyFileVariable: 'SSH_KEY')]) {
+    def revision = 'master'
+    withCredentials([sshUserPrivateKey(credentialsId: creds, keyFileVariable: 'SSH_KEY')]) {
         // If triggering repo includes a topic
-        if(GERRIT_TOPIC != null && GERRIT_TOPIC != "") {
+        if (GERRIT_TOPIC != null && GERRIT_TOPIC != '') {
             def topicJson = sh(script: "ssh -i ${SSH_KEY} -p ${port} ${url} gerrit query --format=JSON topic:${GERRIT_TOPIC} status:open project:${repo}", returnStdout: true).trim()
             def topicData = new JsonSlurperClassic().parseText(topicJson)
             def changeId = topicData.id
-            if(changeId != null && changeId != "") {
+            if (changeId != null && changeId != '') {
                 def commitJson = sh(script: "ssh -i ${SSH_KEY} -p ${port} ${url} gerrit query --format=JSON --current-patch-set ${changeId}", returnStdout: true).trim()
                 def commitData = new JsonSlurperClassic().parseText(commitJson)
                 def commitId = commitData.currentPatchSet.revision
-                if(commitId != null && commitId != "") {
+                if (commitId != null && commitId != '') {
                     revision = commitId
                 }
             }
@@ -267,11 +226,11 @@ def getTopicCommitInfo(repo, url, port, creds) {
     withCredentials([sshUserPrivateKey(credentialsId: creds,
             keyFileVariable: 'SSH_KEY')]) {
         // If triggering repo includes a topic
-        if(GERRIT_TOPIC != null && GERRIT_TOPIC != "") {
+        if (GERRIT_TOPIC != null && GERRIT_TOPIC != '') {
             def topicJson = sh(script: "ssh -i ${SSH_KEY} -p ${port} ${url} gerrit query \
                                         --format=JSON topic:${GERRIT_TOPIC} \
                                         status:open project:${repo}", returnStdout: true).trim()
-            jsonList = topicJson.tokenize("\n")
+            jsonList = topicJson.tokenize('\n')
 
             // Return empty list if no commits for topic
             if (jsonList.isEmpty()) {
@@ -283,7 +242,7 @@ def getTopicCommitInfo(repo, url, port, creds) {
                 // skip stats from result
                 if (topicData.type != 'stats') {
                     def changeId = topicData.id
-                    if(changeId != null && changeId != "") {
+                    if (changeId != null && changeId != '') {
                         def commitJson = sh(script: "ssh -i ${SSH_KEY} -p ${port} ${url} \
                                             gerrit query --format=JSON --current-patch-set \
                                             ${changeId}", returnStdout: true).trim()
@@ -294,7 +253,7 @@ def getTopicCommitInfo(repo, url, port, creds) {
                 }
             })
         }
-    }
+            }
     return commits
 }
 
@@ -325,7 +284,7 @@ def getVersion(String url, String branch, String creds) {
             keyFileVariable: 'SSH_KEY')]) {
         // wrapper for custom git ssh key
         // ssh -i $SSH_KEY $@
-        def filewrapper = "/usr/bin/git-ssh-wrapper"
+        def filewrapper = '/usr/bin/git-ssh-wrapper'
         if (!fileExists(filewrapper)) {
             sh """cat << EOF | sudo tee $filewrapper
 #!/bin/bash
@@ -337,7 +296,7 @@ EOF"""
             def cmd = "git ls-remote $url $branch | cut -f1"
             return sh(returnStdout: true, script: cmd).trim()
         }
-    }
+            }
 }
 
 /**
@@ -350,8 +309,8 @@ EOF"""
  * @param repoName name of the repository being pushed to
  * @param refspec "xxxx/master" or other refspec
  */
-def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master", workDir=null) {
-    workDir = workDir != null ? workDir: repoName
+def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = 'refs/for/master', workDir=null) {
+    workDir = workDir != null ? workDir : repoName
     knownHostsFile = _setupKnownHosts()
     sshParams = "-i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
@@ -370,7 +329,7 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
                  git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
                """
         }
-    }
+        }
     sh "rm ${knownHostsFile}"
 }
 
@@ -385,8 +344,8 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
  * @param gerritTopic topic for submitted patchset
  * @param refspec "xxxx/master" or other refspec
  */
-def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "", workDir=null) {
-    workDir = workDir != null ? workDir: repoName
+def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, gerritUrl, repoName, refspec = 'refs/for/master', gerritTopic = '', workDir=null) {
+    workDir = workDir != null ? workDir : repoName
     knownHostsFile = _setupKnownHosts()
     sshParams = "-i \${SSH_KEY} -o UserKnownHostsFile=${knownHostsFile} -o StrictHostKeyChecking=yes"
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
@@ -405,7 +364,7 @@ def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, ger
                  git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec} -o topic=${gerritTopic}
            """
         }
-    }
+        }
     sh "rm ${knownHostsFile}"
 }
 
@@ -419,8 +378,8 @@ def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, ger
  * @param repoName name of the repository being pushed to
  * @param refspec "xxxx/master" or other refspec
  */
-def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, refspec = "refs/for/master", workDir=null) {
-    workDir = workDir != null ? workDir: repoName
+def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, refspec = 'refs/for/master', workDir=null) {
+    workDir = workDir != null ? workDir : repoName
     knownHostsFile = _setupKnownHosts()
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
@@ -436,7 +395,7 @@ def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, refspec
                  git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
                """
         }
-    }
+        }
     sh "rm ${knownHostsFile}"
 }
 
@@ -451,8 +410,8 @@ def amendPatchset(credentials, userEmail, userName, gerritUrl, repoName, refspec
  * @param gerritTopic topic for submitted patchset
  * @param refspec "xxxx/master" or other refspec
  */
-def amendPatchsetWithTopic(credentials, userEmail, userName, gerritUrl, repoName, refspec = "refs/for/master", gerritTopic = "", workDir=null) {
-    workDir = workDir != null ? workDir: repoName
+def amendPatchsetWithTopic(credentials, userEmail, userName, gerritUrl, repoName, refspec = 'refs/for/master', gerritTopic = '', workDir=null) {
+    workDir = workDir != null ? workDir : repoName
     knownHostsFile = _setupKnownHosts()
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
@@ -468,7 +427,7 @@ def amendPatchsetWithTopic(credentials, userEmail, userName, gerritUrl, repoName
                  git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec} -o topic=${gerritTopic}
                """
         }
-    }
+        }
     sh "rm ${knownHostsFile}"
 }
 
@@ -485,7 +444,6 @@ def getLocalRepoVersion(repo_path) {
     def git_log =  sh(returnStdout: true, script: cmd).trim()
     return git_log.split('::::')
 }
-
 
 /**
  * Get Commit diff for a given repo path and commit ID
