@@ -28,21 +28,17 @@ vm (NODE_NAME, NODE_TMPL) {
             if (env.GERRIT_EVENT_TYPE == 'patchset-created') {
                 ARTF_COMP_IMAGE = "${ARTF_URL}/internal-images/openstack-patchset/newton/mos/kolla/${COMP_IMAGE}/ubuntu-source-${COMP_IMAGE}"
             }
-            checkout poll: false,
-            scm: [$class: 'GitSCM',
-                 branches: [[name: 'main/newton']],
-                 doGenerateSubmoduleConfigurations: false,
-                 extensions: [[$class: 'RelativeTargetDirectory',
-                             relativeTargetDir: "${COMP_IMAGE}"]],
-                 submoduleCfg: [],
-                 userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                                 url: "ssh://jenkins-attcomdev@10.24.20.18:29418/mos-${JOB_BASE_NAME}",
-                                      credentialsId:'jenkins-stage-master']]]
+
+            gerrit.cloneRepository url: "ssh://jenkins-attcomdev@10.24.20.18:29418/mos-${JOB_BASE_NAME}",
+                                    refspec: 'main/newton',
+                                    localBranch: 'jenkins',
+                                    targetDirectory: COMP_IMAGE,
+                                    creds: 'jenkins-stage-master',
+                                    shallow: false
         } else {
-            sh "git clone https://git.openstack.org/openstack/${JOB_BASE_NAME}"
-            dir(JOB_BASE_NAME) {
-                sh "git checkout ${PROJECT_REF}"
-            }
+            gerrit.cloneRepository url: "https://git.openstack.org/openstack/${JOB_BASE_NAME}",
+                                    refspec: PROJECT_REF,
+                                    targetDirectory: JOB_BASE_NAME
         }
     }
     stage('Kolla Container Build') {
