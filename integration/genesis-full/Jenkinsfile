@@ -87,17 +87,11 @@ def ipmi_power_off = {
 
 def prom_build_prepare = {
     stage("Build Prepare") {
-        gerrithub.clone("att-comdev/treasuremap", '${GERRIT_PATCHSET_REVISION}')
-        checkout poll: false,
-            scm: [$class: 'GitSCM',
-            branches: [[name: 'master']],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [[$class: 'RelativeTargetDirectory',
-                relativeTargetDir: 'clcp-integration']],
-            submoduleCfg: [],
-            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                url: 'ssh://jenkins-attcomdev@10.24.20.18:29418/clcp-integration',
-                    credentialsId:'jenkins-stage-master']]]
+        gerrit.cloneUpstream(repo: 'att-comdev/treasuremap', refspec: GERRIT_PATCHSET_REVISION, targetDirectory: '.')
+        gerrit.cloneRepo url: 'ssh://jenkins-attcomdev@10.24.20.18:29418/clcp-integration',
+                    creds: 'jenkins-stage-master',
+                    refspec: 'master'
+
         sh "cp ${WORKSPACE}/clcp-integration/secrets/artifactory_docker_key.yaml ${WORKSPACE}/deployment_files/site/atl-lab1/secrets/passphrases/"
 
         ipmi_power_off()
@@ -187,20 +181,11 @@ def prom_deploy = {
 //// deckhand utils
 def deckhand_load = {
     stage('Deckhand Load') {
-
         artf_download("${ARTF_BASE}/configs/site-config.tar.gz", "")
         sh "tar xzf site-config.tar.gz"
-          checkout poll: false,
-                scm: [$class: 'GitSCM',
-                branches: [[name: 'master']],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [[$class: 'RelativeTargetDirectory',
-                    relativeTargetDir: 'shipyard']],
-                submoduleCfg: [],
-                userRemoteConfigs: [[url: 'https://review.gerrithub.io/att-comdev/shipyard']]]
-
+        gerrit.cloneUpstream(repo: 'att-comdev/shipyard', refspec: 'master')
         dir ("shipyard/tools") {
-                sh "./deckhand_load_yaml.sh atl_lab1 ${WORKSPACE}/atl-lab1_yaml"
+            sh "./deckhand_load_yaml.sh atl_lab1 ${WORKSPACE}/atl-lab1_yaml"
         }
     }
 }
