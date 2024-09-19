@@ -4,14 +4,9 @@ currentBuild.displayName = "#${BUILD_NUMBER} ${RELEASE_BRANCH}"
 
 vm(NODE_NAME,NODE_TMPL) {
     stage("Checkout ${RELEASE_BRANCH}") {
-        checkout poll: false,
-        scm: [$class: 'GitSCM',
-             branches: [[name: "${RELEASE_BRANCH}"]],
-             doGenerateSubmoduleConfigurations: false,
-             extensions: [[$class: 'CleanBeforeCheckout']],
-             submoduleCfg: [],
-             userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-             url: "https://github.com/kubernetes/kubernetes.git"]]]
+        gerrit.cloneRepository url: 'https://github.com/kubernetes/kubernetes.git',
+                                refspec: RELEASE_BRANCH,
+                                targetDirectory: '.'
     }
 
     stage("Build ${RELEASE_BRANCH}") {

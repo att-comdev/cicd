@@ -29,19 +29,13 @@ DECKHAND_URL='http://deckhand-int.ucp.svc.cluster.local:9000/api/v1.0'
 
 def prom_build_prepare = {
     stage("Build Prepare") {
-        gerrithub.clone("att-comdev/treasuremap", '${GERRIT_PATCHSET_REVISION}')
-        checkout poll: false,
-            scm: [$class: 'GitSCM',
-            branches: [[name: 'master']],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [[$class: 'RelativeTargetDirectory',
-                relativeTargetDir: 'clcp-integration']],
-            submoduleCfg: [],
-            userRemoteConfigs: [[refspec: 'refs/changes/*:refs/changes/*',
-                url: 'ssh://jenkins-attcomdev@10.24.20.18:29418/clcp-integration',
-                    credentialsId:'jenkins-stage-master']]]
-        sh "cp ${WORKSPACE}/clcp-integration/secrets/artifactory_docker_key.yaml ${WORKSPACE}/deployment_files/site/atl-lab1/secrets/passphrases/"
+        gerrit.cloneUpstream(repo: 'att-comdev/treasuremap', refspec: GERRIT_PATCHSET_REVISION, targetDirectory: '.')
+        gerrit.cloneRepo url: 'ssh://jenkins-attcomdev@10.24.20.18:29418/clcp-integration',
+                            creds: 'jenkins-stage-master',
+                            targetDirectory: 'clcp-integration',
+                            refspec: 'master'
 
+        sh "cp ${WORKSPACE}/clcp-integration/secrets/artifactory_docker_key.yaml ${WORKSPACE}/deployment_files/site/atl-lab1/secrets/passphrases/"
     }
 }
 
