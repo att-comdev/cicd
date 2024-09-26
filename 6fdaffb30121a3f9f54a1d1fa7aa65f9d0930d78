@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "23efda1f_e5568e87",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 26
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1016322
+      },
+      "writtenOn": "2024-09-26T17:45:19Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "cc5e260f_f98422b0",
+      "revId": "6fdaffb30121a3f9f54a1d1fa7aa65f9d0930d78",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "77c6303b_3c36dbca",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-09-26T17:03:54Z",
       "side": 1,
       "message": "Unfortunately, groovy can\u0027t handle named arguments like many other languages: it converts them to a single \u0027map\u0027 argument and passes it to a function. So we have to accept just a single map instead of more specific arguments to make it possible to call this function with any parameters in any order. \nParameter names are described in the comment for this method. Developers should use those parameters.",
+      "revId": "6fdaffb30121a3f9f54a1d1fa7aa65f9d0930d78",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d866ffa_553c4e93",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 26
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1016322
+      },
+      "writtenOn": "2024-09-26T17:45:19Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "77c6303b_3c36dbca",
       "revId": "6fdaffb30121a3f9f54a1d1fa7aa65f9d0930d78",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
