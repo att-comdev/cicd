@@ -16,6 +16,23 @@
       "message": "Diff for this file looks perplexed so let me summarize:\n\nAdded runGit internal function - to run git with configured credentials for repository\nAdded cloneRepository function - aio function to clone any git/gerrit/codecloud/etc repo\nAdded cloneUpstream/cloneDownstream functions for cloning code from upstream/downstream gerrit with convenience\nOlder clone functions that used git plugin (clone with 2 and 3 parameters, _cloneWithCreds with 5 parameters, _clone with 4 parameters) are now refactored to use \u0027cloneRepository\u0027 instead, other old clone functions remain unchanged for now (to make sure we break as little as possible with this PS)\nAll old clone functions are marked as deprecated and moved into special region in the end of the file to encourage developers to use newer cloneRepository/Upstream/Downstream instead.",
       "revId": "6fdaffb30121a3f9f54a1d1fa7aa65f9d0930d78",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77c6303b_3c36dbca",
+        "filename": "vars/gerrit.groovy",
+        "patchSetId": 26
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1020845
+      },
+      "writtenOn": "2024-09-26T17:03:54Z",
+      "side": 1,
+      "message": "Unfortunately, groovy can\u0027t handle named arguments like many other languages: it converts them to a single \u0027map\u0027 argument and passes it to a function. So we have to accept just a single map instead of more specific arguments to make it possible to call this function with any parameters in any order. \nParameter names are described in the comment for this method. Developers should use those parameters.",
+      "revId": "6fdaffb30121a3f9f54a1d1fa7aa65f9d0930d78",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
