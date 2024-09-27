@@ -2,6 +2,7 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 node('controller') {
     changedJobSeeds = []
+    errors = []
     stage('Clean workspace') {
         cleanWs()
     }
@@ -53,13 +54,14 @@ node('controller') {
                 seedFiles = findSeedGroovy(new File(WORKSPACE, file))
                 if (seedFiles != null) {
                     if (seedFiles.size() == 0) {
-                        error("No seed files found for \"${file}\".")
+                        errors.add([file, "No seed files found for \"${file}\"."])
                     }
-                    if (seedFiles.size() > 1) {
-                        error("Too many seed files found for \"${file}\". Found files: ${seedFiles}")
+                    else if (seedFiles.size() > 1) {
+                        errors.add([file, "Too many seed files found for \"${file}\". Found files: ${seedFiles}"])
+                    } else {
+                        changedJobSeeds.add(seedFiles[0])
+                        lintWhitespacesResults.add(lintWhitespaces(file))
                     }
-                    changedJobSeeds.add(seedFiles[0])
-                    lintWhitespacesResults.add(lintWhitespaces(file))
                 }
             }
 
@@ -90,7 +92,6 @@ node('controller') {
             createSummary(icon: 'gear.svg', text: summaryText)
             Utils.markStageSkippedForConditional(STAGE_NAME)
         } else {
-            def errors = []
             changedJobSeeds.each {
                 try {
                     def scriptSourceCode = correctDependencyPaths(it)
