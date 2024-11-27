@@ -1,4 +1,8 @@
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
+import org.codehaus.groovy.ast.builder.*
+import org.codehaus.groovy.ast.expr.*
+import org.codehaus.groovy.ast.stmt.*
+import org.codehaus.groovy.control.*
 
 node('controller') {
     changedJobSeeds = []
@@ -95,6 +99,24 @@ node('controller') {
             changedJobSeeds.each {
                 try {
                     def scriptSourceCode = correctDependencyPaths(it)
+
+                    // check script approval before running preseed
+                    checkApproval(scriptSourceCode)
+
+                    String preseedCode = null
+                    try {
+                        preseedCode = getPreseedCode(scriptSourceCode)
+                    } catch (Exception ex) {
+                        // normally that should never happen
+                        // but this is just an extra level of safety for older scripts
+                        println "[WARNING] Unable to parse seed script for preeseed: $e"
+                    }
+
+                    // if seed script has preseed - execute it
+                    if (preseedCode) {
+                        evaluate(preseedCode)
+                    }
+
                     println "[Info] Seeding \"${it}\""
                     jobDsl scriptText: scriptSourceCode,
                         removedJobAction: 'IGNORE',
@@ -116,6 +138,38 @@ node('controller') {
             }
         }
     }
+}
+
+@NonCPS
+def checkApproval(scriptCode) {
+    // send script to approval and fail if it was not approved
+    def scriptApproval = org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.get()
+    scriptApproval.using(scriptCode, org.jenkinsci.plugins.scriptsecurity.scripts.languages.GroovyLanguage.get())
+}
+
+@NonCPS
+def getPreseedCode(seedCode) {
+    def preSeedAst = new AstBuilder()
+        .buildFromString(CompilePhase.CONVERSION, true, seedCode)
+        ?.find { it instanceof BlockStatement }
+        ?.getStatements()
+        ?.find {
+            it instanceof ExpressionStatement \
+                && it.getExpression() instanceof BinaryExpression \
+                && it.getExpression().getLeftExpression()?.getText() == "preseed"
+            }
+        ?.getExpression()
+        ?.getRightExpression()
+
+    if (preSeedAst instanceof ClosureExpression) {
+        def  writer = new java.io.StringWriter()
+        def visitor = new groovy.inspect.swingui.AstNodeToScriptVisitor(writer)
+        visitor.visitBlockStatement(preSeedAst.getCode())
+        return writer.toString()
+    } else if (preSeedAst) {
+        println "[WARNING] Ignoring preseed variable because it's not a Closure."
+    }
+    return null
 }
 
 @NonCPS
