@@ -1,3 +1,4 @@
+import com.att.nccicd.config.conf as config
 
 // Required Jenkins credentials
 //  - jenkins-openstack
@@ -35,210 +36,229 @@ def message(String headline, Closure body) {
  *
 **/
 def call(Map map, Closure body) {
+    conf = new config(env).CONF
 
-    // Startup script to run after VM instance creation
-    //  bootstrap.sh - default
-    //  loci-bootstrap.sh - for loci builds
-    def initScript = map.initScript ?: 'bootstrap.sh'
+    def launch_node = "jenkins-vm-launch"
+    def label = "worker-${UUID.randomUUID().toString()}"
 
-    // image used for creating instance
-    def image = map.image ?: 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+    podTemplate(label: label,
+                showRawYaml: false,
+                yaml: cicd_helper.podExecutorConfig(conf.JNLP_IMAGE, "0", "jenkins-nodes", "jenkins-nodes"),
+                containers: [
+                    containerTemplate(name: launch_node,
+                                      workingDir: '/target',
+                                      image: OS_KEYSTONE_IMAGE,
+                                      command: "cat",
+                                      ttyEnabled: true)],
+                volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock',
+                                         mountPath: '/var/run/docker.sock')]) {
 
-    // flavor type used for creating instance
-    def flavor = map.flavor ?: 'm1.medium'
+        // create home folder on the launch node
+        node(launch_node) {
+            sh "mkdir -p /target"
+        }
 
-    // postfix string for instance nodename
-    def nodePostfix = map.nodePostfix ?: ''
+        // Startup script to run after VM instance creation
+        //  bootstrap.sh - default
+        //  loci-bootstrap.sh - for loci builds
+        def initScript = map.initScript ?: 'bootstrap.sh'
 
-    // build template used for heat stack creation
-    //  basic - default
-    //  loci - for loci builds
-    def buildType = map.buildType ?: 'basic'
+        // image used for creating instance
+        def image = map.image ?: 'cicd-ubuntu-16.04-server-cloudimg-amd64'
 
-    // Flag to control node cleanup after job execution
-    // Useful for retaining env for debugging failures
-    // NodeCleanup job be used to destroy the node later
-    //  false - default, deletes node after job
-    //  true - do not delete node
-    def doNotDeleteNode = map.doNotDeleteNode ?: false
+        // flavor type used for creating instance
+        def flavor = map.flavor ?: 'm1.medium'
 
-    // Flag to control Jenkins console log publishing to Artifactory.
-    //
-    // This will also set custom URL to be returned when voting in Gerrit
-    // https://jenkins.io/doc/pipeline/steps/gerrit-trigger/
-    //
-    // Useful for providing Jenkins console log when acting as 3rd party gate,
-    // especially when Jenkins itself is not accessible
-    def artifactoryLogs = map.artifactoryLogs ?: false
+        // postfix string for instance nodename
+        def nodePostfix = map.nodePostfix ?: ''
 
-    // global timeout for executing pipeline
-    // useful to prevent forever hanging pipelines consuming resources
-    def globalTimeout = map.timeout ?: 120
+        // build template used for heat stack creation
+        //  basic - default
+        //  loci - for loci builds
+        def buildType = map.buildType ?: 'basic'
 
-    // if useJumphost is true floating ip won't be assigned to vm.
-    // Jenkins will access vm via jumphost configured in global configuration
-    // with OS_JUMPHOST_PUBLIC_IP variable
-    def useJumphost = map.useJumphost
-    if (useJumphost == null) {
-        useJumphost = env.OS_JUMPHOST_PUBLIC_IP ? true : false
-    }
+        // Flag to control node cleanup after job execution
+        // Useful for retaining env for debugging failures
+        // NodeCleanup job be used to destroy the node later
+        //  false - default, deletes node after job
+        //  true - do not delete node
+        def doNotDeleteNode = map.doNotDeleteNode ?: false
 
-    // Name of public network that is used to allocate floating IPs
-    def publicNet = useJumphost ? '' : (map.publicNet ?:
-                                        env.OS_PUBLIC_NET ?:
-                                        'routable')
+        // Flag to control Jenkins console log publishing to Artifactory.
+        //
+        // This will also set custom URL to be returned when voting in Gerrit
+        // https://jenkins.io/doc/pipeline/steps/gerrit-trigger/
+        //
+        // Useful for providing Jenkins console log when acting as 3rd party gate,
+        // especially when Jenkins itself is not accessible
+        def artifactoryLogs = map.artifactoryLogs ?: false
 
-    // Name of private network for the VM
-    def privateNet = map.privateNet ?: 'private'
+        // global timeout for executing pipeline
+        // useful to prevent forever hanging pipelines consuming resources
+        def globalTimeout = map.timeout ?: 120
 
-    // resolve args to heat parameters
-    def parameters = " --parameter image=${image}" +
-                     " --parameter flavor=${flavor}" +
-                     " --parameter public_net=${publicNet}" +
-                     " --parameter private_net=${privateNet}"
+        // if useJumphost is true floating ip won't be assigned to vm.
+        // Jenkins will access vm via jumphost configured in global configuration
+        // with OS_JUMPHOST_PUBLIC_IP variable
+        def useJumphost = map.useJumphost
+        if (useJumphost == null) {
+            useJumphost = env.OS_JUMPHOST_PUBLIC_IP ? true : false
+        }
 
-    // node used for launching VMs
-    def launch_node = 'jenkins-node-launch'
+        // Name of public network that is used to allocate floating IPs
+        def publicNet = useJumphost ? '' : (map.publicNet ?:
+                                            env.OS_PUBLIC_NET ?:
+                                            'routable')
 
-    def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+        // Name of private network for the VM
+        def privateNet = map.privateNet ?: 'private'
 
-    // templates located in resources from shared libraries
-    // https://github.com/att-comdev/cicd/tree/master/resources
-    def stack_template="heat/stack/ubuntu.${buildType}.stack.template.yaml"
+        // resolve args to heat parameters
+        def parameters = " --parameter image=${image}" +
+                        " --parameter flavor=${flavor}" +
+                        " --parameter public_net=${publicNet}" +
+                        " --parameter private_net=${privateNet}"
 
-    // optionally uer may supply additional identified for the VM
-    // this makes it easier to find it in OpenStack (e.g. name)
-    if (nodePostfix) {
-      name += "-${nodePostfix}"
-    }
+        def name = "${JOB_BASE_NAME}-${BUILD_NUMBER}"
 
-    def ip = ""
-    def port = "22"
+        // templates located in resources from shared libraries
+        // https://github.com/att-comdev/cicd/tree/master/resources
+        def stack_template="heat/stack/ubuntu.${buildType}.stack.template.yaml"
 
-    try {
-        utils.retrier(
-            3,
-            {
-                node('master') {
-                    jenkins.node_delete(name)
-                }
-                node(launch_node) {
-                    heat.stack_delete(name)
-                }
-            }
-        ) {
-            stage ('Node Launch') {
+        // optionally uer may supply additional identified for the VM
+        // this makes it easier to find it in OpenStack (e.g. name)
+        if (nodePostfix) {
+        name += "-${nodePostfix}"
+        }
 
-                node(launch_node) {
-                    tmpl = libraryResource "${stack_template}"
-                    writeFile file: 'template.yaml', text: tmpl
+        def ip = ""
+        def port = "22"
 
-                    data = libraryResource "heat/stack/${initScript}"
-                    writeFile file: 'cloud-config', text: data
-
-                    utils.retrier(3, { heat.stack_delete(name) }) {
-                        heat.stack_create(name,
-                                          "${WORKSPACE}/template.yaml",
-                                          parameters)
+        try {
+            utils.retrier(
+                3,
+                {
+                    node('master') {
+                        jenkins.node_delete(name)
                     }
-                    ip = heat.stack_output(name, 'routable_ip')
-                    if (useJumphost) {
-                        port = (ip.split('\\.')[-1].toInteger() + 10000).toString()
-                        ip = OS_JUMPHOST_PUBLIC_IP
+                    node(launch_node) {
+                        heat.stack_delete(name, useHeatContainer: false)
                     }
                 }
+            ) {
+                stage ('Node Launch') {
 
-                node('master') {
-                    utils.retrier(3, { jenkins.node_delete(name) }) {
-                        jenkins.node_create (name, ip, port)
+                    node(launch_node) {
+                        tmpl = libraryResource "${stack_template}"
+                        writeFile file: 'template.yaml', text: tmpl
+
+                        data = libraryResource "heat/stack/${initScript}"
+                        writeFile file: 'cloud-config', text: data
+
+                        utils.retrier(3, { heat.stack_delete(name, useHeatContainer: false) }) {
+                            heat.stack_create(name,
+                                            "${WORKSPACE}/template.yaml",
+                                            parameters, useHeatContainer: false)
+                        }
+                        ip = heat.stack_output(name, 'routable_ip', useHeatContainer: false)
+                        if (useJumphost) {
+                            port = (ip.split('\\.')[-1].toInteger() + 10000).toString()
+                            ip = OS_JUMPHOST_PUBLIC_IP
+                        }
                     }
 
-                    timeout (5) {
-                        node(name) {
-                            sh 'cloud-init status --wait'
+                    node('master') {
+                        utils.retrier(3, { jenkins.node_delete(name) }) {
+                            jenkins.node_create (name, ip, port)
+                        }
+
+                        timeout (5) {
+                            node(name) {
+                                sh 'cloud-init status --wait'
+                            }
                         }
                     }
                 }
             }
-        }
 
-        // execute pipeline body, everything within vm()
-        node (name) {
-            try {
-                message ('READY: JENKINS WORKER LAUNCHED') {
-                    print "Launch overrides: ${map}\n" +
-                          "Pipeline timeout: ${globalTimeout}\n" +
-                          "Heat template: ${stack_template}\n" +
-                          "Node IP: ${ip}:${port}"
-                }
-                if (env.VM_PRE_HOOK_CMD) {
-                    sh VM_PRE_HOOK_CMD
-                }
-                timeout(globalTimeout) {
-                    setKnownHosts()
-                    body()
-                }
-                message ('SUCCESS: PIPELINE EXECUTION FINISHED') {}
-                currentBuild.result = 'SUCCESS'
+            // execute pipeline body, everything within vm()
+            node (name) {
+                try {
+                    message ('READY: JENKINS WORKER LAUNCHED') {
+                        print "Launch overrides: ${map}\n" +
+                            "Pipeline timeout: ${globalTimeout}\n" +
+                            "Heat template: ${stack_template}\n" +
+                            "Node IP: ${ip}:${port}"
+                    }
+                    if (env.VM_PRE_HOOK_CMD) {
+                        sh VM_PRE_HOOK_CMD
+                    }
+                    timeout(globalTimeout) {
+                        setKnownHosts()
+                        body()
+                    }
+                    message ('SUCCESS: PIPELINE EXECUTION FINISHED') {}
+                    currentBuild.result = 'SUCCESS'
 
-              // use Throwable to catch java.lang.NoSuchMethodError error
-            } catch (Throwable err) {
-                message ('FAILURE: PIPELINE EXECUTION HALTED') {
-                    print "Pipeline body failed or timed out: ${err}.\n" +
-                          'Likely gate reports failure.\n'
-                }
-                currentBuild.result = 'FAILURE'
-                throw err
-            }
-        }
-
-      // use Throwable to catch java.lang.NoSuchMethodError error
-    } catch (Throwable err) {
-        message ('ERROR: FAILED TO LAUNCH JENKINS WORKER') {
-            print 'Failed to launch Jenkins VM/worker.\n' +
-                  'Likely infra/template or config error.\n' +
-                  "Error message: ${err}"
-        }
-        currentBuild.result = 'FAILURE'
-        if (env.GERRIT_EVENT_TYPE == "change-merged"){
-            email.sendMail(recipientProviders: [developers(), requestor()],
-                           to: env.EMAIL_LIST)
-        }
-        throw err
-
-    } finally {
-        if (!doNotDeleteNode) {
-            node('master') {
-                jenkins.node_delete(name)
-            }
-            node(launch_node) {
-               heat.stack_delete(name)
-            }
-        }
-
-        // publish Jenkins console output
-        // note: keep this as very last step to capture most logs
-        if (artifactoryLogs) {
-            node('master'){
-                message ('INFO: PUBLISHING LOGS TO ARTIFACTORY') {}
-                try{
-                    def logBase = "cicd/logs/${JOB_NAME}/${BUILD_ID}"
-
-                    sh "curl -s -o console.txt ${BUILD_URL}/consoleText"
-                    artifactory.upload ('console.txt', "${logBase}/console.txt")
-
-                    // Jenkins global variable for Artifactory URL
-                    setGerritReview customUrl: "${ARTF_WEB_URL}/${logBase}"
-
-                } catch (error){
-                    // gracefully handle failures to publish
-                    print "Failed to publish logs to Artifactory: ${err}"
+                // use Throwable to catch java.lang.NoSuchMethodError error
+                } catch (Throwable err) {
+                    message ('FAILURE: PIPELINE EXECUTION HALTED') {
+                        print "Pipeline body failed or timed out: ${err}.\n" +
+                            'Likely gate reports failure.\n'
+                    }
+                    currentBuild.result = 'FAILURE'
+                    throw err
                 }
             }
-        }
 
+        // use Throwable to catch java.lang.NoSuchMethodError error
+        } catch (Throwable err) {
+            message ('ERROR: FAILED TO LAUNCH JENKINS WORKER') {
+                print 'Failed to launch Jenkins VM/worker.\n' +
+                    'Likely infra/template or config error.\n' +
+                    "Error message: ${err}"
+            }
+            currentBuild.result = 'FAILURE'
+            if (env.GERRIT_EVENT_TYPE == "change-merged"){
+                email.sendMail(recipientProviders: [developers(), requestor()],
+                            to: env.EMAIL_LIST)
+            }
+            throw err
+
+        } finally {
+            if (!doNotDeleteNode) {
+                node('master') {
+                    jenkins.node_delete(name)
+                }
+                node(launch_node) {
+                heat.stack_delete(name, useHeatContainer: false)
+                }
+            }
+
+            // publish Jenkins console output
+            // note: keep this as very last step to capture most logs
+            if (artifactoryLogs) {
+                node('master'){
+                    message ('INFO: PUBLISHING LOGS TO ARTIFACTORY') {}
+                    try{
+                        def logBase = "cicd/logs/${JOB_NAME}/${BUILD_ID}"
+
+                        sh "curl -s -o console.txt ${BUILD_URL}/consoleText"
+                        artifactory.upload ('console.txt', "${logBase}/console.txt")
+
+                        // Jenkins global variable for Artifactory URL
+                        setGerritReview customUrl: "${ARTF_WEB_URL}/${logBase}"
+
+                    } catch (error){
+                        // gracefully handle failures to publish
+                        print "Failed to publish logs to Artifactory: ${err}"
+                    }
+                }
+            }
+
+        }
+    return [ip, port]
     }
-  return [ip, port]
 }
 
 
