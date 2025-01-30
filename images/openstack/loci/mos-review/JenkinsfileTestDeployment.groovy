@@ -255,204 +255,224 @@ def installOpenstackClient() {
 
 
 def TestVm(Map map, Closure body) {
+    def heat_pod = "worker-${UUID.randomUUID().toString()}"
+    def heat_container = "jenkins-vm-launch"
+    podTemplate(label: heat_pod,
+            showRawYaml: false,
+            yaml: cicd_helper.podExecutorConfig(conf.JNLP_IMAGE, "0", "jenkins-nodes", "jenkins-nodes"),
+            containers: [
+                containerTemplate(name: heat_container,
+                                    image: OS_KEYSTONE_IMAGE,
+                                    command: "cat",
+                                    ttyEnabled: true)],
+            volumes: [hostPathVolume(hostPath: '/var/run/dindproxy/docker.sock',
+                                        mountPath: '/var/run/docker.sock')]) {
 
-    // Startup script to run after VM instance creation
-    //  bootstrap.sh - default
-    //  loci-bootstrap.sh - for loci builds
-    def initScript = map.initScript ?: 'bootstrap.sh'
+        // Startup script to run after VM instance creation
+        //  bootstrap.sh - default
+        //  loci-bootstrap.sh - for loci builds
+        def initScript = map.initScript ?: 'bootstrap.sh'
 
-    // image used for creating instance
-    def image = map.image ?: 'cicd-ubuntu-16.04-server-cloudimg-amd64'
+        // image used for creating instance
+        def image = map.image ?: 'cicd-ubuntu-16.04-server-cloudimg-amd64'
 
-    // flavor type used for creating instance
-    def flavor = map.flavor ?: 'm1.medium'
+        // flavor type used for creating instance
+        def flavor = map.flavor ?: 'm1.medium'
 
-    // postfix string for instance nodename
-    def nodePostfix = map.nodePostfix ?: ''
+        // postfix string for instance nodename
+        def nodePostfix = map.nodePostfix ?: ''
 
-    // build template used for heat stack creation
-    //  basic - default
-    //  loci - for loci builds
-    def buildType = map.buildType ?: 'basic'
+        // build template used for heat stack creation
+        //  basic - default
+        //  loci - for loci builds
+        def buildType = map.buildType ?: 'basic'
 
-    // Flag to control node cleanup after job execution
-    // Useful for retaining env for debugging failures
-    // NodeCleanup job be used to destroy the node later
-    //  false - default, deletes node after job
-    //  true - do not delete node
-    def doNotDeleteNode = map.doNotDeleteNode ?: false
+        // Flag to control node cleanup after job execution
+        // Useful for retaining env for debugging failures
+        // NodeCleanup job be used to destroy the node later
+        //  false - default, deletes node after job
+        //  true - do not delete node
+        def doNotDeleteNode = map.doNotDeleteNode ?: false
 
-    // Flag to control Jenkins console log publishing to Artifactory.
-    //
-    // This will also set custom URL to be returned when voting in Gerrit
-    // https://jenkins.io/doc/pipeline/steps/gerrit-trigger/
-    //
-    // Useful for providing Jenkins console log when acting as 3rd party gate,
-    // especially when Jenkins itself is not accessible
-    def artifactoryLogs = map.artifactoryLogs ?: false
+        // Flag to control Jenkins console log publishing to Artifactory.
+        //
+        // This will also set custom URL to be returned when voting in Gerrit
+        // https://jenkins.io/doc/pipeline/steps/gerrit-trigger/
+        //
+        // Useful for providing Jenkins console log when acting as 3rd party gate,
+        // especially when Jenkins itself is not accessible
+        def artifactoryLogs = map.artifactoryLogs ?: false
 
-    // global timeout for executing pipeline
-    // useful to prevent forever hanging pipelines consuming resources
-    def globalTimeout = map.timeout ?: 180
+        // global timeout for executing pipeline
+        // useful to prevent forever hanging pipelines consuming resources
+        def globalTimeout = map.timeout ?: 180
 
-    // if useJumphost is true floating ip won't be assigned to vm.
-    // Jenkins will access vm via jumphost configured in global configuration
-    // with OS_JUMPHOST_PUBLIC_IP variable
-    def useJumphost = map.useJumphost
-    if (useJumphost == null) {
-        useJumphost = env.OS_JUMPHOST_PUBLIC_IP ? true : false
-    }
+        // if useJumphost is true floating ip won't be assigned to vm.
+        // Jenkins will access vm via jumphost configured in global configuration
+        // with OS_JUMPHOST_PUBLIC_IP variable
+        def useJumphost = map.useJumphost
+        if (useJumphost == null) {
+            useJumphost = env.OS_JUMPHOST_PUBLIC_IP ? true : false
+        }
 
-    // Name of public network that is used to allocate floating IPs
-    def publicNet = useJumphost ? '' : (map.publicNet ?:
-                                        env.OS_PUBLIC_NET ?:
-                                        'public')
+        // Name of public network that is used to allocate floating IPs
+        def publicNet = useJumphost ? '' : (map.publicNet ?:
+                                            env.OS_PUBLIC_NET ?:
+                                            'public')
 
-    // Name of private network for the VM
-    def privateNet = map.privateNet ?: 'private'
+        // Name of private network for the VM
+        def privateNet = map.privateNet ?: 'private'
 
-    // resolve args to heat parameters
-    def parameters = " --parameter image=${image}" +
-                     " --parameter flavor=${flavor}" +
-                     " --parameter public_net=${publicNet}" +
-                     " --parameter private_net=${privateNet}"
+        // resolve args to heat parameters
+        def parameters = " --parameter image=${image}" +
+                        " --parameter flavor=${flavor}" +
+                        " --parameter public_net=${publicNet}" +
+                        " --parameter private_net=${privateNet}"
 
-    // node used for launching VMs
-    def launch_node = 'jenkins-node-launch'
+        def name = map.label ?: "${JOB_BASE_NAME}-${BUILD_NUMBER}"
 
-    def name = map.label ?: "${JOB_BASE_NAME}-${BUILD_NUMBER}"
+        def postBuildSuccessBody = map.postBuildSuccessBody ?: {}
+        def postBuildFailureBody = map.postBuildFailureBody ?: {}
+        def preBuildBody = map.preBuildBody ?: null
+        def troubleshootingBody = map.troubleshootingBody ?: null
 
-    def postBuildSuccessBody = map.postBuildSuccessBody ?: {}
-    def postBuildFailureBody = map.postBuildFailureBody ?: {}
-    def preBuildBody = map.preBuildBody ?: null
-    def troubleshootingBody = map.troubleshootingBody ?: null
+        // templates located in resources from shared libraries
+        // https://github.com/att-comdev/cicd/tree/master/resources
+        def stack_template="heat/stack/ubuntu.${buildType}.stack.template.yaml"
 
-    // templates located in resources from shared libraries
-    // https://github.com/att-comdev/cicd/tree/master/resources
-    def stack_template="heat/stack/ubuntu.${buildType}.stack.template.yaml"
+        // optionally uer may supply additional identified for the VM
+        // this makes it easier to find it in OpenStack (e.g. name)
+        if (nodePostfix && !label) {
+        name += "-${nodePostfix}"
+        }
 
-    // optionally uer may supply additional identified for the VM
-    // this makes it easier to find it in OpenStack (e.g. name)
-    if (nodePostfix && !label) {
-      name += "-${nodePostfix}"
-    }
+        def ip = ""
+        def port = "22"
 
-    def ip = ""
-    def port = "22"
-
-    timestamps {
-        try {
-            utils.retrier(
-                3,
-                {
-                    node('master') {
-                        jenkins.node_delete(name)
-                    }
-                    node(launch_node) {
-                        heat.stack_delete(name)
-                    }
-                }
-            ) {
-                stage ('Node Launch') {
-
-                    node(launch_node) {
-                        tmpl = libraryResource "${stack_template}"
-                        writeFile file: 'template.yaml', text: tmpl
-
-                        if (initScript) {
-                            data = libraryResource "heat/stack/${initScript}"
-                            writeFile file: 'cloud-config', text: data
+        timestamps {
+            try {
+                utils.retrier(
+                    3,
+                    {
+                        node('master') {
+                            jenkins.node_delete(name)
                         }
-
-                        utils.retrier(3, { heat.stack_delete(name) }) {
-                            heat.stack_create(
-                                name,
-                                "${WORKSPACE}/template.yaml",
-                                parameters
-                            )
-                        }
-                        ip = heat.stack_output(name, 'routable_ip')
-                        if (useJumphost) {
-                            port = (ip.split('\\.')[-1].toInteger() + 10000).toString()
-                            ip = OS_JUMPHOST_PUBLIC_IP
+                        node(heat_pod) {
+                            container(heat_container) {
+                               heat.stack_delete(name, useHeatContainer = false)
+                            }
                         }
                     }
+                ) {
+                    stage ('Node Launch') {
 
-                    node('master') {
-                        utils.retrier(3, { jenkins.node_delete(name) }) {
-                            jenkins.node_create (name, ip, port)
+                        node(heat_pod) {
+                            container(heat_container) {
+                                tmpl = libraryResource "${stack_template}"
+                                writeFile file: 'template.yaml', text: tmpl
+
+                                if (initScript) {
+                                    data = libraryResource "heat/stack/${initScript}"
+                                    writeFile file: 'cloud-config', text: data
+                                }
+
+                                utils.retrier(3, { heat.stack_delete(name, useHeatContainer = false) }) {
+                                    heat.stack_create(
+                                        name,
+                                        "${WORKSPACE}/template.yaml",
+                                        parameters, useHeatContainer = false
+                                    )
+                                }
+                                ip = heat.stack_output(name, 'routable_ip', useHeatContainer = false)
+                                if (useJumphost) {
+                                    port = (ip.split('\\.')[-1].toInteger() + 10000).toString()
+                                    ip = OS_JUMPHOST_PUBLIC_IP
+                                }
+                            }
                         }
 
-                        timeout (14) {
-                            node(name) {
-                                sh 'cloud-init status --wait'
+                        node('master') {
+                            utils.retrier(3, { jenkins.node_delete(name) }) {
+                                jenkins.node_create (name, ip, port)
+                            }
+
+                            timeout (14) {
+                                node(name) {
+                                    sh 'cloud-init status --wait'
+                                }
                             }
                         }
                     }
                 }
-            }
-            if (preBuildBody) {
+                if (preBuildBody) {
+                    node (name) {
+                        preBuildBody()
+                    }
+                    sleep 60
+                }
+                // execute pipeline body, everything within vm()
                 node (name) {
-                    preBuildBody()
-                }
-                sleep 60
-            }
-            // execute pipeline body, everything within vm()
-            node (name) {
-                try {
-                    vm.message ('READY: JENKINS WORKER LAUNCHED') {
-                        print "Launch overrides: ${map}\n" +
-                              "Pipeline timeout: ${globalTimeout}\n" +
-                              "Heat template: ${stack_template}\n" +
-                              "Node IP: ${ip}:${port}"
-                    }
-                    timeout(globalTimeout) {
-                        vm.setKnownHosts()
-                        body()
-                    }
-                    vm.message ('SUCCESS: PIPELINE EXECUTION FINISHED') {}
-                    currentBuild.result = 'SUCCESS'
+                    try {
+                        vm.message ('READY: JENKINS WORKER LAUNCHED') {
+                            print "Launch overrides: ${map}\n" +
+                                "Pipeline timeout: ${globalTimeout}\n" +
+                                "Heat template: ${stack_template}\n" +
+                                "Node IP: ${ip}:${port}"
+                        }
+                        timeout(globalTimeout) {
+                            vm.setKnownHosts()
+                            body()
+                        }
+                        vm.message ('SUCCESS: PIPELINE EXECUTION FINISHED') {}
+                        currentBuild.result = 'SUCCESS'
 
-                // use Throwable to catch java.lang.NoSuchMethodError error
-                } catch (Throwable err) {
-                    vm.message ('FAILURE: PIPELINE EXECUTION HALTED') {
-                        print "Pipeline body failed or timed out: ${err}.\n" +
-                              'Likely gate reports failure.\n'
+                    // use Throwable to catch java.lang.NoSuchMethodError error
+                    } catch (Throwable err) {
+                        vm.message ('FAILURE: PIPELINE EXECUTION HALTED') {
+                            print "Pipeline body failed or timed out: ${err}.\n" +
+                                'Likely gate reports failure.\n'
+                        }
+                        currentBuild.result = 'FAILURE'
+                        throw err
                     }
-                    currentBuild.result = 'FAILURE'
-                    throw err
                 }
-            }
-            if (troubleshootingBody) {
-                troubleshootingBody(name)
-            }
-            node(launch_node) {
-                postBuildSuccessBody(name)
-            }
-        // use Throwable to catch java.lang.NoSuchMethodError error
-        } catch (Throwable err) {
-            node(launch_node) {
-                postBuildFailureBody()
-            }
-            vm.message ('ERROR: FAILED TO LAUNCH JENKINS WORKER') {
-                print 'Failed to launch Jenkins VM/worker.\n' +
-                      'Likely infra/template or config error.\n' +
-                      "Error message: ${err}"
-            }
-            currentBuild.result = 'FAILURE'
-            throw err
+                if (troubleshootingBody) {
+                    troubleshootingBody(name)
+                }
+                node(heat_pod) {
+                    container(heat_container) {
+                        postBuildSuccessBody(name)
+                    }
+                }
+            // use Throwable to catch java.lang.NoSuchMethodError error
+            } catch (Throwable err) {
+                node(heat_pod) {
+                    container(heat_container) {
+                        postBuildFailureBody()
+                    }
+                }
+                vm.message ('ERROR: FAILED TO LAUNCH JENKINS WORKER') {
+                    print 'Failed to launch Jenkins VM/worker.\n' +
+                        'Likely infra/template or config error.\n' +
+                        "Error message: ${err}"
+                }
+                currentBuild.result = 'FAILURE'
+                throw err
 
-        } finally {
-            if (!doNotDeleteNode) {
-                node('master') {
-                    jenkins.node_delete(name)
-                }
-                node(launch_node) {
-                   heat.stack_delete(name)
+            } finally {
+                if (!doNotDeleteNode) {
+                    node('master') {
+                        jenkins.node_delete(name)
+                    }
+                    node(heat_pod) {
+                        container(heat_container) {
+                            heat.stack_delete(name, useHeatContainer = false)
+                        }
+                    }
                 }
             }
+            return ip
         }
-        return ip
     }
 }
 
@@ -521,7 +541,7 @@ def openstackExec(cmd) {
     withCredentials([usernamePassword(credentialsId: 'jenkins-openstack-18',
                                       usernameVariable: 'OS_USERNAME',
                                       passwordVariable: 'OS_PASSWORD')]) {
-        sh (returnStdout: true, script: heat.openstack_cmd(cmd)).trim()
+        sh(returnStdout: true, script: heat.openstack_cmd(cmd, useHeatContainer = false)).trim()
     }
 }
 
