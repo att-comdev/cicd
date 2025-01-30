@@ -143,8 +143,6 @@ def call(Map map, Closure body) {
                             data = libraryResource "heat/stack/${initScript}"
                             writeFile file: 'cloud-config', text: data
                             utils.retrier(3, { heat.stack_delete(name, useHeatContainer = false) }) {
-                                sh "pwd"
-                                sh "cat 'template.yaml'"
                                 heat.stack_create(name,
                                                 "$WORKSPACE/template.yaml",
                                                 parameters, useHeatContainer = false)
