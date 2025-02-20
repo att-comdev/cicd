@@ -105,7 +105,9 @@ try {
                         UPDATED_IMAGE_TAG = "${IMAGE_TAG}-${SUFFIX}.${BUILD_TIMESTAMP}"
                         IMAGE = "${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${JOB_BASE_NAME}:${UPDATED_IMAGE_TAG}"
 
-                        sh """docker build -f Dockerfile.${SUFFIX} --network host \
+                        def dockerfileSuffix = SUFFIX=='ubuntu_jammy' ? '.ubuntu' : ".$SUFFIX"
+
+                        sh """docker build -f Dockerfile$dockerfileSuffix --network host \
                                 ${BUILD_ARGS.join(' ')} ${EXTRA_BUILD_ARGS.join(' ')} \
                                 -t ${IMAGE} ."""
                     }
