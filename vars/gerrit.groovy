@@ -1,6 +1,7 @@
 import groovy.json.JsonSlurperClassic
 
 private void runGit(String command) {
+    command = command.replaceAll(/\n[ \t]+/,'\n').trim()
     String credsName = sh(script: 'git config --local --get core.credentialsName || :', returnStdout: true)
     if (credsName) {
         // provide ssh key only when actual command is being executed
@@ -140,9 +141,11 @@ def checkShallowVariable() {
  * @param refspec "xxxx/master" or other refspec
 */
 def rebase(refspec='master') {
-    runGit """git config user.email "jenkins@cicd"
-              git config user.name "Jenkins"
-              git pull --rebase origin "$refspec" """
+    runGit """
+        git config user.email "jenkins@cicd"
+        git config user.name "Jenkins"
+        git pull --rebase origin "$refspec"
+    """
 }
 
 /**
