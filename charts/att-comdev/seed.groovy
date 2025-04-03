@@ -86,10 +86,10 @@ projects.each { project_name ->
 
 // This pipeline builds the charts in att-comdev/charts
 // for any changes in helm-toolkit to ensure charts are not broken
-JOB_BASE_NAME="openstack-helm-infra"
+JOB_BASE_NAME="openstack-helm"
 pipelineJob("${JOB_FOLDER}/${JOB_BASE_NAME}") {
     description('This job builds the helm charts of all components in att-comdev/charts \n' +
-                'for helm-toolkit changes in openstack/openstack-helm-infra')
+                'for helm-toolkit changes in openstack/openstack-helm')
     logRotator {
         daysToKeep(90)
     }
@@ -100,7 +100,7 @@ pipelineJob("${JOB_FOLDER}/${JOB_BASE_NAME}") {
             gerritProjects {
                 gerritProject {
                     compareType('PLAIN')
-                    pattern("openstack/openstack-helm-infra")
+                    pattern("openstack/openstack-helm")
                     branches {
                         branch {
                             compareType("ANT")

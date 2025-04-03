@@ -21,7 +21,7 @@ vm(flavor: FLAVOR) {
         HELM_TOOLKIT_COMMIT = osh.deployK8sAIO()
 
         // allow s3 admin user and bucket creation
-        def file_location = "${WORKSPACE}/openstack-helm-infra/ceph-rgw/values.yaml"
+        def file_location = "${WORKSPACE}/openstack-helm/ceph-rgw/values.yaml"
         def chartOverride = readYaml file: file_location
         chartOverride.conf.rgw_s3.enabled = true
         sh "sudo rm -rf ${file_location}"
@@ -29,12 +29,12 @@ vm(flavor: FLAVOR) {
     }
 
     stage('Project Checkout'){
-        if (JOB_BASE_NAME == "openstack-helm-infra"){
+        if (JOB_BASE_NAME == "openstack-helm"){
             gerrit.cloneProject(CHARTS_URL,
                                 GERRIT_BRANCH,
                                 "refs/heads/${GERRIT_BRANCH}",
                                 CHARTS_HOME)
-        } else if (JOB_BASE_NAME != "openstack-helm-infra" &&
+        } else if (JOB_BASE_NAME != "openstack-helm" &&
                    (GERRIT_EVENT_TYPE == "patchset-created" ||
                     GERRIT_EVENT_TYPE == "comment-added")){
             gerrit.cloneToBranch(CHARTS_URL,
@@ -54,8 +54,8 @@ vm(flavor: FLAVOR) {
         stage('Build & Package'){
             HELM_REPO.each { entry -> sh "helm repo add $entry.key $entry.value" }
 
-            // build all charts for openstack-helm-infra
-            def cmd = (JOB_BASE_NAME == "openstack-helm-infra") ? "make all" : "make ${JOB_BASE_NAME}"
+            // build all charts for openstack-helm
+            def cmd = (JOB_BASE_NAME == "openstack-helm") ? "make all" : "make ${JOB_BASE_NAME}"
             def status = sh(returnStatus: true, script: cmd)
             if (status != 0) {
                 currentBuild.result = 'FAILED'

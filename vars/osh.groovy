@@ -44,13 +44,12 @@ def dockerAuth(String creds = 'jenkins-artifactory',String docker_repo = "${ARTF
 def cloneOSH() {
     sh 'mkdir -p $WORKSPACE/artifacts'
 
-    for (proj in ['openstack-helm', 'openstack-helm-infra']) {
-        git_url = "https://git.openstack.org/openstack/${proj}.git"
-        branch = "master"
-        gerrit.cloneProject(git_url, branch, "", "${WORKSPACE}/${proj}")
-        version = gerrit.getVersion(git_url, branch)
-        sh "echo ${proj} head is at ${version} | tee -a ${WORKSPACE}/artifacts/OSH_version.txt"
-    }
+    proj = 'openstack-helm'
+    git_url = "https://git.openstack.org/openstack/${proj}.git"
+    branch = "master"
+    gerrit.cloneProject(git_url, branch, "", "${WORKSPACE}/${proj}")
+    version = gerrit.getVersion(git_url, branch)
+    sh "echo ${proj} head is at ${version} | tee -a ${WORKSPACE}/artifacts/OSH_version.txt"
 }
 
 /**
@@ -58,12 +57,12 @@ def cloneOSH() {
  */
 def updateProxy() {
     sh '''sed -i "/external_dns_nameservers:/a\\      - ${DNS_SERVER_1}\\n      - ${DNS_SERVER_2}" \
-          ./openstack-helm-infra/tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml'''
+          ./openstack-helm/tools/images/kubeadm-aio/assets/opt/playbooks/vars.yaml'''
     def amap = ['kubernetes_network_default_device': 'docker0',
                  'gate_fqdn_test': 'true',
                 'proxy': [ 'http': HTTP_PROXY, 'https': HTTP_PROXY, 'noproxy': NO_PROXY] ]
-    sh 'rm -rf ./openstack-helm-infra/tools/gate/devel/local-vars.yaml'
-    writeYaml file: './openstack-helm-infra/tools/gate/devel/local-vars.yaml', data: amap
+    sh 'rm -rf ./openstack-helm/tools/gate/devel/local-vars.yaml'
+    writeYaml file: './openstack-helm/tools/gate/devel/local-vars.yaml', data: amap
 }
 
 /**
@@ -290,7 +289,7 @@ def parseTestLogs() {
 /**
  * Deploy Kubernetes AIO
  * Setup Kubernetes AIO and install Helm
- * @return helm_infra_commit commit hash of the latest openstack-helm-infra
+ * @return helm_commit commit hash of the latest openstack-helm
  */
 
 def deployK8sAIO() {
@@ -301,12 +300,12 @@ def deployK8sAIO() {
     cloneOSH()
     updateProxy()
 
-    dir("${WORKSPACE}/openstack-helm-infra") {
-        helm_infra_commit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+    dir("${WORKSPACE}/openstack-helm") {
+        helm_commit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
         sh 'make dev-deploy setup-host'
         sh 'make dev-deploy k8s'
     }
-    return helm_infra_commit
+    return helm_commit
 }
 
 /**

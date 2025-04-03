@@ -48,12 +48,6 @@ parameters:
   osh_repo_ref:
     type: string
     default: master
-  osh_infra_repo_location:
-    type: string
-    default: https://git.openstack.org/openstack/openstack-helm-infra
-  osh_infra_repo_ref:
-    type: string
-    default: master
 
 resources:
   deploy_key:
@@ -273,9 +267,9 @@ resources:
                     curl
 
             chown -R ubuntu: /opt
-            sudo -H su -c 'git clone $osh_infra_repo_location /opt/openstack-helm-infra; cd /opt/openstack-helm-infra; git pull $osh_infra_repo_location $osh_infra_repo_ref' ubuntu
+            sudo -H su -c 'git clone $osh_repo_location /opt/openstack-helm; cd /opt/openstack-helm; git pull $osh_repo_location $osh_repo_ref' ubuntu
 
-            tee > /opt/openstack-helm-infra/tools/gate/devel/multinode-inventory.yaml << EOF
+            tee > /opt/openstack-helm/tools/gate/devel/multinode-inventory.yaml << EOF
             all:
               children:
                 primary:
@@ -317,7 +311,7 @@ resources:
             function net_default_iface {
              sudo ip -4 route list 0/0 | awk '{ print $5; exit }'
             }
-            tee > /opt/openstack-helm-infra/tools/gate/devel/multinode-vars.yaml << EOF
+            tee > /opt/openstack-helm/tools/gate/devel/multinode-vars.yaml << EOF
             kubernetes:
               network:
                 default_device: $(net_default_iface)
@@ -329,20 +323,15 @@ resources:
 
             chown -R ubuntu: /opt
 
-            sudo -H su -c 'cd /opt/openstack-helm-infra; make dev-deploy setup-host multinode' ubuntu
+            sudo -H su -c 'cd /opt/openstack-helm; make dev-deploy setup-host multinode' ubuntu
             sudo -H su -c 'git clone $promenade_repo_location /opt/promenade; cd /opt/promenade; git pull $promenade_repo_location $osh_repo_ref ' ubuntu
-            sudo -H su -c 'git clone $osh_repo_location /opt/openstack-helm; cd /opt/openstack-helm; git pull $osh_repo_location $osh_repo_ref ' ubuntu
-            sudo -H su -c 'cd /opt/openstack-helm-infra; make all' ubuntu
+            sudo -H su -c 'cd /opt/openstack-helm; make all' ubuntu
             /opt/promenade/tools/gate/build.sh https://artifacts-aic.atlantafoundry.com/artifactory/artifacts-aic/att-comdev/promenade/0b0e0ee164cd5e101c122d240b6c44fec059a8fe
           params:
             "$osh_repo_location":
               get_param: osh_repo_location
             "$osh_repo_ref":
               get_param: osh_repo_ref
-            "$osh_infra_repo_location":
-              get_param: osh_infra_repo_location
-            "$osh_infra_repo_ref":
-              get_param: osh_infra_repo_ref
             "$node_admin_ip":
               get_attr:
               - node_one_private_net_port
@@ -417,12 +406,12 @@ resources:
                     git
 
             sudo -H chown -R ubuntu: /opt
-            sudo -H su -c 'git clone $osh_infra_repo_location /opt/openstack-helm-infra; cd /opt/openstack-helm-infra; git pull $osh_infra_repo_location $osh_infra_repo_ref ' ubuntu
+            sudo -H su -c 'git clone $osh_repo_location /opt/openstack-helm; cd /opt/openstack-helm; git pull $osh_repo_location $osh_repo_ref ' ubuntu
           params:
-            "$osh_infra_repo_location":
-              get_param: osh_infra_repo_location
-            "$osh_infra_repo_ref":
-              get_param: osh_infra_repo_ref
+            "$osh_repo_location":
+              get_param: osh_repo_location
+            "$osh_repo_ref":
+              get_param: osh_repo_ref
             "$node_admin_ip":
               get_attr:
               - node_two_private_net_port
@@ -461,12 +450,12 @@ resources:
                     git
 
             sudo -H chown -R ubuntu: /opt
-            sudo -H su -c 'git clone $osh_infra_repo_location /opt/openstack-helm-infra; cd /opt/openstack-helm-infra; git pull $osh_infra_repo_location $osh_infra_repo_ref ' ubuntu
+            sudo -H su -c 'git clone $osh_repo_location /opt/openstack-helm; cd /opt/openstack-helm; git pull $osh_repo_location $osh_repo_ref ' ubuntu
           params:
-            "$osh_infra_repo_location":
-              get_param: osh_infra_repo_location
-            "$osh_infra_repo_ref":
-              get_param: osh_infra_repo_ref
+            "$osh_repo_location":
+              get_param: osh_repo_location
+            "$osh_repo_ref":
+              get_param: osh_repo_ref
             "$node_admin_ip":
               get_attr:
               - node_three_private_net_port
@@ -505,12 +494,12 @@ resources:
                     git
 
             sudo -H chown -R ubuntu: /opt
-            sudo -H su -c 'git clone $osh_infra_repo_location /opt/openstack-helm-infra; cd /opt/openstack-helm-infra; git pull $osh_infra_repo_location $osh_infra_repo_ref ' ubuntu
+            sudo -H su -c 'git clone $osh_repo_location /opt/openstack-helm; cd /opt/openstack-helm; git pull $osh_repo_location $osh_repo_ref ' ubuntu
           params:
-            "$osh_infra_repo_location":
-              get_param: osh_infra_repo_location
-            "$osh_infra_repo_ref":
-              get_param: osh_infra_repo_ref
+            "$osh_repo_location":
+              get_param: osh_repo_location
+            "$osh_repo_ref":
+              get_param: osh_repo_ref
             "$node_admin_ip":
               get_attr:
               - node_four_private_net_port
@@ -549,12 +538,12 @@ resources:
                     git
 
             sudo -H chown -R ubuntu: /opt
-            sudo -H su -c 'git clone $osh_infra_repo_location /opt/openstack-helm-infra; cd /opt/openstack-helm-infra; git pull $osh_infra_repo_location $osh_infra_repo_ref ' ubuntu
+            sudo -H su -c 'git clone $osh_repo_location /opt/openstack-helm; cd /opt/openstack-helm; git pull $osh_repo_location $osh_repo_ref ' ubuntu
           params:
-            "$osh_infra_repo_location":
-              get_param: osh_infra_repo_location
-            "$osh_infra_repo_ref":
-              get_param: osh_infra_repo_ref
+            "$osh_repo_location":
+              get_param: osh_repo_location
+            "$osh_repo_ref":
+              get_param: osh_repo_ref
             "$node_admin_ip":
               get_attr:
               - node_five_private_net_port
