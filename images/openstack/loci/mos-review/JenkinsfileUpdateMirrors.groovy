@@ -55,18 +55,17 @@ def getProjectsVersions(projectList, branch = MIRRORS_BRANCH) {
 def getProjectsNotes(ucVersions, mirrorsVersions) {
     // get the list of new commits and relevant security notes
     utils.retrier (NET_RETRY_COUNT) {
-        gerrit.cloneToBranch(
-            getProjectRepoUrl('cicd-tools'),
-            'main',
-            'cicd-tools',
-            INTERNAL_GERRIT_KEY,
-            null
+        gerrit.cloneRepository(
+            url: getProjectRepoUrl('cicd-tools'),
+            refspec: 'main',
+            targetDirectory: 'cicd-tools',
+            creds: INTERNAL_GERRIT_KEY,
         )
     }
     projectNotes = [:]
     def cmd = ['export DEBIAN_FRONTEND=noninteractive',
                'apt-get update',
-               'apt-get install python-pip python-virtualenv -y'].join('; ')
+               'apt-get install python3-pip python3-virtualenv -y'].join('; ')
     sh "sudo bash -c \'${cmd}\'"
     sh ("virtualenv venv; . venv/bin/activate; " +
     "pip install GitPython requests lxml")
@@ -75,17 +74,16 @@ def getProjectsNotes(ucVersions, mirrorsVersions) {
         repo_dir = repo_name.split('/')[-1]
         utils.retrier (NET_RETRY_COUNT) {
             withEnv(["SHALLOW_CLONE=False"]) {
-                gerrit.cloneToBranch(
-                    getProjectRepoUrl(repo_name),
-                    MIRRORS_BRANCH,
-                    repo_dir,
-                    INTERNAL_GERRIT_KEY,
-                    null
+                gerrit.cloneRepository(
+                    url: getProjectRepoUrl(repo_name),
+                    refspec: MIRRORS_BRANCH,
+                    targetDirectory: repo_dir,
+                    creds: INTERNAL_GERRIT_KEY,
                 )
             }
         }
         cmd = (". venv/bin/activate;"               +
-               "python cicd-tools/secnotes.py "     +
+               "python3 cicd-tools/secnotes.py "     +
                "--workdir . --project ${repo_dir} " +
                "--start-commit ${uc_revision} "     +
                "--end-commit ${revision}")
@@ -110,7 +108,7 @@ def getProjectsNotes(ucVersions, mirrorsVersions) {
 
 
 vm (initScript: 'loci-bootstrap.sh',
-        image: 'cicd-ubuntu-18.04-server-cloudimg-amd64',
+        image: 'cicd-ubuntu-20.04-server-cloudimg-amd64',
         flavor: 'm1.medium',
         nodePostfix: '',
         doNotDeleteNode: false) {
@@ -137,12 +135,11 @@ vm (initScript: 'loci-bootstrap.sh',
         }
         utils.retrier (NET_RETRY_COUNT) {
             withEnv(["SHALLOW_CLONE=False"]) {
-                gerrit.cloneToBranch(
-                    getProjectRepoUrl(REQ_PROJECT_NAME),
-                    BRANCH,
-                    REQ_PROJECT_NAME,
-                    INTERNAL_GERRIT_KEY,
-                    null
+                gerrit.cloneRepository(
+                    url: getProjectRepoUrl(REQ_PROJECT_NAME),
+                    refspec: BRANCH,
+                    targetDirectory: REQ_PROJECT_NAME,
+                    creds: INTERNAL_GERRIT_KEY,
                 )
             }
         }
