@@ -24,6 +24,10 @@ node('controller') {
         // this logic may look odd but it's here for backward compatibility.
         if (GERRIT_HOST.contains('review')) {
             gerrit.cloneToBranch("https://review.gerrithub.io/$GERRIT_PROJECT", GERRIT_REFSPEC, WORKSPACE)
+        } else if(GERRIT_HOST.contains('github')) {
+            withCredentials([sshUserPrivateKey([credentialsId: 'jenkins-github-key', keyFileVariable: 'privateKeyFilePath', usernameVariable: 'sshUsername'])]) {
+                gerrit.cloneToBranch("https://$sshUsername@github.com/ATT-DP1/$GERRIT_PROJECT", GERRIT_REFSPEC, WORKSPACE)
+            }
         } else {
             gerrit.cloneToBranch("$INTERNAL_GERRIT_SSH/$GERRIT_PROJECT", GERRIT_REFSPEC, WORKSPACE, INTERNAL_GERRIT_KEY)
         }
