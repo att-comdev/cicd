@@ -22,11 +22,12 @@ node('controller') {
         GERRIT_REFSPEC = GERRIT_REFSPEC.replaceFirst(/^origin\//, '')
 
         // this logic may look odd but it's here for backward compatibility.
-        if (GERRIT_HOST.contains('review')) {
+        if (GERRIT_HOST.toLowerCase().contains('review')) {
             gerrit.cloneToBranch("https://review.gerrithub.io/$GERRIT_PROJECT", GERRIT_REFSPEC, WORKSPACE)
-        } else if(GERRIT_HOST.contains('github')) {
-            withCredentials([sshUserPrivateKey([credentialsId: 'jenkins-github-key', keyFileVariable: 'privateKeyFilePath', usernameVariable: 'sshUsername'])]) {
-                gerrit.cloneToBranch("https://$sshUsername@github.com/ATT-DP1/$GERRIT_PROJECT", GERRIT_REFSPEC, WORKSPACE)
+        } else if(GERRIT_HOST.toLowerCase().contains('github.com')) {
+            def conf = new com.att.nccicd.config.conf().CONF
+            withCredentials([sshUserPrivateKey([credentialsId: conf.JENKINS_GITHUB_CRED_ID, keyFileVariable: 'privateKeyFilePath', usernameVariable: 'sshUsername'])]) {
+                gerrit.cloneToBranch("https://${sshUsername}@${conf.GITHUB_URL}/${GITHUB_REPO_PATH_PREFIX}${GITHUB_REPO_PREFIX}${GERRIT_PROJECT}", GERRIT_REFSPEC, WORKSPACE)
             }
         } else {
             gerrit.cloneToBranch("$INTERNAL_GERRIT_SSH/$GERRIT_PROJECT", GERRIT_REFSPEC, WORKSPACE, INTERNAL_GERRIT_KEY)
