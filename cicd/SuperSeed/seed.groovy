@@ -10,14 +10,13 @@ pipelineJob("${job_path}") {
         stringParam('SEED_PATH', '', 'Comma delimited Seed path \n' +
                         'Example: cicd/SuperSeed/seed.groovy,cicd/NodeCleanup/seed.groovy')
         stringParam('RELEASE_FILE_PATH', '', 'File with a list of seed.groovy files')
-        stringParam('GERRIT_REFSPEC', 'origin/master', "Gerrit Refspec")
+        stringParam('GERRIT_REFSPEC', 'origin/master', 'Gerrit Refspec')
 
         // this parameter is not needed for the actual SuperSeed job
         // all the interactions with git are done using refspec
         // but existing jobs sometimes use GERRIT_REFSPEC variable during seeding
         // so this parameter is kept here for backward compatibility.
-        stringParam('GERRIT_BRANCH', 'master',"Branch for provided GERRIT_REFSPEC")
-
+        stringParam('GERRIT_BRANCH', 'master','Branch for provided GERRIT_REFSPEC')
         stringParam('GERRIT_HOST', 'review.gerrithub.io', 'Gerrit Host')
         stringParam('GERRIT_PROJECT', 'att-comdev/cicd', 'Project on Gerrit')
     }
@@ -68,7 +67,7 @@ pipelineJob("${job_path}") {
                 }
                 definition {
                     cps {
-                        script(readFileFromWorkspace("cicd/SuperSeed/superseed.Jenkinsfile"))
+                        script(readFileFromWorkspace('cicd/SuperSeed/superseed.Jenkinsfile'))
                     }
                 }
             }
