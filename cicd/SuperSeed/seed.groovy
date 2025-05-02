@@ -3,6 +3,8 @@ job_path = "${base_path}/SuperSeed"
 folder("${base_path}")
 
 pipelineJob("${job_path}") {
+    description('This Job is used create or update other jobs from seed scripts. ' +
+                'It can use files from various locations including github.')
     logRotator {
         daysToKeep(90)
     }
