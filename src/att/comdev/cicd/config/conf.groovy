@@ -24,9 +24,8 @@ class conf {
     public static final String EXCLUDE_NODES = "master jenkins-node-launch 10.24.20.18-slave 10.24.20.19-slave MyCodeReviewDev att-comdev-charts-dev cab24-r820-18 cab24-r820-19 openstack-helm-charts genesis clcp-seaworthy-genesis 5ec-seaworthy-genesis"
 
     // GitHub
-    GITHUB_URL: "github.com",
-    JENKINS_GITHUB_CRED_ID: "github-key",
-    GITHUB_REPO_PATH_PREFIX: "",
-    GITHUB_REPO_PREFIX: "",
-
+    public static final String GITHUB_URL = "github.com"
+    public static final String JENKINS_GITHUB_CRED_ID = "github-key"
+    public static final String GITHUB_REPO_PATH_PREFIX =  ""
+    public static final String GITHUB_REPO_PREFIX = ""
 }
