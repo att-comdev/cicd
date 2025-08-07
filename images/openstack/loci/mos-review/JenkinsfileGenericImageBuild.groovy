@@ -24,6 +24,9 @@ if (['ussuri', 'victoria'].contains(RELEASE)) {
 if (['antelope', 'caracal'].contains(RELEASE)) {
     IMAGE = 'cicd-ubuntu-22.04-server-cloudimg-amd64'
 }
+if (['epoxy'].contains(RELEASE)) {
+    IMAGE = 'cicd-ubuntu-24.04-server-cloudimg-amd64'
+}
 
 SEMANTIC_RELEASE_VERSION = "0.9.0"
 
@@ -84,6 +87,12 @@ if (['antelope', 'caracal'].contains(RELEASE)) {
     OVS_REPO = conf.OVS_REPOS['jammy']
     CEPH_REPO = conf.LOCI_CEPH_REPOS['jammy']
     LIBVIRT_REPO = conf.LIBVIRT_REPOS['jammy']
+}
+if (['epoxy'].contains(RELEASE)) {
+    LOCI_BASE_IMAGE = conf.UBUNTU_NOBLE_BASE_IMAGE
+    OVS_REPO = conf.OVS_REPOS['noble']
+    CEPH_REPO = conf.LOCI_CEPH_REPOS['noble']
+    LIBVIRT_REPO = conf.LIBVIRT_REPOS['noble']
 }
 
 REQ_PROJECT_NAME = 'mos-requirements'
