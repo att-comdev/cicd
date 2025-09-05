@@ -70,7 +70,7 @@ def cloneRepository(args) {
         sh "git config remote.origin.url \"${args.url}\""
 
         // fetch & checkout
-        runGit "git fetch ${args.shallow ? "--depth=${env.SHALLOW_DEPTH ?: 2}" : ''} ${env.GIT_OPTIONS ?: '-q'} origin ${args.refspec} && git checkout FETCH_HEAD ${args.localBranch ? "-b \"${args.localBranch}\"" : ''}"
+        runGit "git fetch ${args.shallow ? "--depth=${env.SHALLOW_DEPTH ?: 3}" : ''} ${env.GIT_OPTIONS ?: '-q'} origin ${args.refspec} && git checkout FETCH_HEAD ${args.localBranch ? "-b \"${args.localBranch}\"" : ''}"
     }
 }
 
