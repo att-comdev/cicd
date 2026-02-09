@@ -305,6 +305,7 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
         dir(workDir) {
+            runScp("${sshParams} -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks")
             sh """
                  export GIT_SSH_COMMAND="ssh ${sshParams}"
                  git config user.email '${userEmail}'
@@ -313,7 +314,6 @@ def submitPatchset(credentials, userEmail, userName, commitMessage, gerritUrl, r
                  git status
                  git add .
                  git commit -m "${commitMessage}"
-                 scp ${sshParams} -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks
                  git commit --amend --no-edit
                  git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec}
                """
@@ -340,6 +340,7 @@ def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, ger
     withCredentials([sshUserPrivateKey(credentialsId: credentials,
         keyFileVariable: 'SSH_KEY')]) {
         dir(workDir) {
+            runScp("${sshParams} -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks")
             sh """
                  export GIT_SSH_COMMAND="ssh ${sshParams}"
                  git config user.email '${userEmail}'
@@ -348,7 +349,6 @@ def submitPatchsetWithTopic(credentials, userEmail, userName, commitMessage, ger
                  git status
                  git add .
                  git commit -m "${commitMessage}"
-                 scp ${sshParams} -p -P 29418 ${gerritUrl}:hooks/commit-msg .git/hooks
                  git commit --amend --no-edit
                  git push -v ssh://${gerritUrl}:29418/${repoName} HEAD:${refspec} -o topic=${gerritTopic}
            """
@@ -445,6 +445,19 @@ def getCommitDiff(repo_path, commit_id) {
     def cmd = "cd  ${repo_path} && git show ${commit_id}"
     def git_diff =  sh(returnStdout: true, script: cmd).trim()
     return git_diff
+}
+
+/**
+ * Runs scp with old scp protocol (not sftp) regardles of the openssh version.
+ *
+ * @param parameters for the scp command.
+**/
+def runScp(parameters) {
+    // check if scp supports option -O (enforce old protocol)
+    // bionic and focal versions don't have this switch
+    isNewVersion = sh(returnStdout: true, script: 'scp 2>&1 | grep O').trim()
+
+    sh "scp ${isNewVersion?'-O ':''}$parameters"
 }
 
 //region Deprecated clone/fetch functions
