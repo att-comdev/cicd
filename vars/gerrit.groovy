@@ -455,7 +455,7 @@ def getCommitDiff(repo_path, commit_id) {
 def runScp(parameters) {
     // check if scp supports option -O (enforce old protocol)
     // bionic and focal versions don't have this switch
-    isNewVersion = sh(returnStdout: true, script: 'scp 2>&1 | grep O').trim()
+    isNewVersion = sh(returnStdout: true, script: 'scp 2>&1 | grep O || true').trim()
 
     sh "scp ${isNewVersion?'-O ':''}$parameters"
 }
