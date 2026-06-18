@@ -24,7 +24,7 @@ if (['ussuri', 'victoria'].contains(RELEASE)) {
 if (['antelope', 'caracal'].contains(RELEASE)) {
     IMAGE = 'cicd-ubuntu-22.04-server-cloudimg-amd64'
 }
-if (['epoxy'].contains(RELEASE)) {
+if (['epoxy', 'gazpacho'].contains(RELEASE)) {
     IMAGE = 'cicd-ubuntu-24.04-server-cloudimg-amd64'
 }
 
@@ -88,7 +88,7 @@ if (['antelope', 'caracal'].contains(RELEASE)) {
     CEPH_REPO = conf.LOCI_CEPH_REPOS['jammy']
     LIBVIRT_REPO = conf.LIBVIRT_REPOS['jammy']
 }
-if (['epoxy'].contains(RELEASE)) {
+if (['epoxy', 'gazpacho'].contains(RELEASE)) {
     LOCI_BASE_IMAGE = conf.UBUNTU_NOBLE_BASE_IMAGE
     OVS_REPO = conf.OVS_REPOS['noble']
     CEPH_REPO = conf.LOCI_CEPH_REPOS['noble']

@@ -122,6 +122,19 @@ PROJECT_MAP = [
         'mos-placement':       [],
         'mos-ironic':          [],
     ],
+    "gazpacho": [
+        "${REQ_PROJECT_NAME}": [],
+        'mos-keystone':        [],
+        'mos-heat':            [],
+        'mos-glance':          [],
+        'mos-cinder':          [],
+        'mos-horizon':         [],
+        'mos-neutron':         [],
+        'mos-nova':            [],
+        'mos-barbican':        [],
+        'mos-placement':       [],
+        'mos-ironic':          [],
+    ],
 ]
 
 MERGED_MAP = [:]
